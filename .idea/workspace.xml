@@ -1,14 +1,767 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ChangeListManager">
+    <list default="true" id="428d2e24-9b74-4b18-97ad-d2e286a506fa" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/classes.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fonts/fontawesome-webfont.woff" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fonts/fontawesome-webfont.woff2" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/input/Annotations/000002.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/input/Annotations/000003.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/input/Annotations/000004.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/input/Annotations/000005.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/input/Annotations/000006.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/input/Annotations/000007.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/input/Annotations/000008.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/input/Annotations/000009.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/input/Annotations/000010.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/input/Annotations/000011.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/input/Annotations/000012.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/input/Annotations/000013.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/input/Annotations/000014.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/js/util/colors.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/visualization/000000.pcd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/3D_BoundingBox_Annotation_Tool_3D_BAT.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/3D_BoundingBox_Annotation_Tool_3D_BAT.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/css/label_tool.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/label_tool.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/css/main.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/main.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/input/Annotations/000000.txt" beforeDir="false" afterPath="$PROJECT_DIR$/input/Annotations/000000.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/input/Annotations/000001.txt" beforeDir="false" afterPath="$PROJECT_DIR$/input/Annotations/000001.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/input/ImageSet/Main/test.txt" beforeDir="false" afterPath="$PROJECT_DIR$/input/ImageSet/Main/test.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/input/ImageSet/Main/trainval.txt" beforeDir="false" afterPath="$PROJECT_DIR$/input/ImageSet/Main/trainval.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/input/PCDPoints_orig/000000/000000.pcd" beforeDir="false" afterPath="$PROJECT_DIR$/input/PCDPoints_orig/000000/000000_orig.pcd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/base_label_tool.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/base_label_tool.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/image_label_tool.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/image_label_tool.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/lib/dat.gui.min.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/lib/dat.gui.min.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/pcd_label_tool.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/pcd_label_tool.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/util/ajax_wrapper.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/util/ajax_wrapper.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/util/bbox.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/util/bbox.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/util/bbox_table.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/util/bbox_table.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/util/class.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/util/class.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/util/workspace.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/util/workspace.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/label_tool.html" beforeDir="false" afterPath="$PROJECT_DIR$/label_tool.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/nuscenes_devkit/python-sdk/nuscenes_utils/binary_to_ascii.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/nuscenes_devkit/python-sdk/nuscenes_utils/binary_to_ascii.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/rename_files.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/rename_files.py" afterDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FUSProjectUsageTrigger">
+    <session id="85983494">
+      <usages-collector id="statistics.lifecycle.project">
+        <counts>
+          <entry key="project.closed" value="1" />
+          <entry key="project.open.time.0" value="1" />
+          <entry key="project.open.time.1" value="1" />
+          <entry key="project.open.time.3" value="1" />
+          <entry key="project.opened" value="3" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.open">
+        <counts>
+          <entry key="css" value="7" />
+          <entry key="gitignore" value="1" />
+          <entry key="html" value="10" />
+          <entry key="ipynb" value="5" />
+          <entry key="jpg" value="10" />
+          <entry key="js" value="43" />
+          <entry key="md" value="2" />
+          <entry key="pcd" value="5" />
+          <entry key="png" value="1" />
+          <entry key="ts" value="1" />
+          <entry key="txt" value="58" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.open">
+        <counts>
+          <entry key="CSS" value="7" />
+          <entry key="HTML" value="10" />
+          <entry key="Image" value="11" />
+          <entry key="JavaScript" value="43" />
+          <entry key="Markdown" value="2" />
+          <entry key="PLAIN_TEXT" value="69" />
+          <entry key="TypeScript" value="1" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.edit">
+        <counts>
+          <entry key="css" value="459" />
+          <entry key="gitignore" value="41" />
+          <entry key="html" value="145" />
+          <entry key="ipynb" value="1" />
+          <entry key="js" value="4082" />
+          <entry key="md" value="995" />
+          <entry key="txt" value="204" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.edit">
+        <counts>
+          <entry key="CSS" value="459" />
+          <entry key="HTML" value="145" />
+          <entry key="JavaScript" value="4082" />
+          <entry key="Markdown" value="995" />
+          <entry key="PLAIN_TEXT" value="246" />
+        </counts>
+      </usages-collector>
+    </session>
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/js/base_label_tool.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="254">
+              <caret line="646" lean-forward="true" selection-start-line="646" selection-end-line="646" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/label_tool.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="361">
+              <caret line="95" column="65" selection-start-line="95" selection-start-column="65" selection-end-line="95" selection-end-column="65" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/js/image_label_tool.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="185">
+              <caret line="84" column="40" lean-forward="true" selection-start-line="84" selection-start-column="40" selection-end-line="84" selection-end-column="40" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/index.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="253">
+              <caret line="217" column="46" selection-start-line="217" selection-start-column="46" selection-end-line="217" selection-end-column="46" />
+              <folding>
+                <element signature="n#li#1;n#ul#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" />
+                <element signature="n#li#2;n#ul#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/js/util/bbox.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="277">
+              <caret line="135" column="6" lean-forward="true" selection-start-line="135" selection-start-column="6" selection-end-line="135" selection-end-column="6" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/js/pcd_label_tool.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="384">
+              <caret line="383" column="26" selection-start-line="383" selection-start-column="26" selection-end-line="383" selection-end-column="26" />
+              <folding>
+                <element signature="n#!!doc" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="419">
+              <caret line="92" lean-forward="true" selection-start-line="92" selection-end-line="92" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/README.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="SPLIT">
+              <first_editor relative-caret-position="230">
+                <caret line="10" column="63" lean-forward="true" selection-start-line="10" selection-start-column="63" selection-end-line="10" selection-end-column="63" />
+              </first_editor>
+              <second_editor />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/css/main.css">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="473">
+              <caret line="469" column="4" selection-start-line="469" selection-start-column="4" selection-end-line="469" selection-end-column="23" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/css/label_tool.css">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="384">
+              <caret line="276" lean-forward="true" selection-start-line="276" selection-end-line="276" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>000</find>
+      <find>file-se</find>
+      <find>#frame</find>
+      <find>black</find>
+      <find>file-sele</find>
+      <find>left-item</find>
+      <find>label-tool-log</find>
+      <find>init</find>
+      <find>dg</find>
+      <find>css</find>
+      <find>border-left</find>
+      <find>bboxes.select</find>
+      <find>Image</find>
+      <find>togg</find>
+      <find>drag</find>
+      <find>4. step</find>
+      <find>4. Step</find>
+      <find>toogle</find>
+      <find>toggle</find>
+      <find>selectClass</find>
+      <find>classes</find>
+      <find>label-tool-lo</find>
+      <find>right-it</find>
+      <find>left-it</find>
+      <find>min-</find>
+      <find>log</find>
+      <find>file</find>
+      <find>save</find>
+      <find>download</find>
+      <find>padding</find>
+    </findStrings>
+    <replaceStrings>
+      <replace>#</replace>
+      <replace>_</replace>
+      <replace>.</replace>
+      <replace>&quot;</replace>
+      <replace>bb</replace>
+    </replaceStrings>
+    <dirStrings>
+      <dir>$PROJECT_DIR$/input/PCDPoints</dir>
+    </dirStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/js/util/workspace_orig.js" />
+        <option value="$PROJECT_DIR$/js/base_label_tool_orig.js" />
+        <option value="$PROJECT_DIR$/js/pcd_label_tool_orig.js" />
+        <option value="$PROJECT_DIR$/scripts/visualization/vis_pointcloud.ipynb" />
+        <option value="$PROJECT_DIR$/js/util/ajax_wrapper_orig.js" />
+        <option value="$PROJECT_DIR$/js/util/workspace.js" />
+        <option value="$PROJECT_DIR$/js/util/ajax_wrapper.js" />
+        <option value="$PROJECT_DIR$/input/ImageSet/Main/test.txt" />
+        <option value="$PROJECT_DIR$/input/ImageSet/Main/trainval.txt" />
+        <option value="$PROJECT_DIR$/js/util/colors.js" />
+        <option value="$PROJECT_DIR$/input/Annotations/000014.txt" />
+        <option value="$PROJECT_DIR$/classes.txt" />
+        <option value="$PROJECT_DIR$/js/util/bbox_table.js" />
+        <option value="$PROJECT_DIR$/input/Annotations/000011.txt" />
+        <option value="$PROJECT_DIR$/input/Annotations/000013.txt" />
+        <option value="$PROJECT_DIR$/input/Annotations/000012.txt" />
+        <option value="$PROJECT_DIR$/input/Annotations/000010.txt" />
+        <option value="$PROJECT_DIR$/input/Annotations/000009.txt" />
+        <option value="$PROJECT_DIR$/input/Annotations/000008.txt" />
+        <option value="$PROJECT_DIR$/input/Annotations/000007.txt" />
+        <option value="$PROJECT_DIR$/input/Annotations/000006.txt" />
+        <option value="$PROJECT_DIR$/input/Annotations/000005.txt" />
+        <option value="$PROJECT_DIR$/input/Annotations/000004.txt" />
+        <option value="$PROJECT_DIR$/input/Annotations/000003.txt" />
+        <option value="$PROJECT_DIR$/input/Annotations/000002.txt" />
+        <option value="$PROJECT_DIR$/input/Annotations/000001.txt" />
+        <option value="$PROJECT_DIR$/input/Annotations/000000.txt" />
+        <option value="$PROJECT_DIR$/js/util/class.js" />
+        <option value="$PROJECT_DIR$/index.html" />
+        <option value="$PROJECT_DIR$/css/main.css" />
+        <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/js/util/bbox.js" />
+        <option value="$PROJECT_DIR$/label_tool.html" />
+        <option value="$PROJECT_DIR$/js/base_label_tool.js" />
+        <option value="$PROJECT_DIR$/js/image_label_tool.js" />
+        <option value="$PROJECT_DIR$/css/label_tool.css" />
+        <option value="$PROJECT_DIR$/js/pcd_label_tool.js" />
+        <option value="$PROJECT_DIR$/.gitignore" />
+      </list>
+    </option>
+  </component>
+  <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
+  <component name="JsBuildToolPackageJson" detection-done="true" sorting="DEFINITION_ORDER" />
+  <component name="JsGulpfileManager">
+    <detection-done>true</detection-done>
+    <sorting>DEFINITION_ORDER</sorting>
+  </component>
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="y" value="-1" />
     <option name="width" value="1920" />
     <option name="height" value="1053" />
   </component>
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="Scope" />
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="b2602c69:ProjectViewProjectNode" />
+              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+    </panes>
+  </component>
   <component name="PropertiesComponent">
+    <property name="SearchEverywhereHistoryKey" value="pcd_&#9;FILE&#9;file:///media/cvrr/161d15ca-26dc-4d36-b085-945b15ce24b8/sandbox/3D_BoundingBox_Annotation_Tool_3D_BAT/js/pcd_label_tool.js&#10;classes&#9;FILE&#9;file:///media/cvrr/161d15ca-26dc-4d36-b085-945b15ce24b8/sandbox/3D_BoundingBox_Annotation_Tool_3D_BAT/classes.txt&#10;classes.&#9;FILE&#9;file:///media/cvrr/161d15ca-26dc-4d36-b085-945b15ce24b8/sandbox/3D_BoundingBox_Annotation_Tool_3D_BAT/classes.txt" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="js.buildTools.gulp.gulp_package_dir" value="" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../3d_labeling_tools" />
+    <property name="nodejs.mocha.mocha_node_package_dir" value="" />
+    <property name="nodejs.protractor.protractor_package" value="" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/input" />
+      <recent name="$PROJECT_DIR$/input/PCDPoints_orig" />
+      <recent name="$PROJECT_DIR$/input/PCDPoints_orig/scene-0001" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/fonts" />
+      <recent name="$PROJECT_DIR$/img" />
+      <recent name="$PROJECT_DIR$/input/JPEGImages" />
+      <recent name="$PROJECT_DIR$/input/Annotations" />
+      <recent name="$PROJECT_DIR$/input/PCDPoints" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="js.build_tools.gulp" factoryName="Gulp.js">
+      <node-interpreter>project</node-interpreter>
+      <node-options />
+      <gulpfile />
+      <tasks />
+      <arguments />
+      <envs />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="428d2e24-9b74-4b18-97ad-d2e286a506fa" name="Default Changelist" comment="" />
+      <created>1539711213335</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1539711213335</updated>
+      <workItem from="1539711214514" duration="9542000" />
+      <workItem from="1539729362461" duration="18484000" />
+      <workItem from="1539807872042" duration="32840000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="60866000" />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="0" y="-1" width="1920" height="1053" extended-state="6" />
+    <editor active="true" />
+    <layout>
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.12953092" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.3275862" />
+      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Database Changes" order="8" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Version Control" order="9" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Terminal" order="10" visible="true" weight="0.3286638" />
+      <window_info anchor="bottom" id="Event Log" order="11" side_tool="true" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Database" order="3" />
+    </layout>
+    <layout-to-restore>
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.12953092" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" visible="true" weight="0.3286638" />
+      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Database Changes" order="8" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Version Control" order="9" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Terminal" order="10" weight="0.32901832" />
+      <window_info anchor="bottom" id="Event Log" order="11" side_tool="true" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Database" order="3" />
+    </layout-to-restore>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/js/pcd_label_tool_orig.js" />
+    <entry file="file://$PROJECT_DIR$/input/JPEGImages/000000.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/input/JPEGImages/000001.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/input/JPEGImages/000004.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/input/JPEGImages/000005.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/input/JPEGImages/000006.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/input/JPEGImages/000008.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/input/PCDPoints/000000.pcd">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="138">
+          <caret line="6" column="11" selection-start-line="6" selection-start-column="11" selection-end-line="6" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/000000.pcd" />
+    <entry file="file://$PROJECT_DIR$/js/util/workspace_orig.js" />
+    <entry file="file://$PROJECT_DIR$/js/util/ajax_wrapper_orig.js" />
+    <entry file="file://$PROJECT_DIR$/input/JPEGImages/000002.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/input/PCDPoints/000002.pcd">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="138">
+          <caret line="39" column="19" lean-forward="true" selection-start-line="39" selection-start-column="19" selection-end-line="39" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/util/workspace.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="644">
+          <caret line="28" column="54" selection-start-line="28" selection-start-column="54" selection-end-line="28" selection-end-column="54" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/util/ajax_wrapper.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="253">
+          <caret line="38" column="36" lean-forward="true" selection-start-line="38" selection-start-column="36" selection-end-line="38" selection-end-column="36" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/input/JPEGImages/000009.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/input/ImageSet/Main/trainval.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="207">
+          <caret line="9" column="6" selection-start-line="9" selection-start-column="6" selection-end-line="9" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/css/bootstrap.min.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="55">
+          <caret line="4" column="62114" selection-start-line="4" selection-start-column="62114" selection-end-line="4" selection-end-column="62114" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/input/ImageSet/Main/test.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="6" selection-start-column="6" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/main.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="46">
+          <caret line="2" column="2" selection-start-line="2" selection-start-column="2" selection-end-line="2" selection-end-column="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/util/colors.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="253">
+          <caret line="11" column="16" lean-forward="true" selection-start-line="11" selection-start-column="16" selection-end-line="11" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/input/Annotations/000014.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="115">
+          <caret line="5" selection-start-line="5" selection-end-line="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/classes.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/img/ios_color_map.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/util/bbox_table.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="391">
+          <caret line="17" column="36" lean-forward="true" selection-start-line="17" selection-start-column="36" selection-end-line="17" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/input/Annotations/000013.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="38" selection-start-column="38" selection-end-column="38" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/input/Annotations/000011.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/input/Annotations/000010.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="12" selection-start-column="12" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/input/Annotations/000008.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="19" selection-start-column="19" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/input/Annotations/000007.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="20" selection-start-column="20" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/input/Annotations/000005.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="23" selection-start-column="23" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/input/Annotations/000012.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="92">
+          <caret line="4" lean-forward="true" selection-start-line="4" selection-end-line="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/input/Annotations/000009.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="26" selection-start-column="26" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/input/Annotations/000003.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="15" selection-start-column="15" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/input/Annotations/000004.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="16" selection-start-column="16" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/input/Annotations/000002.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="20" selection-start-column="20" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/input/Annotations/000000.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="16" selection-start-column="16" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/input/Annotations/000001.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="92">
+          <caret line="4" selection-start-line="4" selection-end-line="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/input/Annotations/000006.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="92">
+          <caret line="4" lean-forward="true" selection-start-line="4" selection-end-line="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/jsLanguageServicesImpl/external/lib.es5.d.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="193">
+          <caret line="1155" column="4" selection-start-line="1155" selection-start-column="4" selection-end-line="1155" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/util/class.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="161">
+          <caret line="91" column="31" selection-start-line="91" selection-start-column="31" selection-end-line="91" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/util/bbox.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="277">
+          <caret line="135" column="6" lean-forward="true" selection-start-line="135" selection-start-column="6" selection-end-line="135" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="253">
+          <caret line="217" column="46" selection-start-line="217" selection-start-column="46" selection-end-line="217" selection-end-column="46" />
+          <folding>
+            <element signature="n#li#1;n#ul#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" />
+            <element signature="n#li#2;n#ul#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/label_tool.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="361">
+          <caret line="95" column="65" selection-start-line="95" selection-start-column="65" selection-end-line="95" selection-end-column="65" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/base_label_tool.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="254">
+          <caret line="646" lean-forward="true" selection-start-line="646" selection-end-line="646" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/css/main.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="473">
+          <caret line="469" column="4" selection-start-line="469" selection-start-column="4" selection-end-line="469" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="230">
+            <caret line="10" column="63" lean-forward="true" selection-start-line="10" selection-start-column="63" selection-end-line="10" selection-end-column="63" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/image_label_tool.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="185">
+          <caret line="84" column="40" lean-forward="true" selection-start-line="84" selection-start-column="40" selection-end-line="84" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/css/label_tool.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="384">
+          <caret line="276" lean-forward="true" selection-start-line="276" selection-end-line="276" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/pcd_label_tool.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="384">
+          <caret line="383" column="26" selection-start-line="383" selection-start-column="26" selection-end-line="383" selection-end-column="26" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="419">
+          <caret line="92" lean-forward="true" selection-start-line="92" selection-end-line="92" />
+        </state>
+      </provider>
+    </entry>
   </component>
 </project>

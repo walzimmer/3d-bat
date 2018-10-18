@@ -5,9 +5,11 @@
     font-size: 18px;
     line-height: 20px;
 }
+
 .label-header-brand:hover, .label-header-brand:focus {
     text-decoration: none;
 }
+
 .label-header-button {
     margin-left: -3px;
     float: left;
@@ -21,62 +23,74 @@
     width: 160px;
     cursor: pointer;
 }
+
 .file-select-arrow {
     font-size: 22px;
     color: #121212;
 }
+
 #frame-skip {
-    margin: 10px;
     float: left;
-    width: 50px;
+    width: 100px;
+    height: 50px;
 }
+
 .label-header-toggle-button {
     font-weight: 200;
     width: 100px;
     cursor: pointer;
 }
+
 #label-tool-wrapper {
     position: fixed;
     top: 50px;
     bottom: 0px;
     width: 100%;
-    background-color: #202020;
+    background-color: #353535;
 }
+
 .black-input {
-    background-color: #202020;
-    border-color: #000;
-    border-radius: 5px;
+    background-color: #353535;
+    border-color: #353535;
+    border-left: 0px;
+    border-top: 0px;
+    border-radius: 0px;
     color: #f3f3f3;
     text-align: center;
     outline: none;
     height: 30px;
 }
+
 .file-select-input {
     float: right;
     border-radius: 0px;
     border-right: 0px;
     border-left: 0px;
+    border-top: 0px;
     margin-right: 0px;
     margin-left: -3px;
     width: 200px;
+    height: 50px;
 }
+
 .file-select-left-button {
     float: right;
     outline: none;
     border-style: none;
     border-top-right-radius: 0px;
     border-bottom-right-radius: 0px;
-    border-color: #000;
+    /*border-color: #000;*/
     border: 1px;
-    height: 30px;
-    width: 40px;
+    height: 50px;
+    width: 200px;
     background-image: -webkit-gradient(
-        linear,
-	left bottom,
-	left top,
-	from(#707070),
-	to(#c5c5c5));
+            linear,
+            left bottom,
+            left top,
+            from(#707070),
+            to(#c5c5c5));
 }
+
 .file-select-right-button {
     float: right;
     outline: none;
@@ -84,20 +98,22 @@
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
     margin-left: -3px;
-    border-color: #000;
+    /*border-color: #000;*/
     border: 1px;
-    height: 30px;
-    width: 40px;
+    height: 50px;
+    width: 200px;
     background-image: -webkit-gradient(
-        linear,
-	left bottom,
-	left top,
-	from(#707070),
-	to(#c5c5c5));
+            linear,
+            left bottom,
+            left top,
+            from(#707070),
+            to(#c5c5c5));
 }
+
 #jpeg-label-header form input {
     margin-top: 9px;
 }
+
 #pcd-label-wrapper {
     display: none;
     position: fixed;
@@ -107,12 +123,14 @@
     bottom: 5px;
     width: 100%;
 }
+
 #canvas3d {
     position: fixed;
     top: 40px;
     bottom: 0px;
     width: 100%;
 }
+
 .label-tool-overlay {
     display: none;
     overflow: auto;
@@ -123,10 +141,11 @@
     bottom: 0px;
     /* width: 100%; */
     /* height: 100%; */
-    background-color: rgba(0,0,0,0.5);
+    background-color: rgba(0, 0, 0, 0.5);
     text-align: center;
     z-index: 10;
 }
+
 .label-tool-overlay #text {
     font-size: 40px;
     color: #eee;
@@ -134,37 +153,41 @@
     vertical-align: middle;
     font-weight: bold;
 }
+
 #jpeg-label-canvas {
     position: fixed;
-    top: 60px;
-    left: 165px;
+    top: 50px;
+    left: 155px;
     right: 10px;
     z-index: 100;
     background-color: white;
     margin: 0px;
     padding: 0px;
 }
+
 .jpeg-label-sidebar {
-    box-shadow: 0 1px 1px rgba(1,0,0,0.4);
-    background-color: #343434;
+    box-shadow: 0 1px 1px rgba(1, 0, 0, 0.4);
+    background-color: #353535;
     z-index: 1;
     position: absolute;
     width: 150px;
     margin-top: 10px;
     margin-left: 5px;
 }
+
 .jpeg-label-sidebar.second {
     top: 425px;
     bottom: 10px;
 }
+
 .jpeg-label-sidebar-header {
-    box-shadow: 0 1px 1px rgba(1,0,0,0.4);
+    box-shadow: 0 1px 1px rgba(1, 0, 0, 0.4);
     background-image: -webkit-gradient(
-        linear,
-	left bottom,
-	left top,
-	from(#707070),
-	to(#959595));
+            linear,
+            left bottom,
+            left top,
+            from(#707070),
+            to(#959595));
     width: 100%;
     height: 24px;
     color: #222;
@@ -172,20 +195,24 @@
     border-top-left-radius: 2px;
     border-top-right-radius: 2px;
 }
+
 #jpeg-label-sidebar-body {
     padding-bottom: 24px;
     width: 100%;
     overflow: scroll;
     height: 100%;
 }
+
 .jpeg-label-sidebar-header-text {
     padding-top: 2px;
     user-select: none;
 }
+
 .jpeg-label-sidebar-list {
     padding-left: 0px;
     margin-bottom: 0px;
 }
+
 .jpeg-label-sidebar-item {
     cursor: pointer;
     border-bottom: 1px solid #151515;
@@ -193,10 +220,12 @@
     height: 35px;
     list-style: none;
 }
+
 .jpeg-label-sidebar-item.last {
     border-bottom: none !important;
     box-shadow: none !important;
 }
+
 .jpeg-label-sidebar-item form input {
     border: none;
     border-left: 10px;
@@ -206,13 +235,15 @@
     font-size: 18px;
     width: 100px;
 }
+
 .jpeg-label-sidebar-item:hover form input {
     background-color: #00C783;
     transition: background;
     transition-duration: 0.4s;
 }
+
 #label-header {
-    box-shadow: 0 2px 2px rgba(1,0,0,0.4);
+    box-shadow: 0 2px 2px rgba(1, 0, 0, 0.4);
     z-index: 10;
     position: fixed;
     background-color: #343434;
@@ -220,47 +251,66 @@
     height: 50px;
     width: 100%;
 }
+
 .label-header-items {
     margin-top: 10px;
     float: right;
 }
+
 .label-header-item.left {
-    float: left; !important
+    float: left;
+!important
 }
+
+.label-header-item.left > img {
+    height: 100%;
+    width: 155px;
+}
+
 #label-tool-log {
     margin-top: 10px;
-    margin-left: 10px;
-    width: 100%;
-    color: #f00;
+    margin-left: 20px;
+    width: 535px;
+    color: #969696;
+    text-align: left;
 }
+
 @media (min-width: 1188px) {
     #label-tool-log {
-	width: 300px;
+        width: 535px;
     }
 }
+
 .label-header-right-items {
     height: 50px;
     float: right;
+    width: 63%;
+    padding: 0px;
 }
+
 .file-select {
-    margin-right: 30px;
-    padding-top: 10px;
     float: right;
+    padding-inline-start: 0px;
 }
+
 .label-header-left-items {
     padding-left: 0px;
     height: 50px;
     float: left;
+    width: 37%;
 }
+
 .label-header-item {
     display: inline-block;
     top: 0px;
     height: 50px;
 }
+
 .label-header-column {
     border-right: 1px solid #151515;
     box-shadow: 1px 0px 0px #666;
 }
+
 .label-tool-color {
     margin-top: 6px;
     margin-left: 6px;
@@ -270,70 +320,79 @@
     border: inset 1px #888;
     border-radius: 10px;
 }
+
 .label-tool-color.red {
     background-image: -webkit-gradient(
-        linear,
-	left bottom,
-	left top,
-	from(#800),
-	to(#f44));
+            linear,
+            left bottom,
+            left top,
+            from(#800),
+            to(#f44));
 }
+
 .label-tool-color.blue {
     background-image: -webkit-gradient(
-        linear,
-	left bottom,
-	left top,
-	from(#008),
-	to(#44f));
+            linear,
+            left bottom,
+            left top,
+            from(#008),
+            to(#44f));
 }
+
 .label-tool-color.green {
     background-image: -webkit-gradient(
-        linear,
-	left bottom,
-	left top,
-	from(#080),
-	to(#4f4));
+            linear,
+            left bottom,
+            left top,
+            from(#080),
+            to(#4f4));
 }
+
 .label-tool-color.yellow {
     background-image: -webkit-gradient(
-        linear,
-	left bottom,
-	left top,
-	from(#880),
-	to(#ff4));
+            linear,
+            left bottom,
+            left top,
+            from(#880),
+            to(#ff4));
 }
+
 .label-tool-color.cyan {
     background-image: -webkit-gradient(
-        linear,
-	left bottom,
-	left top,
-	from(#088),
-	to(#4ff));
+            linear,
+            left bottom,
+            left top,
+            from(#088),
+            to(#4ff));
 }
+
 .label-tool-color.white {
     background-image: -webkit-gradient(
-        linear,
-	left bottom,
-	left top,
-	from(#888),
-	to(#fff));
+            linear,
+            left bottom,
+            left top,
+            from(#888),
+            to(#fff));
 }
+
 .label-tool-color.orange {
     background-image: -webkit-gradient(
-        linear,
-	left bottom,
-	left top,
-	from(#a80),
-	to(#fa4));
+            linear,
+            left bottom,
+            left top,
+            from(#a80),
+            to(#fa4));
 }
+
 .label-tool-color.purple {
     background-image: -webkit-gradient(
-        linear,
-	left bottom,
-	left top,
-	from(#808),
-	to(#f4f));
+            linear,
+            left bottom,
+            left top,
+            from(#808),
+            to(#f4f));
 }
+
 .label-tool-sidebar-text {
     padding-top: 5px;
     padding-left: 32px;
@@ -344,30 +403,37 @@
     margin-bottom: 0px;
     user-select: none;
 }
+
 .label-tool-sidebar-text.bbox {
     float: left;
     padding-left: 10px !important;
     color: #888;
 }
+
 .label-tool-sidebar-text.number {
     float: right !important;
 }
+
 .label-tool-sidebar-number-box {
     float: left;
     padding-left: 10px !important;
     width: 30px;
 }
+
 .jpeg-label-sidebar-item.plus {
     padding-left: 30px;
     padding-top: 5px;
 }
+
 div.dg.main.a {
     padding-top: 60px;
 }
+
 ::-webkit-scrollbar {
     display: none;
 }
+
 text {
-       -moz-user-select: none;
-       -webkit-user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
 }

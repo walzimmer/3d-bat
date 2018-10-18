@@ -1,67 +1,119 @@
 var classes = {
-    Car: {
-	color:   "blue",
-	minSize: {x: 30, y: 15},
+    "human.pedestrian.adult": {
+        color: '#3ABB9D',
+        minSize: {x: 10, y: 15},
     },
-    Motorbike: {
-	color:   "green",
-	minSize: {x: 15, y: 15},
+    "human.pedestrian.child": {
+        color: '#4DA664',
+        minSize: {x: 10, y: 15}
     },
-    Pedestrian: {
-	color:   "red",
-	minSize: {x: 10, y: 15},
+    "human.pedestrian.wheelchair": {
+        color: '#2F6CAD',
+        minSize: {x: 10, y: 15}
     },
-    Bus: {
-	color:   "yellow",
-	minSize: {x: 30, y: 15},
+    "human.pedestrian.stroller": {
+        color: '#4590B6',
+        minSize: {x: 10, y: 15}
     },
-    Truck: {
-	color:   "white",
-	minSize: {x: 30, y: 15},
+    "human.pedestrian.personal_mobility": {
+        color: '#5CADCF',
+        minSize: {x: 10, y: 15}
     },
-    Bicycle: {
-	color:   "orange",
-	minSize: {x: 15, y: 15},
+    "human.pedestrian.police_officer": {
+        color: '#3585C5',
+        minSize: {x: 10, y: 15}
     },
-    Train: {
-	color:   "cyan",
-	minSize: {x: 30, y: 15},
+    "human.pedestrian.construction_worker": {
+        color: '#2CA786',
+        minSize: {x: 10, y: 15}
     },
-    SVehicle: {
-	color:   "purple",
-	minSize: {x: 30, y: 15},
+    "animal": {
+        color: '#6ABB72',
+        minSize: {x: 30, y: 15},
     },
-    Signal: {
-	color:   "yellow",
-	minSize: {x: 10, y: 10},
+    "vehicle.car": {
+        color: '#E66B5B',
+        minSize: {x: 10, y: 15}
     },
-    Signs: {
-	color:   "green",
-	minSize: {x: 15, y: 15}
+    "vehicle.motorcycle": {
+        color: '#A28F85',
+        minSize: {x: 10, y: 15}
     },
-    target: function() {
-	return this[this.__target];
+    "vehicle.bicycle": {
+        color: '#F79E3D',
+        minSize: {x: 10, y: 15}
     },
-    select: function(cls) {
-	this.onChange(cls);
-	if (bboxes.getTarget() != undefined) {
-	    bboxes.changeClass(bboxes.__target, cls);
-	}
-	this.__target = cls;
+    "vehicle.bus.bendy": {
+        color: '#75706B',
+        minSize: {x: 10, y: 15}
     },
-    onChange: function(cls) {
-	$("#class-table-" + this.__target).css("color", "#fafafa");
-	$("#class-table-" + cls).css("color", "#4894f4");
-	this.__target = cls;
+    "vehicle.bus.rigid": {
+        color: '#EE7841',
+        minSize: {x: 10, y: 15}
     },
-    color: function(cls) {
-	return this[cls].color;
+    "vehicle.truck": {
+        color: '#D1D5D8',
+        minSize: {x: 10, y: 15}
     },
-    minSize: function(cls) {
-	return this[cls].minSize;
+    "vehicle.construction": {
+        color: '#CC4846',
+        minSize: {x: 10, y: 15}
     },
-    targetName: function() {
-	return this.__target;
+    "vehicle.emergency.ambulance": {
+        color: '#DC5047',
+        minSize: {x: 10, y: 15}
     },
-    __target: "Car"
-}
+    "vehicle.emergency.police": {
+        color: '#B33234',
+        minSize: {x: 10, y: 15}
+    },
+    "vehicle.trailer": {
+        color: '#EFEFEF',
+        minSize: {x: 10, y: 15}
+    },
+    "movable_object.barrier": {
+        color: '#485675',
+        minSize: {x: 10, y: 15}
+    },
+    "movable_object.trafficcone": {
+        color: '#F2D46F',
+        minSize: {x: 10, y: 15}
+    },
+    "movable_object.pushable_pullable": {
+        color: '#533D7F',
+        minSize: {x: 10, y: 15}
+    },
+    "movable_object.debris": {
+        color: '#9069B5',
+        minSize: {x: 10, y: 15}
+    },
+    "static_object.bicycle_rack": {
+        color: '#F7C23E',
+        minSize: {x: 10, y: 15}
+    },
+    target: function () {
+        return this[this.__target];
+    },
+    select: function (cls) {
+        this.onChange(cls);
+        if (bboxes.getTarget() != undefined) {
+            bboxes.changeClass(bboxes.__target, cls);
+        }
+        this.__target = cls;
+    },
+    onChange: function (cls) {
+        $("#class-table-" + this.__target).css("color", "#fafafa");
+        $("#class-table-" + cls).css("color", "#4894f4");
+        this.__target = cls;
+    },
+    color: function (cls) {
+        return this[cls].color;
+    },
+    minSize: function (cls) {
+        return this[cls].minSize;
+    },
+    targetName: function () {
+        return this.__target;
+    },
+    __target: "vehicle.car"
+};
