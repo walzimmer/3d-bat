@@ -94,6 +94,8 @@ bboxes.onChangeClass("Image", function (index, newClass) {
             width: box.width
         });
     }
+    $("#label-tool-log").val("6. Step: Repeat steps 1-5 for all objects, save and continue with next frame");
+    $("#label-tool-log").css("color", "#969696");
 });
 
 $(window).keydown(function (e) {
@@ -167,7 +169,7 @@ $(window).keydown(function (e) {
             break;
     }
     if (isRectModifyFunction) {
-        adjastTextBox(bboxes.getTargetIndex());
+        adjustTextBox(bboxes.getTargetIndex());
         emphasisBBox(bboxes.getTargetIndex());
     }
     setAction(e);
@@ -263,6 +265,8 @@ function addEventsToImage() {
     img.drag(
         //on drag
         function (dx, dy, x, y, e) {
+            $("#label-tool-log").val("2. Step: Activate current bounding box");
+            $("#label-tool-log").css("color", "#969696");
             var e2 = convertPositionToPaper(e);
             if (e2.which != 1) {
                 isDragging = false;
@@ -514,6 +518,7 @@ function addEvent(element, trigger, action) {
     else {
         element['on' + trigger] = action;
         return true;
+        4
     }
 }
 
@@ -714,7 +719,7 @@ function bboxString(index, label) {
     }
 }
 
-function adjastTextBox(index) {
+function adjustTextBox(index) {
     var rect = bboxes.get(index, "Image")["rect"];
     var textBox = bboxes.get(index, "Image")["textBox"];
     textBox["text"].attr({x: rect.attr("x"), y: rect.attr("y") - fontSize / 2});

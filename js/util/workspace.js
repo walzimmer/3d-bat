@@ -24,7 +24,7 @@ class WorkSpace {
         this.labelId = -1;
         this.workBlob = ''; // Base url of blob
         this.curFile = 0; // Base name of current file
-        this.fileList = [];
+        this.fileList = ['000000','000001','000002'];
         this.dataType = dataType; // JPEG or PCD
         this.originalSize = [0, 0]; // Original size of jpeg image
         this.bboxes = []; // Bounding boxes
@@ -64,7 +64,7 @@ class WorkSpace {
         this.workBlob = "input"; // "https://devrosbag.blob.core.windows.net/labeltool/3d_label_test";
         this.curFile = 1; // For test (please make labeling tool start with frame:1)
         this.numFiles = 3962;
-        this.fileList = ["000000", "000001", "000002"];
+        this.fileList = ["000000", "000001"];
         // for (var i = 0; i < this.numFiles; i++) {
         //     this.fileList.append(i.toString())
         // }
