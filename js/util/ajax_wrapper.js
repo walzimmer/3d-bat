@@ -2,7 +2,7 @@
  *
  */
 
-var __labelData = []
+var __labelData = [];
 
 
 function pad(n, width, z) {
@@ -48,7 +48,7 @@ function request(options) {
                 if (fileName in __labelData) {
                     res = JSON.parse(__labelData[fileName]);
                 } else {
-                    res = parseAnnotationFile(fileName);
+                    res = parseAnnotationFile(fileName, options.data["channel"]);
                 }
                 options.success(res);
                 break;
@@ -67,10 +67,35 @@ function request(options) {
     }
 };
 
-function parseAnnotationFile(fileName) {
+function keypointFileExist(fileIndex,channelNumber) {
+    var url = labelTool.workBlob + '/Keypoints/' + labelTool.camChannels[channelNumber] + '/' + labelTool.fileNames[fileIndex] + '.txt';
+    var http = new XMLHttpRequest();
+    http.open('HEAD', url, false);
+    http.send();
+    return http.status != 404;
+}
+
+function annotationFileExist(fileIndex,channelNumber) {
+    var url = labelTool.workBlob + '/Annotations_test/' + labelTool.camChannels[channelNumber] + '/' + labelTool.fileNames[fileIndex] + '.txt';
+    var http = new XMLHttpRequest();
+    http.open('HEAD', url, false);
+    http.send();
+    return http.status != 404;
+}
+
+function parseAnnotationFile(fileName, channel) {
     var rawFile = new XMLHttpRequest();
     var res = [];
-    rawFile.open("GET", labelTool.workBlob + '/Annotations/' + fileName, false);
+    // var channel_array = ['LIDAR_TOP', 'CAM_FRONT', 'CAM_FRONT_RIGHT', 'CAM_FRONT_LEFT', 'CAM_BACK', 'CAM_BACK_RIGHT', 'CAM_BACK_LEFT'];
+    // for (channel in channel_array) {
+    try {
+        rawFile.open("GET", labelTool.workBlob + '/Annotations_test/' + channel + '/' + fileName, false);
+    } catch (error) {
+        // no labels available for this camera image
+        // do not through an error message
+    }
+
+    // rawFile.open("GET", labelTool.workBlob + '/Annotations/CAM_FRONT/' + fileName, false);
     rawFile.onreadystatechange = function () {
         if (rawFile.readyState === 4) {
             if (rawFile.status === 200 || rawFile.status == 0) {
@@ -96,11 +121,14 @@ function parseAnnotationFile(fileName) {
                             z: str[13],
                             rotation_y: str[14]
                         });
+                        return res;
                     }
                 }
+            } else {
+                return null;
             }
         }
-    }
+    };
     rawFile.send(null);
     return res;
 }
