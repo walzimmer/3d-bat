@@ -101,7 +101,7 @@ td.fold-hard {
 }
 
 .btn-group {
-    position: fixed !important; /* TODO!!!!!!!!!!!!!!!!!!!!!!! */
+    position: fixed !important;
     display: block !important;
     right: 50px;
     top: 3px;
@@ -469,3 +469,7 @@ td.fold-hard {
 .dg {
     border-bottom: 0px;
 }
+
+/*#bounding-box-3d-menu {*/
+    /*width: 290px!important;*/
+/*}*/

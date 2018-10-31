@@ -69,7 +69,7 @@
     border-top: 0px;
     margin-right: 0px;
     margin-left: -3px;
-    width: 200px;
+    width: 100px;
     height: 50px;
 }
 
@@ -82,7 +82,7 @@
     /*border-color: #000;*/
     border: 1px;
     height: 50px;
-    width: 200px;
+    width: 100px;
     background-image: -webkit-gradient(
             linear,
             left bottom,
@@ -101,7 +101,7 @@
     /*border-color: #000;*/
     border: 1px;
     height: 50px;
-    width: 200px;
+    width: 100px;
     background-image: -webkit-gradient(
             linear,
             left bottom,
@@ -163,6 +163,8 @@
     background-color: white;
     margin: 0px;
     padding: 0px;
+    width: 50%;
+    height: 50%;
 }
 
 .jpeg-label-sidebar {
@@ -268,23 +270,24 @@
 }
 
 #label-tool-log {
+    position: absolute;
     margin-top: 10px;
     margin-left: 20px;
-    width: 535px;
+    width: 557px;
     color: #969696;
     text-align: left;
 }
 
 @media (min-width: 1188px) {
     #label-tool-log {
-        width: 535px;
+        width: 557px;
     }
 }
 
 .label-header-right-items {
     height: 50px;
     float: right;
-    width: 63%;
+    /*width: 63%;*/
     padding: 0px;
 }
 
@@ -297,7 +300,7 @@
     padding-left: 0px;
     height: 50px;
     float: left;
-    width: 37%;
+    width: 31%;
 }
 
 .label-header-item {
@@ -436,4 +439,10 @@ div.dg.main.a {
 text {
     -moz-user-select: none;
     -webkit-user-select: none;
+}
+
+#cam_channel {
+    color: #969696;
+    padding-top: 10%;
+    width: 150px;
 }

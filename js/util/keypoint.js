@@ -1,8 +1,16 @@
-var bboxes = {
+var keypointObjects = {
+    contents: [],
+    // init: function () {
+    //     this.contents = [];
+    //     for (var i = 0; i < 3962; i++) {
+    //         this.contents.push([]);
+    //         for (var j = 0; j < 6; j++) {
+    //             this.contents[i].push([]);
+    //         }
+    //     }
+    // },
     localOnSelect: {
         "Image": function (newIndex, oldIndex) {
-        },
-        "PCD": function (newIndex, oldIndex) {
         }
     },
     onSelect: function (dataType, f) {
@@ -10,8 +18,6 @@ var bboxes = {
     },
     localOnChangeClass: {
         "Image": function (index, cls) {
-        },
-        "PCD": function (index, cls) {
         }
     },
     onChangeClass: function (dataType, f) {
@@ -19,8 +25,6 @@ var bboxes = {
     },
     localOnAdd: {
         "Image": function (index, cls, params) {
-        },
-        "PCD": function (index, cls, params) {
         }
     },
     onAdd: function (dataType, f) {
@@ -28,14 +32,11 @@ var bboxes = {
     },
     localOnRemove: {
         "Image": function (index) {
-        },
-        "PCD": function (index) {
         }
     },
     onRemove: function (dataType, f) {
         this.localOnRemove[dataType] = f;
     },
-    contents: [],
     get: function (index, dataType) {
         if (this.contents[index] == undefined) {
             return undefined;
@@ -61,8 +62,6 @@ var bboxes = {
         var obj = this.localOnAdd[dataType](index, cls, params);
         this.contents[index][dataType] = obj;
         this.contents[index]["class"] = cls;
-        this.__table.changeClass(index, cls);
-        this.__table.add(index, dataType);
         if (isExpanded) {
             this.selectEmpty();
         }
@@ -72,26 +71,23 @@ var bboxes = {
             return false;
         }
         this.contents[index]["class"] = cls;
-        labelTool.dataTypes.forEach(function (dataType) {
-            this.localOnChangeClass[dataType](index, cls);
-        }.bind(this));
+        this.localOnChangeClass[labelTool.dataTypes[0]](index, cls);
         this.__table.changeClass(index, cls);
     },
     expand: function (cls) {
         this.selectEmpty();
         if (cls == undefined) {
-            this.contents[this.__tail + 1] = {"class": classes.targetName()};
+            this.contents[this.__tail + 1] = {"class": classesKeypoint.targetName()};
         } else {
             this.contents[this.__tail + 1] = {"class": cls};
         }
         this.__tail++;
-        this.__table.expand(classes.targetName(), false, false);
     },
     getTarget: function (dataType) {
         if (dataType == undefined) {
             return this.contents[this.__target];
         }
-        if (!this.isValidTarget()) {
+        if (!this.isTargetDefined()) {
             return undefined;
         }
         return this.contents[this.__target][dataType];
@@ -111,30 +107,26 @@ var bboxes = {
             return false;
         }
         var oldIndex = this.__target;
-        if (this.isEmpty(this.__target) && this.__target != this.__tail + 1) {
-            this.contents.splice(this.__target, 1);
-            this.__tail--;
-            if (index > this.__target) {
-                index--;
-            }
-            this.__table.refresh();
-        }
-        labelTool.dataTypes.forEach(function (dataType) {
-            this.localOnSelect[dataType](index, oldIndex);
-        }.bind(this));
+        // if (this.isEmpty(this.__target) && this.__target != this.__tail + 1) {
+        //     this.contents.splice(this.__target, 1);
+        //     this.__tail--;
+        //     if (index > this.__target) {
+        //         index--;
+        //     }
+        // this.__table.refresh();
+        // }
+        this.localOnSelect[labelTool.dataTypes[0]](index, oldIndex);
         if (!this.isEmpty(index)) {
-            classes.onChange(bboxes.get(index, "class"));
+            classesKeypoint.onChange(classesKeypoint.get(index, "class"));
         }
         this.__target = index;
-        this.__table.select(this.__target);
+        // this.__table.select(this.__target);
         return true;
     },
     select: function (index) {
         this.setTargetIndex(index);
-        $("#label-tool-log").val("3. Step: Switch into PCD mode");
-        $("#label-tool-log").css("color", "#969696");
     },
-    isValidTarget: function () { // Should be another name. Checking if target is not undefined.
+    isTargetDefined: function () {
         if (this.__tail == -1) {
             return false;
         }
@@ -169,17 +161,16 @@ var bboxes = {
         return this.__tail + 1;
     },
     isEmpty: function (index) {
-        return !this.exists(index, "Image") && !this.exists(index, "PCD");
+        var exists = !this.exists(index, "Image");
+        return exists;
     },
     remove: function (index, dataType) {
         if (dataType == undefined) {
-            labelTool.dataTypes.forEach(function (dataType) {
-                if (this.exists(index, dataType)) {
-                    this.localOnRemove[dataType](index);
-                    delete this.contents[index][dataType];
-                    this.__table.remove(index, dataType);
-                }
-            }.bind(this));
+            if (this.exists(index, dataType)) {
+                this.localOnRemove[dataType](index);
+                delete this.contents[index][dataType];
+                this.__table.remove(index, dataType);
+            }
             this.contents.splice(index, 1);
             this.__tail--;
             if (index <= this.__target) {
@@ -209,9 +200,6 @@ var bboxes = {
             if (this.exists(i, "Image")) {
                 this.localOnRemove["Image"](i);
             }
-            if (this.exists(i, "PCD")) {
-                this.localOnRemove["PCD"](i);
-            }
         }
         this.__target = 0;
         this.__tail = -1;
@@ -223,7 +211,7 @@ var bboxes = {
     __table: new BBoxTable({
         tableId: "bbox-table",
         liOptions: function (index) {
-            return "onClick='bboxes.select(" + index + ");'";
+            return "onClick='keypointObjects.select(" + index + ");'";
         }
     })
 };

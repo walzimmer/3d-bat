@@ -1,4 +1,4 @@
-var classes = {
+var classesBoundingBox = {
     "human.pedestrian.adult": {
         color: '#3ABB9D',
         minSize: {x: 10, y: 15},
@@ -64,7 +64,7 @@ var classes = {
         minSize: {x: 10, y: 15}
     },
     "vehicle.emergency.police": {
-        color: '#B33234',
+        color: '#28324E',
         minSize: {x: 10, y: 15}
     },
     "vehicle.trailer": {
@@ -96,8 +96,8 @@ var classes = {
     },
     select: function (cls) {
         this.onChange(cls);
-        if (bboxes.getTarget() != undefined) {
-            bboxes.changeClass(bboxes.__target, cls);
+        if (annotationObjects.getTarget() != undefined) {
+            annotationObjects.changeClass(annotationObjects.__target, cls);
         }
         this.__target = cls;
     },

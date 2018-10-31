@@ -50,17 +50,17 @@ class BBoxTable {
     }
 
     add(index, dataType) {
-        var color = classes[this.__bboxes[index]["label"]]["color"];
+        var color = classesBoundingBox[this.__bboxes[index]["label"]]["color"];
         if (this.__bboxes[index] != undefined) {
-            color = classes[this.__bboxes[index]["label"]].color;
+            color = classesBoundingBox[this.__bboxes[index]["label"]].color;
         }
         $("#" + this.tableId + "-" + dataType + "-" + index).css("color", color);
         this.__bboxes[index][dataType] = 0; // Dummy
     }
 
     changeClass(index, cls) {
-        //var color = classes[cls]["color"];
-        var color = classes[cls].color;
+        //var color = classesBoundingBox[cls]["color"];
+        var color = classesBoundingBox[cls].color;
         if (this.__bboxes[index]["Image"] != undefined) {
             $("#" + this.tableId + "-" + "Image" + "-" + index).css("color", color);
         }
