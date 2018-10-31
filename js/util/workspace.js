@@ -1,11 +1,3 @@
-// TODO:
-//   implement JPEG feature of packAnnotation()
-//	 implement JPEG feature
-//   implement server sending feature of archiveWorkFiles()
-//   implement branch feature bbox reader
-
-// Instantiate with WorkSpace("PCD")
-
 class WorkSpace {
     constructor(dataType) {
         this.classColor = {
@@ -24,7 +16,7 @@ class WorkSpace {
         this.labelId = -1;
         this.workBlob = ''; // Base url of blob
         this.curFile = 0; // Base name of current file
-        this.fileList = ['000000','000001','000002'];
+        this.fileList = ['000000', '000001', '000002'];
         this.dataType = dataType; // JPEG or PCD
         this.originalSize = [0, 0]; // Original size of jpeg image
         this.bboxes = []; // Bounding boxes
@@ -43,11 +35,11 @@ class WorkSpace {
     showData() {
     }
 
-    // Set values to this.bboxes from annotations
+    // Set values to this.annotationObjects from annotations
     loadAnnotations(annotations) {
     }
 
-    // Create annotations from this.bboxes
+    // Create annotations from this.annotationObjects
     packAnnotations() {
     }
 
@@ -169,7 +161,7 @@ class WorkSpace {
 
     onChangeFile() {
         if (this.dataType == "JPEG") {
-            imageBox.value = (this.curFile + 1) + "/" + this.fileList.length; //TODO
+            imageBox.value = (this.curFile + 1) + "/" + this.fileList.length;
         }
         ground_mesh.visible = false;
         image_array[0].visible = false;
