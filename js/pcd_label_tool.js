@@ -63,121 +63,31 @@ var parametersKeyPoint = {
 };
 
 var parametersBoundingBox = {
-    "human.pedestrian.adult": function () {
-        classesBoundingBox.select("human.pedestrian.adult");
+    "Vehicle": function () {
+        classesBoundingBox.select("Vehicle");
         $('#class-picker ul li').css('background-color', '#323232');
         $($('#class-picker ul li')[0]).css('background-color', '#525252');
     },
-    "human.pedestrian.child": function () {
-        classesBoundingBox.select("human.pedestrian.child");
+    "Truck": function () {
+        classesBoundingBox.select("Truck");
         $('#class-picker ul li').css('background-color', '#323232');
         $($('#class-picker ul li')[1]).css('background-color', '#525252');
     },
-    "human.pedestrian.wheelchair": function () {
-        classesBoundingBox.select("human.pedestrian.wheelchair");
+    "Motorcycle": function () {
+        classesBoundingBox.select("Motorcycle");
         $('#class-picker ul li').css('background-color', '#323232');
         $($('#class-picker ul li')[2]).css('background-color', '#525252');
     },
-    "human.pedestrian.stroller": function () {
-        classesBoundingBox.select("human.pedestrian.stroller");
+    "Bicycle": function () {
+        classesBoundingBox.select("Bicycle");
         $('#class-picker ul li').css('background-color', '#323232');
         $($('#class-picker ul li')[3]).css('background-color', '#525252');
     },
-    "human.pedestrian.personal_mobility": function () {
-        classesBoundingBox.select("human.pedestrian.personal_mobility");
+    "Pedestrian": function () {
+        classesBoundingBox.select("Pedestrian");
         $('#class-picker ul li').css('background-color', '#323232');
         $($('#class-picker ul li')[4]).css('background-color', '#525252');
     },
-    "human.pedestrian.police_officer": function () {
-        classesBoundingBox.select("human.pedestrian.police_officer");
-        $('#class-picker ul li').css('background-color', '#323232');
-        $($('#class-picker ul li')[5]).css('background-color', '#525252');
-    },
-    "human.pedestrian.construction_worker": function () {
-        classesBoundingBox.select("human.pedestrian.construction_worker");
-        $('#class-picker ul li').css('background-color', '#323232');
-        $($('#class-picker ul li')[6]).css('background-color', '#525252');
-    },
-    "animal": function () {
-        classesBoundingBox.select("animal");
-        $('#class-picker ul li').css('background-color', '#323232');
-        $($('#class-picker ul li')[7]).css('background-color', '#525252');
-    },
-    "vehicle.car": function () {
-        classesBoundingBox.select("vehicle.car");
-        $('#class-picker ul li').css('background-color', '#323232');
-        $($('#class-picker ul li')[8]).css('background-color', '#525252');
-    },
-    "vehicle.motorcycle": function () {
-        classesBoundingBox.select("vehicle.motorcycle");
-        $('#class-picker ul li').css('background-color', '#323232');
-        $($('#class-picker ul li')[9]).css('background-color', '#525252');
-    },
-    "vehicle.bicycle": function () {
-        classesBoundingBox.select("vehicle.bicycle");
-        $('#class-picker ul li').css('background-color', '#323232');
-        $($('#class-picker ul li')[10]).css('background-color', '#525252');
-    },
-    "vehicle.bus.bendy": function () {
-        classesBoundingBox.select("vehicle.bus.bendy");
-        $('#class-picker ul li').css('background-color', '#323232');
-        $($('#class-picker ul li')[11]).css('background-color', '#525252');
-    },
-    "vehicle.bus.rigid": function () {
-        classesBoundingBox.select("vehicle.bus.rigid");
-        $('#class-picker ul li').css('background-color', '#323232');
-        $($('#class-picker ul li')[12]).css('background-color', '#525252');
-    },
-    "vehicle.truck": function () {
-        classesBoundingBox.select("vehicle.truck");
-        $('#class-picker ul li').css('background-color', '#323232');
-        $($('#class-picker ul li')[13]).css('background-color', '#525252');
-    },
-    "vehicle.construction": function () {
-        classesBoundingBox.select("vehicle.construction");
-        $('#class-picker ul li').css('background-color', '#323232');
-        $($('#class-picker ul li')[14]).css('background-color', '#525252');
-    },
-    "vehicle.emergency.ambulance": function () {
-        classesBoundingBox.select("vehicle.emergency.ambulance");
-        $('#class-picker ul li').css('background-color', '#323232');
-        $($('#class-picker ul li')[15]).css('background-color', '#525252');
-    },
-    "vehicle.emergency.police": function () {
-        classesBoundingBox.select("vehicle.emergency.police");
-        $('#class-picker ul li').css('background-color', '#323232');
-        $($('#class-picker ul li')[16]).css('background-color', '#525252');
-    },
-    "vehicle.trailer": function () {
-        classesBoundingBox.select("vehicle.trailer");
-        $('#class-picker ul li').css('background-color', '#323232');
-        $($('#class-picker ul li')[17]).css('background-color', '#525252');
-    },
-    "movable_object.barrier": function () {
-        classesBoundingBox.select("movable_object.barrier");
-        $('#class-picker ul li').css('background-color', '#323232');
-        $($('#class-picker ul li')[18]).css('background-color', '#525252');
-    },
-    "movable_object.trafficcone": function () {
-        classesBoundingBox.select("movable_object.trafficcone");
-        $('#class-picker ul li').css('background-color', '#323232');
-        $($('#class-picker ul li')[19]).css('background-color', '#525252');
-    },
-    "movable_object.pushable_pullable": function () {
-        classesBoundingBox.select("movable_object.pushable_pullable");
-        $('#class-picker ul li').css('background-color', '#323232');
-        $($('#class-picker ul li')[20]).css('background-color', '#525252');
-    },
-    "movable_object.debris": function () {
-        classesBoundingBox.select("movable_object.debris");
-        $('#class-picker ul li').css('background-color', '#323232');
-        $($('#class-picker ul li')[21]).css('background-color', '#525252');
-    },
-    "static_object.bicycle_rack": function () {
-        classesBoundingBox.select("static_object.bicycle_rack");
-        $('#class-picker ul li').css('background-color', '#323232');
-        $($('#class-picker ul li')[22]).css('background-color', '#525252');
-    }
 };
 
 var parameters = {
@@ -577,19 +487,12 @@ function download() {
         outputString += annotations[i].y + " ";
         outputString += annotations[i].z + " ";
         outputString += annotations[i].rotation_y + " ";
-        outputString += annotations[i].score + "";
-        outputString += annotations[i].vehicle.rear_light_left.x + " ";
-        outputString += annotations[i].vehicle.rear_light_left.y + " ";
-        outputString += annotations[i].vehicle.rear_light_right.x + " ";
-        outputString += annotations[i].vehicle.rear_light_right.y + " ";
-        outputString += annotations[i].vehicle.front_light_left.x + " ";
-        outputString += annotations[i].vehicle.front_light_left.y + " ";
-        outputString += annotations[i].vehicle.front_light_right.x + " ";
-        outputString += annotations[i].vehicle.front_light_right.y + "\n";
+        outputString += annotations[i].score + " ";
+        outputString += annotations[i].trackId + "\n";
     }
     outputString = b64EncodeUnicode(outputString);
     var fileName = labelTool.currentFileIndex.toString().padStart(6, '0');
-    $($('#bounding-box-3d-menu ul li')[1]).children().first().attr('href', 'data:application/octet-stream;base64,' + outputString).attr('download', fileName + '.txt');
+    $($('#bounding-box-3d-menu ul li')[0]).children().first().attr('href', 'data:application/octet-stream;base64,' + outputString).attr('download', fileName + '.txt');
 }
 
 //change camera position to bird view position
@@ -737,7 +640,7 @@ function setCamera() {
     controls.panSpeed = 0.2;
     controls.enableZoom = true;
     controls.enablePan = true;
-    controls.enableRotate = true;
+    controls.enableRotate = false;// default: true
     controls.enableDamping = false;
     controls.dampingFactor = 0.3;
     controls.minDistance = 0.3;
@@ -1089,29 +992,11 @@ function init() {
     }
 
     guiBoundingBoxAnnotationMap = {
-        "human.pedestrian.adult": guiAnnotationClasses.add(parametersBoundingBox, "human.pedestrian.adult").name("human.pedestrian.adult"),
-        "human.pedestrian.child": guiAnnotationClasses.add(parametersBoundingBox, "human.pedestrian.child").name("human.pedestrian.child"),
-        "human.pedestrian.wheelchair": guiAnnotationClasses.add(parametersBoundingBox, "human.pedestrian.wheelchair").name("human.pedestrian.wheelchair"),
-        "human.pedestrian.stroller": guiAnnotationClasses.add(parametersBoundingBox, "human.pedestrian.stroller").name("human.pedestrian.stroller"),
-        "human.pedestrian.personal_mobility": guiAnnotationClasses.add(parametersBoundingBox, "human.pedestrian.personal_mobility").name("human.pedestrian.personal_mobility"),
-        "human.pedestrian.police_officer": guiAnnotationClasses.add(parametersBoundingBox, "human.pedestrian.police_officer").name("human.pedestrian.police_officer"),
-        "human.pedestrian.construction_worker": guiAnnotationClasses.add(parametersBoundingBox, "human.pedestrian.construction_worker").name("human.pedestrian.construction_worker"),
-        "animal": guiAnnotationClasses.add(parametersBoundingBox, "animal").name("animal"),
-        "vehicle.car": guiAnnotationClasses.add(parametersBoundingBox, "vehicle.car").name("vehicle.car"),
-        "vehicle.motorcycle": guiAnnotationClasses.add(parametersBoundingBox, "vehicle.motorcycle").name("vehicle.motorcycle"),
-        "vehicle.bicycle": guiAnnotationClasses.add(parametersBoundingBox, "vehicle.bicycle").name("vehicle.bicycle"),
-        "vehicle.bus.bendy": guiAnnotationClasses.add(parametersBoundingBox, "vehicle.bus.bendy").name("vehicle.bus.bendy"),
-        "vehicle.bus.rigid": guiAnnotationClasses.add(parametersBoundingBox, "vehicle.bus.rigid").name("vehicle.bus.rigid"),
-        "vehicle.truck": guiAnnotationClasses.add(parametersBoundingBox, "vehicle.truck").name("vehicle.truck"),
-        "vehicle.construction": guiAnnotationClasses.add(parametersBoundingBox, "vehicle.construction").name("vehicle.construction"),
-        "vehicle.emergency.ambulance": guiAnnotationClasses.add(parametersBoundingBox, "vehicle.emergency.ambulance").name("vehicle.emergency.ambulance"),
-        "vehicle.emergency.police": guiAnnotationClasses.add(parametersBoundingBox, "vehicle.emergency.police").name("vehicle.emergency.police"),
-        "vehicle.trailer": guiAnnotationClasses.add(parametersBoundingBox, "vehicle.trailer").name("vehicle.trailer"),
-        "movable_object.barrier": guiAnnotationClasses.add(parametersBoundingBox, "movable_object.barrier").name("movable_object.barrier"),
-        "movable_object.trafficcone": guiAnnotationClasses.add(parametersBoundingBox, "movable_object.trafficcone").name("movable_object.trafficcone"),
-        "movable_object.pushable_pullable": guiAnnotationClasses.add(parametersBoundingBox, "movable_object.pushable_pullable").name("movable_object.pushable_pullable"),
-        "movable_object.debris": guiAnnotationClasses.add(parametersBoundingBox, "movable_object.debris").name("movable_object.debris"),
-        "static_object.bicycle_rack": guiAnnotationClasses.add(parametersBoundingBox, "static_object.bicycle_rack").name("static_object.bicycle_rack"),
+        "Vehicle": guiAnnotationClasses.add(parametersBoundingBox, "Vehicle").name("Vehicle"),
+        "Truck": guiAnnotationClasses.add(parametersBoundingBox, "Truck").name("Truck"),
+        "Motorcycle": guiAnnotationClasses.add(parametersBoundingBox, "Motorcycle").name("Motorcycle"),
+        "Bicycle": guiAnnotationClasses.add(parametersBoundingBox, "Bicycle").name("Bicycle"),
+        "Pedestrian": guiAnnotationClasses.add(parametersBoundingBox, "Pedestrian").name("Pedestrian"),
     };
 
     guiKeypointAnnotationMap = {
@@ -1127,27 +1012,27 @@ function init() {
     $('#class-picker ul li').css('border-bottom', '0px');
 
     // 3D BB controls
-    guiOptions.add(parameters, 'save').name("Save");
+    // guiOptions.add(parameters, 'save').name("Save");
     guiOptions.add(parameters, 'download').name("Download");
     var viewMode = guiOptions.add(parameters, 'view_mode', ['Image', 'Point cloud', 'Image and point cloud']).name('View mode').listen();
     viewMode.onChange(function (value) {
         parameters.view_mode = value;
         changeViewMode(value);
     });
-    var annotationModeCallback = guiOptions.add(parameters, 'annotation_mode', ['Bounding Boxes', 'Key Points']).name('Annotation mode').listen();
-    annotationModeCallback.onChange(function (value) {
-        parameters.annotation_mode = value;
-        changeAnnotationMode(value);
-    });
+    // var annotationModeCallback = guiOptions.add(parameters, 'annotation_mode', ['Bounding Boxes', 'Key Points']).name('Annotation mode').listen();
+    // annotationModeCallback.onChange(function (value) {
+    //     parameters.annotation_mode = value;
+    //     changeAnnotationMode(value);
+    // });
     guiOptions.add(parameters, 'bird_view').name("Birds-Eye-View");
-    guiOptions.add(parameters, 'camera_view').name("Camera View");
+    // guiOptions.add(parameters, 'camera_view').name("Camera View");
     readYAMLFile(labelTool.workBlob + "/calibration.yml");
     data_load(parameters);
     guiOptions.domElement.id = 'bounding-box-3d-menu';
     $('#bounding-box-3d-menu').css('width', '290px');
     $('#bounding-box-3d-menu ul li').css('background-color', '#353535');
     // add download Annotations button
-    var downloadAnnotationsItem = $($('#bounding-box-3d-menu ul li')[1]);
+    var downloadAnnotationsItem = $($('#bounding-box-3d-menu ul li')[0]);
     var downloadAnnotationsDivItem = downloadAnnotationsItem.children().first();
     downloadAnnotationsDivItem.wrap("<a href=\"\"></a>");
     // add download Keypoints button
