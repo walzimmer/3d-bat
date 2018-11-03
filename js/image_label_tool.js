@@ -43,7 +43,7 @@ annotationObjects.onSelect("Image", function (newIndex, oldIndex) {
     addTextBox(newIndex);
     emphasisBBox(newIndex);
     if (isIsolated) {
-        Isolate(newIndex);
+        hideAllBoundingBoxes(newIndex);
     }
 });
 
@@ -288,6 +288,12 @@ function addEventsToImage() {
             }
             annotationObjects.remove(clickedBBIndex, "Image");
             setAction(e2);
+        } else {
+            // no bounding box was selected
+            // remove selection from current target
+            var selectedBBIndex = annotationObjects.getTargetIndex();
+            removeBoundingBox(selectedBBIndex);
+            removeTextBox(selectedBBIndex);
         }
 
     });
@@ -500,14 +506,14 @@ function addEventsToImage() {
 
 function toggleIsolation() {
     if (isIsolated) {
-        Amalgamate();
+        showAllBoundingBoxes();
     } else {
-        Isolate();
+        hideAllBoundingBoxes();
     }
     isIsolated = !isIsolated;
 }
 
-function Isolate(index) {
+function hideAllBoundingBoxes(index) {
     var targetIndex;
     if (index == undefined) {
         targetIndex = annotationObjects.getTargetIndex();
@@ -523,7 +529,7 @@ function Isolate(index) {
     }
 }
 
-function Amalgamate() {
+function showAllBoundingBoxes() {
     for (var i = 0; i < annotationObjects.length(); ++i) {
         if (i != annotationObjects.getTargetIndex()) {
             showImageBBox(i);
@@ -537,7 +543,8 @@ function Amalgamate() {
  * @returns {*}
  */
 function getClickedIndex(e) {
-    var targetIndex = -1;
+    // var targetIndex = -1;
+    var targetIndex = annotationObjects.__tail + 1;
     for (var i = 0; i < annotationObjects.length(); ++i) {
         if (annotationObjects.get(i, "Image") == undefined) {
             continue;
@@ -713,7 +720,7 @@ function emphasisBBox(index) {
     rect.l = [paper.path("M" + x1 + "," + y0 + " L" + x1 + "," + y2),
         paper.path("M" + x0 + "," + y1 + " L" + x2 + "," + y1)];
     for (var i = 0; i <= 1; ++i) {
-        rect.l[i].attr({"stroke-dasharray": "."})
+        rect.l[i].attr({"stroke-dasharray": "."});
         rect.l[i].node.setAttribute("pointer-events", "none");
         rect.l[i].g = rect.l[i].glow({color: "#FFF", width: 1});
         rect.l[i].g[0].node.setAttribute("pointer-events", "none");
