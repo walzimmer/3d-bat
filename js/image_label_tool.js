@@ -21,6 +21,7 @@ var zoomParam = {offsetX: 0, offsetY: 0, scale: 1};
 var mouseX = 0;
 var mouseY = 0;
 var isIsolated = false;
+var nextTrackIds = [1, 1, 1, 1, 1];//Vehicle,Truck, Motorcycle, Bicycle, Pedestrian
 
 /*********** Event handlers **************/
 
@@ -28,13 +29,16 @@ annotationObjects.onRemove("Image", function (index) {
     if (!annotationObjects.exists(index, "Image")) {
         return;
     }
-    removeEmphasis(index);
+    removeBoundingBox(index);
     removeTextBox(index);
     annotationObjects.get(index, "Image")["rect"].remove();
+    // also remove row (li item) from table
+    // $("#bbox-table").children().get(index).remove();
+    // bbox
 });
 
 annotationObjects.onSelect("Image", function (newIndex, oldIndex) {
-    removeEmphasis(oldIndex);
+    removeBoundingBox(oldIndex);
     removeTextBox(oldIndex);
     addTextBox(newIndex);
     emphasisBBox(newIndex);
@@ -50,14 +54,15 @@ annotationObjects.onAdd("Image", function (index, cls, params) {
                 "stroke": classesBoundingBox[cls].color,
                 "stroke-width": 3
             }),
-        "keypoints": {
-            "vehicle": {
-                "rear_light_left": {"x": -1, "y": -1},
-                "rear_light_right": {"x": -1, "y": -1},
-                "front_light_left": {"x": -1, "y": -1},
-                "front_light_right": {"x": -1, "y": -1}
-            }
-        }
+        "trackId": 1
+        // "keypoints": {
+        //     "vehicle": {
+        //         "rear_light_left": {"x": -1, "y": -1},
+        //         "rear_light_right": {"x": -1, "y": -1},
+        //         "front_light_left": {"x": -1, "y": -1},
+        //         "front_light_right": {"x": -1, "y": -1}
+        //     }
+        // }
     };
     bbox["rect"].node.setAttribute("pointer-events", "none");
 
@@ -96,16 +101,16 @@ labelTool.onLoadData("Image", function () {
     labelTool.hasLoadedImage = true;
 });
 
-annotationObjects.onChangeClass("Image", function (index, newClass) {
-    if (!annotationObjects.exists(index, "Image")) {
+annotationObjects.onChangeClass("Image", function (bbIndex, newClass) {
+    if (!annotationObjects.exists(bbIndex, "Image")) {
         return;
     }
-    var bbox = annotationObjects.get(index, "Image");
+    var bbox = annotationObjects.get(bbIndex, "Image");
     var color = classesBoundingBox[newClass].color;
     bbox["rect"].attr({stroke: color});
     if (bbox["textBox"] != undefined) {
         var textBox = bbox["textBox"];
-        textBox["text"].attr({text: bboxString(index, newClass)});
+        textBox["text"].attr({text: bboxString(bbIndex, newClass)});
         var box = textBox["text"].getBBox();
         textBox["box"].attr({
             fill: color,
@@ -271,45 +276,18 @@ function addEventsToImage() {
     });
 
     img.mousedown(function (e) {
-        if (currentAnnotationMode === annotationModeArray[0]) {
-            var e2 = convertPositionToPaper(e);
-            if (e2.which != 3 || isDragging) {
-                return;
+        var e2 = convertPositionToPaper(e);
+        if (e2.which != 3 || isDragging) {
+            return;
+        }
+        var clickedBBIndex = getClickedIndex(e2);
+        if (clickedBBIndex != -1) {
+            // check if currently selected box was not selected previously
+            if (clickedBBIndex != annotationObjects.getTargetIndex()) {
+                annotationObjects.select(clickedBBIndex);
             }
-            var index = getClickedIndex(e2);
-            if (index != -1) {
-                // check if currently selected box was not selected previously
-                if (index != annotationObjects.getTargetIndex()) {
-                    annotationObjects.select(index);
-                }
-                annotationObjects.remove(index, "Image");
-                setAction(e2);
-            }
-        } else {
-            var e2 = convertPositionToPaper(e);
-            // annotation mode is 'Key Points'
-            var clickedX = e2.offsetX;
-            var clickedY = e2.offsetY;
-            // check if keypoint is within bounding box
-            // var selectedBoundingBox = getSelectedBoundingBox();
-            // var selectedBB = annotationObjects.get(selectedBBIndex,"Image");
-            // if (clickedX >= selectedBoundingBox.x && clickedX < selectedBoundingBox.x + selectedBoundingBox.width && clickedY >= selectedBoundingBox.y && clickedY < selectedBoundingBox.y + selectedBoundingBox.height) {
-            var index = getClickedIndex(e2);
-            if (index != -1) {
-                // user clicked within bounding box
-                var targetIndexBoundingBox = annotationObjects.getTargetIndex();
-                var selectedKeypointNameArray = classesKeypoint.targetName().split(".");
-                var selectedKeypointNameBase = selectedKeypointNameArray[0];
-                var selectedKeypointName = selectedKeypointNameArray[1];
-                var color = classesKeypoint.target().color;
-                // labelTool.keypointsArray.push({x: clickedX, y: clickedY});
-                keyPointDrawn = paper.circle(clickedX, clickedY, 4).attr("fill", color);//x/y/radius
-                // store keypoint in corresponding annotation object
-                var annotationObject = annotationObjects.get(targetIndexBoundingBox, "Image");
-                var keypoints = annotationObject["keypoints"];
-                keypoints[selectedKeypointNameBase][selectedKeypointName]["x"] = clickedX;
-                keypoints[selectedKeypointNameBase][selectedKeypointName]["y"] = clickedY;
-            }
+            annotationObjects.remove(clickedBBIndex, "Image");
+            setAction(e2);
         }
 
     });
@@ -468,20 +446,30 @@ function addEventsToImage() {
                             rectHeight < classesBoundingBox.target().minSize.y) {
                             return;
                         }
+
+                        var selectedClassIndex = classesBoundingBox.target().index;
+                        var selectedClassInImage = classesBoundingBox.targetName();
+
                         var bbox = annotationObjects.getTarget("Image");
                         if (!annotationObjects.isValidTarget() || bbox != undefined) {
-                            annotationObjects.expand();
+                            annotationObjects.expand(selectedClassInImage, nextTrackIds[selectedClassIndex]);
                             annotationObjects.selectTail();
                         }
+
+
                         var params = {
                             x: rectX,
                             y: rectY,
                             width: rectWidth,
-                            height: rectHeight
+                            height: rectHeight,
+                            trackId: nextTrackIds[selectedClassIndex]
                         };
+                        nextTrackIds[selectedClassIndex] = nextTrackIds[selectedClassIndex] + 1;
                         annotationObjects.setTarget("Image", params);
+
                         annotationObjects.selectEmpty();
                         drawingRect.remove();
+
                         break;
                     case "resize":
                         break;
@@ -549,7 +537,6 @@ function Amalgamate() {
  * @returns {*}
  */
 function getClickedIndex(e) {
-    //var targetIndex = annotationObjects.length();
     var targetIndex = -1;
     for (var i = 0; i < annotationObjects.length(); ++i) {
         if (annotationObjects.get(i, "Image") == undefined) {
@@ -710,7 +697,7 @@ function emphasisBBox(index) {
     if (!annotationObjects.exists(index, "Image")) {
         return;
     }
-    removeEmphasis(index);
+    removeBoundingBox(index);
     var rect = annotationObjects.get(index, "Image")["rect"];
     rect.g = rect.glow({color: "#FFF", width: 5, opacity: 1});
     rect.g[0].node.setAttribute("pointer-events", "none");
@@ -734,7 +721,7 @@ function emphasisBBox(index) {
     rect.toFront();
 }
 
-function removeEmphasis(index) {
+function removeBoundingBox(index) {
     if (!annotationObjects.exists(index, "Image")) {
         return;
     }
@@ -751,24 +738,26 @@ function removeEmphasis(index) {
     }
 }
 
-function addTextBox(index) {
-    if (!annotationObjects.exists(index, "Image")) {
+function addTextBox(bbIndex) {
+    if (!annotationObjects.exists(bbIndex, "Image")) {
         return;
     }
-    var bbox = annotationObjects.get(index, "Image");
+    var bbox = annotationObjects.get(bbIndex, "Image");
+    var trackId = annotationObjects.contents[bbIndex]["trackId"];
     var posX = bbox["rect"].attr("x");
     var posY = bbox["rect"].attr("y");
-    var cls = annotationObjects.get(index, "class");
+    var cls = annotationObjects.get(bbIndex, "class");
+    var firstLetterOfClass = cls.charAt(0);
     bbox["textBox"] =
         {
-            text: paper.text(posX, posY - fontSize / 2, "#" + index + " " + cls)
+            text: paper.text(posX, posY - fontSize / 2, "#" + firstLetterOfClass + trackId + " " + cls)
                 .attr({
                     fill: "black",
                     "font-size": fontSize,
                     "text-anchor": "start"
                 })
         };
-    bbox["textBox"]["text"].attr("text", bboxString(index, cls));
+    bbox["textBox"]["text"].attr("text", bboxString(bbIndex, cls));
     var box = bbox["textBox"]["text"].getBBox();
     bbox["textBox"]["box"] = paper.rect(box.x, box.y, box.width, box.height)
         .attr({
@@ -784,7 +773,7 @@ function removeTextBox(index) {
     if (!annotationObjects.exists(index, "Image")) {
         return;
     }
-    var bbox = annotationObjects.get(index, "Image")
+    var bbox = annotationObjects.get(index, "Image");
     if (bbox["textBox"] == undefined) {
         return;
     }
@@ -794,10 +783,12 @@ function removeTextBox(index) {
 }
 
 function bboxString(index, label) {
+    var firstLetterOfClass = label.charAt(0);
+    var trackId = index + 1;
     if (fontSize == 15) {
-        return "text", "#" + index.toString();
+        return "text", "#" + firstLetterOfClass + trackId.toString();
     } else {
-        return "#" + index.toString() + " " + label;
+        return "#" + firstLetterOfClass + trackId.toString() + " " + label;
     }
 }
 

@@ -11,11 +11,11 @@ var labelTool = {
     hasLoadedPCD: false,
     originalSize: [0, 0], // Original size of jpeg image
     originalAnnotations: [],   // For checking modified or not
-    hold_flag: false,     // Hold bbox flag
+    hold_flag: true,     // Hold bbox flag
     loadCount: 0,         // To prevent sending annotations before loading them
     selectedDataType: "",
     skipFrameCount: 1,
-    targetClass: "vehicle.car",
+    targetClass: "Vehicle",
     pageBox: document.getElementById('page_num'),
     savedFrames: [],
     // unsavedAnnotations: [], // For retrying save.
@@ -138,7 +138,8 @@ var labelTool = {
                         x: minPos[0],
                         y: minPos[1],
                         width: maxPos[0] - minPos[0],
-                        height: maxPos[1] - minPos[1]
+                        height: maxPos[1] - minPos[1],
+                        trackId: annotation.trackId
                     };
                     //annotationObjects.setTarget("Image", params, label);
                     annotationObjects.setTarget("Image", params, annotations[i].label);
@@ -177,7 +178,8 @@ var labelTool = {
                             height: tmpHeight,
                             depth: tmpDepth,
                             yaw: parseFloat(annotation.rotation_y)
-                        }
+                        },
+                        trackId: annotation.trackId
                     };
                     //addbbox(readfile_parameters, index); //
                     //annotationObjects.selectEmpty();
@@ -230,13 +232,14 @@ var labelTool = {
                 y: 0,
                 z: 0,
                 rotation_y: 0,
-                score: 0,
-                vehicle: {
-                    rear_light_left: {x: -1, y: -1},
-                    rear_light_right: {x: -1, y: -1},
-                    front_light_left: {x: -1, y: -1},
-                    front_light_right: {x: -1, y: -1},
-                }
+                score: 1,
+                trackId: -1
+                // vehicle: {
+                //     rear_light_left: {x: -1, y: -1},
+                //     rear_light_right: {x: -1, y: -1},
+                //     front_light_left: {x: -1, y: -1},
+                //     front_light_right: {x: -1, y: -1},
+                // }
             };
 
             if (annotationObjects.exists(i, "Image")) {
@@ -248,15 +251,17 @@ var labelTool = {
                 annotation["top"] = minPos[1];
                 annotation["right"] = maxPos[0];
                 annotation["bottom"] = maxPos[1];
-                var keypoints = annotationObjects.get(i, "Image")["keypoints"];
-                annotation["vehicle"]["rear_light_left"]["x"] = keypoints["vehicle"]["rear_light_left"]["x"];
-                annotation["vehicle"]["rear_light_left"]["y"] = keypoints["vehicle"]["rear_light_left"]["y"];
-                annotation["vehicle"]["rear_light_right"]["x"] = keypoints["vehicle"]["rear_light_right"]["x"];
-                annotation["vehicle"]["rear_light_right"]["y"] = keypoints["vehicle"]["rear_light_right"]["y"];
-                annotation["vehicle"]["front_light_left"]["x"] = keypoints["vehicle"]["front_light_left"]["x"];
-                annotation["vehicle"]["front_light_left"]["y"] = keypoints["vehicle"]["front_light_left"]["y"];
-                annotation["vehicle"]["front_light_right"]["x"] = keypoints["vehicle"]["front_light_right"]["x"];
-                annotation["vehicle"]["front_light_right"]["y"] = keypoints["vehicle"]["front_light_right"]["y"];
+                var trackId = annotationObjects.get(i, "Image")["trackId"];
+                annotation["trackId"] = trackId;
+                // var keypoints = annotationObjects.get(i, "Image")["keypoints"];
+                // annotation["vehicle"]["rear_light_left"]["x"] = keypoints["vehicle"]["rear_light_left"]["x"];
+                // annotation["vehicle"]["rear_light_left"]["y"] = keypoints["vehicle"]["rear_light_left"]["y"];
+                // annotation["vehicle"]["rear_light_right"]["x"] = keypoints["vehicle"]["rear_light_right"]["x"];
+                // annotation["vehicle"]["rear_light_right"]["y"] = keypoints["vehicle"]["rear_light_right"]["y"];
+                // annotation["vehicle"]["front_light_left"]["x"] = keypoints["vehicle"]["front_light_left"]["x"];
+                // annotation["vehicle"]["front_light_left"]["y"] = keypoints["vehicle"]["front_light_left"]["y"];
+                // annotation["vehicle"]["front_light_right"]["x"] = keypoints["vehicle"]["front_light_right"]["x"];
+                // annotation["vehicle"]["front_light_right"]["y"] = keypoints["vehicle"]["front_light_right"]["y"];
             }
             if (annotationObjects.exists(i, "PCD")) {
                 var currentAnnotationIndex = this.bboxIndex[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex].lastIndexOf(i.toString());
@@ -520,7 +525,7 @@ var labelTool = {
                 this.initialize();
                 this.showData();
                 this.getAnnotations(this.currentFileIndex);
-                this.getKeypoints(this.currentFileIndex);
+                // this.getKeypoints(this.currentFileIndex);
             }.bind(this)
         });
     },
@@ -736,17 +741,7 @@ var labelTool = {
     }, changeCamChannel: function (currentChannelNumber, nextChannelNumber) {
         // change label text
         this.currentChannelLabel.innerHTML = this.camChannels[nextChannelNumber];
-        // if (this.bkupExists) {
-        //     return;
-        // }
-        // var annotations = this.createAnnotations();
-        // if (JSON.stringify(annotations) != JSON.stringify(this.originalAnnotations)) {
-        //     this.setAnnotations(annotations);
-        // }
-        // this.currentFileIndex = Number(this.pageBox.value);
-        // remove gui elements from previous frame
         if (this.dataTypes.indexOf("PCD") >= 0 && this.hold_flag == false) {
-            //for (var k = 0; k < this.cubeArray.length; k++) {
             var cubeLength;
             if (this.cubeArray[labelTool.currentFileIndex][currentChannelNumber] == undefined) {
                 cubeLength = 0;
@@ -781,28 +776,16 @@ var labelTool = {
         this.showData();
 
         // render labels
-        if (this.hold_flag) {
-            // use annotations of current frame for next frame
+        // hold flag not set
+        if (this.savedFrames[this.currentFileIndex][this.currentCameraChannelIndex] == true) {
+
         } else {
-            // hold flag not set
-            // if annotations were saved for this frame before then use those
-            // otherwise load annotations from file
-            if (this.savedFrames[this.currentFileIndex][this.currentCameraChannelIndex] == true) {
-
+            // load annotations from file if they exist, otherwise show blank image
+            if (annotationFileExist(this.currentFileIndex, nextChannelNumber)) {
+                this.getAnnotations(this.currentFileIndex);
             } else {
-                // load annotations from file if they exist, otherwise show blank image
-                if (annotationFileExist(this.currentFileIndex, nextChannelNumber)) {
-                    this.getAnnotations(this.currentFileIndex);
-                } else {
-                    // no annotations are loaded
-                }
-                // load keypointObjects from file if they exist, otherwise show blank image
-                if (keypointFileExist(this.currentFileIndex, nextChannelNumber)) {
-                    this.getKeypoints(this.currentFileIndex);
-                } else {
-                    // no annotations are loaded
-                }
-
+                // no annotations are loaded
+                annotationObjects.clear();
             }
         }
 
@@ -865,9 +848,6 @@ var labelTool = {
             if (annotationFileExist(this.currentFileIndex - 1, this.currentCameraChannelIndex)) {
                 this.getAnnotations(this.currentFileIndex - 1);
             }
-            if (keypointFileExist(this.currentFileIndex - 1, this.currentCameraChannelIndex)) {
-                this.getKeypoints(this.currentFileIndex - 1);
-            }
         } else {
             // hold flag not set
             // if annotations were saved for this frame before then use those
@@ -881,13 +861,6 @@ var labelTool = {
                 } else {
                     // no annotations are loaded
                     annotationObjects.clear();
-                }
-                // load keypointObjects from file if they exist, otherwise show blank image
-                if (keypointFileExist(this.currentFileIndex, this.currentCameraChannelIndex)) {
-                    this.getKeypoints(this.currentFileIndex);
-                } else {
-                    // no annotations are loaded
-                    keypointObjects.clear();
                 }
             }
         }
@@ -954,9 +927,9 @@ var labelTool = {
         this.hold_flag = !this.hold_flag;
     },
 
-    resetBoxesAndKeypoints: function () {
+    resetBoxes: function () {
         this.getAnnotations(this.currentFileIndex);
-        this.getKeypoints(this.currentFileIndex);
+        // this.getKeypoints(this.currentFileIndex);
     },
 
     // selectYes() {

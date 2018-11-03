@@ -18,9 +18,12 @@ class BBoxTable {
         var index = this.__tail + 1;
         this.__tail++;
         if (!$("#" + this.tableId + "-number-" + index)[0]) {
+            var targetIndex = annotationObjects.getTargetIndex();
+            var firstLetterOfClass = annotationObjects.contents[targetIndex]["class"].charAt(0);
+            var trackId = annotationObjects.contents[targetIndex]["trackId"];
             var $li = $('<li class="jpeg-label-sidebar-item" ' + this.liOptions(index) + '>'
                 + '<div class="label-tool-sidebar-number-box">'
-                + '<p class="label-tool-sidebar-text number" id="' + this.tableId + '-number-' + index + '">' + index + '.</p>'
+                + '<p class="label-tool-sidebar-text number" id="' + this.tableId + '-number-' + index + '">' + firstLetterOfClass + trackId + '</p>'
                 + '</div>'
                 + '</li>'
             );
