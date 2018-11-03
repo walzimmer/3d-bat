@@ -103,7 +103,7 @@ function parseAnnotationFile(fileName, channel) {
                 var str_list = allText.split("\n");
                 for (var i = 0; i < str_list.length; i++) {
                     var str = str_list[i].split(" ");
-                    if (str.length == 16) {
+                    if (str.length == 17) {
                         res.push({
                             label: str[0],
                             truncated: str[1],
@@ -119,11 +119,13 @@ function parseAnnotationFile(fileName, channel) {
                             x: str[11],
                             y: str[12],
                             z: str[13],
-                            rotation_y: str[14]
+                            rotation_y: str[14],
+                            score: str[15],
+                            trackId : str[16]
                         });
-                        return res;
                     }
                 }
+                return res;
             } else {
                 return null;
             }

@@ -58,7 +58,7 @@ var annotationObjects = {
         var isExpanded = false;
         if (this.contents[index] == undefined) {
             if (index == this.__tail + 1) {
-                this.expand();
+                this.expand(cls, params.trackId);
                 isExpanded = true;
             } else {
                 return false;
@@ -70,6 +70,7 @@ var annotationObjects = {
         var obj = this.localOnAdd[dataType](index, cls, params);
         this.contents[index][dataType] = obj;
         this.contents[index]["class"] = cls;
+        this.contents[index]["trackId"] = params.trackId;
         this.__table.changeClass(index, cls);
         this.__table.add(index, dataType);
         if (isExpanded) {
@@ -86,12 +87,18 @@ var annotationObjects = {
         }.bind(this));
         this.__table.changeClass(index, cls);
     },
-    expand: function (cls) {
+    expand: function (cls, trackId) {
         this.selectEmpty();
         if (cls == undefined) {
-            this.contents[this.__tail + 1] = {"class": classesBoundingBox.targetName()};
+            this.contents[this.__tail + 1] = {
+                "class": classesBoundingBox.targetName(),
+                "trackId": trackId
+            };
         } else {
-            this.contents[this.__tail + 1] = {"class": cls};
+            this.contents[this.__tail + 1] = {
+                "class": cls,
+                "trackId": trackId
+            };
         }
         this.__tail++;
         this.__table.expand(classesBoundingBox.targetName(), false, false);
