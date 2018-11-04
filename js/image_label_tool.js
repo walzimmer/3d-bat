@@ -29,16 +29,13 @@ annotationObjects.onRemove("Image", function (index) {
     if (!annotationObjects.exists(index, "Image")) {
         return;
     }
-    removeBoundingBox(index);
+    removeBoundingBoxHighlight(index);
     removeTextBox(index);
     annotationObjects.get(index, "Image")["rect"].remove();
-    // also remove row (li item) from table
-    // $("#bbox-table").children().get(index).remove();
-    // bbox
 });
 
 annotationObjects.onSelect("Image", function (newIndex, oldIndex) {
-    removeBoundingBox(oldIndex);
+    removeBoundingBoxHighlight(oldIndex);
     removeTextBox(oldIndex);
     addTextBox(newIndex);
     emphasisBBox(newIndex);
@@ -292,8 +289,9 @@ function addEventsToImage() {
             // no bounding box was selected
             // remove selection from current target
             var selectedBBIndex = annotationObjects.getTargetIndex();
-            removeBoundingBox(selectedBBIndex);
+            removeBoundingBoxHighlight(selectedBBIndex);
             removeTextBox(selectedBBIndex);
+            this.__table.selectEmpty();
         }
 
     });
@@ -543,8 +541,8 @@ function showAllBoundingBoxes() {
  * @returns {*}
  */
 function getClickedIndex(e) {
-    // var targetIndex = -1;
-    var targetIndex = annotationObjects.__tail + 1;
+    var targetIndex = -1;
+    // var targetIndex = annotationObjects.__tail + 1;
     for (var i = 0; i < annotationObjects.length(); ++i) {
         if (annotationObjects.get(i, "Image") == undefined) {
             continue;
@@ -555,9 +553,9 @@ function getClickedIndex(e) {
             e.offsetY >= rect.attr("y") &&
             e.offsetY <= rect.attr("y") + rect.attr("height")) {
             targetIndex = i;
-            if (targetIndex == annotationObjects.getTargetIndex()) {
-                return i;
-            }
+            // if (targetIndex == annotationObjects.getTargetIndex()) {
+            return i;
+            // }
         }
     }
     return targetIndex;
@@ -704,7 +702,7 @@ function emphasisBBox(index) {
     if (!annotationObjects.exists(index, "Image")) {
         return;
     }
-    removeBoundingBox(index);
+    removeBoundingBoxHighlight(index);
     var rect = annotationObjects.get(index, "Image")["rect"];
     rect.g = rect.glow({color: "#FFF", width: 5, opacity: 1});
     rect.g[0].node.setAttribute("pointer-events", "none");
@@ -728,7 +726,7 @@ function emphasisBBox(index) {
     rect.toFront();
 }
 
-function removeBoundingBox(index) {
+function removeBoundingBoxHighlight(index) {
     if (!annotationObjects.exists(index, "Image")) {
         return;
     }
