@@ -18,9 +18,8 @@ class BBoxTable {
         var index = this.__tail + 1;
         this.__tail++;
         if (!$("#" + this.tableId + "-number-" + index)[0]) {
-            var targetIndex = annotationObjects.getTargetIndex();
-            var firstLetterOfClass = annotationObjects.contents[targetIndex]["class"].charAt(0);
-            var trackId = annotationObjects.contents[targetIndex]["trackId"];
+            var firstLetterOfClass = annotationObjects.contents[index]["class"].charAt(0);
+            var trackId = annotationObjects.contents[index]["trackId"];
             var $li = $('<li class="jpeg-label-sidebar-item" ' + this.liOptions(index) + '>'
                 + '<div class="label-tool-sidebar-number-box">'
                 + '<p class="label-tool-sidebar-text number" id="' + this.tableId + '-number-' + index + '">' + firstLetterOfClass + trackId + '</p>'
@@ -73,17 +72,28 @@ class BBoxTable {
         this.__bboxes[index]["label"] = cls;
     }
 
-    remove(index, dataType) {
-        $("#" + this.tableId + "-" + dataType + "-" + index).css("color", "#888");
-        if (this.__bboxes[index] != undefined) {
-            delete this.__bboxes[index][dataType];
+    remove(tableIndex, dataType) {
+        $("#" + this.tableId + "-" + dataType + "-" + tableIndex).css("color", "#888");
+        if (this.__bboxes[tableIndex] != undefined) {
+            delete this.__bboxes[tableIndex][dataType];
+        }
+        if (this.__bboxes[tableIndex]["Image"] == undefined && this.__bboxes[tableIndex]["PCD"] == undefined) {
+            delete this.__bboxes[tableIndex];
+            $("#bbox-table").children().remove(tableIndex);
         }
     }
 
     select(index) {
-        $("#" + this.tableId + "-number-" + this.__target).css("color", "#ddd");
-        $("#" + this.tableId + "-number-" + index).css("color", "#4894f4");
+        // remove highlight from previous selected object
+        $("#bbox-table li").css("background-color", "#333");
+        // highlight selected object in list
+        $($("#bbox-table").children()[this.__target]).css("background-color", "#525252");
         this.__target = index;
+    }
+
+    selectEmpty() {
+        // remove highlight from previous selected object
+        $("#bbox-table li").css("background-color", "#333");
     }
 
     clear() {
