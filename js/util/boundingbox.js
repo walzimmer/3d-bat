@@ -88,7 +88,7 @@ var annotationObjects = {
         this.__table.changeClass(index, cls);
     },
     expand: function (cls, trackId) {
-        this.selectEmpty();
+        // this.selectEmpty();
         if (cls == undefined) {
             this.contents[this.__tail + 1] = {
                 "class": classesBoundingBox.targetName(),
@@ -120,29 +120,33 @@ var annotationObjects = {
         return true;
     },
     setTargetIndex: function (index) {
-        if (!this.isValid(index)) {
-            return false;
-        }
         if (index == this.__target) {
-            return false;
+            return;
         }
-        var oldIndex = this.__target;
-        if (this.isEmpty(this.__target) && this.__target != this.__tail + 1) {
-            this.contents.splice(this.__target, 1);
-            this.__tail--;
-            if (index > this.__target) {
-                index--;
-            }
-            this.__table.refresh();
-        }
+        // if (this.isIndexValid(this.__target) && this.__target != -1) {
+        //     this.contents.splice(this.__target, 1);
+        //     this.__tail--;
+        //     if (index > this.__target) {
+        //         index--;
+        //     }
+        //     this.__table.refresh();
+        // }
+
+        // show bounding box highlighting
         labelTool.dataTypes.forEach(function (dataType) {
-            this.localOnSelect[dataType](index, oldIndex);
+            this.localOnSelect[dataType](index, this.__target);
         }.bind(this));
-        if (!this.isEmpty(index)) {
-            classesBoundingBox.onChange(annotationObjects.get(index, "class"));
-        }
+        // if (!this.isIndexValid(index)) {
+        //     classesBoundingBox.onChange(annotationObjects.get(index, "class"));
+        // }
         this.__target = index;
-        this.__table.select(this.__target);
+        this.__table.__target = index;
+        if (this.__target != -1) {
+            this.__table.select(this.__target);
+        } else {
+            this.__table.selectEmpty();
+        }
+
         return true;
     },
     select: function (index) {
@@ -157,7 +161,8 @@ var annotationObjects = {
         return this.__target >= 0 && this.__target <= this.__tail;
     },
     isValid: function (index) {
-        return index >= 0 && index <= this.__tail + 1;
+        //return index >= 0 && index <= this.__tail + 1;
+        return index >= 0 && index <= this.__tail;
     },
     exists: function (index, dataType) {
         if (this.contents[index] == undefined) {
@@ -172,20 +177,22 @@ var annotationObjects = {
         this.setTargetIndex(this.__tail);
     },
     selectEmpty: function () {
-        this.setTargetIndex(this.__tail + 1);
+        //this.setTargetIndex(this.__tail + 1);
+        this.setTargetIndex(-1);
     },
     selectNext: function () {
-        if (this.isEmpty(this.__target)) {
-            this.select(0);
-        } else {
+        if (this.isIndexValid(this.__target)) {
             this.select(this.__target + 1);
+        } else {
+            this.select(0);
         }
     },
     length: function () {
         return this.__tail + 1;
     },
-    isEmpty: function (index) {
-        return !this.exists(index, "Image") && !this.exists(index, "PCD");
+    isIndexValid: function (index) {
+        //return !this.exists(index, "Image") && !this.exists(index, "PCD");
+        return this.exists(index, "Image") || !this.exists(index, "PCD");
     },
     remove: function (index, dataType) {
         if (dataType == undefined) {
@@ -204,7 +211,11 @@ var annotationObjects = {
         } else {
             this.localOnRemove[dataType](index);
             delete this.contents[index][dataType];
+            if (this.contents[index]["Image"] == undefined && this.contents[index]["PCD"] == undefined) {
+                delete this.contents[index];
+            }
             this.__table.remove(index, dataType);
+            this.__tail = -1;
         }
     },
     removeTarget: function (dataType) {
@@ -229,12 +240,12 @@ var annotationObjects = {
                 this.localOnRemove["PCD"](i);
             }
         }
-        this.__target = 0;
+        this.__target = -1;
         this.__tail = -1;
         this.contents = [];
         this.__table.clear();
     },
-    __target: 0,
+    __target: -1,
     __tail: -1,
     __table: new BBoxTable({
         tableId: "bbox-table",

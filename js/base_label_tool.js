@@ -348,8 +348,8 @@ var labelTool = {
     initialize: function () {
         this.pageBox.placeholder = (this.currentFileIndex + 1) + "/" + this.fileNames.length;
         // annotationObjects.init();
-        annotationObjects.selectEmpty();
-        keypointObjects.selectEmpty();
+        // annotationObjects.selectEmpty();
+        // keypointObjects.selectEmpty();
         this.dataTypes.forEach(function (dataType) {
             this.localOnInitialize[dataType]();
         }.bind(this));
