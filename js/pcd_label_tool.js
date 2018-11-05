@@ -12,7 +12,7 @@ var folder_position = [];
 var folder_size = [];
 var bboxFlag = true;
 var clickFlag = false;
-var clickedObjectIndex = 0;
+var clickedObjectIndex = -1;
 var mouseDown = {x: 0, y: 0};
 var mouseUp = {x: 0, y: 0};
 var clickedPoint = THREE.Vector3();
@@ -727,6 +727,7 @@ function init() {
                         labelTool.changeFrame(labelTool.currentFileIndex)
                     }
                 } else if (birdViewFlag == true) {
+                    clickedObjectIndex = -1;
                     groundPlaneArray = [];
                     var material = new THREE.MeshBasicMaterial({
                         color: 0x000000,
@@ -871,6 +872,9 @@ function init() {
                     $("#label-tool-log").css("color", "#969696");
                 }
 
+            }
+            if (clickedObjectIndex == -1) {
+                annotationObjects.selectEmpty();
             }
         }
     };
