@@ -23,8 +23,7 @@ var labelTool = {
     // bkupExists: false,
     cameraMatrix: [],
     cubeArray: [],
-    keypointsArray: [],
-    bboxIndex: [],
+    bboxIndexArray: [],
     currentCameraChannelIndex: 0,
     camChannels: ['CAM_FRONT', 'CAM_FRONT_RIGHT', 'CAM_BACK_RIGHT', 'CAM_BACK', 'CAM_BACK_LEFT', 'CAM_FRONT_LEFT'],
     currentChannelLabel: document.getElementById('cam_channel'),
@@ -88,28 +87,6 @@ var labelTool = {
             this.localOnLoadData["Image"]();
             this.localOnLoadData["PCD"]();
             this.hasLoadedPCD = true;
-        }
-    },
-
-    loadKeypoints: function (keypoints) {
-        // Remove old keypointObjects of current frame.
-        keypoints.clear();
-        // Add new bounding boxes.
-        for (var i in keypoints) {
-            var hasLabel = {
-                "Image": false
-            };
-            var keypoint = keypoints[i];
-            keypoints.selectEmpty();
-            if (this.hasData("Image")) {
-                var params = {
-                    x: keypoint.x,
-                    y: keypoint.y,
-                };
-                //annotationObjects.setTarget("Image", params, label);
-                keypoints.setTarget("Image", params, keypoints[i].label);
-                hasLabel["Image"] = true;
-            }
         }
     },
 
@@ -253,18 +230,9 @@ var labelTool = {
                 annotation["bottom"] = maxPos[1];
                 var trackId = annotationObjects.get(i, "Image")["trackId"];
                 annotation["trackId"] = trackId;
-                // var keypoints = annotationObjects.get(i, "Image")["keypoints"];
-                // annotation["vehicle"]["rear_light_left"]["x"] = keypoints["vehicle"]["rear_light_left"]["x"];
-                // annotation["vehicle"]["rear_light_left"]["y"] = keypoints["vehicle"]["rear_light_left"]["y"];
-                // annotation["vehicle"]["rear_light_right"]["x"] = keypoints["vehicle"]["rear_light_right"]["x"];
-                // annotation["vehicle"]["rear_light_right"]["y"] = keypoints["vehicle"]["rear_light_right"]["y"];
-                // annotation["vehicle"]["front_light_left"]["x"] = keypoints["vehicle"]["front_light_left"]["x"];
-                // annotation["vehicle"]["front_light_left"]["y"] = keypoints["vehicle"]["front_light_left"]["y"];
-                // annotation["vehicle"]["front_light_right"]["x"] = keypoints["vehicle"]["front_light_right"]["x"];
-                // annotation["vehicle"]["front_light_right"]["y"] = keypoints["vehicle"]["front_light_right"]["y"];
             }
             if (annotationObjects.exists(i, "PCD")) {
-                var currentAnnotationIndex = this.bboxIndex[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex].lastIndexOf(i.toString());
+                var currentAnnotationIndex = this.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex].lastIndexOf(i.toString());
                 if (currentAnnotationIndex !== -1) {
                     var cubeMat = [this.cubeArray[this.currentFileIndex][this.currentCameraChannelIndex][currentAnnotationIndex].position.x,
                         this.cubeArray[this.currentFileIndex][this.currentCameraChannelIndex][currentAnnotationIndex].position.y,
@@ -284,20 +252,6 @@ var labelTool = {
             annotations.push(annotation);
         }
         return annotations;
-    },
-    createKeypoints: function () {
-        var keypointsList = [];
-        for (var i = 0; i < keypointObjects.length(); ++i) {
-            var keypoint = {
-                label: keypointObjects.get(i, "class"),
-                x: labelTool.keypointsArray[i].x,
-                y: labelTool.keypointsArray[i].y
-            };
-            keypoint["x"] = keypoint.x;
-            keypoint["y"] = keypoint.y;
-            keypointsList.push(keypoint);
-        }
-        return keypointsList;
     },
 
     /* addImageBBoxToTable: function(index) {
@@ -349,7 +303,6 @@ var labelTool = {
         this.pageBox.placeholder = (this.currentFileIndex + 1) + "/" + this.fileNames.length;
         // annotationObjects.init();
         // annotationObjects.selectEmpty();
-        // keypointObjects.selectEmpty();
         this.dataTypes.forEach(function (dataType) {
             this.localOnInitialize[dataType]();
         }.bind(this));
@@ -359,31 +312,6 @@ var labelTool = {
         // $('#canvas3d').show();
         // this.addResizeEventForPCD();
         // this.showData();
-    },
-
-    getKeypoints(currentFileIndex) {
-        this.loadCount++;
-        var fileName = this.fileNames[currentFileIndex] + ".txt";
-        var targetFile = this.currentFileIndex;
-        request({
-            url: '/label/keypointObjects/',
-            type: 'GET',
-            dataType: 'json',
-            data: {
-                file_name: fileName,
-                label_id: this.labelId,
-                channel: this.camChannels[this.currentCameraChannelIndex]
-            },
-            success: function (res) {
-                if (targetFile == this.currentFileIndex) {
-                    this.loadKeypoints(res);
-                }
-                this.loadCount--;
-            }.bind(this),
-            error: function (res) {
-                this.loadCount--;
-            }.bind(this)
-        });
     },
 
     getAnnotations(currentFileIndex) {
@@ -443,36 +371,6 @@ var labelTool = {
         })
     },
 
-    // retrySave() {
-    //     if (!this.bkupExists) {
-    //         return;
-    //     }
-    //     $("#label-tool-log").val("Retrying to save frame " + (this.unsavedFrame + 1) + "...");
-    //     $("#label-tool-log").css("color", "#fff");
-    //     var fileName = this.fileNames[this.unsavedFrame];
-    //     request({
-    //         url: '/label/annotations/',
-    //         type: 'POST',
-    //         dataType: 'html',
-    //         data: {
-    //             file_name: fileName + ".txt",
-    //             annotations: JSON.stringify(this.unsavedAnnotations),
-    //             label_id: this.labelId + 1
-    //         },
-    //         success: function (res) {
-    //             $("#label-tool-log").val("Saved frame " + (this.unsavedFrame + 1));
-    //             $("#label-tool-log").css("color", "#fff");
-    //             this.bkupExists = false;
-    //             this.pending = false;
-    //         }.bind(this),
-    //         error: function (res) {
-    //             $("#label-tool-log").val("Failed to save frame " + (this.unsavedFrame + 1));
-    //             $("#label-tool-log").css("color", "#f00");
-    //             this.pending = false;
-    //         }.bind(this)
-    //     });
-    // },
-
     getInformations() {
         request({
             url: "/labels/",
@@ -485,11 +383,6 @@ var labelTool = {
                 // this.currentFileIndex = dict.progress - 101;
                 this.getImageSize();
             }.bind(this)
-            /* ,fail: function(res) {
-               if (this.dataType == "JPEG") {
-               textBox.value = "Failed....";
-               }
-               }.bind(this)*/
         })
     },
 
@@ -505,11 +398,6 @@ var labelTool = {
                 this.originalSize[1] = dict.height;
                 this.getFileNames();
             }.bind(this)
-            /* ,fail: function(res) {
-               if (this.dataType == "JPEG") {
-               textBox.value = "Failed....";
-               }
-               }.bind(this)*/
         })
     },
 
@@ -525,7 +413,6 @@ var labelTool = {
                 this.initialize();
                 this.showData();
                 this.getAnnotations(this.currentFileIndex);
-                // this.getKeypoints(this.currentFileIndex);
             }.bind(this)
         });
     },
@@ -750,25 +637,25 @@ var labelTool = {
             }
             // remove all folder of current channel
             for (var k = 0; k < cubeLength; k++) {
-                guiOptions.removeFolder('BoundingBox' + String(this.bboxIndex[labelTool.currentFileIndex][currentChannelNumber][k]));
+                guiOptions.removeFolder('BoundingBox' + String(this.bboxIndexArray[labelTool.currentFileIndex][currentChannelNumber][k]));
                 this.cubeArray[labelTool.currentFileIndex][currentChannelNumber][k].visible = false;
             }
         }
         if (this.hasPCD && this.hasLoadedPCD) {
             ground_mesh.visible = false;
-            c_flag = false;
-            r_flag = false;
+            cFlag = false;
+            rFlag = false;
             if (this.hold_flag == false) {
                 this.bboxes = [];
                 // do not delete bounding boxes that were set previously
                 // this.cubeArray[this.currentFileIndex][this.currentCameraChannelIndex] = [];
                 numbertagList = [];
-                bounding_box_3d_array = [];
+                boundingBox3DArray = [];
                 guiTag = [];
                 numbertagList = [];
                 folder_position = [];
                 folder_size = [];
-                this.bboxIndex[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex] = [];
+                this.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex] = [];
             }
         }
         this.hasLoadedImage = false;
@@ -798,11 +685,6 @@ var labelTool = {
 
     },
     changeFrame: function (fileNumber) {
-        // reset channel index
-        // this.currentCameraChannelIndex = 0;
-        // if (this.bkupExists) {
-        //     return;
-        // }
         // var annotations = this.createAnnotations();
         // if (JSON.stringify(annotations) != JSON.stringify(this.originalAnnotations)) {
         //     this.setAnnotations(annotations);
@@ -811,27 +693,25 @@ var labelTool = {
         this.pageBox.placeholder = (this.currentFileIndex + 1) + "/" + this.fileNames.length;
         this.pageBox.value = "";
         if (this.dataTypes.indexOf("PCD") >= 0 && this.hold_flag == false) {
-            //for (var k = 0; k < this.cubeArray.length; k++) {
             for (var k = 0; k < this.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex].length; k++) {
-                guiOptions.removeFolder('BoundingBox' + String(this.bboxIndex[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][k]));
-                //this.cubeArray[k].visible = false;
+                guiOptions.removeFolder('BoundingBox' + String(this.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][k]));
                 this.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][k].visible = false;
             }
         }
         if (this.hasPCD && this.hasLoadedPCD) {
             ground_mesh.visible = false;
-            c_flag = false;
-            r_flag = false;
+            cFlag = false;
+            rFlag = false;
             if (this.hold_flag == false) {
                 // this.annotationObjects = [];
                 this.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex] = [];
                 numbertagList = [];
-                bounding_box_3d_array = [];
+                boundingBox3DArray = [];
                 guiTag = [];
                 numbertagList = [];
                 folder_position = [];
                 folder_size = [];
-                this.bboxIndex[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex] = [];
+                this.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex] = [];
             }
         }
         this.hasLoadedImage = false;
@@ -895,7 +775,7 @@ var labelTool = {
     //             dat.GUI.toggleHide();
     //             this.selectedDataType = "PCD";
     //             $('#canvas3d').show();
-    //             if (!bird_view_flag) {
+    //             if (!birdViewFlag) {
     //                 $('#jpeg-label-canvas').hide();
     //             } else {
     //                 changeCanvasSize($("#canvas3d").width() / 4, $("#canvas3d").width() * 5 / 32);
@@ -929,7 +809,6 @@ var labelTool = {
 
     resetBoxes: function () {
         this.getAnnotations(this.currentFileIndex);
-        // this.getKeypoints(this.currentFileIndex);
     },
 
     // selectYes() {

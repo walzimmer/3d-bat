@@ -7,7 +7,6 @@ var startX = 0;
 var startY = 0;
 var updateFlag = false;
 var drawingRect = null;
-var keyPointDrawn = null;
 var emphasisRect = null;
 var fontSize = 20;
 var isDragging = false; // For distinguishing click and drag.
@@ -52,14 +51,6 @@ annotationObjects.onAdd("Image", function (index, cls, params) {
                 "stroke-width": 3
             }),
         "trackId": 1
-        // "keypoints": {
-        //     "vehicle": {
-        //         "rear_light_left": {"x": -1, "y": -1},
-        //         "rear_light_right": {"x": -1, "y": -1},
-        //         "front_light_left": {"x": -1, "y": -1},
-        //         "front_light_right": {"x": -1, "y": -1}
-        //     }
-        // }
     };
     bbox["rect"].node.setAttribute("pointer-events", "none");
 
@@ -214,53 +205,49 @@ function convertPositionToPaper(e) {
 }
 
 function setAction(e) {
-    if (currentAnnotationMode === annotationModeArray[0]) {
-        if (isDragging) {
-            return;
-        }
-        setCursor("crosshair");
-        action = "add";
-        var bbox = annotationObjects.getTarget("Image");
-        if (bbox == undefined) {
-            return;
-        }
-        var targetRect = bbox["rect"];
-        if (e.offsetX < targetRect.attr("x") - 5 ||
-            e.offsetX > targetRect.attr("x") + targetRect.attr("width") + 5 ||
-            e.offsetY < targetRect.attr("y") - 5 ||
-            e.offsetY > targetRect.attr("y") + targetRect.attr("height") + 5) {
-            return;
-        }
-        grabbedSide = "";
-        if (e.offsetX <= targetRect.attr("x") + 2) {
-            grabbedSide += "left";
-        }
-        if (e.offsetX >= targetRect.attr("x") + targetRect.attr("width") - 2) {
-            grabbedSide += "right";
-        }
-        if (e.offsetY <= targetRect.attr("y") + 2) {
-            grabbedSide += "top";
-        }
-        if (e.offsetY >= targetRect.attr("y") + targetRect.attr("height") - 2) {
-            grabbedSide += "bottom";
-        }
-        if (grabbedSide == "") {
-            setCursor("all-scroll");
-            action = "move";
-        } else {
-            action = "resize";
-            if (grabbedSide == "left" || grabbedSide == "right") {
-                setCursor("ew-resize");
-            } else if (grabbedSide == "top" || grabbedSide == "bottom") {
-                setCursor("ns-resize");
-            } else if (grabbedSide == "lefttop" || grabbedSide == "rightbottom") {
-                setCursor("nwse-resize");
-            } else {
-                setCursor("nesw-resize");
-            }
-        }
+    if (isDragging) {
+        return;
+    }
+    setCursor("crosshair");
+    action = "add";
+    var bbox = annotationObjects.getTarget("Image");
+    if (bbox == undefined) {
+        return;
+    }
+    var targetRect = bbox["rect"];
+    if (e.offsetX < targetRect.attr("x") - 5 ||
+        e.offsetX > targetRect.attr("x") + targetRect.attr("width") + 5 ||
+        e.offsetY < targetRect.attr("y") - 5 ||
+        e.offsetY > targetRect.attr("y") + targetRect.attr("height") + 5) {
+        return;
+    }
+    grabbedSide = "";
+    if (e.offsetX <= targetRect.attr("x") + 2) {
+        grabbedSide += "left";
+    }
+    if (e.offsetX >= targetRect.attr("x") + targetRect.attr("width") - 2) {
+        grabbedSide += "right";
+    }
+    if (e.offsetY <= targetRect.attr("y") + 2) {
+        grabbedSide += "top";
+    }
+    if (e.offsetY >= targetRect.attr("y") + targetRect.attr("height") - 2) {
+        grabbedSide += "bottom";
+    }
+    if (grabbedSide == "") {
+        setCursor("all-scroll");
+        action = "move";
     } else {
-        // annotation mode is key point
+        action = "resize";
+        if (grabbedSide == "left" || grabbedSide == "right") {
+            setCursor("ew-resize");
+        } else if (grabbedSide == "top" || grabbedSide == "bottom") {
+            setCursor("ns-resize");
+        } else if (grabbedSide == "lefttop" || grabbedSide == "rightbottom") {
+            setCursor("nwse-resize");
+        } else {
+            setCursor("nesw-resize");
+        }
     }
 }
 
@@ -302,86 +289,82 @@ function addEventsToImage() {
             // TODO: automatically activate bounding box after placement
             $("#label-tool-log").val("2. Activate current bounding box");
             $("#label-tool-log").css("color", "#969696");
-            if (currentAnnotationMode === annotationModeArray[0]) {
-                var e2 = convertPositionToPaper(e);
-                if (e2.which != 1) {
-                    isDragging = false;
-                }
-                if (isOutOfCanvas(e2.pageX, e2.pageY)) {
-                    return;
-                }
-                var minSize = classesBoundingBox.target().minSize;
-                var minX = minSize.x;
-                var minY = minSize.y;
-                switch (action) {
-                    case "add":
-                        var rect = drawingRect;
-                        var width = e2.offsetX - startX;
-                        var height = e2.offsetY - startY;
-                        if (!isDragging && (Math.abs(width) > 1 || Math.abs(height) > 1)) {
-                            isDragging = true;
-                        }
-                        if (width < 0) {
-                            rect.attr({width: -width, x: e2.offsetX});
-                        } else {
-                            rect.attr({width: width, x: startX});
-                        }
-                        if (height < 0) {
-                            rect.attr({height: -height, y: e2.offsetY});
-                        } else {
-                            rect.attr({height: height, y: startY});
-                        }
-                        break;
-                    case "resize":
-                        var bbox = annotationObjects.getTarget("Image");
-                        var rect = bbox["rect"];
-                        if (grabbedSide.match(/left/)) {
-                            var validX = Math.min(e2.offsetX, rect.attr("x") + rect.attr("width") - minX);
-                            rect.attr({x: validX, width: rect.attr("x") + rect.attr("width") - validX});
-                            var textBoxDict = annotationObjects.getTarget("Image")["textBox"];
-                            textBoxDict["text"].attr({x: rect.attr("x")});
-                            textBoxDict["box"].attr({x: rect.attr("x")});
-                        }
-                        if (grabbedSide.match(/right/)) {
-                            var validX = Math.max(e2.offsetX, rect.attr("x") + minX);
-                            rect.attr({width: validX - rect.attr("x")});
-                        }
-                        if (grabbedSide.match(/top/)) {
-                            var validY = Math.min(e2.offsetY, rect.attr("y") + rect.attr("height") - minY);
-                            rect.attr({y: validY, height: rect.attr("y") + rect.attr("height") - validY});
-                            var textBoxDict = annotationObjects.getTarget("Image")["textBox"];
-                            textBoxDict["text"].attr({y: rect.attr("y") - fontSize / 2});
-                            textBoxDict["box"].attr({y: rect.attr("y") - fontSize});
-                        }
-                        if (grabbedSide.match(/bottom/)) {
-                            var validY = Math.max(e2.offsetY, rect.attr("y") + minY);
-                            rect.attr({height: validY - rect.attr("y")});
-                        }
-                        emphasisBBox(annotationObjects.getTargetIndex());
-                        break;
-                    case "move":
-                        var rect = annotationObjects.getTarget("Image")["rect"];
-                        var newRectX = e2.offsetX - grabbedPosition.x;
-                        var newRectY = e2.offsetY - grabbedPosition.y;
-                        if (newRectX + rect.attr("width") > c.width) {
-                            newRectX = c.width - rect.attr("width");
-                        } else if (newRectX < 0) {
-                            newRectX = 0;
-                        }
-                        if (newRectY + rect.attr("height") > c.height) {
-                            newRectY = c.height - rect.attr("height");
-                        } else if (newRectY < 0) {
-                            newRectY = 0;
-                        }
-                        rect.attr({x: newRectX, y: newRectY});
-                        var textBox = annotationObjects.getTarget("Image")["textBox"];
-                        textBox["text"].attr({x: newRectX, y: newRectY - fontSize / 2});
-                        textBox["box"].attr({x: newRectX, y: newRectY - fontSize});
-                        emphasisBBox(annotationObjects.getTargetIndex());
-                        break;
-                }
-            } else {
-                //annotation mode is key point
+            var e2 = convertPositionToPaper(e);
+            if (e2.which != 1) {
+                isDragging = false;
+            }
+            if (isOutOfCanvas(e2.pageX, e2.pageY)) {
+                return;
+            }
+            var minSize = classesBoundingBox.target().minSize;
+            var minX = minSize.x;
+            var minY = minSize.y;
+            switch (action) {
+                case "add":
+                    var rect = drawingRect;
+                    var width = e2.offsetX - startX;
+                    var height = e2.offsetY - startY;
+                    if (!isDragging && (Math.abs(width) > 1 || Math.abs(height) > 1)) {
+                        isDragging = true;
+                    }
+                    if (width < 0) {
+                        rect.attr({width: -width, x: e2.offsetX});
+                    } else {
+                        rect.attr({width: width, x: startX});
+                    }
+                    if (height < 0) {
+                        rect.attr({height: -height, y: e2.offsetY});
+                    } else {
+                        rect.attr({height: height, y: startY});
+                    }
+                    break;
+                case "resize":
+                    var bbox = annotationObjects.getTarget("Image");
+                    var rect = bbox["rect"];
+                    if (grabbedSide.match(/left/)) {
+                        var validX = Math.min(e2.offsetX, rect.attr("x") + rect.attr("width") - minX);
+                        rect.attr({x: validX, width: rect.attr("x") + rect.attr("width") - validX});
+                        var textBoxDict = annotationObjects.getTarget("Image")["textBox"];
+                        textBoxDict["text"].attr({x: rect.attr("x")});
+                        textBoxDict["box"].attr({x: rect.attr("x")});
+                    }
+                    if (grabbedSide.match(/right/)) {
+                        var validX = Math.max(e2.offsetX, rect.attr("x") + minX);
+                        rect.attr({width: validX - rect.attr("x")});
+                    }
+                    if (grabbedSide.match(/top/)) {
+                        var validY = Math.min(e2.offsetY, rect.attr("y") + rect.attr("height") - minY);
+                        rect.attr({y: validY, height: rect.attr("y") + rect.attr("height") - validY});
+                        var textBoxDict = annotationObjects.getTarget("Image")["textBox"];
+                        textBoxDict["text"].attr({y: rect.attr("y") - fontSize / 2});
+                        textBoxDict["box"].attr({y: rect.attr("y") - fontSize});
+                    }
+                    if (grabbedSide.match(/bottom/)) {
+                        var validY = Math.max(e2.offsetY, rect.attr("y") + minY);
+                        rect.attr({height: validY - rect.attr("y")});
+                    }
+                    emphasisBBox(annotationObjects.getTargetIndex());
+                    break;
+                case "move":
+                    var rect = annotationObjects.getTarget("Image")["rect"];
+                    var newRectX = e2.offsetX - grabbedPosition.x;
+                    var newRectY = e2.offsetY - grabbedPosition.y;
+                    if (newRectX + rect.attr("width") > c.width) {
+                        newRectX = c.width - rect.attr("width");
+                    } else if (newRectX < 0) {
+                        newRectX = 0;
+                    }
+                    if (newRectY + rect.attr("height") > c.height) {
+                        newRectY = c.height - rect.attr("height");
+                    } else if (newRectY < 0) {
+                        newRectY = 0;
+                    }
+                    rect.attr({x: newRectX, y: newRectY});
+                    var textBox = annotationObjects.getTarget("Image")["textBox"];
+                    textBox["text"].attr({x: newRectX, y: newRectY - fontSize / 2});
+                    textBox["box"].attr({x: newRectX, y: newRectY - fontSize});
+                    emphasisBBox(annotationObjects.getTargetIndex());
+                    break;
             }
 
         },
@@ -419,85 +402,67 @@ function addEventsToImage() {
 
         //on end
         function (e) {
-            if (currentAnnotationMode === annotationModeArray[0]) {
-                var e2 = convertPositionToPaper(e);
-                var rectX;
-                var rectY;
-                var rectHeight;
-                var rectWidth;
-                if (drawingRect != undefined && drawingRect != null) {
-                    rectX = drawingRect.attr("x");
-                    rectY = drawingRect.attr("y");
-                    rectWidth = drawingRect.attr("width");
-                    rectHeight = drawingRect.attr("height");
-                    drawingRect.remove();
-                } else {
-                    return;
-                }
-                if (e2.which != 1) {
-                    return;
-                }
-                if (!isDragging) {
-                    var index = getClickedIndex(e2);
-                    annotationObjects.select(index);
-                    setAction(e2);
-                    return;
-                }
-                isDragging = false;
-                switch (action) {
-                    case "add":
-                        if (rectWidth < classesBoundingBox.target().minSize.x ||
-                            rectHeight < classesBoundingBox.target().minSize.y) {
-                            return;
-                        }
-
-                        var selectedClassIndex = classesBoundingBox.target().index;
-                        var selectedClassInImage = classesBoundingBox.targetName();
-
-                        var bbox = annotationObjects.getTarget("Image");
-                        if (!annotationObjects.isValidTarget() || bbox != undefined) {
-                            annotationObjects.expand(selectedClassInImage, nextTrackIds[selectedClassIndex]);
-                            annotationObjects.selectTail();
-                        }
-
-
-                        var params = {
-                            x: rectX,
-                            y: rectY,
-                            width: rectWidth,
-                            height: rectHeight,
-                            trackId: nextTrackIds[selectedClassIndex]
-                        };
-                        nextTrackIds[selectedClassIndex] = nextTrackIds[selectedClassIndex] + 1;
-                        annotationObjects.setTarget("Image", params);
-
-                        annotationObjects.selectEmpty();
-                        drawingRect.remove();
-
-                        break;
-                    case "resize":
-                        break;
-                    case "move":
-                        break;
-                }
-                setAction(e2);
+            var e2 = convertPositionToPaper(e);
+            var rectX;
+            var rectY;
+            var rectHeight;
+            var rectWidth;
+            if (drawingRect != undefined && drawingRect != null) {
+                rectX = drawingRect.attr("x");
+                rectY = drawingRect.attr("y");
+                rectWidth = drawingRect.attr("width");
+                rectHeight = drawingRect.attr("height");
+                drawingRect.remove();
             } else {
-                // annotation mode is Keypoint
-                var keypoint = keypointObjects.getTarget("Image");
-                if (keypoint !== undefined) {
-                    if (!keypointObjects.isTargetDefined()) {
-                        keypointObjects.expand();
-                        keypointObjects.selectTail();
-                    }
-                    var params = {
-                        x: keyPointDrawn.attr("cx"),
-                        y: keyPointDrawn.attr("cy")
-                    };
-                    keypointObjects.setTarget("Image", params);
-                    keypointObjects.selectEmpty();
-                }
-
+                return;
             }
+            if (e2.which != 1) {
+                return;
+            }
+            if (!isDragging) {
+                var index = getClickedIndex(e2);
+                annotationObjects.select(index);
+                setAction(e2);
+                return;
+            }
+            isDragging = false;
+            switch (action) {
+                case "add":
+                    if (rectWidth < classesBoundingBox.target().minSize.x ||
+                        rectHeight < classesBoundingBox.target().minSize.y) {
+                        return;
+                    }
+
+                    var selectedClassIndex = classesBoundingBox.target().index;
+                    var selectedClassInImage = classesBoundingBox.targetName();
+
+                    var bbox = annotationObjects.getTarget("Image");
+                    if (!annotationObjects.isValidTarget() || bbox != undefined) {
+                        annotationObjects.expand(selectedClassInImage, nextTrackIds[selectedClassIndex]);
+                        annotationObjects.selectTail();
+                    }
+
+
+                    var params = {
+                        x: rectX,
+                        y: rectY,
+                        width: rectWidth,
+                        height: rectHeight,
+                        trackId: nextTrackIds[selectedClassIndex]
+                    };
+                    nextTrackIds[selectedClassIndex] = nextTrackIds[selectedClassIndex] + 1;
+                    annotationObjects.setTarget("Image", params);
+
+                    annotationObjects.selectEmpty();
+                    drawingRect.remove();
+
+                    break;
+                case "resize":
+                    break;
+                case "move":
+                    break;
+            }
+            setAction(e2);
         }
     );
 }
@@ -748,7 +713,7 @@ function addTextBox(bbIndex) {
         return;
     }
     var bbox = annotationObjects.get(bbIndex, "Image");
-    var trackId = annotationObjects.contents[bbIndex]["trackId"];
+    var trackId = annotationObjects.contents[bbIndex]["Image"]["trackId"];
     var posX = bbox["rect"].attr("x");
     var posY = bbox["rect"].attr("y");
     var cls = annotationObjects.get(bbIndex, "class");
@@ -762,7 +727,7 @@ function addTextBox(bbIndex) {
                     "text-anchor": "start"
                 })
         };
-    bbox["textBox"]["text"].attr("text", bboxString(bbIndex, cls));
+    // bbox["textBox"]["text"].attr("text", bboxString(bbIndex, cls));
     var box = bbox["textBox"]["text"].getBBox();
     bbox["textBox"]["box"] = paper.rect(box.x, box.y, box.width, box.height)
         .attr({

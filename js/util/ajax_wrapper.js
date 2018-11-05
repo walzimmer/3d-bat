@@ -67,14 +67,6 @@ function request(options) {
     }
 };
 
-function keypointFileExist(fileIndex,channelNumber) {
-    var url = labelTool.workBlob + '/Keypoints/' + labelTool.camChannels[channelNumber] + '/' + labelTool.fileNames[fileIndex] + '.txt';
-    var http = new XMLHttpRequest();
-    http.open('HEAD', url, false);
-    http.send();
-    return http.status != 404;
-}
-
 function annotationFileExist(fileIndex,channelNumber) {
     var url = labelTool.workBlob + '/Annotations_test/' + labelTool.camChannels[channelNumber] + '/' + labelTool.fileNames[fileIndex] + '.txt';
     var http = new XMLHttpRequest();
