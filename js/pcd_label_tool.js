@@ -1,66 +1,32 @@
-/* var canvas2D,stats,image_2d,ctx;*/
 var camera, controls, scene, renderer;
+var stats;
 var cube;
 var keyboard = new KeyboardState();
 var numbertagList = [];
 var guiTag = [];
 var guiAnnotationClasses = new dat.GUI();
 var guiBoundingBoxAnnotationMap = {};
-var guiKeypointAnnotationMap = {};
 var guiOptions = new dat.GUI();
-var bounding_box_3d_array = [];
+var boundingBox3DArray = [];
 var folder_position = [];
 var folder_size = [];
-var bbox_flag = true;
-var click_flag = false;
-var click_object_index = 0;
-var mouse_down = {x: 0, y: 0};
-var mouse_up = {x: 0, y: 0};
-var click_point = THREE.Vector3();
-var ground_click_point;
-var ground_plane_array = [];
-var click_plane_array = [];
-var input_filename = 'input';
-var now_flame = 0;
+var bboxFlag = true;
+var clickFlag = false;
+var clickedObjectIndex = 0;
+var mouseDown = {x: 0, y: 0};
+var mouseUp = {x: 0, y: 0};
+var clickedPoint = THREE.Vector3();
+var groundClickedPoint;
+var groundPlaneArray = [];
+var clickedPlaneArray = [];
 var ground_mesh;
-var bird_view_flag = true;
-var move_flag = false;
+var birdViewFlag = true;
+var moveFlag = false;
 var cls = 0;
-var c_flag = false;
-var r_flag = false;
-var copy_box;
+var cFlag = false;
+var rFlag = false;
 var rotation_bbox_index = -1;
 var copy_bbox_index = -1;
-var annotationModeArray = ['BoundingBox', 'KeyPoint'];
-var currentAnnotationMode = annotationModeArray[0];
-
-var parametersKeyPoint = {
-    "vehicle.rear_light_left": function () {
-        classesKeypoint.select("vehicle.rear_light_left");
-        $('#class-picker ul li').css('background-color', '#323232');
-        $($('#class-picker ul li')[0]).css('background-color', '#525252');
-    },
-    "vehicle.rear_light_right": function () {
-        classesKeypoint.select("vehicle.rear_light_right");
-        $('#class-picker ul li').css('background-color', '#323232');
-        $($('#class-picker ul li')[1]).css('background-color', '#525252');
-    },
-    "vehicle.front_light_left": function () {
-        classesKeypoint.select("vehicle.front_light_left");
-        $('#class-picker ul li').css('background-color', '#323232');
-        $($('#class-picker ul li')[2]).css('background-color', '#525252');
-    },
-    "vehicle.front_light_right": function () {
-        classesKeypoint.select("vehicle.front_light_right");
-        $('#class-picker ul li').css('background-color', '#323232');
-        $($('#class-picker ul li')[3]).css('background-color', '#525252');
-    },
-    "vehicle.wheel_bottom": function () {
-        classesKeypoint.select("vehicle.wheel_bottom");
-        $('#class-picker ul li').css('background-color', '#323232');
-        $($('#class-picker ul li')[4]).css('background-color', '#525252');
-    }
-};
 
 var parametersBoundingBox = {
     "Vehicle": function () {
@@ -103,8 +69,6 @@ var parameters = {
             'Bounding Boxes',
         i:
             -1,
-        flame:
-        now_flame,
         hold_bbox_flag:
             false,
         bird_view:
@@ -193,7 +157,6 @@ PrismGeometry.prototype = Object.create(THREE.ExtrudeGeometry.prototype);
 
 // Visualize 2d and 3d data
 labelTool.onLoadData("PCD", function () {
-    parameters.flame = labelTool.currentFileIndex;
     // $("#jpeg-label-canvas").show();
     // changeCanvasSize($("#canvas3d").width() / 4, $("#canvas3d").width() * 5 / 32);
 
@@ -208,12 +171,6 @@ labelTool.onLoadData("PCD", function () {
     // ASCII pcd files
     var pcd_loader = new THREE.PCDLoader();
     var pcd_url = labelTool.workBlob + '/PCDPoints/all_scenes/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
-    //var pcd_url = '/media/cvrr/161d15ca-26dc-4d36-b085-945b15ce24b8/sandbox/datasets/nuscenes/nuscenes_teaser_meta_v1/samples/LIDAR_TOP_ASCII/'+ labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
-    //var pcd_url = '../datasets/nuscenes/nuscenes_teaser_meta_v1/samples/LIDAR_TOP_ASCII/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
-    console.log(pcd_url);
-    // [DONE]: convert all binary files to object ascii files
-    // var pcd_url = labelTool.workBlob + '/PCDPoints/' + labelTool.fileNames[labelTool.currentFileIndex] + '.obj';
-    // console.log(pcd_url);
     pcd_loader.load(pcd_url, function (mesh) {
         // var xAxis = new THREE.Vector3(0, 0, 1);
         //rotateAroundWorldAxis(mesh, xAxis, 2 * Math.PI / 180);
@@ -230,8 +187,9 @@ labelTool.onLoadData("PCD", function () {
     labelTool.drawFieldOfView();
 });
 
+// TODO: test onselect method (open folder if selected)
 annotationObjects.onSelect(function (newIndex, oldIndex) {
-    click_plane_array = [];
+    clickedPlaneArray = [];
     for (var i = 0; i < bboxFolders.length; i++) {
         if (bboxFolders[i] != undefined) {
             bboxFolders[i].close();
@@ -373,67 +331,6 @@ function b64EncodeUnicode(str) {
         }));
 }
 
-function changeAnnotationMode(value) {
-    if (value === 'Bounding Boxes') {
-        // show all 24 classesBoundingBox
-        currentAnnotationMode = annotationModeArray[0];
-        // first remove all key point classes
-        for (key in guiKeypointAnnotationMap) {
-            if (guiKeypointAnnotationMap.hasOwnProperty(key)) {
-                guiKeypointAnnotationMap[key].remove(key);
-            }
-        }
-        // then add bounding box annotation classes
-        for (key in guiBoundingBoxAnnotationMap) {
-            if (guiBoundingBoxAnnotationMap.hasOwnProperty(key)) {
-                guiBoundingBoxAnnotationMap[key] = guiAnnotationClasses.add(parametersBoundingBox, key).name(key);
-            }
-        }
-        // highlight car.vehicle class
-        $('#class-picker ul li').css('background-color', '#353535');
-        $($('#class-picker ul li')[8]).css('background-color', '#525252');
-
-        // show class colors on left side of class
-        var liItems = $("#class-picker ul li");
-        liItems.each(function (i, item) {
-            var propNamesArray = Object.getOwnPropertyNames(classesBoundingBox);
-            var color = classesBoundingBox[propNamesArray[i]].color;
-            var attribute = "20px solid" + ' ' + color;
-            $(item).css("border-left", attribute);
-            $(item).css('border-bottom', '0px');
-        });
-    } else {
-        // annotation mode is 'KeyPoints'
-        currentAnnotationMode = annotationModeArray[1];
-        // first remove all bounding box classes
-        for (key in guiBoundingBoxAnnotationMap) {
-            if (guiBoundingBoxAnnotationMap.hasOwnProperty(key)) {
-                guiBoundingBoxAnnotationMap[key].remove(key);
-            }
-        }
-        // then add key point annotation classes
-        for (key in guiKeypointAnnotationMap) {
-            if (guiKeypointAnnotationMap.hasOwnProperty(key)) {
-                guiKeypointAnnotationMap[key] = guiAnnotationClasses.add(parametersKeyPoint, key).name(key);
-            }
-        }
-        // highlight first class (rear light)
-        $('#class-picker ul li').css('background-color', '#353535');
-        $($('#class-picker ul li')[0]).css('background-color', '#525252');
-
-        // show class colors on left side of class
-        var liItems = $("#class-picker ul li");
-        liItems.each(function (i, item) {
-            var propNamesArray = Object.getOwnPropertyNames(classesKeypoint);
-            var color = classesKeypoint[propNamesArray[i]].color;
-            var attribute = "20px solid" + ' ' + color;
-            $(item).css("border-left", attribute);
-            $(item).css('border-bottom', '0px');
-        });
-
-    }
-};
-
 function changeViewMode(viewMode) {
     if (viewMode == 'Image') {
         // hide 3d canvas
@@ -456,20 +353,9 @@ function changeViewMode(viewMode) {
 
 };
 
-function getKeypointsByClass(keypoints, annotationClass) {
-    var keypointList = [];
-    for (keypoint in keypoints) {
-        if (keypoint.label === annotationClass) {
-            keypointList.push(keypoint);
-        }
-    }
-    return keypointList;
-}
-
 function download() {
     // download annotations
     var annotations = labelTool.createAnnotations();
-    // var keypointObjects = labelTool.createKeypoints();
     var outputString = '';
     for (var i = 0; i < annotations.length; i++) {
         outputString += annotations[i].label + " ";
@@ -497,13 +383,13 @@ function download() {
 
 //change camera position to bird view position
 function bird_view() {
-    bird_view_flag = true;
+    birdViewFlag = true;
     setCamera();
 }
 
 //change camera position to initial position
 function camera_view() {
-    bird_view_flag = false;
+    birdViewFlag = false;
     setCamera();
 }
 
@@ -511,10 +397,17 @@ function camera_view() {
 annotationObjects.onAdd("PCD", function (index, cls, read_parameters) {
     var num = index;
     var bbox = read_parameters;//labelTool.getPCDBBox(num);
-    labelTool.bboxIndex[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex].push(index.toString());
+    labelTool.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex].push(index.toString());
     var cubeGeometry = new THREE.CubeGeometry(1.0, 1.0, 1.0);
-    var cubeMaterial = new THREE.MeshBasicMaterial({color: 0x008866, wireframe: true});
+    var color = classesBoundingBox.target().color;
+
+    var cubeMaterial = new THREE.MeshBasicMaterial({color: color, wireframe: true});
     cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+
+    // var cubeEdgeGeometry = new THREE.EdgesGeometry(cubeGeometry); // or WireframeGeometry( geometry )
+    // var cubeMaterial = new THREE.LineBasicMaterial({color: color, linewidth: 2});
+    // var cube = new THREE.LineSegments(cubeEdgeGeometry, cubeMaterial);
+
     cube.position.set(bbox.x, -bbox.y, bbox.z);
     cube.scale.set(bbox.width, bbox.height, bbox.depth);
     cube.rotation.z = bbox.yaw;
@@ -528,17 +421,17 @@ annotationObjects.onAdd("PCD", function (index, cls, read_parameters) {
 
 //register new bounding box
 function addBoundingBoxGui(bbox, num) {
-    var index = bounding_box_3d_array.length;
+    var index = boundingBox3DArray.length;
     var bb = guiOptions.addFolder('BoundingBox' + String(num));
-    bounding_box_3d_array.push(bb);
-    var folder1 = bounding_box_3d_array[index].addFolder('Position');
+    boundingBox3DArray.push(bb);
+    var folder1 = boundingBox3DArray[index].addFolder('Position');
     var cubeX = folder1.add(bbox, 'x').min(-50).max(50).step(0.01).listen();
     var cubeY = folder1.add(bbox, 'y').min(-30).max(30).step(0.01).listen();
     var cubeZ = folder1.add(bbox, 'z').min(-3).max(10).step(0.01).listen();
     var cubeYaw = folder1.add(bbox, 'yaw').min(-Math.PI).max(Math.PI).step(0.05).listen();
     folder1.close();
     folder_position.push(folder1);
-    var folder2 = bounding_box_3d_array[index].addFolder('Size');
+    var folder2 = boundingBox3DArray[index].addFolder('Size');
     var cubeW = folder2.add(bbox, 'width').min(0).max(10).step(0.01).listen();
     var cubeH = folder2.add(bbox, 'height').min(0).max(10).step(0.01).listen();
     var cubeD = folder2.add(bbox, 'depth').min(0).max(10).step(0.01).listen();
@@ -589,9 +482,9 @@ function addBoundingBoxGui(bbox, num) {
     };
 
     //numbertagList.push(num);
-    //labeltag = bounding_box_3d_array[num].add( bbox, 'label' ,attribute).name("Attribute");
-    bounding_box_3d_array[bounding_box_3d_array.length - 1].add(reset_parameters, 'reset').name("Reset");
-    d = bounding_box_3d_array[bounding_box_3d_array.length - 1].add(reset_parameters, 'delete').name("Delete");
+    //labeltag = boundingBox3DArray[num].add( bbox, 'label' ,attribute).name("Attribute");
+    boundingBox3DArray[boundingBox3DArray.length - 1].add(reset_parameters, 'reset').name("Reset");
+    d = boundingBox3DArray[boundingBox3DArray.length - 1].add(reset_parameters, 'delete').name("Delete");
 }
 
 //reset cube patameter and position
@@ -615,6 +508,10 @@ function resetCube(index, num) {
 
 //change window size
 function onWindowResize() {
+    // var canvas3D = $("canvas3d");
+    // camera.aspect = canvas3D.getAttribute("width") / canvas3D.getAttribute("height");
+    // camera.updateProjectionMatrix();
+    // renderer.setSize(canvas3D.getAttribute("width"), canvas3D.getAttribute("height"));
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -622,7 +519,7 @@ function onWindowResize() {
 
 //set camera type
 function setCamera() {
-    if (bird_view_flag == false) {
+    if (birdViewFlag == false) {
         camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.01, 10000);
         camera.position.set(0, 0, 0.5);
         camera.up.set(0, 0, 1);
@@ -658,52 +555,51 @@ function animate() {
     keyboard.update();
     if (keyboard.down("shift")) {
         controls.enabled = true;
-        bbox_flag = false;
+        bboxFlag = false;
     }
 
     if (keyboard.up("shift")) {
         controls.enabled = false;
-        bbox_flag = true;
+        bboxFlag = true;
     }
 
     if (keyboard.down("alt")) {
-        move_flag = true;
+        moveFlag = true;
     }
     if (keyboard.up("alt")) {
-        move_flag = false;
+        moveFlag = false;
     }
     if (keyboard.down("C")) {
-        r_flag = false;
-        if (c_flag == false) {
+        rFlag = false;
+        if (cFlag == false) {
             if (annotationObjects.exists(annotationObjects.getTargetIndex(), "PCD") == true) {
-                copy_bbox_index = annotationObjects.getTargetIndex()
-                copy_bbox = annotationObjects.get(copy_bbox_index, "PCD");
-                c_flag = true
+                copy_bbox_index = annotationObjects.getTargetIndex();
+                copyBbox = annotationObjects.get(copy_bbox_index, "PCD");
+                cFlag = true;
             }
-        }
-        else {
-            copy_bbox_index = -1
-            c_flag = false;
+        } else {
+            copy_bbox_index = -1;
+            cFlag = false;
         }
     }
     if (keyboard.down("R")) {
-        c_flag = false;
-        if (r_flag == false) {
+        cFlag = false;
+        if (rFlag == false) {
             if (annotationObjects.exists(annotationObjects.getTargetIndex(), "PCD") == true) {
-                rotation_bbox_index = annotationObjects.getTargetIndex()
-                r_flag = true;
+                rotation_bbox_index = annotationObjects.getTargetIndex();
+                rFlag = true;
             }
         }
         else {
-            rotation_bbox_index = -1
-            r_flag = false;
+            rotation_bbox_index = -1;
+            rFlag = false;
         }
     }
 
     controls.update();
     stats.update();
     if (annotationObjects.getTargetIndex() != rotation_bbox_index) {
-        r_flag = false;
+        rFlag = false;
     }
     // var cubeLength;
     // var cubes = labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex];
@@ -714,19 +610,19 @@ function animate() {
     // }
 
     // for (var i = 0; i < labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex].length; i++) {
-    //     if (labelTool.bboxIndex[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][i] == annotationObjects.getTargetIndex()) {
-    //         bounding_box_3d_array[i].open();
+    //     if (labelTool.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][i] == annotationObjects.getTargetIndex()) {
+    //         boundingBox3DArray[i].open();
     //         folder_position[i].open();
     //         folder_size[i].open();
     //     }
     //     else {
-    //         bounding_box_3d_array[i].close();
+    //         boundingBox3DArray[i].close();
     //     }
-    //     if (i == labelTool.bboxIndex[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex].lastIndexOf(copy_bbox_index.toString()) && c_flag == true) {
+    //     if (i == labelTool.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex].lastIndexOf(copy_bbox_index.toString()) && cFlag == true) {
     //         labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][i].material.color.setHex(0xffff00);
     //     }
-    //     else if (bounding_box_3d_array[i].closed == false) {
-    //         if (i == labelTool.bboxIndex[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex].lastIndexOf(rotation_bbox_index.toString()) && r_flag == true) {
+    //     else if (boundingBox3DArray[i].closed == false) {
+    //         if (i == labelTool.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex].lastIndexOf(rotation_bbox_index.toString()) && rFlag == true) {
     //             labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][i].material.color.setHex(0xff8000);
     //         }
     //         else {
@@ -736,7 +632,7 @@ function animate() {
     //         }
     //     }
     //
-    //     else if (bounding_box_3d_array[i].closed == true) {
+    //     else if (boundingBox3DArray[i].closed == true) {
     //         labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][i].material.color.setHex(0x008866);
     //     }
     // }
@@ -750,7 +646,7 @@ function init() {
     scene.add(axisHelper);
 
     renderer = new THREE.WebGLRenderer({antialias: true});
-    renderer.setClearColor(0x000000);
+    renderer.setClearColor(0x161616);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -760,35 +656,35 @@ function init() {
     canvas3D.appendChild(renderer.domElement);
     stats = new Stats();
     canvas3D.appendChild(stats.dom);
-    window.addEventListener('resize', onWindowResize, false)
+    window.addEventListener('resize', onWindowResize, false);
     window.addEventListener("contextmenu", function (e) {
         e.preventDefault();
     }, false);
 
-    window.onmousedown = function (ev) {
-        if (bbox_flag == true) {
+    canvas3D.onmousedown = function (ev) {
+        if (bboxFlag == true) {
             if (ev.target == renderer.domElement) {
                 var rect = ev.target.getBoundingClientRect();
-                mouse_down.x = ((ev.clientX - rect.left) / window.innerWidth) * 2 - 1;
-                mouse_down.y = -((ev.clientY - rect.top) / window.innerHeight) * 2 + 1;
-                if (bird_view_flag == false) {
-                    var vector = new THREE.Vector3(mouse_down.x, mouse_down.y, 1);
+                mouseDown.x = ((ev.clientX - rect.left) / window.innerWidth) * 2 - 1;
+                mouseDown.y = -((ev.clientY - rect.top) / window.innerHeight) * 2 + 1;
+                if (birdViewFlag == false) {
+                    var vector = new THREE.Vector3(mouseDown.x, mouseDown.y, 1);
                     vector.unproject(camera);
                     var ray = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
                 } else {
                     var ray = new THREE.Raycaster();
                     var mouse = new THREE.Vector2();
-                    mouse.x = mouse_down.x;
-                    mouse.y = mouse_down.y;
+                    mouse.x = mouseDown.x;
+                    mouse.y = mouseDown.y;
                     ray.setFromCamera(mouse, camera);
                 }
-                var click_object = ray.intersectObjects(labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex]);
-                if (click_object.length > 0) {
-                    click_object_index = labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex].indexOf(click_object[0].object);
+                var clickedObject = ray.intersectObjects(labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex]);
+                if (clickedObject.length > 0) {
+                    clickedObjectIndex = labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex].indexOf(clickedObject[0].object);
                     if (ev.button == 0) {
-                        click_flag = true;
-                        click_point = click_object[0].point;
-                        click_cube = labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][click_object_index];
+                        clickFlag = true;
+                        clickedPoint = clickedObject[0].point;
+                        clickedCube = labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex];
                         var material = new THREE.MeshBasicMaterial({
                             color: 0x000000,
                             wireframe: false,
@@ -796,141 +692,142 @@ function init() {
                             opacity: 0.0
                         });
                         var geometry = new THREE.PlaneGeometry(200, 200);
-                        var click_plane = new THREE.Mesh(geometry, material);
-                        click_plane.position.x = click_point.x;
-                        click_plane.position.y = click_point.y;
-                        click_plane.position.z = click_point.z;
-                        var normal = click_object[0].face;
+                        var clickedPlane = new THREE.Mesh(geometry, material);
+                        clickedPlane.position.x = clickedPoint.x;
+                        clickedPlane.position.y = clickedPoint.y;
+                        clickedPlane.position.z = clickedPoint.z;
+                        var normal = clickedObject[0].face;
                         if ([normal.a, normal.b, normal.c].toString() == [6, 3, 2].toString() || [normal.a, normal.b, normal.c].toString() == [7, 6, 2].toString()) {
-                            click_plane.rotation.x = Math.PI / 2;
-                            click_plane.rotation.y = labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][click_object_index].rotation.z;
+                            clickedPlane.rotation.x = Math.PI / 2;
+                            clickedPlane.rotation.y = labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex].rotation.z;
                         }
                         else if ([normal.a, normal.b, normal.c].toString() == [6, 7, 5].toString() || [normal.a, normal.b, normal.c].toString() == [4, 6, 5].toString()) {
-                            click_plane.rotation.x = -Math.PI / 2;
-                            click_plane.rotation.y = -Math.PI / 2 - labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][click_object_index].rotation.z;
+                            clickedPlane.rotation.x = -Math.PI / 2;
+                            clickedPlane.rotation.y = -Math.PI / 2 - labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex].rotation.z;
                         }
                         else if ([normal.a, normal.b, normal.c].toString() == [0, 2, 1].toString() || [normal.a, normal.b, normal.c].toString() == [2, 3, 1].toString()) {
-                            click_plane.rotation.x = Math.PI / 2;
-                            click_plane.rotation.y = Math.PI / 2 + labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][click_object_index].rotation.z;
+                            clickedPlane.rotation.x = Math.PI / 2;
+                            clickedPlane.rotation.y = Math.PI / 2 + labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex].rotation.z;
                         }
                         else if ([normal.a, normal.b, normal.c].toString() == [5, 0, 1].toString() || [normal.a, normal.b, normal.c].toString() == [4, 5, 1].toString()) {
-                            click_plane.rotation.x = -Math.PI / 2;
-                            click_plane.rotation.y = -labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][click_object_index].rotation.z;
+                            clickedPlane.rotation.x = -Math.PI / 2;
+                            clickedPlane.rotation.y = -labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex].rotation.z;
                         }
                         else if ([normal.a, normal.b, normal.c].toString() == [3, 6, 4].toString() || [normal.a, normal.b, normal.c].toString() == [1, 3, 4].toString()) {
-                            click_plane.rotation.y = -Math.PI
+                            clickedPlane.rotation.y = -Math.PI
                         }
-                        scene.add(click_plane);
-                        click_plane_array.push(click_plane);
+                        scene.add(clickedPlane);
+                        clickedPlaneArray.push(clickedPlane);
                     }
                     else if (ev.button == 2) {
-                        labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][click_object_index].visible = false;
-                        num1 = labelTool.bboxIndex[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][click_object_index];
-                        guiOptions.removeFolder('BoundingBox' + String(num1));
-                        annotationObjects.remove(num1, "PCD");
+                        labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex].visible = false;
+                        var bboxIndex = labelTool.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex];
+                        guiOptions.removeFolder('BoundingBox' + String(bboxIndex));
+                        annotationObjects.remove(bboxIndex, "PCD");
                         labelTool.changeFrame(labelTool.currentFileIndex)
                     }
-                } else if (bird_view_flag == true) {
-                    ground_plane_array = [];
+                } else if (birdViewFlag == true) {
+                    groundPlaneArray = [];
                     var material = new THREE.MeshBasicMaterial({
                         color: 0x000000,
                         wireframe: false,
-                        transparent: true,
-                        opacity: 0.0
+                        transparent: true,//default: true
+                        opacity: 0.0//oefault 0.0
                     });
                     var geometry = new THREE.PlaneGeometry(200, 200);
-                    var ground_plane = new THREE.Mesh(geometry, material);
-                    ground_plane.position.x = 0;
-                    ground_plane.position.y = 0;
-                    ground_plane.position.z = -1;
-                    ground_plane_array.push(ground_plane);
-                    var ground_object = ray.intersectObjects(ground_plane_array);
-                    ground_click_point = ground_object[0].point;
+                    var groundPlane = new THREE.Mesh(geometry, material);
+                    groundPlane.position.x = 0;
+                    groundPlane.position.y = 0;
+                    groundPlane.position.z = -1;
+                    groundPlaneArray.push(groundPlane);
+                    var groundObject = ray.intersectObjects(groundPlaneArray);
+                    groundClickedPoint = groundObject[0].point;
                 }
             }
         }
     };
 
-    window.onmouseup = function (ev) {
+    canvas3D.onmouseup = function (ev) {
         if (ev.button == 0) {
-            if (bbox_flag == true) {
+            if (bboxFlag == true) {
                 var rect = ev.target.getBoundingClientRect();
-                mouse_up.x = ((ev.clientX - rect.left) / window.innerWidth) * 2 - 1;
-                mouse_up.y = -((ev.clientY - rect.top) / window.innerHeight) * 2 + 1;
-                if (bird_view_flag == false) {
-                    var vector = new THREE.Vector3(mouse_up.x, mouse_up.y, 1);
+                mouseUp.x = ((ev.clientX - rect.left) / $("#canvas3d canvas").attr("width")) * 2 - 1;
+                mouseUp.y = -((ev.clientY - rect.top) / $("#canvas3d canvas").attr("height")) * 2 + 1;
+                if (birdViewFlag == false) {
+                    var vector = new THREE.Vector3(mouseUp.x, mouseUp.y, 1);
                     vector.unproject(camera);
                     var ray = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
                 } else {
                     var ray = new THREE.Raycaster();
                     var mouse = new THREE.Vector2();
-                    mouse.x = mouse_up.x;
-                    mouse.y = mouse_up.y;
+                    mouse.x = mouseUp.x;
+                    mouse.y = mouseUp.y;
                     ray.setFromCamera(mouse, camera);
                 }
-                var click_object = ray.intersectObjects(click_plane_array);
-                if (click_object.length > 0 && bounding_box_3d_array[click_object_index].closed == false) {
-                    var click_box = annotationObjects.get(labelTool.bboxIndex[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][click_object_index], "PCD");
-                    var drag_vector = {
-                        x: click_object[0].point.x - click_point.x,
-                        y: click_object[0].point.y - click_point.y,
-                        z: click_object[0].point.z - click_point.z
+                var clickedObject = ray.intersectObjects(clickedPlaneArray);
+                if (clickedObject.length > 0 && boundingBox3DArray[clickedObjectIndex].closed == false) {
+
+                    // TODO: highlight box in 3D (wireframe all edges, not only hard edges)
+                    var clickedBBox = annotationObjects.get(labelTool.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex], "PCD");
+                    var dragVector = {
+                        x: clickedObject[0].point.x - clickedPoint.x,
+                        y: clickedObject[0].point.y - clickedPoint.y,
+                        z: clickedObject[0].point.z - clickedPoint.z
                     };
-                    var yaw_drag_vector = {
-                        x: drag_vector.x * Math.cos(-labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][click_object_index].rotation.z) - drag_vector.y * Math.sin(-labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][click_object_index].rotation.z),
-                        y: drag_vector.x * Math.sin(-labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][click_object_index].rotation.z) + drag_vector.y * Math.cos(-labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][click_object_index].rotation.z),
-                        z: drag_vector.z
+                    var yawDragVector = {
+                        x: dragVector.x * Math.cos(-labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex].rotation.z) - dragVector.y * Math.sin(-labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex].rotation.z),
+                        y: dragVector.x * Math.sin(-labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex].rotation.z) + dragVector.y * Math.cos(-labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex].rotation.z),
+                        z: dragVector.z
                     };
-                    var judge_click_point = {
-                        x: (click_point.x - labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][click_object_index].position.x) * Math.cos(-labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][click_object_index].rotation.z) - (click_point.y - labelTool.cubeArray[click_object_index].position.y) * Math.sin(-labelTool.cubeArray[click_object_index].rotation.z),
-                        y: (click_point.x - labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][click_object_index].position.x) * Math.sin(-labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][click_object_index].rotation.z) + (click_point.y - labelTool.cubeArray[click_object_index].position.y) * Math.cos(-labelTool.cubeArray[click_object_index].rotation.z)
+                    var judgeClickPoint = {
+                        x: (clickedPoint.x - labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex].position.x) * Math.cos(-labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex].rotation.z) - (clickedPoint.y - labelTool.cubeArray[clickedObjectIndex].position.y) * Math.sin(-labelTool.cubeArray[clickedObjectIndex].rotation.z),
+                        y: (clickedPoint.x - labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex].position.x) * Math.sin(-labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex].rotation.z) + (clickedPoint.y - labelTool.cubeArray[clickedObjectIndex].position.y) * Math.cos(-labelTool.cubeArray[clickedObjectIndex].rotation.z)
                     };
-                    if (move_flag == true) {
-                        click_box.x = drag_vector.x + click_box.x;
-                        click_box.y = -drag_vector.y + click_box.y;
-                        click_box.z = drag_vector.z + click_box.z;
-                    }
-                    else if (r_flag == true) {
-                        click_box.yaw = click_box.yaw + Math.atan2(yaw_drag_vector.y, yaw_drag_vector.x) / (2 * Math.PI);
+                    if (moveFlag == true) {
+                        clickedBBox.x = dragVector.x + clickedBBox.x;
+                        clickedBBox.y = -dragVector.y + clickedBBox.y;
+                        clickedBBox.z = dragVector.z + clickedBBox.z;
+                    } else if (rFlag == true) {
+                        clickedBBox.yaw = clickedBBox.yaw + Math.atan2(yawDragVector.y, yawDragVector.x) / (2 * Math.PI);
                     }
                     else {
-                        click_box.width = judge_click_point.x * yaw_drag_vector.x / Math.abs(judge_click_point.x) + click_box.width;
-                        click_box.x = drag_vector.x / 2 + click_box.x;
-                        click_box.height = judge_click_point.y * yaw_drag_vector.y / Math.abs(judge_click_point.y) + click_box.height;
-                        click_box.y = -drag_vector.y / 2 + click_box.y;
-                        click_box.depth = (click_point.z - labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][click_object_index].position.z) * drag_vector.z / Math.abs((click_point.z - labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][click_object_index].position.z)) + click_box.depth;
-                        click_box.z = drag_vector.z / 2 + click_box.z;
+                        clickedBBox.width = judgeClickPoint.x * yawDragVector.x / Math.abs(judgeClickPoint.x) + clickedBBox.width;
+                        clickedBBox.x = dragVector.x / 2 + clickedBBox.x;
+                        clickedBBox.height = judgeClickPoint.y * yawDragVector.y / Math.abs(judgeClickPoint.y) + clickedBBox.height;
+                        clickedBBox.y = -dragVector.y / 2 + clickedBBox.y;
+                        clickedBBox.depth = (clickedPoint.z - labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex].position.z) * dragVector.z / Math.abs((clickedPoint.z - labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex].position.z)) + clickedBBox.depth;
+                        clickedBBox.z = dragVector.z / 2 + clickedBBox.z;
                     }
-                    labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][click_object_index].position.x = click_box.x;
-                    labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][click_object_index].position.y = -click_box.y;
-                    labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][click_object_index].position.z = click_box.z;
-                    labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][click_object_index].rotation.z = click_box.yaw;
-                    labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][click_object_index].scale.x = click_box.width;
-                    labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][click_object_index].scale.y = click_box.height;
-                    labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][click_object_index].scale.z = click_box.depth;
+                    labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex].position.x = clickedBBox.x;
+                    labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex].position.y = -clickedBBox.y;
+                    labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex].position.z = clickedBBox.z;
+                    labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex].rotation.z = clickedBBox.yaw;
+                    labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex].scale.x = clickedBBox.width;
+                    labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex].scale.y = clickedBBox.height;
+                    labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex].scale.z = clickedBBox.depth;
                 }
-                if (click_flag == true) {
-                    click_plane_array = [];
-                    annotationObjects.select(labelTool.bboxIndex[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][click_object_index], "PCD");
-                    click_flag = false;
-                } else if (ground_plane_array.length == 1) {
-                    var ground_up_object = ray.intersectObjects(ground_plane_array);
-                    var ground_up_point = ground_up_object[0].point;
-                    if (Math.abs(ground_up_point.x - ground_click_point.x) > 0.1) {
-                        var add_bbox_parameters = {
-                            x: (ground_up_point.x + ground_click_point.x) / 2,
-                            y: -(ground_up_point.y + ground_click_point.y) / 2,
+                if (clickFlag == true) {
+                    clickedPlaneArray = [];
+                    annotationObjects.select(labelTool.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex], "PCD");
+                    clickFlag = false;
+                } else if (groundPlaneArray.length == 1) {
+                    var groundUpObject = ray.intersectObjects(groundPlaneArray);
+                    var groundUpPoint = groundUpObject[0].point;
+                    if (Math.abs(groundUpPoint.x - groundClickedPoint.x) > 0.1) {
+                        var addBboxParameters = {
+                            x: (groundUpPoint.x + groundClickedPoint.x) / 2,
+                            y: -(groundUpPoint.y + groundClickedPoint.y) / 2,
                             z: -0.5,
-                            width: Math.abs(ground_up_point.x - ground_click_point.x),
-                            height: Math.abs(ground_up_point.y - ground_click_point.y),
+                            width: Math.abs(groundUpPoint.x - groundClickedPoint.x),
+                            height: Math.abs(groundUpPoint.y - groundClickedPoint.y),
                             depth: 1.0,
                             yaw: 0,
                             org: original = {
-                                x: (ground_up_point.x + ground_click_point.x) / 2,
-                                y: -(ground_up_point.y + ground_click_point.y) / 2,
+                                x: (groundUpPoint.x + groundClickedPoint.x) / 2,
+                                y: -(groundUpPoint.y + groundClickedPoint.y) / 2,
                                 z: -0.5,
-                                width: Math.abs(ground_up_point.x - ground_click_point.x),
-                                height: Math.abs(ground_up_point.y - ground_click_point.y),
+                                width: Math.abs(groundUpPoint.x - groundClickedPoint.x),
+                                height: Math.abs(groundUpPoint.y - groundClickedPoint.y),
                                 depth: 1.0,
                                 yaw: 0,
                             }
@@ -939,37 +836,37 @@ function init() {
                             annotationObjects.selectEmpty();
                         }
                         var number = annotationObjects.getTargetIndex();
-                        annotationObjects.setTarget("PCD", add_bbox_parameters);
+                        annotationObjects.setTarget("PCD", addBboxParameters);
                         annotationObjects.select(number, "PCD");
                     }
-                    else if (c_flag == true) {
-                        var add_bbox_parameters = {
-                            x: (ground_up_point.x + ground_click_point.x) / 2,
-                            y: -(ground_up_point.y + ground_click_point.y) / 2,
-                            z: copy_bbox.z,
-                            width: copy_bbox.width,
-                            height: copy_bbox.height,
-                            depth: copy_bbox.depth,
-                            yaw: copy_bbox.yaw,
+                    else if (cFlag == true) {
+                        var addBboxParameters = {
+                            x: (groundUpPoint.x + groundClickedPoint.x) / 2,
+                            y: -(groundUpPoint.y + groundClickedPoint.y) / 2,
+                            z: copyBbox.z,
+                            width: copyBbox.width,
+                            height: copyBbox.height,
+                            depth: copyBbox.depth,
+                            yaw: copyBbox.yaw,
                             org: original = {
-                                x: (ground_up_point.x + ground_click_point.x) / 2,
-                                y: -(ground_up_point.y + ground_click_point.y) / 2,
-                                z: copy_bbox.z,
-                                width: copy_bbox.width,
-                                height: copy_bbox.height,
-                                depth: copy_bbox.depth,
-                                yaw: copy_bbox.yaw,
+                                x: (groundUpPoint.x + groundClickedPoint.x) / 2,
+                                y: -(groundUpPoint.y + groundClickedPoint.y) / 2,
+                                z: copyBbox.z,
+                                width: copyBbox.width,
+                                height: copyBbox.height,
+                                depth: copyBbox.depth,
+                                yaw: copyBbox.yaw,
                             }
                         };
                         if (annotationObjects.exists(annotationObjects.getTargetIndex(), "PCD") == true) {
                             annotationObjects.selectEmpty();
                         }
                         let number = annotationObjects.getTargetIndex();
-                        annotationObjects.setTarget("PCD", add_bbox_parameters);
+                        annotationObjects.setTarget("PCD", addBboxParameters);
                         annotationObjects.select(number, "PCD");
                     }
 
-                    ground_plane_array = [];
+                    groundPlaneArray = [];
                     $("#label-tool-log").val("4. Choose class from drop down list");
                     $("#label-tool-log").css("color", "#969696");
                 }
@@ -978,15 +875,15 @@ function init() {
         }
     };
     labelTool.cubeArray = [];
-    labelTool.bboxIndex = [];
+    labelTool.bboxIndexArray = [];
     labelTool.savedFrames = [];
     for (var i = 0; i < 3962; i++) {
         labelTool.cubeArray.push([]);
-        labelTool.bboxIndex.push([]);
+        labelTool.bboxIndexArray.push([]);
         labelTool.savedFrames.push([]);
         for (var j = 0; j < 6; j++) {
             labelTool.cubeArray[i].push([]);
-            labelTool.bboxIndex[i].push([]);
+            labelTool.bboxIndexArray[i].push([]);
             labelTool.savedFrames[i].push(false);
         }
     }
@@ -999,31 +896,18 @@ function init() {
         "Pedestrian": guiAnnotationClasses.add(parametersBoundingBox, "Pedestrian").name("Pedestrian"),
     };
 
-    guiKeypointAnnotationMap = {
-        "vehicle.rear_light_left": null,
-        "vehicle.rear_light_right": null,
-        "vehicle.front_light_left": null,
-        "vehicle.front_light_right": null,
-        "vehicle.wheel_bottom": null
-    };
     guiAnnotationClasses.domElement.id = 'class-picker';
     $('#class-picker ul li').css('background-color', '#353535');
-    $($('#class-picker ul li')[8]).css('background-color', '#525252');
+    $($('#class-picker ul li')[0]).css('background-color', '#525252');
     $('#class-picker ul li').css('border-bottom', '0px');
 
     // 3D BB controls
-    // guiOptions.add(parameters, 'save').name("Save");
     guiOptions.add(parameters, 'download').name("Download");
     var viewMode = guiOptions.add(parameters, 'view_mode', ['Image', 'Point cloud', 'Image and point cloud']).name('View mode').listen();
     viewMode.onChange(function (value) {
         parameters.view_mode = value;
         changeViewMode(value);
     });
-    // var annotationModeCallback = guiOptions.add(parameters, 'annotation_mode', ['Bounding Boxes', 'Key Points']).name('Annotation mode').listen();
-    // annotationModeCallback.onChange(function (value) {
-    //     parameters.annotation_mode = value;
-    //     changeAnnotationMode(value);
-    // });
     guiOptions.add(parameters, 'bird_view').name("Birds-Eye-View");
     // guiOptions.add(parameters, 'camera_view').name("Camera View");
     readYAMLFile(labelTool.workBlob + "/calibration.yml");
@@ -1035,10 +919,6 @@ function init() {
     var downloadAnnotationsItem = $($('#bounding-box-3d-menu ul li')[0]);
     var downloadAnnotationsDivItem = downloadAnnotationsItem.children().first();
     downloadAnnotationsDivItem.wrap("<a href=\"\"></a>");
-    // add download Keypoints button
-    // var downloadKeypointsItem = $($('#bounding-box-3d-menu ul li')[2]);
-    // var downloadKeypointsDivItem = downloadKeypointsItem.children().first();
-    // downloadKeypointsDivItem.wrap("<a href=\"\"></a>");
 
     guiOptions.open();
     var liItems = $("#class-picker ul li");
