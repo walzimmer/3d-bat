@@ -2,6 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="428d2e24-9b74-4b18-97ad-d2e286a506fa" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/js/lib/SceneUtils.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/image_label_tool.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/image_label_tool.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/pcd_label_tool.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/pcd_label_tool.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -30,12 +34,12 @@
           <entry key="html" value="27" />
           <entry key="ipynb" value="6" />
           <entry key="jpg" value="12" />
-          <entry key="js" value="92" />
+          <entry key="js" value="93" />
           <entry key="md" value="5" />
           <entry key="pcd" value="5" />
           <entry key="png" value="4" />
           <entry key="py" value="2" />
-          <entry key="ts" value="3" />
+          <entry key="ts" value="4" />
           <entry key="txt" value="90" />
           <entry key="yml" value="1" />
         </counts>
@@ -45,10 +49,10 @@
           <entry key="CSS" value="15" />
           <entry key="HTML" value="27" />
           <entry key="Image" value="16" />
-          <entry key="JavaScript" value="92" />
+          <entry key="JavaScript" value="93" />
           <entry key="Markdown" value="5" />
           <entry key="PLAIN_TEXT" value="104" />
-          <entry key="TypeScript" value="3" />
+          <entry key="TypeScript" value="4" />
           <entry key="YAML" value="1" />
         </counts>
       </usages-collector>
@@ -56,9 +60,9 @@
         <counts>
           <entry key="css" value="562" />
           <entry key="gitignore" value="41" />
-          <entry key="html" value="530" />
+          <entry key="html" value="536" />
           <entry key="ipynb" value="1" />
-          <entry key="js" value="23073" />
+          <entry key="js" value="24207" />
           <entry key="md" value="995" />
           <entry key="txt" value="283" />
         </counts>
@@ -66,8 +70,8 @@
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="CSS" value="562" />
-          <entry key="HTML" value="530" />
-          <entry key="JavaScript" value="23073" />
+          <entry key="HTML" value="536" />
+          <entry key="JavaScript" value="24207" />
           <entry key="Markdown" value="995" />
           <entry key="PLAIN_TEXT" value="325" />
         </counts>
@@ -80,7 +84,7 @@
         <entry file="file://$PROJECT_DIR$/js/base_label_tool.js">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="185">
-              <caret line="25" column="7" selection-start-line="25" selection-start-column="7" selection-end-line="25" selection-end-column="7" />
+              <caret line="26" column="4" selection-start-line="26" selection-start-column="4" selection-end-line="26" selection-end-column="4" />
             </state>
           </provider>
         </entry>
@@ -94,18 +98,31 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/js/image_label_tool.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="483">
-              <caret line="21" selection-start-line="21" selection-end-line="21" />
+            <state relative-caret-position="463">
+              <caret line="49" column="126" selection-start-line="49" selection-start-column="126" selection-end-line="49" selection-end-column="126" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/js/lib/three.js">
-          <provider selected="true" editor-type-id="text-editor" />
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="185">
+              <caret line="41971" column="8" selection-start-line="41971" selection-start-column="8" selection-end-line="41971" selection-end-column="8" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/jsLanguageServicesImpl/external/lib.es5.d.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="193">
+              <caret line="284" column="4" selection-start-line="284" selection-start-column="4" selection-end-line="284" selection-end-column="4" />
+            </state>
+          </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
@@ -132,8 +149,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="323">
-              <caret line="136" column="51" lean-forward="true" selection-start-line="136" selection-start-column="51" selection-end-line="136" selection-end-column="51" />
+            <state relative-caret-position="139">
+              <caret line="128" column="54" lean-forward="true" selection-start-line="128" selection-start-column="54" selection-end-line="128" selection-end-column="54" />
               <folding>
                 <element signature="n#li#1;n#ul#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" />
                 <element signature="n#style#0;n#div#1;n#div#1;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
@@ -142,45 +159,24 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/js/pcd_label_tool.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="384">
-              <caret line="729" column="44" selection-start-line="729" selection-start-column="44" selection-end-line="729" selection-end-column="44" />
+            <state relative-caret-position="166">
+              <caret line="14" column="4" selection-start-line="14" selection-start-column="4" selection-end-line="14" selection-end-column="4" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/input/Annotations_test/CAM_FRONT_RIGHT/000000.txt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="92">
-              <caret line="4" selection-start-line="4" selection-end-line="4" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/input/Annotations_test/CAM_FRONT_LEFT/000000.txt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="138">
-              <caret line="6" selection-start-line="6" selection-end-line="6" />
-            </state>
-          </provider>
+        <entry file="file://$PROJECT_DIR$/js/lib/SceneUtils.js">
+          <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
     </leaf>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>select</find>
-      <find>select(</find>
-      <find>onselect</find>
-      <find>localonselect</find>
-      <find>mousedown</find>
-      <find>now_flame</find>
-      <find>now_frame</find>
-      <find>flame</find>
       <find>[8]</find>
       <find>loadkey</find>
       <find>keypointsarr</find>
@@ -203,6 +199,14 @@
       <find>stat</find>
       <find>stats</find>
       <find>clickedob</find>
+      <find>line</find>
+      <find>cubege</find>
+      <find>cubearra</find>
+      <find>opacity</find>
+      <find>cube</find>
+      <find>mousedown</find>
+      <find>highlight</find>
+      <find>clicke</find>
     </findStrings>
     <replaceStrings>
       <replace>#</replace>
@@ -270,10 +274,10 @@
         <option value="$PROJECT_DIR$/js/util/boundingbox.js" />
         <option value="$PROJECT_DIR$/js/util/ajax_wrapper.js" />
         <option value="$PROJECT_DIR$/input/Annotations_test/CAM_FRONT/000000.txt" />
-        <option value="$PROJECT_DIR$/js/image_label_tool.js" />
         <option value="$PROJECT_DIR$/js/base_label_tool.js" />
         <option value="$PROJECT_DIR$/index.html" />
         <option value="$PROJECT_DIR$/js/pcd_label_tool.js" />
+        <option value="$PROJECT_DIR$/js/image_label_tool.js" />
       </list>
     </option>
   </component>
@@ -428,12 +432,12 @@
       <workItem from="1539807872042" duration="89255000" />
       <workItem from="1540237217577" duration="124220000" />
       <workItem from="1541040235091" duration="33021000" />
-      <workItem from="1541361164788" duration="24610000" />
+      <workItem from="1541361164788" duration="33941000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="299132000" />
+    <option name="totallyTimeSpent" value="308463000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -476,20 +480,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/input/Annotations/orig/000001.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret selection-end-line="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/nuscenes_devkit/python-sdk/nuscenes_utils/data_classes.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="368">
-          <caret line="16" lean-forward="true" selection-start-line="16" selection-end-line="16" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/input/Annotations/000001.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="184">
@@ -759,23 +749,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/js/base_label_tool.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="185">
-          <caret line="25" column="7" selection-start-line="25" selection-start-column="7" selection-end-line="25" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/js/image_label_tool.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="483">
-          <caret line="21" selection-start-line="21" selection-end-line="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/js/lib/three.js">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/js/util/classesBoundingBox.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="598">
@@ -783,10 +756,34 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/js/lib/SceneUtils.js">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/jsLanguageServicesImpl/external/lib.es5.d.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="193">
+          <caret line="284" column="4" selection-start-line="284" selection-start-column="4" selection-end-line="284" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/lib/three.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="185">
+          <caret line="41971" column="8" selection-start-line="41971" selection-start-column="8" selection-end-line="41971" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/base_label_tool.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="185">
+          <caret line="26" column="4" selection-start-line="26" selection-start-column="4" selection-end-line="26" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="136" column="51" lean-forward="true" selection-start-line="136" selection-start-column="51" selection-end-line="136" selection-end-column="51" />
+        <state relative-caret-position="139">
+          <caret line="128" column="54" lean-forward="true" selection-start-line="128" selection-start-column="54" selection-end-line="128" selection-end-column="54" />
           <folding>
             <element signature="n#li#1;n#ul#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" />
             <element signature="n#style#0;n#div#1;n#div#1;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
@@ -796,8 +793,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/js/pcd_label_tool.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="384">
-          <caret line="729" column="44" selection-start-line="729" selection-start-column="44" selection-end-line="729" selection-end-column="44" />
+        <state relative-caret-position="166">
+          <caret line="14" column="4" selection-start-line="14" selection-start-column="4" selection-end-line="14" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/image_label_tool.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="463">
+          <caret line="49" column="126" selection-start-line="49" selection-start-column="126" selection-end-line="49" selection-end-column="126" />
         </state>
       </provider>
     </entry>
