@@ -41,6 +41,16 @@ annotationObjects.onSelect("Image", function (newIndex, oldIndex) {
     if (isIsolated) {
         hideAllBoundingBoxes(newIndex);
     }
+    // highlight bb in BEV
+    for (var mesh in labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex]) {
+        var meshObject = labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][mesh];
+        meshObject.material.opacity = 0.1;
+    }
+    if (labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][newIndex] !== undefined) {
+        labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][newIndex].material.opacity = 0.5;
+    }
+
+
 });
 
 annotationObjects.onAdd("Image", function (index, cls, params) {
