@@ -163,7 +163,7 @@ class WorkSpace {
         if (this.dataType == "JPEG") {
             imageBox.value = (this.curFile + 1) + "/" + this.fileList.length;
         }
-        ground_mesh.visible = false;
+        groundMesh.visible = false;
         image_array[0].visible = false;
         this.showData();
     }

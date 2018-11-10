@@ -1,8 +1,11 @@
-var canvas = document.getElementById("jpeg-label-canvas");
+var canvasLeft = document.getElementById("jpeg-label-canvas-left");
+var canvasMiddle = document.getElementById("jpeg-label-canvas-middle");
 var c = {};
-var paper = Raphael(canvas, c.width, c.height);
+var paperLeft = Raphael(canvasLeft, 640, 360);
+var paperMiddle = Raphael(canvasMiddle, 640, 360);
 var curImg = new Image();
-var img;
+var imgLeft;
+var imgMiddle;
 var startX = 0;
 var startY = 0;
 var updateFlag = false;
@@ -20,7 +23,6 @@ var zoomParam = {offsetX: 0, offsetY: 0, scale: 1};
 var mouseX = 0;
 var mouseY = 0;
 var isIsolated = false;
-var nextTrackIds = [1, 1, 1, 1, 1];//Vehicle,Truck, Motorcycle, Bicycle, Pedestrian
 
 /*********** Event handlers **************/
 
@@ -33,19 +35,23 @@ annotationObjects.onRemove("Image", function (index) {
     annotationObjects.get(index, "Image")["rect"].remove();
 });
 
-annotationObjects.onSelect("Image", function (newIndex, oldIndex) {
-    removeBoundingBoxHighlight(oldIndex);
-    removeTextBox(oldIndex);
+annotationObjects.onSelect("Image", function (newIndex) {
+    for (var i = 0; i < annotationObjects.contents.length; i++) {
+        removeBoundingBoxHighlight(i);
+        removeTextBox(i);
+    }
+
     addTextBox(newIndex);
-    emphasisBBox(newIndex);
+    emphasizeBBox(newIndex);
     if (isIsolated) {
         hideAllBoundingBoxes(newIndex);
     }
-    // highlight bb in BEV
+    // unhighlight bb in BEV
     for (var mesh in labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex]) {
         var meshObject = labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][mesh];
         meshObject.material.opacity = 0.1;
     }
+    // highlight selected bb in BEV
     if (labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][newIndex] !== undefined) {
         labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][newIndex].material.opacity = 0.5;
     }
@@ -55,12 +61,11 @@ annotationObjects.onSelect("Image", function (newIndex, oldIndex) {
 
 annotationObjects.onAdd("Image", function (index, cls, params) {
     var bbox = {
-        "rect": paper.rect(params.x, params.y, params.width, params.height)
+        "rect": paperLeft.rect(params.x, params.y, params.width, params.height)
             .attr({
                 "stroke": classesBoundingBox[cls].color,
                 "stroke-width": 3
-            }),
-        "trackId": 1
+            })
     };
     bbox["rect"].node.setAttribute("pointer-events", "none");
 
@@ -70,11 +75,11 @@ annotationObjects.onAdd("Image", function (index, cls, params) {
 
 labelTool.onInitialize("Image", function () {
     c = {
-        x: canvas.offsetLeft,
-        y: canvas.offsetTop,
-        width: canvas.offsetWidth,
-        height: canvas.offsetHeight,
-        center: {x: canvas.offsetWidth / 2, y: canvas.offsetHeight / 2}
+        x: canvasLeft.offsetLeft,
+        y: canvasLeft.offsetTop,
+        width: canvasLeft.offsetWidth,
+        height: canvasLeft.offsetHeight,
+        center: {x: canvasLeft.offsetWidth / 2, y: canvasLeft.offsetHeight / 2}
     };
     keepAspectRatio();
     labelTool.addResizeEventForImage();
@@ -89,12 +94,19 @@ labelTool.onInitialize("Image", function () {
 });
 
 labelTool.onLoadData("Image", function () {
-    var imgURL = labelTool.workBlob + "/JPEGImages/" + labelTool.camChannels[labelTool.currentCameraChannelIndex] + "/" + labelTool.getTargetFileName() + ".jpg";
-    if (img != undefined) {
-        img.remove();
+    var imgURLLeft = labelTool.workBlob + "/JPEGImages/" + labelTool.camChannels[labelTool.currentCameraChannelIndex] + "/" + labelTool.getTargetFileName() + ".jpg";
+    var imgURLMiddle = labelTool.workBlob + "/JPEGImages/" + labelTool.camChannels[(labelTool.currentCameraChannelIndex + 1) % 6] + "/" + labelTool.getTargetFileName() + ".jpg";
+    if (imgLeft !== undefined) {
+        imgLeft.remove();
     }
-    img = paper.image(imgURL, 0, 0, "100%", "100%");
-    img.toBack();
+    if (imgMiddle !== undefined) {
+        imgLeft.remove();
+    }
+
+    imgLeft = paperLeft.image(imgURLLeft, 0, 0, "100%", "100%");
+    imgMiddle = paperLeft.image(imgURLMiddle, 0, 0, "100%", "100%");
+    imgLeft.toBack();
+    imgMiddle.toBack();
     addEventsToImage();
     labelTool.hasLoadedImage = true;
 });
@@ -130,10 +142,10 @@ $(window).keydown(function (e) {
         if (labelTool.getTargetDataType() != "Image") {
             return;
         }
-        if (annotationObjects.getTarget("Image") == undefined) {
+        if (annotationObjects.getSelectedBoundingBox("Image") == undefined) {
             return;
         } else {
-            rect = annotationObjects.getTarget("Image")["rect"]
+            rect = annotationObjects.getSelectedBoundingBox("Image")["rect"]
         }
     }
     var keyCode = e.which.toString();
@@ -172,10 +184,6 @@ $(window).keydown(function (e) {
         case "66": // B
             labelTool.previousFrame();
             break;
-        case "9": // Tab
-            annotationObjects.selectNext();
-            e.preventDefault();
-            break;
         case "32": // Space
             if (zoomParam.scale == 1) {
                 zoomImage(-mouseX / 2, -mouseY / 2, 2);
@@ -187,18 +195,18 @@ $(window).keydown(function (e) {
             toggleIsolation();
             break;
         case "68": // D
-            annotationObjects.removeTarget("Image");
+            annotationObjects.removeSelectedBoundingBox("Image");
             break;
     }
     if (isRectModifyFunction) {
-        adjustTextBox(annotationObjects.getTargetIndex());
-        emphasisBBox(annotationObjects.getTargetIndex());
+        adjustTextBox(annotationObjects.getSelectionIndex());
+        emphasizeBBox(annotationObjects.getSelectionIndex());
     }
     setAction(e);
 });
 
 function setCursor(cursorType) {
-    img.attr({cursor: cursorType});
+    imgLeft.attr({cursor: cursorType});
 }
 
 function convertPositionToPaper(e) {
@@ -220,7 +228,7 @@ function setAction(e) {
     }
     setCursor("crosshair");
     action = "add";
-    var bbox = annotationObjects.getTarget("Image");
+    var bbox = annotationObjects.getSelectedBoundingBox("Image");
     if (bbox == undefined) {
         return;
     }
@@ -262,46 +270,46 @@ function setAction(e) {
 }
 
 function addEventsToImage() {
-    img.mousemove(function (e) {
+    imgLeft.mousemove(function (e) {
         var e2 = convertPositionToPaper(e);
         mouseX = e.offsetX;
         mouseY = e.offsetY;
         setAction(e2);
     });
 
-    img.mousedown(function (e) {
+    imgLeft.mousedown(function (e) {
         var e2 = convertPositionToPaper(e);
+        // 3: rightclick
         if (e2.which != 3 || isDragging) {
             return;
         }
         var clickedBBIndex = getClickedIndex(e2);
         if (clickedBBIndex != -1) {
-            // check if currently selected box was not selected previously
-            if (clickedBBIndex != annotationObjects.getTargetIndex()) {
-                annotationObjects.select(clickedBBIndex);
-            }
             annotationObjects.remove(clickedBBIndex, "Image");
-            setAction(e2);
+            annotationObjects.selectEmpty();
         } else {
             // no bounding box was selected
             // remove selection from current target
-            var selectedBBIndex = annotationObjects.getTargetIndex();
+            var selectedBBIndex = annotationObjects.getSelectionIndex();
             removeBoundingBoxHighlight(selectedBBIndex);
             removeTextBox(selectedBBIndex);
-            this.__table.selectEmpty();
+            annotationObjects.__table.selectEmpty();
         }
 
     });
 
-    img.drag(
+    imgLeft.drag(
         //on drag
         function (dx, dy, x, y, e) {
-            // TODO: automatically activate bounding box after placement
             $("#label-tool-log").val("2. Activate current bounding box");
             $("#label-tool-log").css("color", "#969696");
             var e2 = convertPositionToPaper(e);
             if (e2.which != 1) {
                 isDragging = false;
+            }
+            if (e2.which == 0) {
+                // return if right click and in drag mode
+                return;
             }
             if (isOutOfCanvas(e2.pageX, e2.pageY)) {
                 return;
@@ -329,12 +337,12 @@ function addEventsToImage() {
                     }
                     break;
                 case "resize":
-                    var bbox = annotationObjects.getTarget("Image");
+                    var bbox = annotationObjects.getSelectedBoundingBox("Image");
                     var rect = bbox["rect"];
                     if (grabbedSide.match(/left/)) {
                         var validX = Math.min(e2.offsetX, rect.attr("x") + rect.attr("width") - minX);
                         rect.attr({x: validX, width: rect.attr("x") + rect.attr("width") - validX});
-                        var textBoxDict = annotationObjects.getTarget("Image")["textBox"];
+                        var textBoxDict = annotationObjects.getSelectedBoundingBox("Image")["textBox"];
                         textBoxDict["text"].attr({x: rect.attr("x")});
                         textBoxDict["box"].attr({x: rect.attr("x")});
                     }
@@ -345,7 +353,7 @@ function addEventsToImage() {
                     if (grabbedSide.match(/top/)) {
                         var validY = Math.min(e2.offsetY, rect.attr("y") + rect.attr("height") - minY);
                         rect.attr({y: validY, height: rect.attr("y") + rect.attr("height") - validY});
-                        var textBoxDict = annotationObjects.getTarget("Image")["textBox"];
+                        var textBoxDict = annotationObjects.getSelectedBoundingBox("Image")["textBox"];
                         textBoxDict["text"].attr({y: rect.attr("y") - fontSize / 2});
                         textBoxDict["box"].attr({y: rect.attr("y") - fontSize});
                     }
@@ -353,10 +361,10 @@ function addEventsToImage() {
                         var validY = Math.max(e2.offsetY, rect.attr("y") + minY);
                         rect.attr({height: validY - rect.attr("y")});
                     }
-                    emphasisBBox(annotationObjects.getTargetIndex());
+                    emphasizeBBox(annotationObjects.getSelectionIndex());
                     break;
                 case "move":
-                    var rect = annotationObjects.getTarget("Image")["rect"];
+                    var rect = annotationObjects.getSelectedBoundingBox("Image")["rect"];
                     var newRectX = e2.offsetX - grabbedPosition.x;
                     var newRectY = e2.offsetY - grabbedPosition.y;
                     if (newRectX + rect.attr("width") > c.width) {
@@ -370,10 +378,10 @@ function addEventsToImage() {
                         newRectY = 0;
                     }
                     rect.attr({x: newRectX, y: newRectY});
-                    var textBox = annotationObjects.getTarget("Image")["textBox"];
+                    var textBox = annotationObjects.getSelectedBoundingBox("Image")["textBox"];
                     textBox["text"].attr({x: newRectX, y: newRectY - fontSize / 2});
                     textBox["box"].attr({x: newRectX, y: newRectY - fontSize});
-                    emphasisBBox(annotationObjects.getTargetIndex());
+                    emphasizeBBox(annotationObjects.getSelectionIndex());
                     break;
             }
 
@@ -387,7 +395,7 @@ function addEventsToImage() {
             }
             switch (action) {
                 case "add":
-                    drawingRect = paper.rect(e2.offsetX, e2.offsetY, 0, 0);
+                    drawingRect = paperLeft.rect(e2.offsetX, e2.offsetY, 0, 0);
                     drawingRect.attr({
                         stroke: classesBoundingBox.target().color,
                         "stroke-width": 3
@@ -401,11 +409,11 @@ function addEventsToImage() {
                     break;
                 case "move":
                     isDragging = true;
-                    if (annotationObjects.getTarget("Image") == undefined) {
+                    if (annotationObjects.getSelectedBoundingBox("Image") == undefined) {
                         return;
                     }
-                    grabbedPosition.x = e2.offsetX - annotationObjects.getTarget("Image")["rect"].attr("x");
-                    grabbedPosition.y = e2.offsetY - annotationObjects.getTarget("Image")["rect"].attr("y");
+                    grabbedPosition.x = e2.offsetX - annotationObjects.getSelectedBoundingBox("Image")["rect"].attr("x");
+                    grabbedPosition.y = e2.offsetY - annotationObjects.getSelectedBoundingBox("Image")["rect"].attr("y");
                     break;
             }
         },
@@ -430,8 +438,25 @@ function addEventsToImage() {
                 return;
             }
             if (!isDragging) {
-                var index = getClickedIndex(e2);
-                annotationObjects.select(index);
+                // remove all previous selections in camera image
+                for (var i = 0; i < annotationObjects.contents.length; i++) {
+                    removeBoundingBoxHighlight(i);
+                    removeTextBox(i);
+                }
+                // remove all previous selections in birds eye view (lower opacity)
+                for (var mesh in labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex]) {
+                    var meshObject = labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][mesh];
+                    meshObject.material.opacity = 0.1;
+                }
+                var selectedBoundingBoxIndex = getClickedIndex(e2);
+                annotationObjects.select(selectedBoundingBoxIndex);
+                if (selectedBoundingBoxIndex !== -1) {
+                    // select class in class selection list
+                    var label = annotationObjects.contents[selectedBoundingBoxIndex]["class"];
+                    var selectedClassIndex = classesBoundingBox[label].index;
+                    $('#class-picker ul li').css('background-color', '#323232');
+                    $($('#class-picker ul li')[selectedClassIndex]).css('background-color', '#525252');
+                }
                 setAction(e2);
                 return;
             }
@@ -443,29 +468,41 @@ function addEventsToImage() {
                         return;
                     }
 
-                    var selectedClassIndex = classesBoundingBox.target().index;
-                    var selectedClassInImage = classesBoundingBox.targetName();
-
-                    var bbox = annotationObjects.getTarget("Image");
-                    if (!annotationObjects.isValidTarget() || bbox != undefined) {
-                        annotationObjects.expand(selectedClassInImage, nextTrackIds[selectedClassIndex]);
-                        annotationObjects.selectTail();
-                    }
-
 
                     var params = {
                         x: rectX,
                         y: rectY,
                         width: rectWidth,
                         height: rectHeight,
-                        trackId: nextTrackIds[selectedClassIndex]
+                        trackId: -1
                     };
-                    nextTrackIds[selectedClassIndex] = nextTrackIds[selectedClassIndex] + 1;
-                    annotationObjects.setTarget("Image", params);
+                    var selectedBoundingBoxIndex = annotationObjects.getSelectionIndex();
+                    if (selectedBoundingBoxIndex !== -1) {
+                        // a bounding box was already selected
+                        // replace the selected bounding box with the new one
+                        // use track id of that selected bounding box
+                        var label = classesBoundingBox.targetName();
+                        var trackId = annotationObjects.contents[selectedBoundingBoxIndex]["trackId"];
+                        params.trackId = trackId;
+                        annotationObjects.remove(selectedBoundingBoxIndex, "Image");
 
+                        annotationObjects.setSelection(selectedBoundingBoxIndex, "Image", params, label, false);
+                        // select class in class selection list
+                        var selectedClassIndex = classesBoundingBox[label].index;
+                        $('#class-picker ul li').css('background-color', '#323232');
+                        $($('#class-picker ul li')[selectedClassIndex]).css('background-color', '#525252');
+                        // annotationObjects.select(selectedBoundingBoxIndex);
+                    } else {
+                        // insert new object (bounding box)
+                        var insertIndex = annotationObjects.__insertIndex;
+                        var trackId = classesBoundingBox.target().nextTrackId;
+                        params.trackId = trackId;
+                        annotationObjects.setSelection(insertIndex, "Image", params, classesBoundingBox.targetName(), false);
+                        // annotationObjects.selectTail();
+                        classesBoundingBox.target().nextTrackId++;
+                    }
                     annotationObjects.selectEmpty();
                     drawingRect.remove();
-
                     break;
                 case "resize":
                     break;
@@ -489,7 +526,7 @@ function toggleIsolation() {
 function hideAllBoundingBoxes(index) {
     var targetIndex;
     if (index == undefined) {
-        targetIndex = annotationObjects.getTargetIndex();
+        targetIndex = annotationObjects.getSelectionIndex();
     } else {
         targetIndex = index;
     }
@@ -504,7 +541,7 @@ function hideAllBoundingBoxes(index) {
 
 function showAllBoundingBoxes() {
     for (var i = 0; i < annotationObjects.length(); ++i) {
-        if (i != annotationObjects.getTargetIndex()) {
+        if (i != annotationObjects.getSelectionIndex()) {
             showImageBBox(i);
         }
     }
@@ -517,7 +554,7 @@ function showAllBoundingBoxes() {
  */
 function getClickedIndex(e) {
     var targetIndex = -1;
-    // var targetIndex = annotationObjects.__tail + 1;
+    // var targetIndex = annotationObjects.__insertIndex + 1;
     for (var i = 0; i < annotationObjects.length(); ++i) {
         if (annotationObjects.get(i, "Image") == undefined) {
             continue;
@@ -528,7 +565,7 @@ function getClickedIndex(e) {
             e.offsetY >= rect.attr("y") &&
             e.offsetY <= rect.attr("y") + rect.attr("height")) {
             targetIndex = i;
-            // if (targetIndex == annotationObjects.getTargetIndex()) {
+            // if (targetIndex == annotationObjects.getSelectionIndex()) {
             return i;
             // }
         }
@@ -536,7 +573,7 @@ function getClickedIndex(e) {
     return targetIndex;
 }
 
-addEvent(canvas, 'contextmenu', function (e) {
+addEvent(canvasLeft, 'contextmenu', function (e) {
     return cancelDefault(e);
 });
 
@@ -593,36 +630,37 @@ function keepAspectRatio() {
             width = windowWidth < width ? windowWidth - 5 : width;
             width = width < 500 ? 500 : width;
         }
-        changeCanvasSize(width / 2, height / 2);
+        //changeCanvasSize(width / 2, height / 2);
+        changeCanvasSize(640, 360);
     });
 }
 
-function zoomImage(offsetX, offsetY, scale) {
-    var size = scale * 100;
-    paper.setSize($('#jpeg-label-canvas').width() * scale, $('#jpeg-label-canvas').height() * scale);
-    paper.setViewBox(-offsetX, -offsetY, $('#jpeg-label-canvas').width(), $('#jpeg-label-canvas').height(), true);
-    zoomParam.offsetX = offsetX;
-    zoomParam.offsetY = offsetY;
-    zoomParam.scale = scale;
-}
+// function zoomImage(offsetX, offsetY, scale) {
+//     var size = scale * 100;
+//     paperLeft.setSize($('#jpeg-label-canvasLeft').width() * scale, $('#jpeg-label-canvasLeft').height() * scale);
+//     paperLeft.setViewBox(-offsetX, -offsetY, $('#jpeg-label-canvasLeft').width(), $('#jpeg-label-canvasLeft').height(), true);
+//     zoomParam.offsetX = offsetX;
+//     zoomParam.offsetY = offsetY;
+//     zoomParam.scale = scale;
+// }
 
 function changeCanvasSize(width, height) {
     $(function () {
-        $('#jpeg-label-canvas').css('width', width + 'px');
-        $('#jpeg-label-canvas').css('height', height + 'px');
-        paper.setViewBox(0, 0, width, height, true);
-        paper.setSize("100%", "100%");
-        fontSize = canvas.offsetWidth / 50;
+        $('#jpeg-label-canvasLeft-left').css('width', width + 'px');
+        $('#jpeg-label-canvasLeft-left').css('height', height + 'px');
+        paperLeft.setViewBox(0, 0, width, height, true);
+        paperLeft.setSize("100%", "100%");
+        fontSize = canvasLeft.offsetWidth / 50;
         if (fontSize < 15) {
             fontSize = 15;
         }
         adjastAllBBoxes();
         c = {
-            x: canvas.offsetLeft,
-            y: canvas.offsetTop,
-            width: canvas.offsetWidth,
-            height: canvas.offsetHeight,
-            center: {x: canvas.offsetWidth / 2, y: canvas.offsetHeight / 2}
+            x: canvasLeft.offsetLeft,
+            y: canvasLeft.offsetTop,
+            width: canvasLeft.offsetWidth,
+            height: canvasLeft.offsetHeight,
+            center: {x: canvasLeft.offsetWidth / 2, y: canvasLeft.offsetHeight / 2}
         }
     });
 }
@@ -634,10 +672,10 @@ function adjastAllBBoxes() {
         }
         var rect = annotationObjects.get(i, "Image")["rect"];
         rect.attr({
-            width: rect.attr("width") * canvas.offsetWidth / c.width,
-            height: rect.attr("height") * canvas.offsetHeight / c.height,
-            x: rect.attr("x") * canvas.offsetWidth / c.width,
-            y: rect.attr("y") * canvas.offsetHeight / c.height
+            width: rect.attr("width") * canvasLeft.offsetWidth / c.width,
+            height: rect.attr("height") * canvasLeft.offsetHeight / c.height,
+            x: rect.attr("x") * canvasLeft.offsetWidth / c.width,
+            y: rect.attr("y") * canvasLeft.offsetHeight / c.height
         });
         var textBox = annotationObjects.get(i, "Image")["textBox"];
         if (textBox == undefined) {
@@ -651,7 +689,7 @@ function adjastAllBBoxes() {
         });
         var box = textBox["text"].getBBox();
         textBox["box"].attr({x: box.x, y: box.y, width: box.width, height: box.height});
-        emphasisBBox(i);
+        emphasizeBBox(i);
     }
 }
 
@@ -673,7 +711,7 @@ function showImageBBox(index) {
     annotationObjects.get(index, "Image")["rect"].show();
 }
 
-function emphasisBBox(index) {
+function emphasizeBBox(index) {
     if (!annotationObjects.exists(index, "Image")) {
         return;
     }
@@ -690,8 +728,8 @@ function emphasisBBox(index) {
     const y0 = rect.attr("y");
     const y1 = rect.attr("y") + rect.attr("height") / 2;
     const y2 = rect.attr("y") + rect.attr("height");
-    rect.l = [paper.path("M" + x1 + "," + y0 + " L" + x1 + "," + y2),
-        paper.path("M" + x0 + "," + y1 + " L" + x2 + "," + y1)];
+    rect.l = [paperLeft.path("M" + x1 + "," + y0 + " L" + x1 + "," + y2),
+        paperLeft.path("M" + x0 + "," + y1 + " L" + x2 + "," + y1)];
     for (var i = 0; i <= 1; ++i) {
         rect.l[i].attr({"stroke-dasharray": "."});
         rect.l[i].node.setAttribute("pointer-events", "none");
@@ -723,14 +761,14 @@ function addTextBox(bbIndex) {
         return;
     }
     var bbox = annotationObjects.get(bbIndex, "Image");
-    var trackId = annotationObjects.contents[bbIndex]["Image"]["trackId"];
+    var trackId = annotationObjects.contents[bbIndex]["trackId"];
     var posX = bbox["rect"].attr("x");
     var posY = bbox["rect"].attr("y");
     var cls = annotationObjects.get(bbIndex, "class");
     var firstLetterOfClass = cls.charAt(0);
     bbox["textBox"] =
         {
-            text: paper.text(posX, posY - fontSize / 2, "#" + firstLetterOfClass + trackId + " " + cls)
+            text: paperLeft.text(posX, posY - fontSize / 2, "#" + firstLetterOfClass + trackId + " " + cls)
                 .attr({
                     fill: "black",
                     "font-size": fontSize,
@@ -739,7 +777,7 @@ function addTextBox(bbIndex) {
         };
     // bbox["textBox"]["text"].attr("text", bboxString(bbIndex, cls));
     var box = bbox["textBox"]["text"].getBBox();
-    bbox["textBox"]["box"] = paper.rect(box.x, box.y, box.width, box.height)
+    bbox["textBox"]["box"] = paperLeft.rect(box.x, box.y, box.width, box.height)
         .attr({
             fill: classesBoundingBox[cls].color,
             stroke: "none"

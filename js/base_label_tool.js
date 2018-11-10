@@ -90,6 +90,13 @@ var labelTool = {
         }
     },
 
+    setTrackIds: function () {
+        for (var annotationObj in annotationObjects.contents) {
+            var annotation = annotationObjects.contents[annotationObj];
+            var label = annotation["class"];
+            classesBoundingBox[label].nextTrackId++;
+        }
+    },
     // Set values to this.annotationObjects from annotations
     loadAnnotations: function (annotations) {
         // Remove old bounding boxes of current frame.
@@ -118,8 +125,7 @@ var labelTool = {
                         height: maxPos[1] - minPos[1],
                         trackId: annotation.trackId
                     };
-                    //annotationObjects.setTarget("Image", params, label);
-                    annotationObjects.setTarget("Image", params, annotations[i].label);
+                    annotationObjects.setSelection(annotationObjects.__insertIndex, "Image", params, annotation.label, true);
                     hasLabel["Image"] = true;
                 }
             }
@@ -137,6 +143,7 @@ var labelTool = {
                     tmpHeight = Math.max(tmpHeight, 0.0001);
                     tmpDepth = Math.max(tmpDepth, 0.0001);
                     var params = {
+                        label: annotation.label,
                         x: readMat[0],
                         y: -readMat[1],
                         z: readMat[2],
@@ -156,34 +163,21 @@ var labelTool = {
                             depth: tmpDepth,
                             yaw: parseFloat(annotation.rotation_y)
                         },
-                        trackId: annotation.trackId
+                        trackId: annotation.trackId,
+                        fromFile: true
                     };
                     //addbbox(readfile_parameters, index); //
                     //annotationObjects.selectEmpty();
-                    annotationObjects.set(i, "PCD", params);
-                    //annotationObjects.setTarget("PCD", params, label);
+                    annotationObjects.set(i, "PCD", params, annotation.label);
+                    //annotationObjects.setSelection("PCD", params, label);
                     hasLabel["PCD"] = true;
                 }
             }
-            /* else {
-                    annotations[i].truncated = 0;
-                    annotations[i].occluded = 3;
-                    annotations[i].alpha = 0;
-                    annotations[i].height = 0;
-                    annotations[i].width = 0;
-                    annotations[i].length = 0;
-                    annotations[i].x = 0;
-                    annotations[i].y = 0;
-                    annotations[i].z = 0;
-                    annotations[i].rotation_y = 0;
-                    }*/
             if (!hasLabel["Image"] && !hasLabel["PCD"]) {
                 annotationObjects.pop();
             }
         }
-        // Backup initial positions.
-        // this.originalAnnotations = this.createAnnotations();
-        /* this.originalAnnotations = annotations;*/ // This is better but messed by 1px diffs.
+        this.setTrackIds();
     },
 
     // Create annotations from this.annotationObjects
@@ -211,12 +205,6 @@ var labelTool = {
                 rotation_y: 0,
                 score: 1,
                 trackId: -1
-                // vehicle: {
-                //     rear_light_left: {x: -1, y: -1},
-                //     rear_light_right: {x: -1, y: -1},
-                //     front_light_left: {x: -1, y: -1},
-                //     front_light_right: {x: -1, y: -1},
-                // }
             };
 
             if (annotationObjects.exists(i, "Image")) {
@@ -628,7 +616,7 @@ var labelTool = {
     }, changeCamChannel: function (currentChannelNumber, nextChannelNumber) {
         // change label text
         this.currentChannelLabel.innerHTML = this.camChannels[nextChannelNumber];
-        if (this.dataTypes.indexOf("PCD") >= 0 && this.hold_flag == false) {
+        if (this.dataTypes.indexOf("PCD") >= 0) {
             var cubeLength;
             if (this.cubeArray[labelTool.currentFileIndex][currentChannelNumber] == undefined) {
                 cubeLength = 0;
@@ -637,26 +625,24 @@ var labelTool = {
             }
             // remove all folder of current channel
             for (var k = 0; k < cubeLength; k++) {
-                guiOptions.removeFolder('BoundingBox' + String(this.bboxIndexArray[labelTool.currentFileIndex][currentChannelNumber][k]));
+                guiOptions.removeFolder(annotationObjects.contents[k]["class"] + ' ' + annotationObjects.contents[k]["trackId"]);
                 this.cubeArray[labelTool.currentFileIndex][currentChannelNumber][k].visible = false;
             }
         }
         if (this.hasPCD && this.hasLoadedPCD) {
-            ground_mesh.visible = false;
+            groundMesh.visible = false;
             cFlag = false;
             rFlag = false;
-            if (this.hold_flag == false) {
-                this.bboxes = [];
-                // do not delete bounding boxes that were set previously
-                // this.cubeArray[this.currentFileIndex][this.currentCameraChannelIndex] = [];
-                numbertagList = [];
-                boundingBox3DArray = [];
-                guiTag = [];
-                numbertagList = [];
-                folder_position = [];
-                folder_size = [];
-                this.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex] = [];
-            }
+            this.bboxes = [];
+            // do not delete bounding boxes that were set previously
+            // this.cubeArray[this.currentFileIndex][this.currentCameraChannelIndex] = [];
+            numbertagList = [];
+            folderBoundingBox3DArray = [];
+            guiTag = [];
+            numbertagList = [];
+            folderPositionArray = [];
+            folderSizeArray = [];
+            this.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex] = [];
         }
         this.hasLoadedImage = false;
         this.hasLoadedPCD = false;
@@ -699,18 +685,18 @@ var labelTool = {
             }
         }
         if (this.hasPCD && this.hasLoadedPCD) {
-            ground_mesh.visible = false;
+            groundMesh.visible = false;
             cFlag = false;
             rFlag = false;
             if (this.hold_flag == false) {
                 // this.annotationObjects = [];
                 this.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex] = [];
                 numbertagList = [];
-                boundingBox3DArray = [];
+                folderBoundingBox3DArray = [];
                 guiTag = [];
                 numbertagList = [];
-                folder_position = [];
-                folder_size = [];
+                folderPositionArray = [];
+                folderSizeArray = [];
                 this.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex] = [];
             }
         }
@@ -725,8 +711,8 @@ var labelTool = {
         // render labels
         if (this.hold_flag) {
             // use annotations of current frame for next frame
-            if (annotationFileExist(this.currentFileIndex - 1, this.currentCameraChannelIndex)) {
-                this.getAnnotations(this.currentFileIndex - 1);
+            if (annotationFileExist(this.currentFileIndex, this.currentCameraChannelIndex)) {
+                this.getAnnotations(this.currentFileIndex);
             }
         } else {
             // hold flag not set
@@ -757,7 +743,7 @@ var labelTool = {
         $(window).unbind("resize");
         $(window).resize(function () {
             $(function () {
-                if ($("#jpeg-label-canvas").css("display") == "block") {
+                if ($("#jpeg-label-canvasLeft-left").css("display") == "block") {
                     var windowWidth = $('#label-tool-wrapper').width();
                     var width = windowWidth / 4 > 100 ? windowWidth / 4 : 100;
                     var height = width * 5 / 8;
@@ -776,7 +762,7 @@ var labelTool = {
     //             this.selectedDataType = "PCD";
     //             $('#canvas3d').show();
     //             if (!birdViewFlag) {
-    //                 $('#jpeg-label-canvas').hide();
+    //                 $('#jpeg-label-canvasLeft').hide();
     //             } else {
     //                 changeCanvasSize($("#canvas3d").width() / 4, $("#canvas3d").width() * 5 / 32);
     //             }
@@ -789,7 +775,7 @@ var labelTool = {
     //             dat.GUI.toggleHide();
     //             this.selectedDataType = "Image";
     //             $('#canvas3d').hide();
-    //             $('#jpeg-label-canvas').show();
+    //             $('#jpeg-label-canvasLeft').show();
     //             document.getElementById("label-toggle-button").innerText = "PCD";
     //             this.addResizeEventForImage();
     //             keepAspectRatio();
