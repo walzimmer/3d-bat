@@ -3676,7 +3676,7 @@
 
 			} else {
 
-				canvas = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'canvasLeft' );
+				canvas = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'canvas' );
 				canvas.width = image.width;
 				canvas.height = image.height;
 
@@ -19839,12 +19839,12 @@
 
 				}
 
-				// Warning: Scaling through the canvasLeft will only work with images that use
+				// Warning: Scaling through the canvas will only work with images that use
 				// premultiplied alpha.
 
 				var scale = maxSize / Math.max( image.width, image.height );
 
-				var canvas = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'canvasLeft' );
+				var canvas = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'canvas' );
 				canvas.width = Math.floor( image.width * scale );
 				canvas.height = Math.floor( image.height * scale );
 
@@ -19871,7 +19871,7 @@
 
 			if ( image instanceof HTMLImageElement || image instanceof HTMLCanvasElement || image instanceof ImageBitmap ) {
 
-				if ( _canvas === undefined ) _canvas = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'canvasLeft' );
+				if ( _canvas === undefined ) _canvas = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'canvas' );
 
 				_canvas.width = _Math.floorPowerOfTwo( image.width );
 				_canvas.height = _Math.floorPowerOfTwo( image.height );
@@ -20471,7 +20471,7 @@
 
 			} else {
 
-				// regular Texture (image, video, canvasLeft)
+				// regular Texture (image, video, canvas)
 
 				// use manually created mipmaps if available
 				// if there are no manual mipmaps
@@ -22045,7 +22045,7 @@
 
 		parameters = parameters || {};
 
-		var _canvas = parameters.canvas !== undefined ? parameters.canvas : document.createElementNS( 'http://www.w3.org/1999/xhtml', 'canvasLeft' ),
+		var _canvas = parameters.canvas !== undefined ? parameters.canvas : document.createElementNS( 'http://www.w3.org/1999/xhtml', 'canvas' ),
 			_context = parameters.context !== undefined ? parameters.context : null,
 
 			_alpha = parameters.alpha !== undefined ? parameters.alpha : false,
@@ -31797,7 +31797,7 @@
 
 		if ( this.matcap === null ) {
 
-			var canvas = document.createElement( 'canvasLeft' );
+			var canvas = document.createElement( 'canvas' );
 			canvas.width = 1;
 			canvas.height = 1;
 

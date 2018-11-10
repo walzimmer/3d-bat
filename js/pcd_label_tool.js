@@ -169,7 +169,7 @@ PrismGeometry.prototype = Object.create(THREE.ExtrudeGeometry.prototype);
 
 // Visualize 2d and 3d data
 labelTool.onLoadData("PCD", function () {
-    // $("#jpeg-label-canvasLeft").show();
+    // $("#jpeg-label-canvas-left").show();
     // changeCanvasSize($("#canvas3d").width() / 4, $("#canvas3d").width() * 5 / 32);
 
     // var obj_loader = new THREE.OBJLoader();
@@ -345,20 +345,20 @@ function b64EncodeUnicode(str) {
 
 function changeViewMode(viewMode) {
     if (viewMode == 'Image') {
-        // hide 3d canvasLeft
+        // hide 3d canvas
         $('#canvas3d').hide();
         // show image
-        $("#jpeg-label-canvasLeft-left").show();
+        $("#jpeg-label-canvas-left").show();
         changeCanvasSize($("#canvas3d").width(), $("#canvas3d").height());
 
     } else if (viewMode == 'Point cloud') {
         // first hide camera image
-        $("#jpeg-label-canvasLeft-left").hide();
-        // show 3d canvasLeft
+        $("#jpeg-label-canvas-left").hide();
+        // show 3d canvas
         $('#canvas3d').show();
     } else {
         //view mode is 'Show both'
-        $("#jpeg-label-canvasLeft-left").show();
+        $("#jpeg-label-canvas-left").show();
         $('#canvas3d').show();
         changeCanvasSize($("#canvas3d").width() / 2, $("#canvas3d").height() / 2);
     }
@@ -662,7 +662,7 @@ function animate() {
 
 function init() {
     scene = new THREE.Scene();
-    var axisHelper = new THREE.AxisHelper(0.1);
+    var axisHelper = new THREE.AxisHelper(1);
     axisHelper.position.set(0, 0, 0);
     scene.add(axisHelper);
 
@@ -776,8 +776,8 @@ function init() {
         if (ev.button == 0) {
             if (bboxFlag == true) {
                 var rect = ev.target.getBoundingClientRect();
-                mouseUp.x = ((ev.clientX - rect.left) / $("#canvas3d canvasLeft").attr("width")) * 2 - 1;
-                mouseUp.y = -((ev.clientY - rect.top) / $("#canvas3d canvasLeft").attr("height")) * 2 + 1;
+                mouseUp.x = ((ev.clientX - rect.left) / $("#canvas3d canvas").attr("width")) * 2 - 1;
+                mouseUp.y = -((ev.clientY - rect.top) / $("#canvas3d canvas").attr("height")) * 2 + 1;
                 if (birdViewFlag == false) {
                     var vector = new THREE.Vector3(mouseUp.x, mouseUp.y, 1);
                     vector.unproject(camera);
