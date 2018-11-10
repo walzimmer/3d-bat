@@ -1,7 +1,7 @@
 var annotationObjects = {
     contents: [],
     localOnSelect: {
-        "Image": function (index) {
+        "ImageLeft": function (index) {
         },
         "PCD": function (index) {
         }
@@ -10,7 +10,7 @@ var annotationObjects = {
         this.localOnSelect[dataType] = f;
     },
     localOnChangeClass: {
-        "Image": function (index, label) {
+        "ImageLeft": function (index, label) {
         },
         "PCD": function (index, label) {
         }
@@ -19,7 +19,7 @@ var annotationObjects = {
         this.localOnChangeClass[dataType] = f;
     },
     localOnAdd: {
-        "Image": function (index, label, params) {
+        "ImageLeft": function (index, label, params) {
         },
         "PCD": function (index, label, params) {
         }
@@ -28,7 +28,7 @@ var annotationObjects = {
         this.localOnAdd[dataType] = f;
     },
     localOnRemove: {
-        "Image": function (index) {
+        "ImageLeft": function (index) {
         },
         "PCD": function (index) {
         }
@@ -85,7 +85,7 @@ var annotationObjects = {
             "trackId": trackId
         };
         this.__insertIndex++;
-        if (dataType == "Image") {
+        if (dataType == "ImageLeft") {
             this.__table.expand(classesBoundingBox.targetName(), true, false);
         } else {
             this.__table.expand(classesBoundingBox.targetName(), false, true);
@@ -163,7 +163,7 @@ var annotationObjects = {
             this.localOnRemove[dataType](index);
             delete this.contents[index][dataType];
             this.__table.remove(index, dataType);
-            if (this.contents[index]["Image"] == undefined && this.contents[index]["PCD"] == undefined) {
+            if (this.contents[index]["ImageLeft"] == undefined && this.contents[index]["PCD"] == undefined) {
                 delete this.contents[index];
                 this.__insertIndex--;
                 this.__table.__insertIndex--;
@@ -178,8 +178,8 @@ var annotationObjects = {
     },
     clear: function () {
         for (var i = 0; i < this.length(); ++i) {
-            if (this.exists(i, "Image")) {
-                this.localOnRemove["Image"](i);
+            if (this.exists(i, "ImageLeft")) {
+                this.localOnRemove["ImageLeft"](i);
             }
             if (this.exists(i, "PCD")) {
                 this.localOnRemove["PCD"](i);

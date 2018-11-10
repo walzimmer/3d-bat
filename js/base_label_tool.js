@@ -50,28 +50,28 @@ var labelTool = {
     /****************** Private functions **************/
 
     localOnLoadData: {
-        "Image": function () {
+        "ImageLeft": function () {
         },
         "PCD": function () {
         }
     },
 
     localOnLoadAnnotation: {
-        "Image": function (index, annotation) {
+        "ImageLeft": function (index, annotation) {
         },
         "PCD": function (index, annotation) {
         }
     },
 
     localOnSelectBBox: {
-        "Image": function (newIndex, oldIndex) {
+        "ImageLeft": function (newIndex, oldIndex) {
         },
         "PCD": function (newIndex, oldIndex) {
         }
     },
 
     localOnInitialize: {
-        "Image": function () {
+        "ImageLeft": function () {
         },
         "PCD": function () {
         }
@@ -79,12 +79,12 @@ var labelTool = {
 
     // Visualize 2d and 3d data
     showData: function () {
-        if (this.selectedDataType == "Image" && !this.hasLoadedImage) {
-            this.localOnLoadData["Image"]();
+        if (this.selectedDataType == "ImageLeft" && !this.hasLoadedImage) {
+            this.localOnLoadData["ImageLeft"]();
             this.hasLoadedImage = true;
         }
         if (this.selectedDataType == "PCD" && !this.hasLoadedPCD) {
-            this.localOnLoadData["Image"]();
+            this.localOnLoadData["ImageLeft"]();
             this.localOnLoadData["PCD"]();
             this.hasLoadedPCD = true;
         }
@@ -108,12 +108,12 @@ var labelTool = {
                 annotations[i][key] = parseInt(annotations[i][key]);
             });
             var hasLabel = {
-                "Image": false,
+                "ImageLeft": false,
                 "PCD": false
             };
             var annotation = annotations[i];
             annotationObjects.selectEmpty();
-            if (this.hasData("Image")) {
+            if (this.hasData("ImageLeft")) {
                 if (!(annotation.left == 0 && annotation.top == 0 &&
                     annotation.right == 0 && annotation.bottom == 0)) {
                     var minPos = convertPositionToCanvas(annotation.left, annotation.top);
@@ -125,8 +125,8 @@ var labelTool = {
                         height: maxPos[1] - minPos[1],
                         trackId: annotation.trackId
                     };
-                    annotationObjects.setSelection(annotationObjects.__insertIndex, "Image", params, annotation.label, true);
-                    hasLabel["Image"] = true;
+                    annotationObjects.setSelection(annotationObjects.__insertIndex, "ImageLeft", params, annotation.label, true);
+                    hasLabel["ImageLeft"] = true;
                 }
             }
             if (this.hasData("PCD")) {
@@ -173,7 +173,7 @@ var labelTool = {
                     hasLabel["PCD"] = true;
                 }
             }
-            if (!hasLabel["Image"] && !hasLabel["PCD"]) {
+            if (!hasLabel["ImageLeft"] && !hasLabel["PCD"]) {
                 annotationObjects.pop();
             }
         }
@@ -184,7 +184,7 @@ var labelTool = {
     createAnnotations: function () {
         var annotations = [];
         for (var i = 0; i < annotationObjects.length(); ++i) {
-            if (!annotationObjects.exists(i, "Image") && !annotationObjects.exists(i, "PCD")) {
+            if (!annotationObjects.exists(i, "ImageLeft") && !annotationObjects.exists(i, "PCD")) {
                 continue;
             }
             var annotation = {
@@ -207,8 +207,8 @@ var labelTool = {
                 trackId: -1
             };
 
-            if (annotationObjects.exists(i, "Image")) {
-                var rect = annotationObjects.get(i, "Image")["rect"];
+            if (annotationObjects.exists(i, "ImageLeft")) {
+                var rect = annotationObjects.get(i, "ImageLeft")["rect"];
                 var minPos = convertPositionToFile(rect.attr("x"), rect.attr("y"));
                 var maxPos = convertPositionToFile(rect.attr("x") + rect.attr("width"),
                     rect.attr("y") + rect.attr("height"));
@@ -216,7 +216,7 @@ var labelTool = {
                 annotation["top"] = minPos[1];
                 annotation["right"] = maxPos[0];
                 annotation["bottom"] = maxPos[1];
-                var trackId = annotationObjects.get(i, "Image")["trackId"];
+                var trackId = annotationObjects.get(i, "ImageLeft")["trackId"];
                 annotation["trackId"] = trackId;
             }
             if (annotationObjects.exists(i, "PCD")) {
@@ -405,16 +405,13 @@ var labelTool = {
         });
     },
 
-    setParameters: function (labelId, dataTypeString) {
-        ["Image", "PCD"].forEach(function (dataType) {
-            if (dataTypeString.indexOf(dataType) != -1) {
-                this.dataTypes.push(dataType);
-            }
-        }.bind(this));
+    setParameters: function (labelId) {
+        this.dataTypes.push("ImageLeft");
+        this.dataTypes.push("PCD");
         this.labelId = labelId;
         this.selectedDataType = this.dataTypes[1];
         // dat.GUI.toggleHide();
-        // if (!(this.dataTypes.indexOf("Image") >= 0)) {
+        // if (!(this.dataTypes.indexOf("ImageLeft") >= 0)) {
         //     this.toggleDataType();
         // }
     },
@@ -432,46 +429,46 @@ var labelTool = {
     getTargetFileName: function () {
         return this.fileNames[this.currentFileIndex];
     },
-    /* 
+    /*
      *     getImageBBox: function(index) {
      * 	if (this.annotationObjects[index] == undefined) {
      * 	    return undefined;
      * 	}
-     * 	return this.annotationObjects[index]["Image"];
+     * 	return this.annotationObjects[index]["ImageLeft"];
      *     },
-     * 
+     *
      *     getPCDBBox: function(index) {
      * 	if (this.annotationObjects[index] == undefined) {
      * 	    return undefined;
      * 	}
      * 	return this.annotationObjects[index]["PCD"];
      *     },
-     * 
+     *
      *     getSelectedImageBBox: function() {
      * 	if (this.annotationObjects[this.targetBBox] == undefined) {
      * 	    return undefined;
      * 	}
-     * 	return this.annotationObjects[this.targetBBox]["Image"];
+     * 	return this.annotationObjects[this.targetBBox]["ImageLeft"];
      *     },
-     * 
+     *
      *     getSelectedPCDBBox: function() {
      * 	if (this.annotationObjects[this.targetBBox] == undefined) {
      * 	    return undefined;
      * 	}
      * 	return this.annotationObjects[this.targetBBox]["PCD"];
      *     },
-     *     
+     *
      *     setImageBBox: function(index, bbox) {
      * 	if (this.annotationObjects[index] == undefined) {
      * 	    this.annotationObjects[index] = {
      * 		"label": this.targetClass,
-     * 		"Image": bbox
+     * 		"ImageLeft": bbox
      * 	    };
      * 	} else {
-     * 	    this.annotationObjects[index]["Image"] = bbox;
+     * 	    this.annotationObjects[index]["ImageLeft"] = bbox;
      * 	}
      *     },
-     * 
+     *
      *     setPCDBBox: function(index, bbox) {
      * 	if (this.annotationObjects[index] == undefined) {
      * 	    this.annotationObjects[index] = {
@@ -482,7 +479,7 @@ var labelTool = {
      * 	    this.annotationObjects[index]["PCD"] = bbox;
      * 	}
      *     },*/
-    /* 
+    /*
      *     setSelectedImageBBox: function(bbox) {
      * 	if (this.targetBBox == -1) {
      * 	    console.error("No annotationObjects selected.");
@@ -490,10 +487,10 @@ var labelTool = {
      * 	if (this.annotationObjects[this.targetBBox] == undefined) {
      * 	    this.annotationObjects[this.targetBBox] = {
      * 		"label": this.targetClass,
-     * 		"Image": bbox
+     * 		"ImageLeft": bbox
      * 	    };
      * 	} else {
-     * 	    this.annotationObjects[this.targetBBox]["Image"] = bbox;
+     * 	    this.annotationObjects[this.targetBBox]["ImageLeft"] = bbox;
      * 	}
      *     },*/
 
@@ -743,7 +740,7 @@ var labelTool = {
         $(window).unbind("resize");
         $(window).resize(function () {
             $(function () {
-                if ($("#jpeg-label-canvasLeft-left").css("display") == "block") {
+                if ($("#jpeg-label-canvas-left").css("display") == "block") {
                     var windowWidth = $('#label-tool-wrapper').width();
                     var width = windowWidth / 4 > 100 ? windowWidth / 4 : 100;
                     var height = width * 5 / 8;
@@ -756,26 +753,26 @@ var labelTool = {
     // toggleDataType: function () {
     //     $("#label-tool-log").val("4. Step: Draw 3D label");
     //     $("#label-tool-log").css("color", "#969696");
-    //     if (this.selectedDataType == "Image") {
+    //     if (this.selectedDataType == "ImageLeft") {
     //         if (this.dataTypes.indexOf("PCD") >= 0) {
     //             dat.GUI.toggleHide();
     //             this.selectedDataType = "PCD";
     //             $('#canvas3d').show();
     //             if (!birdViewFlag) {
-    //                 $('#jpeg-label-canvasLeft').hide();
+    //                 $('#jpeg-label-canvas-left').hide();
     //             } else {
     //                 changeCanvasSize($("#canvas3d").width() / 4, $("#canvas3d").width() * 5 / 32);
     //             }
-    //             document.getElementById("label-toggle-button").innerText = "Image";
+    //             document.getElementById("label-toggle-button").innerText = "ImageLeft";
     //             this.addResizeEventForPCD();
     //             this.showData();
     //         }
     //     } else {
-    //         if (this.dataTypes.indexOf("Image") >= 0) {
+    //         if (this.dataTypes.indexOf("ImageLeft") >= 0) {
     //             dat.GUI.toggleHide();
-    //             this.selectedDataType = "Image";
+    //             this.selectedDataType = "ImageLeft";
     //             $('#canvas3d').hide();
-    //             $('#jpeg-label-canvasLeft').show();
+    //             $('#jpeg-label-canvas-left').show();
     //             document.getElementById("label-toggle-button").innerText = "PCD";
     //             this.addResizeEventForImage();
     //             keepAspectRatio();
