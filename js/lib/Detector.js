@@ -10,7 +10,7 @@ var Detector = {
 
 		try {
 
-			var canvas = document.createElement( 'canvas' ); return !! ( window.WebGLRenderingContext && ( canvas.getContext( 'webgl' ) || canvas.getContext( 'experimental-webgl' ) ) );
+			var canvas = document.createElement( 'canvasLeft' ); return !! ( window.WebGLRenderingContext && ( canvas.getContext( 'webgl' ) || canvas.getContext( 'experimental-webgl' ) ) );
 
 		} catch ( e ) {
 

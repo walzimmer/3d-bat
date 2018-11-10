@@ -7,9 +7,9 @@ var guiTag = [];
 var guiAnnotationClasses = new dat.GUI();
 var guiBoundingBoxAnnotationMap = {};
 var guiOptions = new dat.GUI();
-var boundingBox3DArray = [];
-var folder_position = [];
-var folder_size = [];
+var folderBoundingBox3DArray = [];
+var folderPositionArray = [];
+var folderSizeArray = [];
 var bboxFlag = true;
 var clickFlag = false;
 var clickedObjectIndex = -1;
@@ -19,14 +19,14 @@ var clickedPoint = THREE.Vector3();
 var groundClickedPoint;
 var groundPlaneArray = [];
 var clickedPlaneArray = [];
-var ground_mesh;
+var groundMesh;
 var birdViewFlag = true;
 var moveFlag = false;
 var cls = 0;
 var cFlag = false;
 var rFlag = false;
-var rotation_bbox_index = -1;
-var copy_bbox_index = -1;
+var rotationBboxIndex = -1;
+var copyBboxIndex = -1;
 
 var parametersBoundingBox = {
     "Vehicle": function () {
@@ -86,10 +86,22 @@ var parameters = {
     }
 ;
 
+/*********** Event handlers **************/
+
 labelTool.onInitialize("PCD", function () {
     if (!Detector.webgl) Detector.addGetWebGLMessage();
     init();
     animate();
+});
+
+
+annotationObjects.onRemove("PCD", function (index) {
+    if (!annotationObjects.exists(index, "PCD")) {
+        return;
+    }
+    // remove 3D cubes in scene
+    labelTool.removeObject("cube-" + index);
+    // remove folder in control menu
 });
 
 var rotWorldMatrix;
@@ -157,14 +169,14 @@ PrismGeometry.prototype = Object.create(THREE.ExtrudeGeometry.prototype);
 
 // Visualize 2d and 3d data
 labelTool.onLoadData("PCD", function () {
-    // $("#jpeg-label-canvas").show();
+    // $("#jpeg-label-canvasLeft").show();
     // changeCanvasSize($("#canvas3d").width() / 4, $("#canvas3d").width() * 5 / 32);
 
     // var obj_loader = new THREE.OBJLoader();
     // var obj_url = labelTool.workBlob + '/PCDPoints_orig/' + labelTool.fileNames[labelTool.currentFileIndex] + 'all.pcd';
     // obj_loader.load(obj_url, function (mesh) {
     //     scene.add(mesh);
-    //     ground_mesh = mesh;
+    //     groundMesh = mesh;
     //     labelTool.hasPCD = true;
     // });
 
@@ -176,7 +188,7 @@ labelTool.onLoadData("PCD", function () {
         //rotateAroundWorldAxis(mesh, xAxis, 2 * Math.PI / 180);
         // rotateAroundObjectAxis(mesh, xAxis, 2 * Math.PI / 180);
         scene.add(mesh);
-        ground_mesh = mesh;
+        groundMesh = mesh;
         labelTool.hasPCD = true;
     });
 
@@ -187,22 +199,22 @@ labelTool.onLoadData("PCD", function () {
     labelTool.drawFieldOfView();
 });
 
-// TODO: test onselect method (open folder if selected)
-annotationObjects.onSelect(function (newIndex, oldIndex) {
+// TODO: open folder if selected
+annotationObjects.onSelect("PCD", function (newIndex) {
     clickedPlaneArray = [];
-    for (var i = 0; i < bboxFolders.length; i++) {
-        if (bboxFolders[i] != undefined) {
-            bboxFolders[i].close();
+    for (var i = 0; i < folderBoundingBox3DArray.length; i++) {
+        if (folderBoundingBox3DArray[i] != undefined) {
+            folderBoundingBox3DArray[i].close();
         }
     }
-    if (bboxFolders[newIndex] != undefined) {
-        bboxFolders[newIndex].open();
+    if (folderBoundingBox3DArray[newIndex] != undefined) {
+        folderBoundingBox3DArray[newIndex].open();
     }
-    if (folder_position[newIndex] != undefined) {
-        folder_position[newIndex].open();
+    if (folderPositionArray[newIndex] != undefined) {
+        folderPositionArray[newIndex].open();
     }
-    if (folder_size[newIndex] != undefined) {
-        folder_size[newIndex].open();
+    if (folderSizeArray[newIndex] != undefined) {
+        folderSizeArray[newIndex].open();
     }
 });
 
@@ -313,7 +325,7 @@ function data_load() {
 
 //save data
 function save() {
-    // ground_mesh.visible = false;
+    // groundMesh.visible = false;
     labelTool.savedFrames[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex] = true;
     // labelTool.changeFrame(labelTool.currentFileIndex);
     // download annotations
@@ -333,20 +345,20 @@ function b64EncodeUnicode(str) {
 
 function changeViewMode(viewMode) {
     if (viewMode == 'Image') {
-        // hide 3d canvas
+        // hide 3d canvasLeft
         $('#canvas3d').hide();
         // show image
-        $("#jpeg-label-canvas").show();
+        $("#jpeg-label-canvasLeft-left").show();
         changeCanvasSize($("#canvas3d").width(), $("#canvas3d").height());
 
     } else if (viewMode == 'Point cloud') {
         // first hide camera image
-        $("#jpeg-label-canvas").hide();
-        // show 3d canvas
+        $("#jpeg-label-canvasLeft-left").hide();
+        // show 3d canvasLeft
         $('#canvas3d').show();
     } else {
         //view mode is 'Show both'
-        $("#jpeg-label-canvas").show();
+        $("#jpeg-label-canvasLeft-left").show();
         $('#canvas3d').show();
         changeCanvasSize($("#canvas3d").width() / 2, $("#canvas3d").height() / 2);
     }
@@ -394,130 +406,106 @@ function camera_view() {
 }
 
 //add new bounding box
-annotationObjects.onAdd("PCD", function (index, cls, read_parameters) {
-    var num = index;
-    var bbox = read_parameters;//labelTool.getPCDBBox(num);
+annotationObjects.onAdd("PCD", function (index, label, parameters) {
+    var bbox = parameters;
+    var boundingBoxIndex = index;
     labelTool.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex].push(index.toString());
     var cubeGeometry = new THREE.CubeGeometry(1.0, 1.0, 1.0);//width, height, depth
-    var color = classesBoundingBox.target().color;
+    var color;
+    if (parameters.fromFile == true) {
+        color = classesBoundingBox[label].color;
+    } else {
+        color = classesBoundingBox.target().color;
+    }
+
     var cubeMaterial = new THREE.MeshBasicMaterial({color: color, transparent: true, opacity: 0.1});
     var cubeMesh = new THREE.Mesh(cubeGeometry, cubeMaterial);
     cubeMesh.position.set(bbox.x, -bbox.y, bbox.z);
     cubeMesh.scale.set(bbox.width, bbox.height, bbox.depth);
     cubeMesh.rotation.z = bbox.yaw;
+    cubeMesh.name = "cube-" + index;
     scene.add(cubeMesh);
     labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex].push(cubeMesh);
-
-    // var cubeAllEdgesMaterial = new THREE.MeshBasicMaterial({color: '#ff0000', wireframe: true});
-    // var cubeAllEdges = new THREE.Mesh(cubeGeometry, cubeAllEdgesMaterial);
-    // cubeAllEdges.position.set(bbox.x, -bbox.y, bbox.z);
-    // cubeAllEdges.scale.set(bbox.width, bbox.height, bbox.depth);
-    // cubeAllEdges.rotation.z = bbox.yaw;
-    // scene.add(cubeAllEdges);
-    // labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex].push(cubeAllEdges);
-
-    // var singleGeometry = new THREE.Geometry();
-
-    // var cubeEdgeGeometry = new THREE.EdgesGeometry(cubeGeometry); // or WireframeGeometry( geometry )
-    // var cubeHardEdgesMaterial = new THREE.LineBasicMaterial({color: color, linewidth: 2});
-    // var cubeHardEdges = new THREE.LineSegments(cubeEdgeGeometry, cubeHardEdgesMaterial);
-    // cubeHardEdges.updateMatrix();
-    // singleGeometry.merge(cubeEdgeGeometry.geometry, cubeHardEdges.matrix);
-    // cubeHardEdges.position.set(bbox.x, -bbox.y, bbox.z);
-    // cubeHardEdges.scale.set(bbox.width, bbox.height, bbox.depth);
-    // cubeHardEdges.rotation.z = bbox.yaw;
-    // scene.add(cubeHardEdges);
-    // labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex].push(cubeHardEdges);
-
-    // var cubeWireframeMaterial = new THREE.MeshBasicMaterial({color: color, wireframe: true});
-    // var cubeLambertMaterial = new THREE.MeshBasicMaterial({color: color, transparent: true, opacity: 0.5});
-    // var meshMaterials = [cubeLambertMaterial, cubeWireframeMaterial];
-    // var cubeMesh = THREE.SceneUtils.createMultiMaterialObject(cubeGeometry, meshMaterials);
-
-    // var cubeMaterial = new THREE.MeshBasicMaterial({color: '#ff0000', wireframe: false});
-    // var cubeMesh = new THREE.Mesh(cubeGeometry, cubeMaterial);
-    // cubeMesh.position.set(bbox.x, -bbox.y, bbox.z);
-    // cubeMesh.scale.set(bbox.width, bbox.height, bbox.depth);
-    // cubeMesh.rotation.z = bbox.yaw;
-    // cubeMesh.updateMatrix();
-    // singleGeometry.merge(cubeMesh.geometry, cubeMesh.matrix);
-
-
-    // var singleCubeMaterial = new THREE.MeshBasicMaterial({color: color, wireframe: false});
-    // var mesh = new THREE.Mesh(singleGeometry, singleCubeMaterial);
-    // scene.add(mesh);
-    // labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex].push(mesh);
-
-    addBoundingBoxGui(bbox, num);
+    addBoundingBoxGui(bbox);
     return bbox;
 });
 
 //register new bounding box
-function addBoundingBoxGui(bbox, num) {
-    var index = boundingBox3DArray.length;
-    var bb = guiOptions.addFolder('BoundingBox' + String(num));
-    boundingBox3DArray.push(bb);
-    var folder1 = boundingBox3DArray[index].addFolder('Position');
-    var cubeX = folder1.add(bbox, 'x').min(-50).max(50).step(0.01).listen();
-    var cubeY = folder1.add(bbox, 'y').min(-30).max(30).step(0.01).listen();
-    var cubeZ = folder1.add(bbox, 'z').min(-3).max(10).step(0.01).listen();
-    var cubeYaw = folder1.add(bbox, 'yaw').min(-Math.PI).max(Math.PI).step(0.05).listen();
-    folder1.close();
-    folder_position.push(folder1);
-    var folder2 = boundingBox3DArray[index].addFolder('Size');
-    var cubeW = folder2.add(bbox, 'width').min(0).max(10).step(0.01).listen();
-    var cubeH = folder2.add(bbox, 'height').min(0).max(10).step(0.01).listen();
-    var cubeD = folder2.add(bbox, 'depth').min(0).max(10).step(0.01).listen();
-    folder2.close();
-    folder_size.push(folder2);
+function addBoundingBoxGui(bbox) {
+    var insertIndex = folderBoundingBox3DArray.length;
+    var bb = guiOptions.addFolder(bbox.label + ' ' + bbox.trackId);
+    folderBoundingBox3DArray.push(bb);
+
+    var folderPosition = folderBoundingBox3DArray[insertIndex].addFolder('Position');
+    var cubeX = folderPosition.add(bbox, 'x').min(-50).max(50).step(0.01).listen();
+    var cubeY = folderPosition.add(bbox, 'y').min(-30).max(30).step(0.01).listen();
+    var cubeZ = folderPosition.add(bbox, 'z').min(-3).max(10).step(0.01).listen();
+    var cubeYaw = folderPosition.add(bbox, 'yaw').min(-Math.PI).max(Math.PI).step(0.05).listen();
+    folderPosition.close();
+    folderPositionArray.push(folderPosition);
+
+    var folderSize = folderBoundingBox3DArray[insertIndex].addFolder('Size');
+    var cubeW = folderSize.add(bbox, 'width').min(0).max(10).step(0.01).listen();
+    var cubeH = folderSize.add(bbox, 'height').min(0).max(10).step(0.01).listen();
+    var cubeD = folderSize.add(bbox, 'depth').min(0).max(10).step(0.01).listen();
+    folderSize.close();
+    folderSizeArray.push(folderSize);
+
+    var textBoxTrackId = folderBoundingBox3DArray[insertIndex].add(bbox, 'trackId').listen();
+    textBoxTrackId.onChange(function (value) {
+        annotationObjects.contents[insertIndex]["trackId"] = value;
+        $("#bbox-table-number-" + insertIndex).text(bbox.label.charAt(0) + value);
+        $("#bounding-box-3d-menu ul").children().eq(insertIndex + 3).children().first().children().first().children().first().text(bbox.label + " " + value);
+    });
+
     cubeX.onChange(function (value) {
-        labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].position.x = value;
+        labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].position.x = value;
     });
     cubeY.onChange(function (value) {
-        labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].position.y = -value;
+        labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].position.y = -value;
     });
     cubeZ.onChange(function (value) {
-        labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].position.z = value;
+        labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].position.z = value;
     });
     cubeYaw.onChange(function (value) {
-        labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].rotation.z = value;
+        labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].rotation.z = value;
     });
     cubeW.onChange(function (value) {
-        labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].position.x = labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].position.x + (value - labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].scale.x) * Math.cos(labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].rotation.z) / 2;
-        bbox.x = labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].position.x;
-        labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].position.y = labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].position.y + (value - labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].scale.x) * Math.sin(labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].rotation.z) / 2;
-        bbox.y = -labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].position.y;
-        labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].scale.x = value;
+        labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].position.x = labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].position.x + (value - labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].scale.x) * Math.cos(labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].rotation.z) / 2;
+        bbox.x = labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].position.x;
+        labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].position.y = labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].position.y + (value - labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].scale.x) * Math.sin(labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].rotation.z) / 2;
+        bbox.y = -labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].position.y;
+        labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].scale.x = value;
     });
     cubeH.onChange(function (value) {
-        labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].position.x = labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].position.x + (value - labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].scale.y) * Math.sin(labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].rotation.z) / 2;
-        bbox.x = labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].position.x;
-        labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].position.y = labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].position.y - (value - labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].scale.y) * Math.cos(labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].rotation.z) / 2;
-        bbox.y = -labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].position.y;
-        labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].scale.y = value;
+        labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].position.x = labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].position.x + (value - labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].scale.y) * Math.sin(labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].rotation.z) / 2;
+        bbox.x = labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].position.x;
+        labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].position.y = labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].position.y - (value - labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].scale.y) * Math.cos(labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].rotation.z) / 2;
+        bbox.y = -labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].position.y;
+        labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].scale.y = value;
     });
     cubeD.onChange(function (value) {
-        labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].position.z = labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].position.z + (value - labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].scale.z) / 2;
-        bbox.z = labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].position.z;
-        labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].scale.z = value;
+        labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].position.z = labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].position.z + (value - labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].scale.z) / 2;
+        bbox.z = labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].position.z;
+        labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].scale.z = value;
     });
-    var reset_parameters = {
+    var resetParameters = {
         reset: function () {
-            resetCube(num, index);
+            resetCube(insertIndex, insertIndex);
         },
         delete: function () {
-            guiOptions.removeFolder('BoundingBox' + String(num));
-            labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][index].visible = false;
-            annotationObjects.remove(num, "PCD");
+            guiOptions.removeFolder(bbox.label + ' ' + bbox.trackId);
+            labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][insertIndex].visible = false;
+            annotationObjects.remove(insertIndex, "PCD");
             labelTool.changeFrame(labelTool.currentFileIndex)
             //annotationObjects.selectEmpty();
         }
     };
 
     //numbertagList.push(num);
-    //labeltag = boundingBox3DArray[num].add( bbox, 'label' ,attribute).name("Attribute");
-    boundingBox3DArray[boundingBox3DArray.length - 1].add(reset_parameters, 'reset').name("Reset");
-    d = boundingBox3DArray[boundingBox3DArray.length - 1].add(reset_parameters, 'delete').name("Delete");
+    //labeltag = folderBoundingBox3DArray[num].add( bbox, 'label' ,attribute).name("Attribute");
+    folderBoundingBox3DArray[folderBoundingBox3DArray.length - 1].add(resetParameters, 'reset').name("Reset");
+    d = folderBoundingBox3DArray[folderBoundingBox3DArray.length - 1].add(resetParameters, 'delete').name("Delete");
 }
 
 //reset cube patameter and position
@@ -605,33 +593,33 @@ function animate() {
     if (keyboard.down("C")) {
         rFlag = false;
         if (cFlag == false) {
-            if (annotationObjects.exists(annotationObjects.getTargetIndex(), "PCD") == true) {
-                copy_bbox_index = annotationObjects.getTargetIndex();
-                copyBbox = annotationObjects.get(copy_bbox_index, "PCD");
+            if (annotationObjects.exists(annotationObjects.getSelectionIndex(), "PCD") == true) {
+                copyBboxIndex = annotationObjects.getSelectionIndex();
+                copyBbox = annotationObjects.get(copyBboxIndex, "PCD");
                 cFlag = true;
             }
         } else {
-            copy_bbox_index = -1;
+            copyBboxIndex = -1;
             cFlag = false;
         }
     }
     if (keyboard.down("R")) {
         cFlag = false;
         if (rFlag == false) {
-            if (annotationObjects.exists(annotationObjects.getTargetIndex(), "PCD") == true) {
-                rotation_bbox_index = annotationObjects.getTargetIndex();
+            if (annotationObjects.exists(annotationObjects.getSelectionIndex(), "PCD") == true) {
+                rotationBboxIndex = annotationObjects.getSelectionIndex();
                 rFlag = true;
             }
         }
         else {
-            rotation_bbox_index = -1;
+            rotationBboxIndex = -1;
             rFlag = false;
         }
     }
 
     controls.update();
     stats.update();
-    if (annotationObjects.getTargetIndex() != rotation_bbox_index) {
+    if (annotationObjects.getSelectionIndex() != rotationBboxIndex) {
         rFlag = false;
     }
     // var cubeLength;
@@ -643,29 +631,29 @@ function animate() {
     // }
 
     // for (var i = 0; i < labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex].length; i++) {
-    //     if (labelTool.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][i] == annotationObjects.getTargetIndex()) {
-    //         boundingBox3DArray[i].open();
-    //         folder_position[i].open();
-    //         folder_size[i].open();
+    //     if (labelTool.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][i] == annotationObjects.getSelectionIndex()) {
+    //         folderBoundingBox3DArray[i].open();
+    //         folderPositionArray[i].open();
+    //         folderSizeArray[i].open();
     //     }
     //     else {
-    //         boundingBox3DArray[i].close();
+    //         folderBoundingBox3DArray[i].close();
     //     }
-    //     if (i == labelTool.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex].lastIndexOf(copy_bbox_index.toString()) && cFlag == true) {
+    //     if (i == labelTool.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex].lastIndexOf(copyBboxIndex.toString()) && cFlag == true) {
     //         labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][i].material.color.setHex(0xffff00);
     //     }
-    //     else if (boundingBox3DArray[i].closed == false) {
-    //         if (i == labelTool.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex].lastIndexOf(rotation_bbox_index.toString()) && rFlag == true) {
+    //     else if (folderBoundingBox3DArray[i].closed == false) {
+    //         if (i == labelTool.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex].lastIndexOf(rotationBboxIndex.toString()) && rFlag == true) {
     //             labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][i].material.color.setHex(0xff8000);
     //         }
     //         else {
     //             labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][i].material.color.setHex(0xff0000);
-    //             folder_position[i].open();
-    //             folder_size[i].open();
+    //             folderPositionArray[i].open();
+    //             folderSizeArray[i].open();
     //         }
     //     }
     //
-    //     else if (boundingBox3DArray[i].closed == true) {
+    //     else if (folderBoundingBox3DArray[i].closed == true) {
     //         labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][i].material.color.setHex(0x008866);
     //     }
     // }
@@ -755,8 +743,11 @@ function init() {
                     else if (ev.button == 2) {
                         labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex].visible = false;
                         var bboxIndex = labelTool.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex];
-                        guiOptions.removeFolder('BoundingBox' + String(bboxIndex));
+                        let label = annotationObjects.contents[bboxIndex]["class"];
+                        let trackId = annotationObjects.contents[bboxIndex]["trackId"];
+                        guiOptions.removeFolder(label + ' ' + trackId);
                         annotationObjects.remove(bboxIndex, "PCD");
+                        annotationObjects.selectEmpty();
                         labelTool.changeFrame(labelTool.currentFileIndex)
                     }
                 } else if (birdViewFlag == true) {
@@ -785,8 +776,8 @@ function init() {
         if (ev.button == 0) {
             if (bboxFlag == true) {
                 var rect = ev.target.getBoundingClientRect();
-                mouseUp.x = ((ev.clientX - rect.left) / $("#canvas3d canvas").attr("width")) * 2 - 1;
-                mouseUp.y = -((ev.clientY - rect.top) / $("#canvas3d canvas").attr("height")) * 2 + 1;
+                mouseUp.x = ((ev.clientX - rect.left) / $("#canvas3d canvasLeft").attr("width")) * 2 - 1;
+                mouseUp.y = -((ev.clientY - rect.top) / $("#canvas3d canvasLeft").attr("height")) * 2 + 1;
                 if (birdViewFlag == false) {
                     var vector = new THREE.Vector3(mouseUp.x, mouseUp.y, 1);
                     vector.unproject(camera);
@@ -799,7 +790,7 @@ function init() {
                     ray.setFromCamera(mouse, camera);
                 }
                 var clickedObjects = ray.intersectObjects(clickedPlaneArray);
-                if (clickedObjects.length > 0 && boundingBox3DArray[clickedObjectIndex].closed == false) {
+                if (clickedObjects.length > 0 && folderBoundingBox3DArray[clickedObjectIndex].closed == false) {
                     var clickedBBox = annotationObjects.get(labelTool.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex], "PCD");
                     var dragVector = {
                         x: clickedObjects[0].point.x - clickedPoint.x,
@@ -846,6 +837,12 @@ function init() {
                     }
                     labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][clickedObjectIndex].material.opacity = 0.5;
                 } else {
+                    // remove selection in camera view
+                    for (var i = 0; i < annotationObjects.contents.length; i++) {
+                        removeBoundingBoxHighlight(i);
+                        removeTextBox(i);
+                    }
+                    // remove selection in birds eye view (lower opacity)
                     for (var mesh in labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex]) {
                         var meshObject = labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][mesh];
                         meshObject.material.opacity = 0.1;
@@ -878,12 +875,20 @@ function init() {
                                 yaw: 0,
                             }
                         };
-                        if (annotationObjects.exists(annotationObjects.getTargetIndex(), "PCD") == true) {
+                        if (annotationObjects.exists(annotationObjects.getSelectionIndex(), "PCD") == true) {
                             annotationObjects.selectEmpty();
                         }
-                        var number = annotationObjects.getTargetIndex();
-                        annotationObjects.setTarget("PCD", addBboxParameters);
-                        annotationObjects.select(number, "PCD");
+                        var label = classesBoundingBox.targetName();
+                        var insertIndex;
+                        if (annotationObjects.__selectionIndex !== -1) {
+                            insertIndex = annotationObjects.__selectionIndex;
+                        } else {
+                            insertIndex = annotationObjects.__insertIndex;
+                        }
+                        annotationObjects.setSelection(insertIndex, "PCD", addBboxParameters, label, false);
+
+                        var selectionIndex = annotationObjects.getSelectionIndex();
+                        annotationObjects.select(selectionIndex, "PCD");
                     }
                     else if (cFlag == true) {
                         var addBboxParameters = {
@@ -904,12 +909,27 @@ function init() {
                                 yaw: copyBbox.yaw,
                             }
                         };
-                        if (annotationObjects.exists(annotationObjects.getTargetIndex(), "PCD") == true) {
+                        if (annotationObjects.exists(annotationObjects.getSelectionIndex(), "PCD") == true) {
                             annotationObjects.selectEmpty();
                         }
-                        let number = annotationObjects.getTargetIndex();
-                        annotationObjects.setTarget("PCD", addBboxParameters);
-                        annotationObjects.select(number, "PCD");
+                        var selectedBoundingBoxIndex = annotationObjects.getSelectionIndex();
+                        var label = classesBoundingBox.targetName();
+                        if (selectedBoundingBoxIndex !== -1) {
+                            // a bounding box was already selected (either in camera or birds eye view)
+                            // replace the bounding box in birds eye view with the new one
+                            annotationObjects.setSelection(selectedBoundingBoxIndex, "PCD", addBboxParameters, label, false);
+                            // select that new bounding box
+                            annotationObjects.select(selectedBoundingBoxIndex, "PCD");
+                        } else {
+                            // no object was selected
+                            // add a new entry
+                            var insertIndex = annotationObjects.__insertIndex;
+                            annotationObjects.setSelection(insertIndex, "PCD", addBboxParameters, label, false);
+                            // select last placed bounding box
+                            annotationObjects.select(insertIndex, "PCD");
+                        }
+
+
                     }
 
                     groundPlaneArray = [];

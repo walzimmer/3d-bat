@@ -1,36 +1,27 @@
 var annotationObjects = {
     contents: [],
-    // init: function () {
-    //     this.contents = [];
-    //     for (var i = 0; i < 3962; i++) {
-    //         this.contents.push([]);
-    //         for (var j = 0; j < 6; j++) {
-    //             this.contents[i].push([]);
-    //         }
-    //     }
-    // },
     localOnSelect: {
-        "Image": function (newIndex, oldIndex) {
+        "Image": function (index) {
         },
-        "PCD": function (newIndex, oldIndex) {
+        "PCD": function (index) {
         }
     },
     onSelect: function (dataType, f) {
         this.localOnSelect[dataType] = f;
     },
     localOnChangeClass: {
-        "Image": function (index, cls) {
+        "Image": function (index, label) {
         },
-        "PCD": function (index, cls) {
+        "PCD": function (index, label) {
         }
     },
     onChangeClass: function (dataType, f) {
         this.localOnChangeClass[dataType] = f;
     },
     localOnAdd: {
-        "Image": function (index, cls, params) {
+        "Image": function (index, label, params) {
         },
-        "PCD": function (index, cls, params) {
+        "PCD": function (index, label, params) {
         }
     },
     onAdd: function (dataType, f) {
@@ -54,115 +45,88 @@ var annotationObjects = {
         }
         return this.contents[index][dataType];
     },
-    set: function (index, dataType, params, cls) {
-        var isExpanded = false;
+    set: function (index, dataType, params, label, fromFile) {
         if (this.contents[index] == undefined) {
-            if (index == this.__tail + 1) {
-                this.expand(cls, params.trackId);
-                isExpanded = true;
-            } else {
-                return false;
-            }
-        }
-        if (cls == undefined) {
-            cls = this.get(index, "class");
-        }
-        var obj = this.localOnAdd[dataType](index, cls, params);
-        this.contents[index][dataType] = obj;
-        this.contents[index]["class"] = cls;
-        this.contents[index]["trackId"] = params.trackId;
-        this.__table.changeClass(index, cls);
-        this.__table.add(index, dataType);
-        if (isExpanded) {
-            this.selectEmpty();
-        }
-    },
-    changeClass: function (index, cls) {
-        if (this.contents[index] == undefined) {
-            return false;
-        }
-        this.contents[index]["class"] = cls;
-        labelTool.dataTypes.forEach(function (dataType) {
-            this.localOnChangeClass[dataType](index, cls);
-        }.bind(this));
-        this.__table.changeClass(index, cls);
-    },
-    expand: function (cls, trackId) {
-        // this.selectEmpty();
-        if (cls == undefined) {
-            this.contents[this.__tail + 1] = {
-                "class": classesBoundingBox.targetName(),
-                "trackId": trackId
-            };
+            this.expand(label, dataType, params.trackId, fromFile);
         } else {
-            this.contents[this.__tail + 1] = {
-                "class": cls,
-                "trackId": trackId
-            };
+            if (this.contents[index]["trackId"] == undefined) {
+                this.contents[index]["trackId"] = params.trackId;
+            }
+
         }
-        this.__tail++;
-        this.__table.expand(classesBoundingBox.targetName(), false, false);
+        if (label == undefined) {
+            label = this.get(index, "class");
+        }
+        var obj = this.localOnAdd[dataType](index, label, params);//calls annotationObjects.onAdd(...) in image_label_tool.js line 60
+        this.contents[index][dataType] = obj;
+        this.contents[index]["class"] = label;
+        this.__table.changeClass(index, label);
+        this.__table.add(index, dataType);
     },
-    getTarget: function (dataType) {
-        if (dataType == undefined) {
-            return this.contents[this.__target];
-        }
-        if (!this.isValidTarget()) {
-            return undefined;
-        }
-        return this.contents[this.__target][dataType];
-    },
-    setTarget: function (dataType, params, cls) {
-        if (!this.isValid(this.__target)) {
+    changeClass: function (index, label) {
+        if (this.contents[index] == undefined) {
             return false;
         }
-        this.set(this.__target, dataType, params, cls);
-        return true;
-    },
-    setTargetIndex: function (index) {
-        if (index == this.__target) {
-            return;
-        }
-        // if (this.isIndexValid(this.__target) && this.__target != -1) {
-        //     this.contents.splice(this.__target, 1);
-        //     this.__tail--;
-        //     if (index > this.__target) {
-        //         index--;
-        //     }
-        //     this.__table.refresh();
-        // }
-
-        // show bounding box highlighting
+        this.contents[index]["class"] = label;
         labelTool.dataTypes.forEach(function (dataType) {
-            this.localOnSelect[dataType](index, this.__target);
+            this.localOnChangeClass[dataType](index, label);
         }.bind(this));
-        // if (!this.isIndexValid(index)) {
-        //     classesBoundingBox.onChange(annotationObjects.get(index, "class"));
-        // }
-        this.__target = index;
-        this.__table.__target = index;
-        if (this.__target != -1) {
-            this.__table.select(this.__target);
+        this.__table.changeClass(index, label);
+    },
+    expand: function (label, dataType, trackId, fromFile) {
+        if (label == undefined) {
+            label = classesBoundingBox.targetName();
+        }
+        if (fromFile == false && this.__selectionIndex == -1) {
+            trackId = classesBoundingBox[label].nextTrackId;
+        }
+        this.contents[this.__insertIndex] = {
+            "class": label,
+            "trackId": trackId
+        };
+        this.__insertIndex++;
+        if (dataType == "Image") {
+            this.__table.expand(classesBoundingBox.targetName(), true, false);
+        } else {
+            this.__table.expand(classesBoundingBox.targetName(), false, true);
+        }
+
+    },
+    getSelectedBoundingBox: function (dataType) {
+        if (dataType == undefined) {
+            return this.contents[this.__selectionIndex];
+        }
+        if (this.__selectionIndex == -1 || this.contents[this.__selectionIndex] == undefined) {
+            return undefined;
+        } else {
+            return this.contents[this.__selectionIndex][dataType];
+        }
+    },
+    setSelection: function (insertIndex, dataType, params, label, fromFile) {
+        // if a bounding box was selected in the camera image
+        // then assign the bounding box in the birds eye view to the one in the camera image
+        this.set(insertIndex, dataType, params, label, fromFile);
+    },
+    setSelectionIndex: function (selectionIndex) {
+        // show bounding box highlighting
+        this.__selectionIndex = selectionIndex;
+        if (selectionIndex != -1) {
+            labelTool.dataTypes.forEach(function (dataType) {
+                this.localOnSelect[dataType](selectionIndex, this.__selectionIndex);
+            }.bind(this));
+        }
+        this.__table.__selectionIndex = selectionIndex;
+        if (this.__selectionIndex != -1) {
+            this.__table.select(this.__selectionIndex);
         } else {
             this.__table.selectEmpty();
         }
-
         return true;
     },
     select: function (index) {
-        $("#label-tool-log").val("3. Draw 3D label");
+        $("#label-tool-log").val("3. Draw label in Birds-Eye-View");
         $("#label-tool-log").css("color", "#969696");
-        this.setTargetIndex(index);
-    },
-    isValidTarget: function () { // Should be another name. Checking if target is not undefined.
-        if (this.__tail == -1) {
-            return false;
-        }
-        return this.__target >= 0 && this.__target <= this.__tail;
-    },
-    isValid: function (index) {
-        //return index >= 0 && index <= this.__tail + 1;
-        return index >= 0 && index <= this.__tail;
+        this.setSelectionIndex(index);
     },
     exists: function (index, dataType) {
         if (this.contents[index] == undefined) {
@@ -170,29 +134,17 @@ var annotationObjects = {
         }
         return this.contents[index][dataType] != undefined;
     },
-    getTargetIndex: function () {
-        return this.__target;
+    getSelectionIndex: function () {
+        return this.__selectionIndex;
     },
     selectTail: function () {
-        this.setTargetIndex(this.__tail);
+        this.setSelectionIndex(this.__insertIndex - 1);
     },
     selectEmpty: function () {
-        //this.setTargetIndex(this.__tail + 1);
-        this.setTargetIndex(-1);
-    },
-    selectNext: function () {
-        if (this.isIndexValid(this.__target)) {
-            this.select(this.__target + 1);
-        } else {
-            this.select(0);
-        }
+        this.setSelectionIndex(-1);
     },
     length: function () {
-        return this.__tail + 1;
-    },
-    isIndexValid: function (index) {
-        //return !this.exists(index, "Image") && !this.exists(index, "PCD");
-        return this.exists(index, "Image") || !this.exists(index, "PCD");
+        return this.__insertIndex;
     },
     remove: function (index, dataType) {
         if (dataType == undefined) {
@@ -204,32 +156,25 @@ var annotationObjects = {
                 }
             }.bind(this));
             this.contents.splice(index, 1);
-            this.__tail--;
-            if (index <= this.__target) {
-                this.select(this.__target - 1);
-            }
+            this.__insertIndex--;
+            this.__table.__insertIndex--;
+            this.select(-1);
         } else {
             this.localOnRemove[dataType](index);
             delete this.contents[index][dataType];
+            this.__table.remove(index, dataType);
             if (this.contents[index]["Image"] == undefined && this.contents[index]["PCD"] == undefined) {
                 delete this.contents[index];
+                this.__insertIndex--;
+                this.__table.__insertIndex--;
             }
-            this.__table.remove(index, dataType);
-            this.__tail = -1;
         }
     },
-    removeTarget: function (dataType) {
-        if (!this.exists(this.__target, dataType)) {
-            return;
-        }
-        this.remove(this.__target, dataType);
+    removeSelectedBoundingBox: function (dataType) {
+        this.remove(this.__selectionIndex, dataType);
     },
     pop: function () {
-        if (this.__tail == -1) {
-            return false;
-        }
-        this.remove(this.__tail);
-        return true;
+        this.remove(this.__insertIndex - 1);
     },
     clear: function () {
         for (var i = 0; i < this.length(); ++i) {
@@ -240,13 +185,13 @@ var annotationObjects = {
                 this.localOnRemove["PCD"](i);
             }
         }
-        this.__target = -1;
-        this.__tail = -1;
+        this.__selectionIndex = -1;
+        this.__insertIndex = 0;
         this.contents = [];
         this.__table.clear();
     },
-    __target: -1,
-    __tail: -1,
+    __selectionIndex: -1,
+    __insertIndex: 0,
     __table: new BBoxTable({
         tableId: "bbox-table",
         liOptions: function (index) {
