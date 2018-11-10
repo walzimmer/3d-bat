@@ -1,18 +1,5 @@
 class WorkSpace {
     constructor(dataType) {
-        this.classColor = {
-            car: "blue",
-            motorbike: "green",
-            pedestrian: "red",
-            bus: "yellow",
-            truck: "white",
-            cyclist: "orange",
-            train: "cyan",
-            obstacle: "purple",
-            stop_signal: "red",
-            wait_signal: "yellow",
-            go_signal: "green"
-        };
         this.labelId = -1;
         this.workBlob = ''; // Base url of blob
         this.curFile = 0; // Base name of current file

@@ -170,27 +170,27 @@
     height: 360px;
 }
 
-#jpeg-label-canvas-middle {
-    position: fixed;
-    top: 50px;
-    left: 640px;
-    z-index: 100;
-    background-color: white;
-    margin: 0px;
-    padding: 0px;
-    width: 640px;
-    height: 360px;
-}
+/*#jpeg-label-canvas-middle {*/
+    /*position: fixed;*/
+    /*top: 50px;*/
+    /*left: 640px;*/
+    /*z-index: 100;*/
+    /*background-color: white;*/
+    /*margin: 0px;*/
+    /*padding: 0px;*/
+    /*width: 640px;*/
+    /*height: 360px;*/
+/*}*/
 
-#jpeg-label-canvas-left svg, #jpeg-label-canvas-middle svg {
-    width: 640px;
-    height: 360px;
-}
+/*#jpeg-label-canvas-left svg, #jpeg-label-canvas-middle svg {*/
+    /*width: 640px;*/
+    /*height: 360px;*/
+/*}*/
 
-#jpeg-label-canvas-left svg image, #jpeg-label-canvas-middle svg image {
-    width: 640px;
-    height: 360px;
-}
+/*#jpeg-label-canvas-left svg image, #jpeg-label-canvas-middle svg image {*/
+    /*width: 640px;*/
+    /*height: 360px;*/
+/*}*/
 
 .jpeg-label-sidebar {
     box-shadow: 0 1px 1px rgba(1, 0, 0, 0.4);

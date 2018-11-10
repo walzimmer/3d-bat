@@ -1,11 +1,11 @@
 var canvasLeft = document.getElementById("jpeg-label-canvas-left");
-var canvasMiddle = document.getElementById("jpeg-label-canvas-middle");
+// var canvasMiddle = document.getElementById("jpeg-label-canvas-middle");
 var c = {};
-var paperLeft = Raphael(canvasLeft, 640, 360);
-var paperMiddle = Raphael(canvasMiddle, 640, 360);
+var paperLeft = Raphael(canvasLeft, c.width, c.height);
+// var paperMiddle = Raphael(canvasMiddle, 640, 360);
 var curImg = new Image();
 var imgLeft;
-var imgMiddle;
+// var imgMiddle;
 var startX = 0;
 var startY = 0;
 var updateFlag = false;
@@ -26,16 +26,16 @@ var isIsolated = false;
 
 /*********** Event handlers **************/
 
-annotationObjects.onRemove("Image", function (index) {
-    if (!annotationObjects.exists(index, "Image")) {
+annotationObjects.onRemove("ImageLeft", function (index) {
+    if (!annotationObjects.exists(index, "ImageLeft")) {
         return;
     }
     removeBoundingBoxHighlight(index);
     removeTextBox(index);
-    annotationObjects.get(index, "Image")["rect"].remove();
+    annotationObjects.get(index, "ImageLeft")["rect"].remove();
 });
 
-annotationObjects.onSelect("Image", function (newIndex) {
+annotationObjects.onSelect("ImageLeft", function (newIndex) {
     for (var i = 0; i < annotationObjects.contents.length; i++) {
         removeBoundingBoxHighlight(i);
         removeTextBox(i);
@@ -59,7 +59,7 @@ annotationObjects.onSelect("Image", function (newIndex) {
 
 });
 
-annotationObjects.onAdd("Image", function (index, cls, params) {
+annotationObjects.onAdd("ImageLeft", function (index, cls, params) {
     var bbox = {
         "rect": paperLeft.rect(params.x, params.y, params.width, params.height)
             .attr({
@@ -73,7 +73,7 @@ annotationObjects.onAdd("Image", function (index, cls, params) {
     return bbox;
 });
 
-labelTool.onInitialize("Image", function () {
+labelTool.onInitialize("ImageLeft", function () {
     c = {
         x: canvasLeft.offsetLeft,
         y: canvasLeft.offsetTop,
@@ -93,29 +93,33 @@ labelTool.onInitialize("Image", function () {
     }
 });
 
-labelTool.onLoadData("Image", function () {
+labelTool.onLoadData("ImageLeft", function () {
     var imgURLLeft = labelTool.workBlob + "/JPEGImages/" + labelTool.camChannels[labelTool.currentCameraChannelIndex] + "/" + labelTool.getTargetFileName() + ".jpg";
-    var imgURLMiddle = labelTool.workBlob + "/JPEGImages/" + labelTool.camChannels[(labelTool.currentCameraChannelIndex + 1) % 6] + "/" + labelTool.getTargetFileName() + ".jpg";
-    if (imgLeft !== undefined) {
+    if (imgLeft != undefined) {
         imgLeft.remove();
     }
-    if (imgMiddle !== undefined) {
-        imgLeft.remove();
-    }
-
     imgLeft = paperLeft.image(imgURLLeft, 0, 0, "100%", "100%");
-    imgMiddle = paperLeft.image(imgURLMiddle, 0, 0, "100%", "100%");
     imgLeft.toBack();
-    imgMiddle.toBack();
-    addEventsToImage();
+    addEventsToImageLeft();
     labelTool.hasLoadedImage = true;
 });
 
-annotationObjects.onChangeClass("Image", function (bbIndex, newClass) {
-    if (!annotationObjects.exists(bbIndex, "Image")) {
+// labelTool.onLoadData("ImageMiddle", function () {
+//     var imgURLMiddle = labelTool.workBlob + "/JPEGImages/" + labelTool.camChannels[(labelTool.currentCameraChannelIndex + 1) % 6] + "/" + labelTool.getTargetFileName() + ".jpg";
+//     if (imgMiddle !== undefined) {
+//         imgLeft.remove();
+//     }
+//     imgMiddle = paperMiddle.image(imgURLMiddle, 0, 0, "100%", "100%");
+//     imgMiddle.toBack();
+//     addEventsToImageMiddle();
+//     labelTool.hasLoadedImage = true;
+// });
+
+annotationObjects.onChangeClass("ImageLeft", function (bbIndex, newClass) {
+    if (!annotationObjects.exists(bbIndex, "ImageLeft")) {
         return;
     }
-    var bbox = annotationObjects.get(bbIndex, "Image");
+    var bbox = annotationObjects.get(bbIndex, "ImageLeft");
     var color = classesBoundingBox[newClass].color;
     bbox["rect"].attr({stroke: color});
     if (bbox["textBox"] != undefined) {
@@ -139,13 +143,13 @@ $(window).keydown(function (e) {
     var isFrameSelectFunction = e.which == 66 || e.which == 78;
     var rect;
     if (isRectModifyFunction) {
-        if (labelTool.getTargetDataType() != "Image") {
+        if (labelTool.getTargetDataType() != "ImageLeft") {
             return;
         }
-        if (annotationObjects.getSelectedBoundingBox("Image") == undefined) {
+        if (annotationObjects.getSelectedBoundingBox("ImageLeft") == undefined) {
             return;
         } else {
-            rect = annotationObjects.getSelectedBoundingBox("Image")["rect"]
+            rect = annotationObjects.getSelectedBoundingBox("ImageLeft")["rect"]
         }
     }
     var keyCode = e.which.toString();
@@ -195,7 +199,7 @@ $(window).keydown(function (e) {
             toggleIsolation();
             break;
         case "68": // D
-            annotationObjects.removeSelectedBoundingBox("Image");
+            annotationObjects.removeSelectedBoundingBox("ImageLeft");
             break;
     }
     if (isRectModifyFunction) {
@@ -207,6 +211,7 @@ $(window).keydown(function (e) {
 
 function setCursor(cursorType) {
     imgLeft.attr({cursor: cursorType});
+    // imgMiddle.attr({cursor: cursorType});
 }
 
 function convertPositionToPaper(e) {
@@ -228,7 +233,7 @@ function setAction(e) {
     }
     setCursor("crosshair");
     action = "add";
-    var bbox = annotationObjects.getSelectedBoundingBox("Image");
+    var bbox = annotationObjects.getSelectedBoundingBox("ImageLeft");
     if (bbox == undefined) {
         return;
     }
@@ -269,7 +274,252 @@ function setAction(e) {
     }
 }
 
-function addEventsToImage() {
+// function addEventsToImageMiddle() {
+//     imgMiddle.mousemove(function (e) {
+//         var e2 = convertPositionToPaper(e);
+//         mouseX = e.offsetX;
+//         mouseY = e.offsetY;
+//         setAction(e2);
+//     });
+//
+//     imgMiddle.mousedown(function (e) {
+//         var e2 = convertPositionToPaper(e);
+//         // 3: rightclick
+//         if (e2.which != 3 || isDragging) {
+//             return;
+//         }
+//         var clickedBBIndex = getClickedIndex(e2);
+//         if (clickedBBIndex != -1) {
+//             annotationObjects.remove(clickedBBIndex, "ImageLeft");
+//             annotationObjects.selectEmpty();
+//         } else {
+//             // no bounding box was selected
+//             // remove selection from current target
+//             var selectedBBIndex = annotationObjects.getSelectionIndex();
+//             removeBoundingBoxHighlight(selectedBBIndex);
+//             removeTextBox(selectedBBIndex);
+//             annotationObjects.__table.selectEmpty();
+//         }
+//
+//     });
+//
+//     imgMiddle.drag(
+//         //on drag
+//         function (dx, dy, x, y, e) {
+//             $("#label-tool-log").val("2. Activate current bounding box");
+//             $("#label-tool-log").css("color", "#969696");
+//             var e2 = convertPositionToPaper(e);
+//             if (e2.which != 1) {
+//                 isDragging = false;
+//             }
+//             if (e2.which == 0) {
+//                 // return if right click and in drag mode
+//                 return;
+//             }
+//             if (isOutOfCanvas(e2.pageX, e2.pageY)) {
+//                 return;
+//             }
+//             var minSize = classesBoundingBox.target().minSize;
+//             var minX = minSize.x;
+//             var minY = minSize.y;
+//             switch (action) {
+//                 case "add":
+//                     var rect = drawingRect;
+//                     var width = e2.offsetX - startX;
+//                     var height = e2.offsetY - startY;
+//                     if (!isDragging && (Math.abs(width) > 1 || Math.abs(height) > 1)) {
+//                         isDragging = true;
+//                     }
+//                     if (width < 0) {
+//                         rect.attr({width: -width, x: e2.offsetX});
+//                     } else {
+//                         rect.attr({width: width, x: startX});
+//                     }
+//                     if (height < 0) {
+//                         rect.attr({height: -height, y: e2.offsetY});
+//                     } else {
+//                         rect.attr({height: height, y: startY});
+//                     }
+//                     break;
+//                 case "resize":
+//                     var bbox = annotationObjects.getSelectedBoundingBox("ImageLeft");
+//                     var rect = bbox["rect"];
+//                     if (grabbedSide.match(/left/)) {
+//                         var validX = Math.min(e2.offsetX, rect.attr("x") + rect.attr("width") - minX);
+//                         rect.attr({x: validX, width: rect.attr("x") + rect.attr("width") - validX});
+//                         var textBoxDict = annotationObjects.getSelectedBoundingBox("ImageLeft")["textBox"];
+//                         textBoxDict["text"].attr({x: rect.attr("x")});
+//                         textBoxDict["box"].attr({x: rect.attr("x")});
+//                     }
+//                     if (grabbedSide.match(/right/)) {
+//                         var validX = Math.max(e2.offsetX, rect.attr("x") + minX);
+//                         rect.attr({width: validX - rect.attr("x")});
+//                     }
+//                     if (grabbedSide.match(/top/)) {
+//                         var validY = Math.min(e2.offsetY, rect.attr("y") + rect.attr("height") - minY);
+//                         rect.attr({y: validY, height: rect.attr("y") + rect.attr("height") - validY});
+//                         var textBoxDict = annotationObjects.getSelectedBoundingBox("ImageLeft")["textBox"];
+//                         textBoxDict["text"].attr({y: rect.attr("y") - fontSize / 2});
+//                         textBoxDict["box"].attr({y: rect.attr("y") - fontSize});
+//                     }
+//                     if (grabbedSide.match(/bottom/)) {
+//                         var validY = Math.max(e2.offsetY, rect.attr("y") + minY);
+//                         rect.attr({height: validY - rect.attr("y")});
+//                     }
+//                     emphasizeBBox(annotationObjects.getSelectionIndex());
+//                     break;
+//                 case "move":
+//                     var rect = annotationObjects.getSelectedBoundingBox("ImageLeft")["rect"];
+//                     var newRectX = e2.offsetX - grabbedPosition.x;
+//                     var newRectY = e2.offsetY - grabbedPosition.y;
+//                     if (newRectX + rect.attr("width") > c.width) {
+//                         newRectX = c.width - rect.attr("width");
+//                     } else if (newRectX < 0) {
+//                         newRectX = 0;
+//                     }
+//                     if (newRectY + rect.attr("height") > c.height) {
+//                         newRectY = c.height - rect.attr("height");
+//                     } else if (newRectY < 0) {
+//                         newRectY = 0;
+//                     }
+//                     rect.attr({x: newRectX, y: newRectY});
+//                     var textBox = annotationObjects.getSelectedBoundingBox("ImageLeft")["textBox"];
+//                     textBox["text"].attr({x: newRectX, y: newRectY - fontSize / 2});
+//                     textBox["box"].attr({x: newRectX, y: newRectY - fontSize});
+//                     emphasizeBBox(annotationObjects.getSelectionIndex());
+//                     break;
+//             }
+//
+//         },
+//
+//         //on click
+//         function (x, y, e) {
+//             var e2 = convertPositionToPaper(e);
+//             if (e2.which != 1) {
+//                 return;
+//             }
+//             switch (action) {
+//                 case "add":
+//                     drawingRect = paperLeft.rect(e2.offsetX, e2.offsetY, 0, 0);
+//                     drawingRect.attr({
+//                         stroke: classesBoundingBox.target().color,
+//                         "stroke-width": 3
+//                     });
+//                     drawingRect.node.setAttribute("pointer-events", "none");
+//                     startX = e2.offsetX;
+//                     startY = e2.offsetY;
+//                     break;
+//                 case "resize":
+//                     isDragging = true;
+//                     break;
+//                 case "move":
+//                     isDragging = true;
+//                     if (annotationObjects.getSelectedBoundingBox("ImageLeft") == undefined) {
+//                         return;
+//                     }
+//                     grabbedPosition.x = e2.offsetX - annotationObjects.getSelectedBoundingBox("ImageLeft")["rect"].attr("x");
+//                     grabbedPosition.y = e2.offsetY - annotationObjects.getSelectedBoundingBox("ImageLeft")["rect"].attr("y");
+//                     break;
+//             }
+//         },
+//
+//         //on end
+//         function (e) {
+//             var e2 = convertPositionToPaper(e);
+//             var rectX;
+//             var rectY;
+//             var rectHeight;
+//             var rectWidth;
+//             if (drawingRect != undefined && drawingRect != null) {
+//                 rectX = drawingRect.attr("x");
+//                 rectY = drawingRect.attr("y");
+//                 rectWidth = drawingRect.attr("width");
+//                 rectHeight = drawingRect.attr("height");
+//                 drawingRect.remove();
+//             } else {
+//                 return;
+//             }
+//             if (e2.which != 1) {
+//                 return;
+//             }
+//             if (!isDragging) {
+//                 // remove all previous selections in camera image
+//                 for (var i = 0; i < annotationObjects.contents.length; i++) {
+//                     removeBoundingBoxHighlight(i);
+//                     removeTextBox(i);
+//                 }
+//                 // remove all previous selections in birds eye view (lower opacity)
+//                 for (var mesh in labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex]) {
+//                     var meshObject = labelTool.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][mesh];
+//                     meshObject.material.opacity = 0.1;
+//                 }
+//                 var selectedBoundingBoxIndex = getClickedIndex(e2);
+//                 annotationObjects.select(selectedBoundingBoxIndex);
+//                 if (selectedBoundingBoxIndex !== -1) {
+//                     // select class in class selection list
+//                     var label = annotationObjects.contents[selectedBoundingBoxIndex]["class"];
+//                     var selectedClassIndex = classesBoundingBox[label].index;
+//                     $('#class-picker ul li').css('background-color', '#323232');
+//                     $($('#class-picker ul li')[selectedClassIndex]).css('background-color', '#525252');
+//                 }
+//                 setAction(e2);
+//                 return;
+//             }
+//             isDragging = false;
+//             switch (action) {
+//                 case "add":
+//                     if (rectWidth < classesBoundingBox.target().minSize.x ||
+//                         rectHeight < classesBoundingBox.target().minSize.y) {
+//                         return;
+//                     }
+//
+//
+//                     var params = {
+//                         x: rectX,
+//                         y: rectY,
+//                         width: rectWidth,
+//                         height: rectHeight,
+//                         trackId: -1
+//                     };
+//                     var selectedBoundingBoxIndex = annotationObjects.getSelectionIndex();
+//                     if (selectedBoundingBoxIndex !== -1) {
+//                         // a bounding box was already selected
+//                         // replace the selected bounding box with the new one
+//                         // use track id of that selected bounding box
+//                         var label = classesBoundingBox.targetName();
+//                         var trackId = annotationObjects.contents[selectedBoundingBoxIndex]["trackId"];
+//                         params.trackId = trackId;
+//                         annotationObjects.remove(selectedBoundingBoxIndex, "ImageLeft");
+//
+//                         annotationObjects.setSelection(selectedBoundingBoxIndex, "ImageLeft", params, label, false);
+//                         // select class in class selection list
+//                         var selectedClassIndex = classesBoundingBox[label].index;
+//                         $('#class-picker ul li').css('background-color', '#323232');
+//                         $($('#class-picker ul li')[selectedClassIndex]).css('background-color', '#525252');
+//                         // annotationObjects.select(selectedBoundingBoxIndex);
+//                     } else {
+//                         // insert new object (bounding box)
+//                         var insertIndex = annotationObjects.__insertIndex;
+//                         var trackId = classesBoundingBox.target().nextTrackId;
+//                         params.trackId = trackId;
+//                         annotationObjects.setSelection(insertIndex, "ImageLeft", params, classesBoundingBox.targetName(), false);
+//                         // annotationObjects.selectTail();
+//                         classesBoundingBox.target().nextTrackId++;
+//                     }
+//                     annotationObjects.selectEmpty();
+//                     drawingRect.remove();
+//                     break;
+//                 case "resize":
+//                     break;
+//                 case "move":
+//                     break;
+//             }
+//             setAction(e2);
+//         }
+//     );
+// }
+
+function addEventsToImageLeft() {
     imgLeft.mousemove(function (e) {
         var e2 = convertPositionToPaper(e);
         mouseX = e.offsetX;
@@ -285,7 +535,7 @@ function addEventsToImage() {
         }
         var clickedBBIndex = getClickedIndex(e2);
         if (clickedBBIndex != -1) {
-            annotationObjects.remove(clickedBBIndex, "Image");
+            annotationObjects.remove(clickedBBIndex, "ImageLeft");
             annotationObjects.selectEmpty();
         } else {
             // no bounding box was selected
@@ -337,12 +587,12 @@ function addEventsToImage() {
                     }
                     break;
                 case "resize":
-                    var bbox = annotationObjects.getSelectedBoundingBox("Image");
+                    var bbox = annotationObjects.getSelectedBoundingBox("ImageLeft");
                     var rect = bbox["rect"];
                     if (grabbedSide.match(/left/)) {
                         var validX = Math.min(e2.offsetX, rect.attr("x") + rect.attr("width") - minX);
                         rect.attr({x: validX, width: rect.attr("x") + rect.attr("width") - validX});
-                        var textBoxDict = annotationObjects.getSelectedBoundingBox("Image")["textBox"];
+                        var textBoxDict = annotationObjects.getSelectedBoundingBox("ImageLeft")["textBox"];
                         textBoxDict["text"].attr({x: rect.attr("x")});
                         textBoxDict["box"].attr({x: rect.attr("x")});
                     }
@@ -353,7 +603,7 @@ function addEventsToImage() {
                     if (grabbedSide.match(/top/)) {
                         var validY = Math.min(e2.offsetY, rect.attr("y") + rect.attr("height") - minY);
                         rect.attr({y: validY, height: rect.attr("y") + rect.attr("height") - validY});
-                        var textBoxDict = annotationObjects.getSelectedBoundingBox("Image")["textBox"];
+                        var textBoxDict = annotationObjects.getSelectedBoundingBox("ImageLeft")["textBox"];
                         textBoxDict["text"].attr({y: rect.attr("y") - fontSize / 2});
                         textBoxDict["box"].attr({y: rect.attr("y") - fontSize});
                     }
@@ -364,7 +614,7 @@ function addEventsToImage() {
                     emphasizeBBox(annotationObjects.getSelectionIndex());
                     break;
                 case "move":
-                    var rect = annotationObjects.getSelectedBoundingBox("Image")["rect"];
+                    var rect = annotationObjects.getSelectedBoundingBox("ImageLeft")["rect"];
                     var newRectX = e2.offsetX - grabbedPosition.x;
                     var newRectY = e2.offsetY - grabbedPosition.y;
                     if (newRectX + rect.attr("width") > c.width) {
@@ -378,7 +628,7 @@ function addEventsToImage() {
                         newRectY = 0;
                     }
                     rect.attr({x: newRectX, y: newRectY});
-                    var textBox = annotationObjects.getSelectedBoundingBox("Image")["textBox"];
+                    var textBox = annotationObjects.getSelectedBoundingBox("ImageLeft")["textBox"];
                     textBox["text"].attr({x: newRectX, y: newRectY - fontSize / 2});
                     textBox["box"].attr({x: newRectX, y: newRectY - fontSize});
                     emphasizeBBox(annotationObjects.getSelectionIndex());
@@ -409,11 +659,11 @@ function addEventsToImage() {
                     break;
                 case "move":
                     isDragging = true;
-                    if (annotationObjects.getSelectedBoundingBox("Image") == undefined) {
+                    if (annotationObjects.getSelectedBoundingBox("ImageLeft") == undefined) {
                         return;
                     }
-                    grabbedPosition.x = e2.offsetX - annotationObjects.getSelectedBoundingBox("Image")["rect"].attr("x");
-                    grabbedPosition.y = e2.offsetY - annotationObjects.getSelectedBoundingBox("Image")["rect"].attr("y");
+                    grabbedPosition.x = e2.offsetX - annotationObjects.getSelectedBoundingBox("ImageLeft")["rect"].attr("x");
+                    grabbedPosition.y = e2.offsetY - annotationObjects.getSelectedBoundingBox("ImageLeft")["rect"].attr("y");
                     break;
             }
         },
@@ -484,9 +734,9 @@ function addEventsToImage() {
                         var label = classesBoundingBox.targetName();
                         var trackId = annotationObjects.contents[selectedBoundingBoxIndex]["trackId"];
                         params.trackId = trackId;
-                        annotationObjects.remove(selectedBoundingBoxIndex, "Image");
+                        annotationObjects.remove(selectedBoundingBoxIndex, "ImageLeft");
 
-                        annotationObjects.setSelection(selectedBoundingBoxIndex, "Image", params, label, false);
+                        annotationObjects.setSelection(selectedBoundingBoxIndex, "ImageLeft", params, label, false);
                         // select class in class selection list
                         var selectedClassIndex = classesBoundingBox[label].index;
                         $('#class-picker ul li').css('background-color', '#323232');
@@ -497,7 +747,7 @@ function addEventsToImage() {
                         var insertIndex = annotationObjects.__insertIndex;
                         var trackId = classesBoundingBox.target().nextTrackId;
                         params.trackId = trackId;
-                        annotationObjects.setSelection(insertIndex, "Image", params, classesBoundingBox.targetName(), false);
+                        annotationObjects.setSelection(insertIndex, "ImageLeft", params, classesBoundingBox.targetName(), false);
                         // annotationObjects.selectTail();
                         classesBoundingBox.target().nextTrackId++;
                     }
@@ -556,10 +806,10 @@ function getClickedIndex(e) {
     var targetIndex = -1;
     // var targetIndex = annotationObjects.__insertIndex + 1;
     for (var i = 0; i < annotationObjects.length(); ++i) {
-        if (annotationObjects.get(i, "Image") == undefined) {
+        if (annotationObjects.get(i, "ImageLeft") == undefined) {
             continue;
         }
-        var rect = annotationObjects.get(i, "Image")["rect"];
+        var rect = annotationObjects.get(i, "ImageLeft")["rect"];
         if (e.offsetX >= rect.attr("x") &&
             e.offsetX <= rect.attr("x") + rect.attr("width") &&
             e.offsetY >= rect.attr("y") &&
@@ -630,8 +880,8 @@ function keepAspectRatio() {
             width = windowWidth < width ? windowWidth - 5 : width;
             width = width < 500 ? 500 : width;
         }
-        //changeCanvasSize(width / 2, height / 2);
-        changeCanvasSize(640, 360);
+        changeCanvasSize(width / 2, height / 2);
+        //changeCanvasSize(640, 360);
     });
 }
 
@@ -646,8 +896,8 @@ function keepAspectRatio() {
 
 function changeCanvasSize(width, height) {
     $(function () {
-        $('#jpeg-label-canvasLeft-left').css('width', width + 'px');
-        $('#jpeg-label-canvasLeft-left').css('height', height + 'px');
+        $('#jpeg-label-canvas-left').css('width', width + 'px');
+        $('#jpeg-label-canvas-left').css('height', height + 'px');
         paperLeft.setViewBox(0, 0, width, height, true);
         paperLeft.setSize("100%", "100%");
         fontSize = canvasLeft.offsetWidth / 50;
@@ -667,17 +917,17 @@ function changeCanvasSize(width, height) {
 
 function adjastAllBBoxes() {
     for (var i = 0; i < annotationObjects.length(); ++i) {
-        if (!annotationObjects.exists(i, "Image")) {
+        if (!annotationObjects.exists(i, "ImageLeft")) {
             continue;
         }
-        var rect = annotationObjects.get(i, "Image")["rect"];
+        var rect = annotationObjects.get(i, "ImageLeft")["rect"];
         rect.attr({
             width: rect.attr("width") * canvasLeft.offsetWidth / c.width,
             height: rect.attr("height") * canvasLeft.offsetHeight / c.height,
             x: rect.attr("x") * canvasLeft.offsetWidth / c.width,
             y: rect.attr("y") * canvasLeft.offsetHeight / c.height
         });
-        var textBox = annotationObjects.get(i, "Image")["textBox"];
+        var textBox = annotationObjects.get(i, "ImageLeft")["textBox"];
         if (textBox == undefined) {
             continue;
         }
@@ -698,25 +948,25 @@ function isOutOfCanvas(posX, posY) {
 }
 
 function hideImageBBox(index) {
-    if (!annotationObjects.exists(index, "Image")) {
+    if (!annotationObjects.exists(index, "ImageLeft")) {
         return;
     }
-    annotationObjects.get(index, "Image")["rect"].hide();
+    annotationObjects.get(index, "ImageLeft")["rect"].hide();
 }
 
 function showImageBBox(index) {
-    if (!annotationObjects.exists(index, "Image")) {
+    if (!annotationObjects.exists(index, "ImageLeft")) {
         return;
     }
-    annotationObjects.get(index, "Image")["rect"].show();
+    annotationObjects.get(index, "ImageLeft")["rect"].show();
 }
 
 function emphasizeBBox(index) {
-    if (!annotationObjects.exists(index, "Image")) {
+    if (!annotationObjects.exists(index, "ImageLeft")) {
         return;
     }
     removeBoundingBoxHighlight(index);
-    var rect = annotationObjects.get(index, "Image")["rect"];
+    var rect = annotationObjects.get(index, "ImageLeft")["rect"];
     rect.g = rect.glow({color: "#FFF", width: 5, opacity: 1});
     rect.g[0].node.setAttribute("pointer-events", "none");
     rect.g[1].node.setAttribute("pointer-events", "none");
@@ -740,10 +990,10 @@ function emphasizeBBox(index) {
 }
 
 function removeBoundingBoxHighlight(index) {
-    if (!annotationObjects.exists(index, "Image")) {
+    if (!annotationObjects.exists(index, "ImageLeft")) {
         return;
     }
-    var rect = annotationObjects.get(index, "Image")["rect"];
+    var rect = annotationObjects.get(index, "ImageLeft")["rect"];
     if (rect.g != undefined) {
         rect.g.remove();
     }
@@ -757,10 +1007,10 @@ function removeBoundingBoxHighlight(index) {
 }
 
 function addTextBox(bbIndex) {
-    if (!annotationObjects.exists(bbIndex, "Image")) {
+    if (!annotationObjects.exists(bbIndex, "ImageLeft")) {
         return;
     }
-    var bbox = annotationObjects.get(bbIndex, "Image");
+    var bbox = annotationObjects.get(bbIndex, "ImageLeft");
     var trackId = annotationObjects.contents[bbIndex]["trackId"];
     var posX = bbox["rect"].attr("x");
     var posY = bbox["rect"].attr("y");
@@ -788,10 +1038,10 @@ function addTextBox(bbIndex) {
 }
 
 function removeTextBox(index) {
-    if (!annotationObjects.exists(index, "Image")) {
+    if (!annotationObjects.exists(index, "ImageLeft")) {
         return;
     }
-    var bbox = annotationObjects.get(index, "Image");
+    var bbox = annotationObjects.get(index, "ImageLeft");
     if (bbox["textBox"] == undefined) {
         return;
     }
@@ -811,8 +1061,8 @@ function bboxString(index, label) {
 }
 
 function adjustTextBox(index) {
-    var rect = annotationObjects.get(index, "Image")["rect"];
-    var textBox = annotationObjects.get(index, "Image")["textBox"];
+    var rect = annotationObjects.get(index, "ImageLeft")["rect"];
+    var textBox = annotationObjects.get(index, "ImageLeft")["textBox"];
     textBox["text"].attr({x: rect.attr("x"), y: rect.attr("y") - fontSize / 2});
     textBox["box"].attr({x: rect.attr("x"), y: rect.attr("y") - fontSize - 1});
 }
