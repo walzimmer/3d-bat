@@ -67,7 +67,7 @@ function request(options) {
     }
 };
 
-function annotationFileExist(fileIndex,channelNumber) {
+function annotationFileExist(fileIndex, channelNumber) {
     var url = labelTool.workBlob + '/Annotations_test/' + labelTool.camChannels[channelNumber] + '/' + labelTool.fileNames[fileIndex] + '.txt';
     var http = new XMLHttpRequest();
     http.open('HEAD', url, false);
@@ -78,8 +78,6 @@ function annotationFileExist(fileIndex,channelNumber) {
 function parseAnnotationFile(fileName, channel) {
     var rawFile = new XMLHttpRequest();
     var res = [];
-    // var channel_array = ['LIDAR_TOP', 'CAM_FRONT', 'CAM_FRONT_RIGHT', 'CAM_FRONT_LEFT', 'CAM_BACK', 'CAM_BACK_RIGHT', 'CAM_BACK_LEFT'];
-    // for (channel in channel_array) {
     try {
         rawFile.open("GET", labelTool.workBlob + '/Annotations_test/' + channel + '/' + fileName, false);
     } catch (error) {
@@ -87,7 +85,6 @@ function parseAnnotationFile(fileName, channel) {
         // do not through an error message
     }
 
-    // rawFile.open("GET", labelTool.workBlob + '/Annotations/CAM_FRONT/' + fileName, false);
     rawFile.onreadystatechange = function () {
         if (rawFile.readyState === 4) {
             if (rawFile.status === 200 || rawFile.status == 0) {
@@ -113,7 +110,7 @@ function parseAnnotationFile(fileName, channel) {
                             z: str[13],
                             rotation_y: str[14],
                             score: str[15],
-                            trackId : str[16]
+                            trackId: str[16]
                         });
                     }
                 }

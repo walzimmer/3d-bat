@@ -30,7 +30,7 @@ class BBoxTable {
         }
         this.__bboxes[this.__insertIndex] = {label: label};
         if (hasImageLabel) {
-            this.add(this.__insertIndex, "Image");
+            this.add(this.__insertIndex, "ImageLeft");
         }
         if (hasPCDLabel) {
             this.add(this.__insertIndex, "PCD");
@@ -50,8 +50,8 @@ class BBoxTable {
     changeClass(index, cls) {
         //var color = classesBoundingBox[cls]["color"];
         var color = classesBoundingBox[cls].color;
-        if (this.__bboxes[index]["Image"] != undefined) {
-            $("#" + this.tableId + "-" + "Image" + "-" + index).css("color", color);
+        if (this.__bboxes[index]["ImageLeft"] != undefined) {
+            $("#" + this.tableId + "-" + "ImageLeft" + "-" + index).css("color", color);
         }
         if (this.__bboxes[index]["PCD"] != undefined) {
             $("#" + this.tableId + "-" + "PCD" + "-" + index).css("color", color);
@@ -64,7 +64,7 @@ class BBoxTable {
         if (this.__bboxes[tableIndex] != undefined) {
             delete this.__bboxes[tableIndex][dataType];
         }
-        if (this.__bboxes[tableIndex]["Image"] == undefined && this.__bboxes[tableIndex]["PCD"] == undefined) {
+        if (this.__bboxes[tableIndex]["ImageLeft"] == undefined && this.__bboxes[tableIndex]["PCD"] == undefined) {
             delete this.__bboxes[tableIndex];
             //$("#bbox-table").children().remove(tableIndex);
             $("#bbox-table").children().eq(tableIndex).remove();
