@@ -15,6 +15,8 @@
     <script src="js/lib/raphael.min.js"></script>
     <script type="text/javascript" src="js/lib/jquery-1.10.2.min.js"></script>
     <script type="text/javascript" src="js/lib/jquery-ui.min.js"></script>
+    <!--TODO: try converting BEV into image http://html2canvas.hertzen.com/-->
+    <!--<script src="node_modules/html2canvas/dist/html2canvas.js"></script>-->
     <link href="css/main.css" rel="stylesheet">
     <link href="css/label_tool.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -94,7 +96,6 @@
             </li>
         </ul>
     </div>
-
     <div id="label-tool-wrapper">
         <div class="jpeg-label-sidebar second">
             <div class="jpeg-label-sidebar-header">
@@ -105,9 +106,9 @@
                 </ul>
             </div>
         </div>
-
         <div id="canvas3d" style="z-index: 0; background-color: #000000;"></div>
-        <div id="jpeg-label-canvas"></div>
+        <div id="jpeg-label-canvas-left"></div>
+        <div id="jpeg-label-canvas-middle"></div>
     </div>
 
     <!-- <div id="label-tool-status-overlay" class="label-tool-overlay">

@@ -131,6 +131,10 @@
     width: 100%;
 }
 
+#canvas3d canvas {
+    /*width: 50% !important;*/
+}
+
 .label-tool-overlay {
     display: none;
     overflow: auto;
@@ -154,17 +158,38 @@
     font-weight: bold;
 }
 
-#jpeg-label-canvas {
+#jpeg-label-canvas-left {
     position: fixed;
     top: 50px;
-    left: 155px;
-    right: 10px;
+    left: 0px;
     z-index: 100;
     background-color: white;
     margin: 0px;
     padding: 0px;
-    width: 50%;
-    height: 50%;
+    width: 640px;
+    height: 360px;
+}
+
+#jpeg-label-canvas-middle {
+    position: fixed;
+    top: 50px;
+    left: 640px;
+    z-index: 100;
+    background-color: white;
+    margin: 0px;
+    padding: 0px;
+    width: 640px;
+    height: 360px;
+}
+
+#jpeg-label-canvas-left svg, #jpeg-label-canvas-middle svg {
+    width: 640px;
+    height: 360px;
+}
+
+#jpeg-label-canvas-left svg image, #jpeg-label-canvas-middle svg image {
+    width: 640px;
+    height: 360px;
 }
 
 .jpeg-label-sidebar {
