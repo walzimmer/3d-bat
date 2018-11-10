@@ -1,10 +1,9 @@
 class BBoxTable {
     constructor(options) {
         this.__bboxes = [];
-        this.__tail = -1;
-        this.__target = 0;
+        this.__insertIndex = 0;
+        this.__selectionIndex = -1;
         this.tableId = options.tableId;
-        this.$table = $("#" + options.tableId);
         if (options.liOptions == undefined) {
             this.liOptions = function (index) {
                 return "";
@@ -15,40 +14,28 @@ class BBoxTable {
     }
 
     expand(label, hasImageLabel, hasPCDLabel) {
-        var index = this.__tail + 1;
-        this.__tail++;
-        if (!$("#" + this.tableId + "-number-" + index)[0]) {
-            var firstLetterOfClass = annotationObjects.contents[index]["class"].charAt(0);
-            var trackId = annotationObjects.contents[index]["trackId"];
-            var $li = $('<li class="jpeg-label-sidebar-item" ' + this.liOptions(index) + '>'
+        if (!$("#" + this.tableId + "-number-" + this.__insertIndex)[0]) {
+            var label = annotationObjects.contents[this.__insertIndex]["class"];
+            var firstLetterOfClass = label.charAt(0);
+            var trackId = annotationObjects.contents[this.__insertIndex]["trackId"];
+            var $li = $('<li class="jpeg-label-sidebar-item" ' + this.liOptions(this.__insertIndex) + '>'
                 + '<div class="label-tool-sidebar-number-box">'
-                + '<p class="label-tool-sidebar-text number" id="' + this.tableId + '-number-' + index + '">' + firstLetterOfClass + trackId + '</p>'
+                + '<p class="label-tool-sidebar-text number" id="' + this.tableId + '-number-' + this.__insertIndex + '">' + firstLetterOfClass + trackId + '</p>'
                 + '</div>'
                 + '</li>'
             );
-            $li.append($('<p class="label-tool-sidebar-text bbox" id="' + this.tableId + '-Image-' + index + '">Image</p>'));
-            $li.append($('<p class="label-tool-sidebar-text bbox" id="' + this.tableId + '-PCD-' + index + '">PCD</p>'));
+            $li.append($('<p class="label-tool-sidebar-text bbox" id="' + this.tableId + '-Image-' + this.__insertIndex + '">Image</p>'));
+            $li.append($('<p class="label-tool-sidebar-text bbox" id="' + this.tableId + '-PCD-' + this.__insertIndex + '">PCD</p>'));
             $("#" + this.tableId).append($li);
         }
-        this.__bboxes[index] = {label: label};
+        this.__bboxes[this.__insertIndex] = {label: label};
         if (hasImageLabel) {
-            this.add(index, "Image");
+            this.add(this.__insertIndex, "Image");
         }
         if (hasPCDLabel) {
-            this.add(index, "PCD");
+            this.add(this.__insertIndex, "PCD");
         }
-    }
-
-    refresh() {
-        var bboxBkup = this.__bboxes.slice(0, this.__bboxes.length);
-        this.clear();
-        for (var i in bboxBkup) {
-            var hasImageLabel = bboxBkup[i]["Image"] != undefined;
-            var hasPCDLabel = bboxBkup[i]["PCD"] != undefined;
-            if (hasImageLabel || hasPCDLabel) {
-                this.expand(bboxBkup[i]["label"], hasImageLabel, hasPCDLabel);
-            }
-        }
+        this.__insertIndex++;
     }
 
     add(index, dataType) {
@@ -79,7 +66,8 @@ class BBoxTable {
         }
         if (this.__bboxes[tableIndex]["Image"] == undefined && this.__bboxes[tableIndex]["PCD"] == undefined) {
             delete this.__bboxes[tableIndex];
-            $("#bbox-table").children().remove(tableIndex);
+            //$("#bbox-table").children().remove(tableIndex);
+            $("#bbox-table").children().eq(tableIndex).remove();
         }
     }
 
@@ -87,8 +75,8 @@ class BBoxTable {
         // remove highlight from previous selected object
         $("#bbox-table li").css("background-color", "#333");
         // highlight selected object in list
-        $($("#bbox-table").children()[this.__target]).css("background-color", "#525252");
-        this.__target = index;
+        $($("#bbox-table").children()[this.__selectionIndex]).css("background-color", "#525252");
+        this.__selectionIndex = index;
     }
 
     selectEmpty() {
@@ -98,7 +86,7 @@ class BBoxTable {
 
     clear() {
         $("#" + this.tableId).empty();
-        this.__tail = -1;
+        this.__insertIndex = 0;
         this.__bboxes = []
     }
 };
