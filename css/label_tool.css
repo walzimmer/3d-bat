@@ -158,7 +158,7 @@
     font-weight: bold;
 }
 
-#jpeg-label-canvas-left {
+#jpeg-label-canvas-front-left {
     position: fixed;
     top: 50px;
     left: 0px;
@@ -166,31 +166,54 @@
     background-color: white;
     margin: 0px;
     padding: 0px;
+    width: 640px !important;
+    height: 360px !important;
+}
+
+#jpeg-label-canvas-front {
+    position: fixed;
+    top: 50px;
+    left: 640px;
+    z-index: 100;
+    background-color: white;
+    margin: 0px;
+    padding: 0px;
+    width: 640px !important;
+    height: 360px !important;
+}
+
+#jpeg-label-canvas-front-right {
+    position: absolute;
+    right: 0px;
+}
+
+#jpeg-label-canvas-back-right {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+}
+
+#jpeg-label-canvas-back {
+    position: absolute;
+    bottom: 0px;
+    left: 640px;
+}
+
+#jpeg-label-canvas-back-left {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+}
+
+#jpeg-label-canvas-front-left svg, #jpeg-label-canvas-front svg {
     width: 640px;
     height: 360px;
 }
 
-/*#jpeg-label-canvas-middle {*/
-    /*position: fixed;*/
-    /*top: 50px;*/
-    /*left: 640px;*/
-    /*z-index: 100;*/
-    /*background-color: white;*/
-    /*margin: 0px;*/
-    /*padding: 0px;*/
-    /*width: 640px;*/
-    /*height: 360px;*/
-/*}*/
-
-/*#jpeg-label-canvas-left svg, #jpeg-label-canvas-middle svg {*/
-    /*width: 640px;*/
-    /*height: 360px;*/
-/*}*/
-
-/*#jpeg-label-canvas-left svg image, #jpeg-label-canvas-middle svg image {*/
-    /*width: 640px;*/
-    /*height: 360px;*/
-/*}*/
+#jpeg-label-canvas-front-left svg image, #jpeg-label-canvas-front svg image {
+    width: 640px;
+    height: 360px;
+}
 
 .jpeg-label-sidebar {
     box-shadow: 0 1px 1px rgba(1, 0, 0, 0.4);
@@ -471,3 +494,4 @@ text {
     padding-top: 10%;
     width: 150px;
 }
+

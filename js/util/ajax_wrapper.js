@@ -24,8 +24,8 @@ function request(options) {
                 break;
             case "/label/image_size/":
                 var responseDict = {
-                    width: 800,
-                    height: 600
+                    width: 640,
+                    height: 360
                 };
                 var res = {responseText: JSON.stringify(responseDict)};
                 options.complete(res);
@@ -48,7 +48,7 @@ function request(options) {
                 if (fileName in __labelData) {
                     res = JSON.parse(__labelData[fileName]);
                 } else {
-                    res = parseAnnotationFile(fileName, options.data["channel"]);
+                    res = parseAnnotationFile(fileName);
                 }
                 options.success(res);
                 break;
@@ -67,19 +67,19 @@ function request(options) {
     }
 };
 
-function annotationFileExist(fileIndex, channelNumber) {
-    var url = labelTool.workBlob + '/Annotations_test/' + labelTool.camChannels[channelNumber] + '/' + labelTool.fileNames[fileIndex] + '.txt';
+function annotationFileExist(fileIndex) {
+    var url = labelTool.workBlob + '/Annotations_test/' + labelTool.fileNames[fileIndex] + '.txt';
     var http = new XMLHttpRequest();
     http.open('HEAD', url, false);
     http.send();
     return http.status != 404;
 }
 
-function parseAnnotationFile(fileName, channel) {
+function parseAnnotationFile(fileName) {
     var rawFile = new XMLHttpRequest();
     var res = [];
     try {
-        rawFile.open("GET", labelTool.workBlob + '/Annotations_test/' + channel + '/' + fileName, false);
+        rawFile.open("GET", labelTool.workBlob + '/Annotations_test/' + fileName, false);
     } catch (error) {
         // no labels available for this camera image
         // do not through an error message
@@ -92,9 +92,9 @@ function parseAnnotationFile(fileName, channel) {
                 var str_list = allText.split("\n");
                 for (var i = 0; i < str_list.length; i++) {
                     var str = str_list[i].split(" ");
-                    if (str.length == 17) {
+                    if (str.length == 18) {
                         res.push({
-                            label: str[0],
+                            class: str[0],
                             truncated: str[1],
                             occluded: str[2],
                             alpha: str[3],
@@ -110,7 +110,8 @@ function parseAnnotationFile(fileName, channel) {
                             z: str[13],
                             rotation_y: str[14],
                             score: str[15],
-                            trackId: str[16]
+                            trackId: str[16],
+                            channel: str[17]
                         });
                     }
                 }
