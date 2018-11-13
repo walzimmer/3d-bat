@@ -37,21 +37,21 @@
         <ul class="label-header-right-items">
             <li class="label-header-item label-header-column">
                 <ul class="file-select">
-                    <li class="label-header-item">
-                        <button id="previous-cam-channel-button" class="file-select-left-button"
-                                onClick="labelTool.previousCamChannel()">
-                            <i class="material-icons">chevron_left</i>
-                        </button>
-                    </li>
-                    <li class="label-header-item">
-                        <p class="black-input file-select-input" id="cam_channel">CAM_FRONT</p>
-                    </li>
-                    <li class="label-header-item">
-                        <button id="next-cam-channel-button" class="file-select-right-button"
-                                onClick="labelTool.nextCamChannel()">
-                            <i class="material-icons">chevron_right</i>
-                        </button>
-                    </li>
+                    <!--<li class="label-header-item">-->
+                        <!--<button id="previous-cam-channel-button" class="file-select-left-button"-->
+                                <!--onClick="labelTool.previousCamChannel()">-->
+                            <!--<i class="material-icons">chevron_left</i>-->
+                        <!--</button>-->
+                    <!--</li>-->
+                    <!--<li class="label-header-item">-->
+                        <!--<p class="black-input file-select-input" id="cam_channel">CAM_FRONT</p>-->
+                    <!--</li>-->
+                    <!--<li class="label-header-item">-->
+                        <!--<button id="next-cam-channel-button" class="file-select-right-button"-->
+                                <!--onClick="labelTool.nextCamChannel()">-->
+                            <!--<i class="material-icons">chevron_right</i>-->
+                        <!--</button>-->
+                    <!--</li>-->
                     <li class="label-header-item">
                         <button id="previous-frame-button" class="file-select-left-button"
                                 onClick="labelTool.previousFrame()">
@@ -79,12 +79,6 @@
                        onClick="labelTool.resetBoxes()">Reset</p>
                 </form>
             </li>
-            <li class="label-header-item label-header-column">
-                <form name="js">
-                    <p class="label-header-button label-header-toggle-button" id="hold-toggle-button"
-                       onClick="labelTool.toggleHold()">Hold</p>
-                </form>
-            </li>
             <!--<li class="label-header-item label-header-column">-->
             <!--<form name="js">-->
             <!--<p class="label-header-button label-header-toggle-button"-->
@@ -97,18 +91,22 @@
         </ul>
     </div>
     <div id="label-tool-wrapper">
-        <div class="jpeg-label-sidebar second">
-            <div class="jpeg-label-sidebar-header">
-                <p class="jpeg-label-sidebar-header-text">ID | IMAGE | PCD</p>
-            </div>
-            <div id="jpeg-label-sidebar-body">
-                <ul class="jpeg-label-sidebar-list" id="bbox-table">
-                </ul>
-            </div>
-        </div>
+        <!--<div class="jpeg-label-sidebar second">-->
+            <!--<div class="jpeg-label-sidebar-header">-->
+                <!--<p class="jpeg-label-sidebar-header-text">ID | IMAGE | PCD</p>-->
+            <!--</div>-->
+            <!--<div id="jpeg-label-sidebar-body">-->
+                <!--<ul class="jpeg-label-sidebar-list" id="bbox-table">-->
+                <!--</ul>-->
+            <!--</div>-->
+        <!--</div>-->
         <div id="canvas3d" style="z-index: 0; background-color: #000000;"></div>
-        <div id="jpeg-label-canvas-left"></div>
-        <!--<div id="jpeg-label-canvas-middle"></div>-->
+        <div id="jpeg-label-canvas-front-left"></div>
+        <div id="jpeg-label-canvas-front"></div>
+        <div id="jpeg-label-canvas-front-right"></div>
+        <div id="jpeg-label-canvas-back-right"></div>
+        <div id="jpeg-label-canvas-back"></div>
+        <div id="jpeg-label-canvas-back-left"></div>
     </div>
 
     <!-- <div id="label-tool-status-overlay" class="label-tool-overlay">
@@ -138,17 +136,18 @@
     <script src='js/lib/dat.gui.min.js'></script>
     <script src='js/lib/KeyboardState.js'></script>
     <script src='js/lib/Projector.js'></script>
-    <script src="js/util/bbox_table.js?ver=1.0"></script>
+    <script src="js/util/math.js?ver=1.0"></script>
     <script src='js/util/classesBoundingBox.js?ver=1.0'></script>
     <script src='js/util/boundingbox.js?ver=1.0'></script>
     <script src='js/base_label_tool.js?ver=1.0'></script>
     <script src='js/pcd_label_tool.js?ver=1.0'></script>
     <script src="js/image_label_tool.js?ver=1.0"></script>
     <script src='js/util/ajax_wrapper.js?ver=1.0'></script>
-    <script type="text/javascript">
-        labelTool.setParameters(1);
-        labelTool.getInformations();
-    </script>
+    <script src='js/main.js?ver=1.0'></script>
+    <!--<script type="text/javascript">-->
+        <!--labelTool.setParameters(1);-->
+        <!--labelTool.getInformation();-->
+    <!--</script>-->
 </div>
 </body>
 </html>
