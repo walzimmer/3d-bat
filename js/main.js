@@ -1,4 +1,8 @@
-if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+// if (!Detector.webgl) {
+//     Detector.addGetWebGLMessage();
+// }
 
-init();
-animate();
+// init();
+// labelTool.setParameters(1);
+labelTool.start();
+// animate();

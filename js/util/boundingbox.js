@@ -1,7 +1,28 @@
-var annotationObjects = {
+function getLine(channel, pointStart, pointEnd) {
+    let channelIdx = getChannelIndexByName(channel);
+    if (pointStart !== undefined && pointEnd !== undefined) {
+        let line = paperArray[channelIdx].path("M", pointStart.x, pointStart.y, "L", pointEnd.x, pointEnd.y);
+        return line;
+    } else {
+        return undefined;
+    }
+
+}
+
+let annotationObjects = {
     contents: [],
     localOnSelect: {
-        "ImageLeft": function (index) {
+        "CAM_FRONT_LEFT": function (index) {
+        },
+        "CAM_FRONT": function (index) {
+        },
+        "CAM_FRONT_RIGHT": function (index) {
+        },
+        "CAM_BACK_RIGHT": function (index) {
+        },
+        "CAM_BACK": function (index) {
+        },
+        "CAM_BACK_LEFT": function (index) {
         },
         "PCD": function (index) {
         }
@@ -10,7 +31,17 @@ var annotationObjects = {
         this.localOnSelect[dataType] = f;
     },
     localOnChangeClass: {
-        "ImageLeft": function (index, label) {
+        "CAM_FRONT_LEFT": function (index, label) {
+        },
+        "CAM_FRONT": function (index, label) {
+        },
+        "CAM_FRONT_RIGHT": function (index, label) {
+        },
+        "CAM_BACK_RIGHT": function (index, label) {
+        },
+        "CAM_BACK": function (index, label) {
+        },
+        "CAM_BACK_LEFT": function (index, label) {
         },
         "PCD": function (index, label) {
         }
@@ -18,66 +49,73 @@ var annotationObjects = {
     onChangeClass: function (dataType, f) {
         this.localOnChangeClass[dataType] = f;
     },
-    localOnAdd: {
-        "ImageLeft": function (index, label, params) {
-        },
-        "PCD": function (index, label, params) {
-        }
+    onRemove: function (dataType) {
+
     },
-    onAdd: function (dataType, f) {
-        this.localOnAdd[dataType] = f;
-    },
-    localOnRemove: {
-        "ImageLeft": function (index) {
-        },
-        "PCD": function (index) {
-        }
-    },
-    onRemove: function (dataType, f) {
-        this.localOnRemove[dataType] = f;
-    },
-    get: function (index, dataType) {
-        if (this.contents[index] == undefined) {
+    get: function (index, channel) {
+        if (this.contents[index] === undefined) {
             return undefined;
         }
-        if (dataType == undefined) {
+        if (channel === undefined) {
             return this.contents[index];
         }
-        return this.contents[index][dataType];
+        return this.contents[index][channel];
     },
-    set: function (index, dataType, params, label, fromFile) {
-        if (this.contents[index] == undefined) {
-            this.expand(label, dataType, params.trackId, fromFile);
-        } else {
-            if (this.contents[index]["trackId"] == undefined) {
-                this.contents[index]["trackId"] = params.trackId;
+    set: function (insertIndex, params) {
+        if (params.x !== -1 && params.y !== -1 && params.z !== -1 && params.width !== -1 && params.height !== -1 && params.depth !== -1) {
+            let obj = get3DLabel(params);
+            if (this.contents[insertIndex] === undefined) {
+                this.contents.push(obj);
+            } else {
+                this.contents[insertIndex] = obj;
             }
+        }
+        this.contents[insertIndex]["class"] = params.class;
+        if (params.fromFile === false && this.__selectionIndex === -1) {
+            this.contents[insertIndex]["trackId"] = classesBoundingBox[params.class].nextTrackId;
+        } else {
+            this.contents[insertIndex]["trackId"] = params.trackId;
+        }
+        this.contents[insertIndex]["channels"] = params.channels;
 
+        // if (params.x_img !== -1 && params.y_img !== -1 && params.width_img !== -1 && params.height_img !== -1) {
+        //     this.contents[insertIndex]["rect"] = getRect(params);
+        // }
+        for (let i = 0; i < params.channels.length; i++) {
+            var channel = params.channels[i].channel;
+            var lineArray = [];
+            // bottom four lines
+            lineArray.push(getLine(channel, params.channels[i].points2D[0], params.channels[i].points2D[1]));
+            lineArray.push(getLine(channel, params.channels[i].points2D[1], params.channels[i].points2D[2]));
+            lineArray.push(getLine(channel, params.channels[i].points2D[2], params.channels[i].points2D[3]));
+            lineArray.push(getLine(channel, params.channels[i].points2D[3], params.channels[i].points2D[0]));
+            // top four lines
+            lineArray.push(getLine(channel, params.channels[i].points2D[4], params.channels[i].points2D[5]));
+            lineArray.push(getLine(channel, params.channels[i].points2D[5], params.channels[i].points2D[6]));
+            lineArray.push(getLine(channel, params.channels[i].points2D[6], params.channels[i].points2D[7]));
+            lineArray.push(getLine(channel, params.channels[i].points2D[7], params.channels[i].points2D[4]));
+            // vertical lines
+            lineArray.push(getLine(channel, params.channels[i].points2D[0], params.channels[i].points2D[4]));
+            lineArray.push(getLine(channel, params.channels[i].points2D[1], params.channels[i].points2D[5]));
+            lineArray.push(getLine(channel, params.channels[i].points2D[2], params.channels[i].points2D[6]));
+            lineArray.push(getLine(channel, params.channels[i].points2D[3], params.channels[i].points2D[7]));
+            this.contents[insertIndex]["channels"][i]["lines"] = lineArray;
         }
-        if (label == undefined) {
-            label = this.get(index, "class");
-        }
-        var obj = this.localOnAdd[dataType](index, label, params);//calls annotationObjects.onAdd(...) in image_label_tool.js line 60
-        this.contents[index][dataType] = obj;
-        this.contents[index]["class"] = label;
-        this.__table.changeClass(index, label);
-        this.__table.add(index, dataType);
+        labelTool.bboxIndexArray[labelTool.currentFileIndex].push(insertIndex.toString());
+        this.__insertIndex++;
     },
     changeClass: function (index, label) {
-        if (this.contents[index] == undefined) {
+        if (this.contents[index] === undefined) {
             return false;
         }
         this.contents[index]["class"] = label;
-        labelTool.dataTypes.forEach(function (dataType) {
-            this.localOnChangeClass[dataType](index, label);
-        }.bind(this));
-        this.__table.changeClass(index, label);
+        this.localOnChangeClass["PCD"](index, label);
     },
-    expand: function (label, dataType, trackId, fromFile) {
-        if (label == undefined) {
+    expand: function (label, trackId, fromFile) {
+        if (label === undefined) {
             label = classesBoundingBox.targetName();
         }
-        if (fromFile == false && this.__selectionIndex == -1) {
+        if (fromFile === false && this.__selectionIndex === -1) {
             trackId = classesBoundingBox[label].nextTrackId;
         }
         this.contents[this.__insertIndex] = {
@@ -85,117 +123,60 @@ var annotationObjects = {
             "trackId": trackId
         };
         this.__insertIndex++;
-        if (dataType == "ImageLeft") {
-            this.__table.expand(classesBoundingBox.targetName(), true, false);
-        } else {
-            this.__table.expand(classesBoundingBox.targetName(), false, true);
-        }
-
     },
-    getSelectedBoundingBox: function (dataType) {
-        if (dataType == undefined) {
-            return this.contents[this.__selectionIndex];
-        }
-        if (this.__selectionIndex == -1 || this.contents[this.__selectionIndex] == undefined) {
+    getSelectedBoundingBox: function () {
+        if (this.__selectionIndex === -1 || this.contents[this.__selectionIndex] === undefined) {
             return undefined;
         } else {
-            return this.contents[this.__selectionIndex][dataType];
+            return this.contents[this.__selectionIndex];
         }
     },
-    setSelection: function (insertIndex, dataType, params, label, fromFile) {
-        // if a bounding box was selected in the camera image
-        // then assign the bounding box in the birds eye view to the one in the camera image
-        this.set(insertIndex, dataType, params, label, fromFile);
-    },
-    setSelectionIndex: function (selectionIndex) {
+    setSelectionIndex: function (selectionIndex, channel) {
         // show bounding box highlighting
         this.__selectionIndex = selectionIndex;
-        if (selectionIndex != -1) {
-            labelTool.dataTypes.forEach(function (dataType) {
-                this.localOnSelect[dataType](selectionIndex, this.__selectionIndex);
-            }.bind(this));
-        }
-        this.__table.__selectionIndex = selectionIndex;
-        if (this.__selectionIndex != -1) {
-            this.__table.select(this.__selectionIndex);
-        } else {
-            this.__table.selectEmpty();
+        if (selectionIndex !== -1) {
+            this.localOnSelect[channel](selectionIndex);
+            this.localOnSelect["PCD"](selectionIndex);
         }
         return true;
     },
-    select: function (index) {
-        $("#label-tool-log").val("3. Draw label in Birds-Eye-View");
-        $("#label-tool-log").css("color", "#969696");
-        this.setSelectionIndex(index);
-    },
-    exists: function (index, dataType) {
-        if (this.contents[index] == undefined) {
-            return false;
-        }
-        return this.contents[index][dataType] != undefined;
+    select: function (index, channel) {
+        let notificationElem = $("#label-tool-log");
+        notificationElem.val("3. Draw label in Birds-Eye-View");
+        notificationElem.css("color", "#969696");
+        this.setSelectionIndex(index, channel);
     },
     getSelectionIndex: function () {
         return this.__selectionIndex;
     },
-    selectTail: function () {
-        this.setSelectionIndex(this.__insertIndex - 1);
-    },
     selectEmpty: function () {
-        this.setSelectionIndex(-1);
+        this.setSelectionIndex(-1, undefined);
     },
-    length: function () {
-        return this.__insertIndex;
+    remove: function (index) {
+        // remove 3d object
+        labelTool.removeObject("cube-" + this.contents[index]["class"].charAt(0) + this.contents[index]["trackId"]);
+        // remove 2d object
+        remove(index);
+        delete this.contents[index];
+        this.contents.splice(index, 1);
+        delete labelTool.bboxIndexArray[labelTool.currentFileIndex][index];
+        labelTool.bboxIndexArray[labelTool.currentFileIndex].splice(index, 1);
+        delete labelTool.cubeArray[labelTool.currentFileIndex][index];
+        labelTool.cubeArray[labelTool.currentFileIndex].splice(index, 1);
+        this.__insertIndex--;
+        this.select(-1, undefined);
     },
-    remove: function (index, dataType) {
-        if (dataType == undefined) {
-            labelTool.dataTypes.forEach(function (dataType) {
-                if (this.exists(index, dataType)) {
-                    this.localOnRemove[dataType](index);
-                    delete this.contents[index][dataType];
-                    this.__table.remove(index, dataType);
-                }
-            }.bind(this));
-            this.contents.splice(index, 1);
-            this.__insertIndex--;
-            this.__table.__insertIndex--;
-            this.select(-1);
-        } else {
-            this.localOnRemove[dataType](index);
-            delete this.contents[index][dataType];
-            this.__table.remove(index, dataType);
-            if (this.contents[index]["ImageLeft"] == undefined && this.contents[index]["PCD"] == undefined) {
-                delete this.contents[index];
-                this.__insertIndex--;
-                this.__table.__insertIndex--;
-            }
-        }
-    },
-    removeSelectedBoundingBox: function (dataType) {
-        this.remove(this.__selectionIndex, dataType);
-    },
-    pop: function () {
-        this.remove(this.__insertIndex - 1);
+    removeSelectedBoundingBox: function () {
+        this.remove(this.__selectionIndex);
     },
     clear: function () {
-        for (var i = 0; i < this.length(); ++i) {
-            if (this.exists(i, "ImageLeft")) {
-                this.localOnRemove["ImageLeft"](i);
-            }
-            if (this.exists(i, "PCD")) {
-                this.localOnRemove["PCD"](i);
-            }
+        for (let i = 0; i < this.contents.length; i++) {
+            labelTool.removeObject("cube-" + this.contents[i]["class"].charAt(0) + this.contents[i]["trackId"]);
         }
         this.__selectionIndex = -1;
         this.__insertIndex = 0;
         this.contents = [];
-        this.__table.clear();
     },
     __selectionIndex: -1,
-    __insertIndex: 0,
-    __table: new BBoxTable({
-        tableId: "bbox-table",
-        liOptions: function (index) {
-            return "onClick='annotationObjects.select(" + index + ");'";
-        }
-    })
+    __insertIndex: 0
 };
