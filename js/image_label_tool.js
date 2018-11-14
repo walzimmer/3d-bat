@@ -38,14 +38,16 @@ function select(newIndex, channel) {
 
     }
     if (annotationObjects.contents[newIndex]["channels"][0].channel === channel) {
-        if (annotationObjects.contents[newIndex]["channels"][0]["lines"] !== undefined) {
+        if (annotationObjects.contents[newIndex]["channels"][0]["lines"] !== undefined && annotationObjects.contents[newIndex]["channels"][0]["lines"][0] !== undefined
+            && !isNaN(annotationObjects.contents[newIndex]["channels"][0]["lines"][0]) && isFinite(annotationObjects.contents[newIndex]["channels"][0]["lines"][0])) {
             // if (annotationObjects.contents[newIndex]["rect"] !== undefined) {
             // emphasize only possible if 2D bb exists
             addTextBox(newIndex, channel);
             // emphasizeBBox(newIndex, channel);
         }
     } else {
-        if (annotationObjects.contents[newIndex]["channels"][1]["lines"] !== undefined) {
+        if (annotationObjects.contents[newIndex]["channels"][1]["lines"] !== undefined && annotationObjects.contents[newIndex]["channels"][1]["lines"][0] !== undefined
+            && !isNaN(annotationObjects.contents[newIndex]["channels"][1]["lines"][0]) && isFinite(annotationObjects.contents[newIndex]["channels"][1]["lines"][0])) {
             addTextBox(newIndex, channel);
         }
     }
@@ -127,13 +129,13 @@ labelTool.onInitialize("CAM_BACK_LEFT", function () {
 });
 
 function loadData(camChannel) {
-    var imgURL = labelTool.workBlob + "/JPEGImages/" + camChannel + "/" + labelTool.getTargetFileName() + ".jpg";
+    let imgURL = labelTool.workBlob + "/JPEGImages/" + camChannel + "/" + labelTool.getTargetFileName() + ".jpg";
     let channelIdx = getChannelIndexByName(camChannel);
-    var img = imageArray[channelIdx];
+    let img = imageArray[channelIdx];
     if (img !== undefined) {
         img.remove();
     }
-    var paper = paperArray[channelIdx];
+    let paper = paperArray[channelIdx];
     imageArray[channelIdx] = paper.image(imgURL, 0, 0, "100%", "100%");
     imageArray[channelIdx].toBack();
     addEventsToImage(imageArray[channelIdx]);
@@ -821,10 +823,12 @@ function adjustAllBBoxes(camChannel) {
 //     }
 // }
 
+// TODO:
 function addTextBox(bbIndex, camChannel) {
     var bbox = annotationObjects.contents[bbIndex];
     var trackId = bbox["trackId"];
-    var posX = bbox["rect"].attr("x");
+    let channelIdx = getChannelIndexByName(camChannel);
+    var posX = bbox["channels"][channelIdx]["lines"][5].attr("x");
     var posY = bbox["rect"].attr("y");
     var label = bbox["class"];
     var firstLetterOfClass = label.charAt(0);

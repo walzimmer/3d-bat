@@ -181,7 +181,6 @@ labelTool.onLoadData("PCD", function () {
         mesh.name = 'pointcloud';
         scene.add(mesh);
     });
-
     // show FOV of camera within 3D pointcloud
     labelTool.removeObject('rightplane');
     labelTool.removeObject('leftplane');
@@ -233,22 +232,22 @@ function readYAMLFile(filename) {
     rawFile.open("GET", filename, false);
     rawFile.onreadystatechange = function () {
         if (rawFile.readyState === 4) {
-            if (rawFile.status === 200 || rawFile.status == 0) {
-                var allText = rawFile.responseText;
-                for (var i = 0; i < allText.split("\n").length; i++) {
-                    if (allText.split("\n")[i].split(":")[0].trim() == 'CameraExtrinsicMat') {
+            if (rawFile.status === 200 || rawFile.status === 0) {
+                let allText = rawFile.responseText;
+                for (let i = 0; i < allText.split("\n").length; i++) {
+                    if (allText.split("\n")[i].split(":")[0].trim() === 'CameraExtrinsicMat') {
                         hasCameraExtrinsicMatrix = true;
                     }
-                    if (hasCameraExtrinsicMatrix && allText.split("\n")[i].split(":")[0].trim() == 'data') {
-                        for (m = 0; m < allText.split("\n")[i].split(":")[1].split("[")[1].split(",").length - 1; m++) {
-                            var each_param = parseFloat(allText.split("\n")[i].split(":")[1].split("[")[1].split(",")[m])
+                    if (hasCameraExtrinsicMatrix && allText.split("\n")[i].split(":")[0].trim() === 'data') {
+                        for (let m = 0; m < allText.split("\n")[i].split(":")[1].split("[")[1].split(",").length - 1; m++) {
+                            let each_param = parseFloat(allText.split("\n")[i].split(":")[1].split("[")[1].split(",")[m]);
                             cameraParameters.push(each_param)
                         }
                         while (cameraParameters.length < 12) {
-                            i = i + 1
-                            for (m = 0; m < allText.split("\n")[i].trim().split(",").length - 1; m++) {
-                                var paramameter = parseFloat(allText.split("\n")[i].trim().split(",")[m]);
-                                cameraParameters.push(paramameter)
+                            i = i + 1;
+                            for (let m = 0; m < allText.split("\n")[i].trim().split(",").length - 1; m++) {
+                                let parameter = parseFloat(allText.split("\n")[i].trim().split(",")[m]);
+                                cameraParameters.push(parameter);
                             }
                         }
                         labelTool.cameraMatrix = [[parseFloat(cameraParameters[0]), parseFloat(cameraParameters[1]), parseFloat(cameraParameters[2]), parseFloat(cameraParameters[3])],
@@ -351,7 +350,7 @@ function download() {
         outputString += annotations[i].channel + "\n";
     }
     outputString = b64EncodeUnicode(outputString);
-    var fileName = labelTool.currentFileIndex.toString().padStart(6, '0');
+    let fileName = labelTool.currentFileIndex.toString().padStart(6, '0');
     $($('#bounding-box-3d-menu ul li')[0]).children().first().attr('href', 'data:application/octet-stream;base64,' + outputString).attr('download', fileName + '.txt');
 }
 
@@ -378,17 +377,17 @@ function setCameraView() {
 //add new bounding box
 
 function get3DLabel(parameters) {
-    var bbox = parameters;
-    var cubeGeometry = new THREE.CubeGeometry(1.0, 1.0, 1.0);//width, height, depth
-    var color;
+    let bbox = parameters;
+    let cubeGeometry = new THREE.CubeGeometry(1.0, 1.0, 1.0);//width, height, depth
+    let color;
     if (parameters.fromFile === true) {
         color = classesBoundingBox[parameters.class].color;
     } else {
         color = classesBoundingBox.target().color;
     }
 
-    var cubeMaterial = new THREE.MeshBasicMaterial({color: color, transparent: true, opacity: 0.1});
-    var cubeMesh = new THREE.Mesh(cubeGeometry, cubeMaterial);
+    let cubeMaterial = new THREE.MeshBasicMaterial({color: color, transparent: true, opacity: 0.1});
+    let cubeMesh = new THREE.Mesh(cubeGeometry, cubeMaterial);
     cubeMesh.position.set(bbox.x, -bbox.y, bbox.z);
     cubeMesh.scale.set(bbox.width, bbox.height, bbox.depth);
     cubeMesh.rotation.z = bbox.yaw;
@@ -401,26 +400,26 @@ function get3DLabel(parameters) {
 
 //register new bounding box
 function addBoundingBoxGui(bbox) {
-    var insertIndex = folderBoundingBox3DArray.length;
-    var bb = guiOptions.addFolder(bbox.class + ' ' + bbox.trackId);
+    let insertIndex = folderBoundingBox3DArray.length;
+    let bb = guiOptions.addFolder(bbox.class + ' ' + bbox.trackId);
     folderBoundingBox3DArray.push(bb);
 
-    var folderPosition = folderBoundingBox3DArray[insertIndex].addFolder('Position');
-    var cubeX = folderPosition.add(bbox, 'x').min(-50).max(50).step(0.01).listen();
-    var cubeY = folderPosition.add(bbox, 'y').min(-30).max(30).step(0.01).listen();
-    var cubeZ = folderPosition.add(bbox, 'z').min(-3).max(10).step(0.01).listen();
-    var cubeYaw = folderPosition.add(bbox, 'yaw').min(-Math.PI).max(Math.PI).step(0.05).listen();
+    let folderPosition = folderBoundingBox3DArray[insertIndex].addFolder('Position');
+    let cubeX = folderPosition.add(bbox, 'x').min(-50).max(50).step(0.01).listen();
+    let cubeY = folderPosition.add(bbox, 'y').min(-30).max(30).step(0.01).listen();
+    let cubeZ = folderPosition.add(bbox, 'z').min(-3).max(10).step(0.01).listen();
+    let cubeYaw = folderPosition.add(bbox, 'yaw').min(-Math.PI).max(Math.PI).step(0.05).listen();
     folderPosition.close();
     folderPositionArray.push(folderPosition);
 
-    var folderSize = folderBoundingBox3DArray[insertIndex].addFolder('Size');
-    var cubeW = folderSize.add(bbox, 'width').min(0).max(10).step(0.01).listen();
-    var cubeH = folderSize.add(bbox, 'height').min(0).max(10).step(0.01).listen();
-    var cubeD = folderSize.add(bbox, 'depth').min(0).max(10).step(0.01).listen();
+    let folderSize = folderBoundingBox3DArray[insertIndex].addFolder('Size');
+    let cubeW = folderSize.add(bbox, 'width').min(0).max(10).step(0.01).listen();
+    let cubeH = folderSize.add(bbox, 'height').min(0).max(10).step(0.01).listen();
+    let cubeD = folderSize.add(bbox, 'depth').min(0).max(10).step(0.01).listen();
     folderSize.close();
     folderSizeArray.push(folderSize);
 
-    var textBoxTrackId = folderBoundingBox3DArray[insertIndex].add(bbox, 'trackId').min(0).step(1).name('Number');
+    let textBoxTrackId = folderBoundingBox3DArray[insertIndex].add(bbox, 'trackId').min(0).step(1).name('Number');
     // textBoxTrackId.name = "textbox-" + bbox.class.charAt(0) + ' ' + bbox.trackId;
     textBoxTrackId.onChange(function (value) {
         if (value < 0) {
@@ -465,7 +464,7 @@ function addBoundingBoxGui(bbox) {
         bbox.z = labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].position.z;
         labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].scale.z = value;
     });
-    var resetParameters = {
+    let resetParameters = {
         reset: function () {
             resetCube(insertIndex, insertIndex);
         },
@@ -512,7 +511,7 @@ function onWindowResize() {
 //set camera type
 function setCamera() {
     if (birdViewFlag === false) {
-        camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 10000);
+        camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 100000);
 
         // camera.position.set(0.0000000001, 0, 0);//look left
         // camera.position.set(0, 0.0000000001, 0);//look back
@@ -536,35 +535,36 @@ function setCamera() {
 
     } else {
         camera = new THREE.OrthographicCamera(-40, 40, 20, -20, 0, 2000);
-        camera.position.set(0, 0, 1000);
-        camera.up.set(0, 1, 0);
+        camera.position.set(0, 0, 450);
+        camera.up.set(0, 0, 1);
         camera.lookAt(new THREE.Vector3(0, 0, 0));
     }
     scene.add(camera);
 
     controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.rotateSpeed = 2.0;
-    controls.zoomSpeed = 0.3;
-    controls.panSpeed = 0.2;
-    controls.enableZoom = true;
-    controls.enablePan = true;
-    controls.enableRotate = true;// default: true
-    controls.enableDamping = false;
-    controls.dampingFactor = 0.3;
-    controls.minDistance = 0.3;
-    controls.maxDistance = 0.3 * 100;
-    controls.noKey = true;
-    controls.enabled = false;
-    controls.target.set(0, 0, 0);
-    controls.autoRotate = false;
+    // controls.rotateSpeed = 2.0;
+    // controls.zoomSpeed = 0.3;
+    // controls.panSpeed = 0.2;
+    // controls.enableZoom = true;
+    // controls.enablePan = true;
+    // controls.enableRotate = true;// default: true
+    // controls.enableDamping = false;
+    // controls.dampingFactor = 0.3;
+    // controls.minDistance = 0.3;
+    // controls.maxDistance = 0.3 * 100;
+    // controls.noKey = true;
+    // controls.enabled = false;
+    // // controls.target.set(0, 0, 0);
+    // controls.autoRotate = false;
 
     // front left
     // let yPos = 0.001;
     // let xPos = Math.tan(305 * Math.PI / 180) * yPos;
-    let pos = labelTool.camChannels[0].position;
-    controls.object.position.set(-pos[1], pos[0] - labelTool.positionLidar[0], labelTool.positionLidar[2] - pos[2]);
-    controls.target = new THREE.Vector3(-pos[1] - 0.0000001, pos[0] - labelTool.positionLidar[0] + 0.0000001, labelTool.positionLidar[2] - pos[2]);// look backward
-
+    if (birdViewFlag === false) {
+        let pos = labelTool.camChannels[0].position;
+        controls.object.position.set(-pos[1], pos[0] - labelTool.positionLidar[0], labelTool.positionLidar[2] - pos[2]);
+        controls.target = new THREE.Vector3(-pos[1] - 0.0000001, pos[0] - labelTool.positionLidar[0] + 0.0000001, labelTool.positionLidar[2] - pos[2]);// look backward
+    }
     // front
     // let positionFront = labelTool.camChannels[1].position;
     // controls.object.position.set(positionFront[1], positionFront[0], labelTool.positionLidar[2] - positionFront[2]);
@@ -606,7 +606,7 @@ function animate() {
     }
     if (keyboard.down("R")) {
         cFlag = false;
-        if (rFlag == false) {
+        if (rFlag === false) {
             rotationBboxIndex = annotationObjects.getSelectionIndex();
             rFlag = true;
         }
@@ -668,19 +668,19 @@ function animate() {
  * @returns channel One of the six camera channels
  */
 function getChannelByPosition(x, y) {
-    var channels = [];
-    var alphaRadian;
+    let channels = [];
+    let alphaRadian;
     if (x >= 0 && y >= 0) {
-        alphaRadian = Math.PI - Math.atan(Math.abs(x) / Math.abs(y));
+        alphaRadian = Math.atan(Math.abs(y) / Math.abs(x)) + Math.PI / 2;
     } else if (x < 0 && y >= 0) {
-        alphaRadian = 2 * Math.PI - Math.atan(Math.abs(y) / Math.abs(x));
+        alphaRadian = Math.atan(Math.abs(x) / Math.abs(y)) + Math.PI;
     } else if (x < 0 && y < 0) {
-        alphaRadian = 2 * Math.PI - Math.atan(Math.abs(x) / Math.abs(y)) + Math.PI / 2;
+        alphaRadian = Math.atan(Math.abs(y) / Math.abs(x)) + 1.5 * Math.PI;
     } else {
         // x>=0 and y<0
-        alphaRadian = Math.atan(Math.abs(y) / Math.abs(x)) + 1.5 * Math.PI;
+        alphaRadian = Math.atan(Math.abs(x) / Math.abs(y));
     }
-    var alphaDegrees = 360 * alphaRadian / (2 * Math.PI);
+    let alphaDegrees = 360 * alphaRadian / (2 * Math.PI);
     if ((alphaDegrees >= 325 && alphaDegrees < 360) || (alphaDegrees >= 0 && alphaDegrees < 35)) {
         channels.push(labelTool.camChannels[1].channel);
     }
@@ -703,36 +703,83 @@ function getChannelByPosition(x, y) {
 }
 
 function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth) {
-    var cornerPoints = [];
-    cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos - height / 2, zPos - depth / 2));
-    cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos - height / 2, zPos - depth / 2));
-    cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos + height / 2, zPos - depth / 2));
-    cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos + height / 2, zPos - depth / 2));
-    cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos - height / 2, zPos + depth / 2));
-    cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos - height / 2, zPos + depth / 2));
-    cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos - height / 2, zPos + depth / 2));
-    cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos - height / 2, zPos + depth / 2));
-    let projector = new THREE.Projector();
     let projectedPoints = [];
-    for (let cornerPoint in cornerPoints) {
-        let point = cornerPoints[cornerPoint];
-        projectedPoints.push(projector.projectVector(point, camera));
-    }
+    let object3D = new THREE.Object3D();
+    // let obj = scene.getObjectByName('prism');
+    // object3D.position.x = obj.geometry.vertices[3].x;
+    // object3D.position.y = obj.geometry.vertices[3].y;
+    // object3D.position.z = obj.geometry.vertices[3].z;
+    object3D.position.x = -1.05;
+    object3D.position.y = 0.7;
+    object3D.position.z = 0.3;
+    object3D.updateWorldMatrix();
+    let point2D = new THREE.Vector3();
+    point2D.setFromMatrixPosition(object3D.matrixWorld);
+    // map to normalized device coordinate (NDC) space
+    point2D.project(camera);
+    let widthHalf = 0.5 * renderer.context.canvas.width;
+    let heightHalf = 0.5 * renderer.context.canvas.height;
+    // point2D.x = (point2D.x * widthHalf) + widthHalf;
+    // point2D.y = -(point2D.y * heightHalf) + heightHalf;
+    point2D.x = Math.round((point2D.x + 1) * widthHalf);
+    point2D.y = -Math.round((point2D.y - 1) * heightHalf);
+    projectedPoints.push({x: point2D.x, y: point2D.y});
+    // test points
+    // projectedPoints.push({x:50,y:50});
+    // projectedPoints.push({x:60,y:40});
+    // projectedPoints.push({x:70,y:40});
+    // projectedPoints.push({x:60,y:50});
+    // projectedPoints.push({x:50,y:30});
+    // projectedPoints.push({x:60,y:20});
+    // projectedPoints.push({x:70,y:20});
+    // projectedPoints.push({x:60,y:30});
     return projectedPoints;
+    //------------------------------
+    // let cornerPoints = [];
+    // cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos - height / 2, zPos - depth / 2));
+    // cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos - height / 2, zPos - depth / 2));
+    // cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos + height / 2, zPos - depth / 2));
+    // cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos + height / 2, zPos - depth / 2));
+    // cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos - height / 2, zPos + depth / 2));
+    // cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos - height / 2, zPos + depth / 2));
+    // cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos - height / 2, zPos + depth / 2));
+    // cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos - height / 2, zPos + depth / 2));
+    // // // let projector = new THREE.Projector();
+    // let projectedPoints = [];
+    // for (let cornerPoint in cornerPoints) {
+    //     let object3D = new THREE.Object3D();
+    //     let cornerPointVector = cornerPoints[cornerPoint];
+    //     object3D.position.x = cornerPointVector.x;
+    //     object3D.position.y = cornerPointVector.y;
+    //     object3D.position.z = cornerPointVector.z;
+    //     object3D.updateWorldMatrix();
+    //     let point2D = new THREE.Vector3();
+    //     point2D.setFromMatrixPosition(object3D.matrixWorld);
+    //     point2D.project(camera);
+    //     let widthHalf = 0.5 * renderer.context.canvas.width;
+    //     let heightHalf = 0.5 * renderer.context.canvas.height;
+    //     point2D.x = (point2D.x * widthHalf) + widthHalf;
+    //     point2D.y = -(point2D.y * heightHalf) + heightHalf;
+    //     // let point = cornerPoints[cornerPoint];
+    //     // projectedPoints.push(projector.projectVector(point, camera));
+    //     projectedPoints.push({x: point2D.x, y: point2D.y});
+    // }
+    // return projectedPoints;
 }
 
 function setCameraToChannel(channel) {
     let channelIdx = getChannelIndexByName(channel);
     let fieldOfView = labelTool.camChannels[channelIdx].fieldOfView;
-    camera.fov = fieldOfView;
-
+    scene.remove(camera);
+    camera = new THREE.PerspectiveCamera(fieldOfView, window.innerWidth / window.innerHeight, 0.01, 100000);
+    camera.up = new THREE.Vector3(0, 0, 1);
+    scene.add(camera);
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
     if (channel === labelTool.camChannels[0].channel) {
         // front left
-        let yPos = 0.5;
-        let xPos = Math.tan(305 * Math.PI / 180) * yPos;
         let pos = labelTool.camChannels[0].position;
-        controls.object.position.set(-pos[1] - xPos, pos[0] - labelTool.positionLidar[0] + yPos, labelTool.positionLidar[2] - pos[2]);
-        controls.target = new THREE.Vector3(-pos[1] - xPos + 0.0000001, pos[0] - labelTool.positionLidar[0] + yPos + 0.0000001, labelTool.positionLidar[2] - pos[2]);// look backward
+        controls.object.position.set(-pos[1], pos[0] - labelTool.positionLidar[0], labelTool.positionLidar[2] - pos[2]);
+        controls.target = new THREE.Vector3(-pos[1] + 0.0000001, pos[0] - labelTool.positionLidar[0] + 0.0000001, labelTool.positionLidar[2] - pos[2]);// look backward
     } else if (channel === labelTool.camChannels[1].channel) {
         // front
         let pos = labelTool.camChannels[1].position;
@@ -769,6 +816,15 @@ function setCameraToChannel(channel) {
     } else {
         // channel undefined
     }
+    // camera.updateProjectionMatrix();
+    controls.update();
+}
+
+function setCameraToBirdsEyeView() {
+    camera = new THREE.OrthographicCamera(-40, 40, 20, -20, 0, 2000);
+    camera.position.set(0, 0, 450);
+    camera.up.set(0, 1, 0);
+    camera.lookAt(new THREE.Vector3(0, 0, 0));
 }
 
 function init() {
@@ -799,12 +855,13 @@ function init() {
                 let rect = ev.target.getBoundingClientRect();
                 mouseDown.x = ((ev.clientX - rect.left) / window.innerWidth) * 2 - 1;
                 mouseDown.y = -((ev.clientY - rect.top) / window.innerHeight) * 2 + 1;
+                let ray;
                 if (birdViewFlag === false) {
                     let vector = new THREE.Vector3(mouseDown.x, mouseDown.y, 1);
                     vector.unproject(camera);
-                    let ray = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+                    ray = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
                 } else {
-                    let ray = new THREE.Raycaster();
+                    ray = new THREE.Raycaster();
                     let mouse = new THREE.Vector2();
                     mouse.x = mouseDown.x;
                     mouse.y = mouseDown.y;
@@ -955,29 +1012,29 @@ function init() {
                     }
 
                     // remove selection in birds eye view (lower opacity)
-                    for (var mesh in labelTool.cubeArray[labelTool.currentFileIndex]) {
-                        var meshObject = labelTool.cubeArray[labelTool.currentFileIndex][mesh];
+                    for (let mesh in labelTool.cubeArray[labelTool.currentFileIndex]) {
+                        let meshObject = labelTool.cubeArray[labelTool.currentFileIndex][mesh];
                         meshObject.material.opacity = 0.1;
                     }
 
                 }
                 if (clickFlag === true) {
                     clickedPlaneArray = [];
-                    var selectionIndex = labelTool.bboxIndexArray[labelTool.currentFileIndex][clickedObjectIndex];
+                    let selectionIndex = labelTool.bboxIndexArray[labelTool.currentFileIndex][clickedObjectIndex];
                     // find out in which camera view the 3d object lies -> calculate angle
-                    var channels = getChannelByPosition(annotationObjects.contents[selectionIndex]["x"], annotationObjects.contents[selectionIndex]["y"]);
-                    for (var channel in channels) {
-                        var camChannel = channels[channel];
+                    let channels = getChannelByPosition(annotationObjects.contents[selectionIndex]["x"], annotationObjects.contents[selectionIndex]["y"]);
+                    for (let channel in channels) {
+                        let camChannel = channels[channel];
                         annotationObjects.select(selectionIndex, camChannel);
                     }
 
                     clickFlag = false;
-                } else if (groundPlaneArray.length == 1) {
-                    var groundUpObject = ray.intersectObjects(groundPlaneArray);
-                    var groundUpPoint = groundUpObject[0].point;
+                } else if (groundPlaneArray.length === 1) {
+                    let groundUpObject = ray.intersectObjects(groundPlaneArray);
+                    let groundUpPoint = groundUpObject[0].point;
 
-                    var trackId = -1;
-                    var insertIndex;
+                    let trackId = -1;
+                    let insertIndex;
                     if (annotationObjects.__selectionIndex === -1) {
                         trackId = classesBoundingBox[classesBoundingBox.targetName()].nextTrackId;
                         insertIndex = annotationObjects.__insertIndex;
@@ -987,10 +1044,10 @@ function init() {
                     }
                     // set channel based on 3d position of new bonding box
                     if (Math.abs(groundUpPoint.x - groundClickedPoint.x) > 0.1) {
-                        var xPos = (groundUpPoint.x + groundClickedPoint.x) / 2;
-                        var yPos = -(groundUpPoint.y + groundClickedPoint.y) / 2;
-                        var zPos = -0.5;
-                        var addBboxParameters = {
+                        let xPos = (groundUpPoint.x + groundClickedPoint.x) / 2;
+                        let yPos = -(groundUpPoint.y + groundClickedPoint.y) / 2;
+                        let zPos = 0.5;
+                        let addBboxParameters = {
                             class: classesBoundingBox.targetName(),
                             x: xPos,
                             y: yPos,
@@ -1002,7 +1059,7 @@ function init() {
                             org: {
                                 x: (groundUpPoint.x + groundClickedPoint.x) / 2,
                                 y: -(groundUpPoint.y + groundClickedPoint.y) / 2,
-                                z: -0.5,
+                                z: zPos,
                                 width: Math.abs(groundUpPoint.x - groundClickedPoint.x),
                                 height: Math.abs(groundUpPoint.y - groundClickedPoint.y),
                                 depth: 1.0,
@@ -1028,6 +1085,7 @@ function init() {
                             // set camera to current channel
                             setCameraToChannel(channel);
                             let projectedBoundingBox = calculateProjectedBoundingBox(xPos, yPos, zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth);
+                            setCameraToBirdsEyeView();
                             addBboxParameters.channels[i].points2D = projectedBoundingBox;
                         }
                         // set 2D bounding box(es)
@@ -1122,9 +1180,10 @@ function init() {
     };
 
     guiAnnotationClasses.domElement.id = 'class-picker';
-    $('#class-picker ul li').css('background-color', '#353535');
-    $($('#class-picker ul li')[0]).css('background-color', '#525252');
-    $('#class-picker ul li').css('border-bottom', '0px');
+    let classPickerElem = $('#class-picker ul li');
+    classPickerElem.css('background-color', '#353535');
+    $(classPickerElem[0]).css('background-color', '#525252');
+    classPickerElem.css('border-bottom', '0px');
 
     // 3D BB controls
     guiOptions.add(parameters, 'download').name("Download");
@@ -1136,13 +1195,12 @@ function init() {
     $('#bounding-box-3d-menu').css('width', '290px');
     $('#bounding-box-3d-menu ul li').css('background-color', '#353535');
     // add download Annotations button
-    var downloadAnnotationsItem = $($('#bounding-box-3d-menu ul li')[0]);
-    var downloadAnnotationsDivItem = downloadAnnotationsItem.children().first();
+    let downloadAnnotationsItem = $($('#bounding-box-3d-menu ul li')[0]);
+    let downloadAnnotationsDivItem = downloadAnnotationsItem.children().first();
     downloadAnnotationsDivItem.wrap("<a href=\"\"></a>");
 
     guiOptions.open();
-    var liItems = $("#class-picker ul li");
-    liItems.each(function (i, item) {
+    classPickerElem.each(function (i, item) {
         var propNamesArray = Object.getOwnPropertyNames(classesBoundingBox);
         var color = classesBoundingBox[propNamesArray[i]].color;
         var attribute = "20px solid" + ' ' + color;
@@ -1150,6 +1208,7 @@ function init() {
         $(item).css('border-bottom', '0px');
     });
 
-    $("#label-tool-log").val("1. Draw bounding box ");
-    $("#label-tool-log").css("color", "#969696");
+    let elem = $("#label-tool-log");
+    elem.val("1. Draw bounding box ");
+    elem.css("color", "#969696");
 }

@@ -12,7 +12,7 @@ function pad(n, width, z) {
 }
 
 function request(options) {
-    if (options.type == "GET") {
+    if (options.type === "GET") {
         switch (options.url) {
             case "/labels/":
                 var responseDict = {
@@ -31,25 +31,43 @@ function request(options) {
                 options.complete(res);
                 break;
             case "/label/file_names/":
-                numFiles = 3962;
-                fileNameArray = [];
-                for (var i = 0; i < numFiles; i++) {
+                let numFiles = 3962;
+                let fileNameArray = [];
+                for (let i = 0; i < numFiles; i++) {
                     fileNameArray.push(pad(i, 6))
                 }
-                var responseDict = {
+                let responseDict = {
                     file_names: fileNameArray
                 };
                 var res = {responseText: JSON.stringify(responseDict)};
                 options.complete(res);
                 break;
             case "/label/annotations/":
-                var fileName = options.data["file_name"];
-                var res;
-                if (fileName in __labelData) {
-                    res = JSON.parse(__labelData[fileName]);
+                let fileName = options.data["file_name"];
+                var res = [];
+                if (labelTool.loadNuScenesLabels === true) {
+                    for (channelObj in labelTool.camChannels) {
+                        if (labelTool.camChannels.hasOwnProperty(channelObj){
+                            let channelObject = labelTool.camChannels[channelObj];
+                            let channel = channelObject.channel;
+                            // if (fileName in __labelData) {
+                            //     res = JSON.parse(__labelData[fileName]);
+                            // } else {
+                            let resChannel = parseAnnotationFile(fileName, channel);
+                            res.push({channel: resChannel});
+                            // }
+                        }
+
+                    }
+
                 } else {
-                    res = parseAnnotationFile(fileName);
+                    // if (fileName in __labelData) {
+                    //     res = JSON.parse(__labelData[fileName]);
+                    // } else {
+                    res = parseAnnotationFile(fileName, undefined);
+                    // }
                 }
+
                 options.success(res);
                 break;
         }
@@ -65,21 +83,34 @@ function request(options) {
                 break;
         }
     }
-};
+}
 
-function annotationFileExist(fileIndex) {
-    var url = labelTool.workBlob + '/Annotations_test/' + labelTool.fileNames[fileIndex] + '.txt';
+function annotationFileExist(fileIndex, channel) {
+    let url;
+    if (labelTool.loadNuScenesLabels === true) {
+        // load already created annotations provided by NuScenes
+        url = labelTool.workBlob + '/Annotations/' + channel + '/' + labelTool.fileNames[fileIndex] + '.txt';
+    } else {
+        // load annotations from user
+        url = labelTool.workBlob + '/Annotations_test/' + labelTool.fileNames[fileIndex] + '.txt';
+    }
+
     var http = new XMLHttpRequest();
     http.open('HEAD', url, false);
     http.send();
     return http.status != 404;
 }
 
-function parseAnnotationFile(fileName) {
+function parseAnnotationFile(fileName, channel) {
     var rawFile = new XMLHttpRequest();
     var res = [];
     try {
-        rawFile.open("GET", labelTool.workBlob + '/Annotations_test/' + fileName, false);
+        if (labelTool.loadNuScenesLabels === true) {
+            rawFile.open("GET", labelTool.workBlob + '/Annotations/' + channel + '/' + fileName, false);
+        } else {
+            rawFile.open("GET", labelTool.workBlob + '/Annotations_test/' + fileName, false);
+        }
+
     } catch (error) {
         // no labels available for this camera image
         // do not through an error message
@@ -92,7 +123,26 @@ function parseAnnotationFile(fileName) {
                 var str_list = allText.split("\n");
                 for (var i = 0; i < str_list.length; i++) {
                     var str = str_list[i].split(" ");
-                    if (str.length == 18) {
+                    if (labelTool.loadNuScenesLabels === true && str.length === 16) {
+                        res.push({
+                            class: str[0],
+                            truncated: str[1],
+                            occluded: str[2],
+                            alpha: str[3],
+                            left: str[4],
+                            top: str[5],
+                            right: str[6],
+                            bottom: str[7],
+                            height: str[8],
+                            width: str[9],
+                            length: str[10],
+                            x: str[11],
+                            y: str[12],
+                            z: str[13],
+                            rotation_y: str[14],
+                            score: str[15]
+                        });
+                    } else if (labelTool.loadNuScenesLabels === false && str.length === 18) {
                         res.push({
                             class: str[0],
                             truncated: str[1],
