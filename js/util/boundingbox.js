@@ -1,7 +1,7 @@
 function getLine(channel, pointStart, pointEnd) {
     let channelIdx = getChannelIndexByName(channel);
-    if (pointStart !== undefined && pointEnd !== undefined) {
-        let line = paperArray[channelIdx].path("M", pointStart.x, pointStart.y, "L", pointEnd.x, pointEnd.y);
+    if (pointStart !== undefined && pointEnd !== undefined && isFinite(pointStart.x) && isFinite(pointStart.y) && isFinite(pointEnd.x) && isFinite(pointEnd.y)) {
+        let line = paperArray[channelIdx].path(["M", pointStart.x, pointStart.y, "L", pointEnd.x, pointEnd.y]);
         return line;
     } else {
         return undefined;
