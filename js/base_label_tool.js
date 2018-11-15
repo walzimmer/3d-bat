@@ -1,98 +1,140 @@
+function getIndexByDimension(width, height, depth) {
+    for (let obj in annotationObjects.contents) {
+        let annotation = annotationObjects.contents[obj];
+        if (annotation.width === width && annotation.height === height && annotation.depth === depth) {
+            return annotationObjects.contents.indexOf(annotation);
+        }
+    }
+    return -1;
+}
+
 function storeAnnotations(annotations, camChannel) {
     for (let i in annotations) {
         // convert 2D bounding box to integer values
-        ["left", "right", "top", "bottom"].forEach(function (key) {
-            annotations[i][key] = parseInt(annotations[i][key]);
-        });
-        let annotation = annotations[i];
-        annotationObjects.selectEmpty();
-        let params = {
-            class: annotation.class,
-            x_img: -1,
-            y_img: -1,
-            width_img: -1,
-            height_img: -1,
-            x: -1,
-            y: -1,
-            z: -1,
-            delta_x: -1,
-            delta_y: -1,
-            delta_z: -1,
-            width: -1,
-            height: -1,
-            depth: -1,
-            yaw: parseFloat(annotation.rotation_y),
-            org: {
+        if (annotations.hasOwnProperty(i)) {
+            ["left", "right", "top", "bottom"].forEach(function (key) {
+                annotations[i][key] = parseInt(annotations[i][key]);
+            });
+            let annotation = annotations[i];
+            // annotationObjects.selectEmpty();
+            let params = {
+                class: annotation.class,
                 x: -1,
                 y: -1,
                 z: -1,
+                delta_x: -1,
+                delta_y: -1,
+                delta_z: -1,
                 width: -1,
                 height: -1,
                 depth: -1,
-                yaw: parseFloat(annotation.rotation_y)
-            },
-            trackId:'',
-            channel: '',
-            fromFile: true
-        };
-        if (labelTool.loadNuScenesLabels===true){
-            params.channel = camChannel;
-        }else{
-            params.trackId = annotation.trackId;
-            params.channel = annotation.channel;
+                yaw: parseFloat(annotation.rotation_y),
+                org: {
+                    x: -1,
+                    y: -1,
+                    z: -1,
+                    width: -1,
+                    height: -1,
+                    depth: -1,
+                    yaw: parseFloat(annotation.rotation_y)
+                },
+                trackId: -1,
+                channels: [{
+                    rect: [],
+                    projectedPoints: [],
+                    lines: [],
+                    channel: ''
+                }],
+                fromFile: true
+            };
+            let channel;
+            if (labelTool.loadNuScenesLabels === true) {
+                classesBoundingBox.add(annotation.class);
+                channel = camChannel;
+                classesBoundingBox.__target = Object.keys(classesBoundingBox.content)[0];
+                params.trackId = classesBoundingBox.content[annotation.class].nextTrackId;
+                classesBoundingBox.content[annotation.class].nextTrackId++;
+            } else {
+                params.trackId = annotation.trackId;
+                classesBoundingBox[annotation.class].nextTrackId++;
+                channel = annotation.channel;
+            }
+            params.channels[0].channel = channel;
+
+            let rect = [];
+            if (annotation.left !== 0 && annotation.top !== 0 &&
+                annotation.right !== 0 && annotation.bottom !== 0) {
+                let minPos = convertPositionToCanvas(annotation.left, annotation.top, channel);
+                let maxPos = convertPositionToCanvas(annotation.right, annotation.bottom, channel);
+                rect.push(minPos[0]);
+                rect.push(minPos[1]);
+                rect.push(maxPos[0] - minPos[0]);
+                rect.push(maxPos[1] - minPos[1]);
+                params.channels[0].rect = rect;
+            }
+
+            let readMat = matrixProduct(this.cameraMatrix, [parseFloat(annotation.x),
+                parseFloat(annotation.y),
+                parseFloat(annotation.z),
+                1]);
+            let tmpWidth = parseFloat(annotation.width);
+            let tmpHeight = parseFloat(annotation.height);
+            let tmpDepth = parseFloat(annotation.length);
+            if (tmpWidth !== 0.0 && tmpHeight !== 0.0 && tmpDepth !== 0.0) {
+                tmpWidth = Math.max(tmpWidth, 0.0001);
+                tmpHeight = Math.max(tmpHeight, 0.0001);
+                tmpDepth = Math.max(tmpDepth, 0.0001);
+                params.x = readMat[0];
+                params.y = -readMat[1];
+                params.z = readMat[2];
+                params.delta_x = 0;
+                params.delta_y = 0;
+                params.delta_z = 0;
+                params.width = tmpWidth;
+                params.height = tmpHeight;
+                params.depth = tmpDepth;
+                params.org.x = readMat[0];
+                params.org.y = -readMat[1];
+                params.org.z = readMat[2];
+                params.org.width = tmpWidth;
+                params.org.height = tmpHeight;
+                params.org.depth = tmpDepth;
+            }
+
+            // project 3D position into 2D camera image
+            params.channels[0].projectedPoints = calculateProjectedBoundingBox(params.x, params.y, params.z, params.width, params.height, params.depth, channel);
+            // calculate line segments
+            let channelObj = params.channels[0];
+            params.channels[0].lines = calculateLineSegments(channelObj);
+
+            // check if that object already exists in annotationObjects.contents array (e.g. in another channel)
+            let indexByDimension = getIndexByDimension(params.width, params.height, params.depth);
+            if (indexByDimension !== -1) {
+                // attach 2D bounding box to existing object
+                annotationObjects.add2DBoundingBox(indexByDimension, params.channels[0]);
+            } else {
+                // add new entry to contents array
+                annotationObjects.set(annotationObjects.__insertIndex, params);
+                annotationObjects.__insertIndex++;
+            }
+
+            classesBoundingBox.target().nextTrackId++;
+
+            // let channels = getChannelByPosition(annotationObjects.contents[annotationObjects.__insertIndex]["x"], annotationObjects.contents[annotationObjects.__insertIndex]["y"]);
+            // for (let channel in channels) {
+            //     if (channels.hasOwnProperty(channel)) {
+            //         let camChannel = channels[channel];
+            //         annotationObjects.select(annotationObjects.__insertIndex, camChannel);
+            //     }
+            // }
+
         }
 
-
-        if (annotation.left !== 0 && annotation.top !== 0 &&
-            annotation.right !== 0 && annotation.bottom !== 0) {
-            let minPos = convertPositionToCanvas(annotation.left, annotation.top, annotation.channel);
-            let maxPos = convertPositionToCanvas(annotation.right, annotation.bottom, annotation.channel);
-            params.x_img = minPos[0];
-            params.y_img = minPos[1];
-            params.width_img = maxPos[0] - minPos[0];
-            params.height_img = maxPos[1] - minPos[1];
-        }
-
-        let readMat = matrixProduct(this.cameraMatrix, [parseFloat(annotation.x),
-            parseFloat(annotation.y),
-            parseFloat(annotation.z),
-            1]);
-        let tmpWidth = parseFloat(annotation.width);
-        let tmpHeight = parseFloat(annotation.height);
-        let tmpDepth = parseFloat(annotation.length);
-        if (tmpWidth !== 0.0 && tmpHeight !== 0.0 && tmpDepth !== 0.0) {
-            tmpWidth = Math.max(tmpWidth, 0.0001);
-            tmpHeight = Math.max(tmpHeight, 0.0001);
-            tmpDepth = Math.max(tmpDepth, 0.0001);
-            params.x = readMat[0];
-            params.y = -readMat[1];
-            params.z = readMat[2];
-            params.delta_x = 0;
-            params.delta_y = 0;
-            params.delta_z = 0;
-            params.width = tmpWidth;
-            params.height = tmpHeight;
-            params.depth = tmpDepth;
-            params.org.x = readMat[0];
-            params.org.y = -readMat[1];
-            params.org.z = readMat[2];
-            params.org.width = tmpWidth;
-            params.org.height = tmpHeight;
-            params.org.depth = tmpDepth;
-        }
-        annotationObjects.set(annotationObjects.__insertIndex, params);
-        classesBoundingBox.target().nextTrackId++;
-
-        let channels = getChannelByPosition(annotationObjects.contents[annotationObjects.__insertIndex]["x"], annotationObjects.contents[annotationObjects.__insertIndex]["y"]);
-        for (let channel in channels) {
-            let camChannel = channels[channel];
-            annotationObjects.select(annotationObjects.__insertIndex, camChannel);
-        }
     }
-    this.setTrackIds();
+    // this.setTrackIds();
 }
 
-var labelTool = {
+let labelTool = {
     dataTypes: [],
     workBlob: '',         // Base url of blob
     currentFileIndex: 0,           // Base name of current file
@@ -117,39 +159,60 @@ var labelTool = {
         channel: 'CAM_FRONT_LEFT',
         position: [1.564, 0.472, 1.535],
         fieldOfView: 70,
-        rotationY: 305 * Math.PI / 180//305 degree
+        rotationY: 305 * Math.PI / 180,//305 degree
+        projectionMatrix: [[1.46294382e+03, -1.21764429e+02, 3.41988601e+01, 3.13159980e+03],
+            [2.74620299e+02, 3.38033937e+02, -1.25058352e+03, 1.23504517e+03],
+            [5.86538603e-01, 8.09812692e-01, 1.32616689e-02, 1.53500000e+00],
+            [0, 0, 0, 1]]
 
     }, {
         channel: 'CAM_FRONT',
         position: [1.671, -0.026, 1.536],
         fieldOfView: 70,
-        rotationY: 0 // 0 degree
+        rotationY: 0, // 0 degree
+        projectionMatrix: [[7.80646381e+02, -1.26642261e+03, 1.77618244e+01, 3.31849256e+03],
+            [4.55101190e+02, -9.16357519e+00, -1.25671033e+03, 6.39918206e+02],
+            [9.99896593e-01, -4.63590596e-03, 1.36129354e-02, 1.53600000e+00],
+            [0, 0, 0, 1]]
 
     }, {
         channel: 'CAM_FRONT_RIGHT',
         position: [1.593, -0.527, 1.526],
         fieldOfView: 70,
-        rotationY: 55 * Math.PI / 180 // 55 degree
+        rotationY: 55 * Math.PI / 180, // 55 degree
+        projectionMatrix: [[-5.79388017e+02, -1.35742984e+03, -1.20995331e+01, 3.17635912e+03],
+            [2.66817684e+02, -3.35622452e+02, -1.25955059e+03, -3.27867391e+01],
+            [5.84932270e-01, -8.11014555e-01, 1.04704634e-02, 1.52600000e+00],
+            [0, 0, 0, 1]]
     }, {
         channel: 'CAM_BACK_RIGHT',
         position: [1.042, -0.456, 1.595],
         fieldOfView: 70,
-        rotationY: 110 * Math.PI / 180 // 110 degree
+        rotationY: 110 * Math.PI / 180, // 110 degree
+        projectionMatrix: [[-1.44452071e+03, -2.57430256e+02, -1.38861808e+01, 2.51328766e+03],
+            [-1.39842190e+02, -4.03454753e+02, -1.26026627e+03, 1.10695091e+02],
+            [-3.54597523e-01, -9.35016690e-01, -2.09429354e-03, 1.59500000e+00]]
     }, {
         channel: 'CAM_BACK',
         position: [0.086, -0.007, 1.541],
         fieldOfView: 130,
         rotationY: Math.PI,//180 degree
+        projectionMatrix: [[-6.64618101e+02, 8.10082004e+02 - 1.02122175e+01, 1.11499019e+03],
+            [-4.07299290e+02, 7.11126264e+00, -8.04255860e+02, 6.40473454e+02],
+            [-9.99731565e-01, 1.77968704e-02, -1.48347542e-02, 1.54100000e+00]]
     }, {
         channel: 'CAM_BACK_LEFT',
         position: [1.055, 0.441, 1.605],
         fieldOfView: 70,
-        rotationY: 250 * Math.PI / 180 //250 degree
+        rotationY: 250 * Math.PI / 180, //250 degree
+        projectionMatrix: [[9.48541399e+02, 1.11138529e+03, 1.22555885e+01, 2.51979706e+03],
+            [-1.29712850e+02, 4.07273511e+02, -1.25671282e+03, 1.23368764e+03],
+            [-3.24931351e-01, 9.45731163e-01, 3.49054849e-03, 1.60500000e+00]]
     }],
 
     currentChannelLabel: document.getElementById('cam_channel'),
     positionLidar: [0.891067, 0.0, 1.84292],//(long, lat, vert)
-    loadNuScenesLabels: true,
+    loadNuScenesLabels: false,
     /********** Externally defined functions **********
      * Define these functions in the labeling tools.
      **************************************************/
@@ -357,16 +420,15 @@ var labelTool = {
         // Remove old bounding boxes of current frame.
         annotationObjects.clear();
         // Add new bounding boxes.
-        if (labelTool.loadNuScenesLabels){
-            for (let channelObj in labelTool.camChannels){
-                if(labelTool.camChannels.hasOwnProperty(channelObj)){
-                    let camChannel = labelTool.camChannels[channelObj];
-                    annotations = annotations[camChannel];
-                    storeAnnotations.call(this, annotations, camChannel);
+        if (labelTool.loadNuScenesLabels) {
+            for (let annotationObj in annotations) {
+                if (annotations.hasOwnProperty(annotationObj)) {
+                    let annotationObject = annotations[annotationObj];
+                    storeAnnotations.call(this, annotationObject.content, annotationObject.channel);
                 }
             }
 
-        }else{
+        } else {
             storeAnnotations.call(this, annotations, undefined);
         }
 
@@ -374,19 +436,19 @@ var labelTool = {
 
     // Create annotations from this.annotationObjects
     createAnnotations: function () {
-        var annotations = [];
-        for (var i = 0; i < annotationObjects.length; i++) {
-            var annotationObj = this.annotationObjects[i];
-            var rect = annotationObj["rect"];
-            var minPos = convertPositionToFile(rect.attr("x"), rect.attr("y"), annotationObj["channel"]);
-            var maxPos = convertPositionToFile(rect.attr("x") + rect.attr("width"),
+        let annotations = [];
+        for (let i = 0; i < annotationObjects.length; i++) {
+            let annotationObj = this.annotationObjects[i];
+            let rect = annotationObj["rect"];
+            let minPos = convertPositionToFile(rect.attr("x"), rect.attr("y"), annotationObj["channel"]);
+            let maxPos = convertPositionToFile(rect.attr("x") + rect.attr("width"),
                 rect.attr("y") + rect.attr("height"), annotationObj["channel"]);
-            var cubeMat = [this.cubeArray[this.currentFileIndex][i].position.x,
+            let cubeMat = [this.cubeArray[this.currentFileIndex][i].position.x,
                 this.cubeArray[this.currentFileIndex][i].position.y,
                 this.cubeArray[this.currentFileIndex][i].position.z,
                 1];
-            var resultMat = matrixProduct(inverseMatrix(this.cameraMatrix), cubeMat);
-            var annotation = {
+            let resultMat = matrixProduct(inverseMatrix(this.cameraMatrix), cubeMat);
+            let annotation = {
                 class: annotationObj["class"],
                 truncated: 0,
                 occluded: 3,
