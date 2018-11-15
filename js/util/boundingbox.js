@@ -1,12 +1,34 @@
-function getLine(channel, pointStart, pointEnd) {
-    let channelIdx = getChannelIndexByName(channel);
+function getLine(channelIdx, pointStart, pointEnd) {
     if (pointStart !== undefined && pointEnd !== undefined && isFinite(pointStart.x) && isFinite(pointStart.y) && isFinite(pointEnd.x) && isFinite(pointEnd.y)) {
         let line = paperArray[channelIdx].path(["M", pointStart.x, pointStart.y, "L", pointEnd.x, pointEnd.y]);
+        let color = classesBoundingBox[classesBoundingBox.__target].color;
+        line.attr("stroke", color);
         return line;
     } else {
         return undefined;
     }
+}
 
+function calculateLineSegments(channelObj) {
+    let channel = channelObj.channel;
+    let lineArray = [];
+    let channelIdx = getChannelIndexByName(channel);
+    // bottom four lines
+    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[0], channelObj.projectedPoints[1]));
+    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[1], channelObj.projectedPoints[2]));
+    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[2], channelObj.projectedPoints[3]));
+    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[3], channelObj.projectedPoints[0]));
+    // top four lines
+    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[4], channelObj.projectedPoints[5]));
+    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[5], channelObj.projectedPoints[6]));
+    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[6], channelObj.projectedPoints[7]));
+    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[7], channelObj.projectedPoints[4]));
+    // vertical lines
+    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[0], channelObj.projectedPoints[4]));
+    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[1], channelObj.projectedPoints[5]));
+    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[2], channelObj.projectedPoints[6]));
+    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[3], channelObj.projectedPoints[7]));
+    return lineArray;
 }
 
 let annotationObjects = {
@@ -61,6 +83,9 @@ let annotationObjects = {
         }
         return this.contents[index][channel];
     },
+    add2DBoundingBox: function (indexByDimension, channelObj) {
+        annotationObjects.contents[indexByDimension].channels.push(channelObj);
+    },
     set: function (insertIndex, params) {
         if (params.x !== -1 && params.y !== -1 && params.z !== -1 && params.width !== -1 && params.height !== -1 && params.depth !== -1) {
             let obj = get3DLabel(params);
@@ -78,31 +103,7 @@ let annotationObjects = {
         }
         this.contents[insertIndex]["channels"] = params.channels;
 
-        // if (params.x_img !== -1 && params.y_img !== -1 && params.width_img !== -1 && params.height_img !== -1) {
-        //     this.contents[insertIndex]["rect"] = getRect(params);
-        // }
-        for (let i = 0; i < params.channels.length; i++) {
-            var channel = params.channels[i].channel;
-            var lineArray = [];
-            // bottom four lines
-            lineArray.push(getLine(channel, params.channels[i].points2D[0], params.channels[i].points2D[1]));
-            lineArray.push(getLine(channel, params.channels[i].points2D[1], params.channels[i].points2D[2]));
-            lineArray.push(getLine(channel, params.channels[i].points2D[2], params.channels[i].points2D[3]));
-            lineArray.push(getLine(channel, params.channels[i].points2D[3], params.channels[i].points2D[0]));
-            // top four lines
-            lineArray.push(getLine(channel, params.channels[i].points2D[4], params.channels[i].points2D[5]));
-            lineArray.push(getLine(channel, params.channels[i].points2D[5], params.channels[i].points2D[6]));
-            lineArray.push(getLine(channel, params.channels[i].points2D[6], params.channels[i].points2D[7]));
-            lineArray.push(getLine(channel, params.channels[i].points2D[7], params.channels[i].points2D[4]));
-            // vertical lines
-            lineArray.push(getLine(channel, params.channels[i].points2D[0], params.channels[i].points2D[4]));
-            lineArray.push(getLine(channel, params.channels[i].points2D[1], params.channels[i].points2D[5]));
-            lineArray.push(getLine(channel, params.channels[i].points2D[2], params.channels[i].points2D[6]));
-            lineArray.push(getLine(channel, params.channels[i].points2D[3], params.channels[i].points2D[7]));
-            this.contents[insertIndex]["channels"][i]["lines"] = lineArray;
-        }
         labelTool.bboxIndexArray[labelTool.currentFileIndex].push(insertIndex.toString());
-        this.__insertIndex++;
     },
     changeClass: function (index, label) {
         if (this.contents[index] === undefined) {

@@ -7,3 +7,4 @@ function matrixProduct(inMax1, inMax2) {
     outMax[3] = inMax1[3][0] * inMax2[0] + inMax1[3][1] * inMax2[1] + inMax1[3][2] * inMax2[2] + inMax1[3][3] * inMax2[3];
     return outMax;
 }
+

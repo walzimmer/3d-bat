@@ -2,7 +2,7 @@
  *
  */
 
-var __labelData = [];
+let __labelData = [];
 
 
 function pad(n, width, z) {
@@ -13,21 +13,23 @@ function pad(n, width, z) {
 
 function request(options) {
     if (options.type === "GET") {
+        let responseDict;
+        let res;
         switch (options.url) {
             case "/labels/":
-                var responseDict = {
+                responseDict = {
                     blob: "input",
                     progress: 102
                 };
-                var res = {responseText: JSON.stringify([responseDict])};
+                res = {responseText: JSON.stringify([responseDict])};
                 options.complete(res);
                 break;
             case "/label/image_size/":
-                var responseDict = {
+                responseDict = {
                     width: 640,
                     height: 360
                 };
-                var res = {responseText: JSON.stringify(responseDict)};
+                res = {responseText: JSON.stringify(responseDict)};
                 options.complete(res);
                 break;
             case "/label/file_names/":
@@ -36,25 +38,26 @@ function request(options) {
                 for (let i = 0; i < numFiles; i++) {
                     fileNameArray.push(pad(i, 6))
                 }
-                let responseDict = {
+                responseDict = {
                     file_names: fileNameArray
                 };
-                var res = {responseText: JSON.stringify(responseDict)};
+                res = {responseText: JSON.stringify(responseDict)};
                 options.complete(res);
                 break;
             case "/label/annotations/":
                 let fileName = options.data["file_name"];
-                var res = [];
+                res = [];
                 if (labelTool.loadNuScenesLabels === true) {
-                    for (channelObj in labelTool.camChannels) {
-                        if (labelTool.camChannels.hasOwnProperty(channelObj){
+                    for (let channelObj in labelTool.camChannels) {
+                        if (labelTool.camChannels.hasOwnProperty(channelObj)) {
                             let channelObject = labelTool.camChannels[channelObj];
                             let channel = channelObject.channel;
                             // if (fileName in __labelData) {
                             //     res = JSON.parse(__labelData[fileName]);
                             // } else {
                             let resChannel = parseAnnotationFile(fileName, channel);
-                            res.push({channel: resChannel});
+                            let loadedChannelObj = {channel: channel, content: resChannel};
+                            res.push(loadedChannelObj);
                             // }
                         }
 
@@ -71,7 +74,7 @@ function request(options) {
                 options.success(res);
                 break;
         }
-    } else if (options.type == "POST") {
+    } else if (options.type === "POST") {
         switch (options.url) {
             case "/label/annotations/":
                 /* if (options.data["label_id"] == 2) {*/
@@ -95,15 +98,15 @@ function annotationFileExist(fileIndex, channel) {
         url = labelTool.workBlob + '/Annotations_test/' + labelTool.fileNames[fileIndex] + '.txt';
     }
 
-    var http = new XMLHttpRequest();
+    let http = new XMLHttpRequest();
     http.open('HEAD', url, false);
     http.send();
-    return http.status != 404;
+    return http.status !== 404;
 }
 
 function parseAnnotationFile(fileName, channel) {
-    var rawFile = new XMLHttpRequest();
-    var res = [];
+    let rawFile = new XMLHttpRequest();
+    let res = [];
     try {
         if (labelTool.loadNuScenesLabels === true) {
             rawFile.open("GET", labelTool.workBlob + '/Annotations/' + channel + '/' + fileName, false);
@@ -118,11 +121,11 @@ function parseAnnotationFile(fileName, channel) {
 
     rawFile.onreadystatechange = function () {
         if (rawFile.readyState === 4) {
-            if (rawFile.status === 200 || rawFile.status == 0) {
-                var allText = rawFile.responseText;
-                var str_list = allText.split("\n");
-                for (var i = 0; i < str_list.length; i++) {
-                    var str = str_list[i].split(" ");
+            if (rawFile.status === 200 || rawFile.status === 0) {
+                let allText = rawFile.responseText;
+                let str_list = allText.split("\n");
+                for (let i = 0; i < str_list.length; i++) {
+                    let str = str_list[i].split(" ");
                     if (labelTool.loadNuScenesLabels === true && str.length === 16) {
                         res.push({
                             class: str[0],
