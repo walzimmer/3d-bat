@@ -28,7 +28,7 @@ annotationObjects.onRemove("CAMERA", function (index) {
 
 function select(newIndex, channel) {
 
-    for (var i = 0; i < annotationObjects.contents.length; i++) {
+    for (let i = 0; i < annotationObjects.contents.length; i++) {
         // if (annotationObjects.contents[i]["rect"] !== undefined) {
         //     removeBoundingBoxHighlight(i);
         // }
@@ -59,11 +59,11 @@ function select(newIndex, channel) {
     // unhighlight bb in BEV
     for (var mesh in labelTool.cubeArray[labelTool.currentFileIndex]) {
         var meshObject = labelTool.cubeArray[labelTool.currentFileIndex][mesh];
-        meshObject.material.opacity = 0.1;
+        meshObject.material.opacity = 0.4;
     }
     // highlight selected bb in BEV
     if (labelTool.cubeArray[labelTool.currentFileIndex][newIndex] !== undefined) {
-        labelTool.cubeArray[labelTool.currentFileIndex][newIndex].material.opacity = 0.5;
+        labelTool.cubeArray[labelTool.currentFileIndex][newIndex].material.opacity = 0.8;
     }
 }
 
@@ -172,11 +172,21 @@ function changeClass(bbIndex, newClass) {
     notificationElem.css("color", "#969696");
     let annotation = annotationObjects.contents[bbIndex];
     let color = classesBoundingBox[newClass].color;
-    if (annotation["channels"][0]["lines"] !== undefined) {
-        annotation["channels"][0]["lines"].attr({stroke: color});
+    if (annotation["channels"][0]["lines"] !== undefined && annotation["channels"][0]["lines"][0] !== undefined) {
+        for (let lineObj in annotation["channels"][0]["lines"]) {
+            if (annotation["channels"][0]["lines"].hasOwnProperty(lineObj)) {
+                let line = annotation["channels"][0]["lines"][lineObj];
+                line.attr({stroke: color});
+            }
+        }
     }
-    if (annotation["channels"][1]["lines"] !== undefined) {
-        annotation["channels"][1]["lines"].attr({stroke: color});
+    if (annotation["channels"][1]["lines"] !== undefined && annotation["channels"][1]["lines"][0] !== undefined) {
+        for (let lineObj in annotation["channels"][0]["lines"]) {
+            if (annotation["channels"][0]["lines"].hasOwnProperty(lineObj)) {
+                let line = annotation["channels"][0]["lines"][lineObj];
+                line.attr({stroke: color});
+            }
+        }
     }
     let textBox;
     if (annotation["channels"][0]["textBox"] !== undefined) {
