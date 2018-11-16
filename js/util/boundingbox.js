@@ -3,6 +3,7 @@ function getLine(channelIdx, pointStart, pointEnd) {
         let line = paperArray[channelIdx].path(["M", pointStart.x, pointStart.y, "L", pointEnd.x, pointEnd.y]);
         let color = classesBoundingBox[classesBoundingBox.__target].color;
         line.attr("stroke", color);
+        line.attr("stroke-width", 3);
         return line;
     } else {
         return undefined;
@@ -110,6 +111,13 @@ let annotationObjects = {
             return false;
         }
         this.contents[index]["class"] = label;
+        for (let channelObj in labelTool.camChannels) {
+            if (labelTool.camChannels.hasOwnProperty(channelObj)) {
+                let channelObject = labelTool.camChannels[channelObj];
+                this.localOnChangeClass[channelObject.channel](index, label);
+
+            }
+        }
         this.localOnChangeClass["PCD"](index, label);
     },
     expand: function (label, trackId, fromFile) {
