@@ -1,28 +1,46 @@
 import numpy as np
 from pyquaternion import Quaternion
 
-# FRONT
-translation_vector = np.array([1.671, -0.026, 1.536])
-rotation_angles = [0.5008123506024099, -0.496820732721925, 0.4963493647221966, -0.5059579598757297]
-rotation_matrix = Quaternion(rotation_angles).rotation_matrix.T
-camera_intrinsic_matrix = np.array([[1262.8093578767177, 0.0, 786.6784634591471],
-                                    [0.0, 1262.8093578767177, 437.9890946201144],
-                                    [0.0, 0.0, 1.0]])
-camera_extrinsic_matrix_one = np.zeros((3, 4))
+# Move box to ego vehicle coord system
+# translation_vector_lidar_to_ego = np.array([-2149.4598476, -603.30611945, -0.0, 1]).T
+# rotation_matrix_lidar_to_ego = np.array([[9.98896126e-01, 4.48865788e-02, -1.38464777e-02],
+#                                          [-4.48842493e-02, 9.98992079e-01, 4.79106899e-04],
+#                                          [1.38540271e-02, 1.42910733e-04, 9.99904018e-01]])
+# transformation_matrix_lidar_to_ego = np.zeros((4, 4))
+# transformation_matrix_lidar_to_ego[:3, :3] = rotation_matrix_lidar_to_ego
+# transformation_matrix_lidar_to_ego[:, 3] = translation_vector_lidar_to_ego
+#
+# #  Move box to sensor coord system
+# translation_vector_ego_to_sensor = np.array([-0.086, 0.007, -1.541, 1]).T
+# rotation_matrix_ego_to_sensor = np.array([[1.78014178e-02, 9.99841527e-01, -1.74532924e-04],
+#                                           [1.48292972e-02, -4.38565732e-04, -9.99889944e-01],
+#                                           [-9.99731565e-01, 1.77968704e-02, -1.48347542e-02]])
+# transformation_matrix_ego_to_sensor = np.zeros((4, 4))
+# transformation_matrix_ego_to_sensor[:3, :3] = rotation_matrix_ego_to_sensor
+# transformation_matrix_ego_to_sensor[:, 3] = translation_vector_ego_to_sensor
 
-camera_extrinsic_matrix_two = np.matmul(rotation_matrix.T, translation_vector.T)  # 3x1
-camera_extrinsic_matrix_one[:3, :3] = rotation_matrix
-camera_extrinsic_matrix_one[:, 3] = camera_extrinsic_matrix_two
-print(camera_extrinsic_matrix_one)
-projection_matrix = np.matmul(camera_intrinsic_matrix, camera_extrinsic_matrix_one)
-print(projection_matrix)
+# FRONT
+# translation_vector = np.array([1.671, -0.026, 1.536]).T
+# rotation_angles = [0.5008123506024099, -0.496820732721925, 0.4963493647221966, -0.5059579598757297]
+# rotation_matrix = Quaternion(rotation_angles).rotation_matrix.T
+# camera_intrinsic_matrix = np.array([[1262.8093578767177, 0.0, 786.6784634591471],
+#                                     [0.0, 1262.8093578767177, 437.9890946201144],
+#                                     [0.0, 0.0, 1.0]])
+# camera_extrinsic_matrix_one = np.zeros((3, 4))
+#
+# camera_extrinsic_matrix_two = np.matmul(rotation_matrix.T, translation_vector.T)  # 3x1
+# camera_extrinsic_matrix_one[:3, :3] = rotation_matrix
+# camera_extrinsic_matrix_one[:, 3] = camera_extrinsic_matrix_two
+# print(camera_extrinsic_matrix_one)
+# projection_matrix = np.matmul(camera_intrinsic_matrix, camera_extrinsic_matrix_one)
+# print(projection_matrix)
 # [[7.80646381e+02 - 1.26642261e+03  1.77618244e+01  3.31849256e+03]
 #  [4.55101190e+02 - 9.16357519e+00 - 1.25671033e+03  6.39918206e+02]
 # [9.99896593e-01 - 4.63590596e-03
 # 1.36129354e-02
 # 1.53600000e+00]]
 
-# translation_vector = np.array([1.671, -0.026, 1.536])
+# translation_vector = np.array([1.671, -0.026, 1.536]).T
 # rotation_angles = [0.5008123506024099, -0.496820732721925, 0.4963493647221966, -0.5059579598757297]
 # rotation_matrix = Quaternion(rotation_angles).rotation_matrix.T
 # camera_intrinsic_matrix = np.array([[1262.8093578767177, 0.0, 786.6784634591471],
@@ -36,7 +54,7 @@ print(projection_matrix)
 # print(projection_matrix)
 
 # # FRONT_LEFT
-# translation_vector = -np.array([1.564, 0.472, 1.535])
+# translation_vector = -np.array([1.564, 0.472, 1.535]).T
 # rotation_angles = [0.6749672883132785, -0.6702326464493555, 0.21013653934841947, -0.2259424576550029]
 # rotation_matrix = Quaternion(rotation_angles).rotation_matrix.T
 # camera_intrinsic_matrix = np.array([[1256.4720761102153, 0.0, 759.9201772536986],
@@ -49,21 +67,20 @@ print(projection_matrix)
 # projection_matrix = np.matmul(camera_intrinsic_matrix, camera_extrinsic_matrix_one)
 # print(projection_matrix)
 
-# translation_vector = np.array([1.564, 0.472, 1.535])
-# rotation_angles = [0.6749672883132785, -0.6702326464493555, 0.21013653934841947, -0.2259424576550029]
-# rotation_matrix = Quaternion(rotation_angles).rotation_matrix
-# camera_intrinsic_matrix = np.array([[1256.4720761102153, 0.0, 759.9201772536986],
-#                                     [0.0, 1256.472076110215, 418.2347543062189],
-#                                     [0.0, 0.0, 1.0]])
-# camera_extrinsic_matrix = np.zeros((3, 4))
-# camera_extrinsic_matrix[:3, :3] = rotation_matrix
-# camera_extrinsic_matrix[:, 3] = translation_vector
-# print(camera_extrinsic_matrix)
-# projection_matrix = np.matmul(camera_intrinsic_matrix, camera_extrinsic_matrix)
-# print(projection_matrix)
+translation_vector = np.array([1.564, 0.472, 1.535]).T
+rotation_angles = [0.6749672883132785, -0.6702326464493555, 0.21013653934841947, -0.2259424576550029]
+rotation_matrix = Quaternion(rotation_angles).rotation_matrix
+camera_intrinsic_matrix = np.array([[1256.4720761102153, 0.0, 759.9201772536986],
+                                    [0.0, 1256.472076110215, 418.2347543062189],
+                                    [0.0, 0.0, 2.5]]) / 2.5
+camera_extrinsic_matrix = np.zeros((3, 4))
+camera_extrinsic_matrix[:3, :3] = rotation_matrix
+camera_extrinsic_matrix[:, 3] = translation_vector
+projection_matrix = np.matmul(camera_intrinsic_matrix, camera_extrinsic_matrix)
+print(projection_matrix)
 
 # # FRONT_RIGHT
-# translation_vector = np.array([1.593, -0.527, 1.526])
+# translation_vector = np.array([1.593, -0.527, 1.526]).T
 # rotation_angles = [0.22383629788979093,
 #                    -0.21087341359410547,
 #                    0.6710418554409988,
@@ -83,7 +100,7 @@ print(projection_matrix)
 # CAM_BACK_RIGHT
 # translation_vector = np.array([1.042,
 #                                -0.456,
-#                                1.595])
+#                                1.595]).T
 # rotation_angles = [0.12392664517942022,
 #                    -0.13099150918735702,
 #                    -0.6956208531150481,
@@ -92,6 +109,7 @@ print(projection_matrix)
 # camera_intrinsic_matrix = np.array([[1259.4297629105833, 0.0, 752.9541347831612],
 #                                     [0.0, 1259.4297629105833, 429.46398926977497],
 #                                     [0.0, 0.0, 1.0]])
+
 # camera_extrinsic_matrix = np.zeros((3, 4))
 # camera_extrinsic_matrix[:3, :3] = rotation_matrix
 # camera_extrinsic_matrix[:, 3] = translation_vector
@@ -100,28 +118,32 @@ print(projection_matrix)
 # print(projection_matrix)
 
 # CAM_BACK
-# translation_vector = np.array([0.086,
-#                                -0.007,
-#                                1.541])
+# position of back camera relative to ego vehicle/body_rp frame (IMU)
+# translation_vector_imu_to_sensor = np.array([0.086, -0.007, 1.541]).T
 # rotation_angles = [0.5006316254997311,
 #                    -0.508201421131807,
 #                    -0.49914796672300266,
 #                    0.49188474099671065]
-# rotation_matrix = Quaternion(rotation_angles).rotation_matrix.T
+# rotation_matrix_imu_to_sensor = Quaternion(rotation_angles).rotation_matrix
 # camera_intrinsic_matrix = np.array([[798.1242652672415, 0.0, 679.0081140747895],
 #                                     [0.0, 798.1242652672414, 419.2474525237902],
-#                                     [0.0, 0.0, 1.0]])
+#                                     [0.0, 0.0, 2.5]]) / 2.5
 # camera_extrinsic_matrix = np.zeros((3, 4))
-# camera_extrinsic_matrix[:3, :3] = rotation_matrix
-# camera_extrinsic_matrix[:, 3] = translation_vector
-# print(camera_extrinsic_matrix)
+# camera_extrinsic_matrix[:3, :3] = rotation_matrix_imu_to_sensor
+# camera_extrinsic_matrix[:, 3] = translation_vector_imu_to_sensor
 # projection_matrix = np.matmul(camera_intrinsic_matrix, camera_extrinsic_matrix)
+
+# calculate final transformation matrix (extrinsic matrix)
+# transformation_matrix_lidar_to_sensor = np.matmul(transformation_matrix_ego_to_sensor,
+#                                                   transformation_matrix_lidar_to_ego)
+# transformation_matrix_lidar_to_sensor = transformation_matrix_lidar_to_sensor[0:3, :]
+# projection_matrix = np.matmul(camera_intrinsic_matrix, transformation_matrix_lidar_to_sensor)
 # print(projection_matrix)
 
 # CAM_BACK_LEFT
 # translation_vector = np.array([1.055,
 #                                0.441,
-#                                1.605])
+#                                1.605]).T
 # rotation_angles = [0.6991074021274409,
 #                    -0.6957784949830705,
 #                    -0.11894121100606163,
@@ -140,7 +162,7 @@ print(projection_matrix)
 # CAM_BACK_LEFT
 # translation_vector = np.array([1.055,
 #                                0.441,
-#                                1.605])
+#                                1.605]).T
 # rotation_angles = [0.6991074021274409,
 #                    -0.6957784949830705,
 #                    -0.11894121100606163,

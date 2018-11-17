@@ -38,19 +38,19 @@
             <li class="label-header-item label-header-column">
                 <ul class="file-select">
                     <!--<li class="label-header-item">-->
-                        <!--<button id="previous-cam-channel-button" class="file-select-left-button"-->
-                                <!--onClick="labelTool.previousCamChannel()">-->
-                            <!--<i class="material-icons">chevron_left</i>-->
-                        <!--</button>-->
+                    <!--<button id="previous-cam-channel-button" class="file-select-left-button"-->
+                    <!--onClick="labelTool.previousCamChannel()">-->
+                    <!--<i class="material-icons">chevron_left</i>-->
+                    <!--</button>-->
                     <!--</li>-->
                     <!--<li class="label-header-item">-->
-                        <!--<p class="black-input file-select-input" id="cam_channel">CAM_FRONT</p>-->
+                    <!--<p class="black-input file-select-input" id="cam_channel">CAM_FRONT</p>-->
                     <!--</li>-->
                     <!--<li class="label-header-item">-->
-                        <!--<button id="next-cam-channel-button" class="file-select-right-button"-->
-                                <!--onClick="labelTool.nextCamChannel()">-->
-                            <!--<i class="material-icons">chevron_right</i>-->
-                        <!--</button>-->
+                    <!--<button id="next-cam-channel-button" class="file-select-right-button"-->
+                    <!--onClick="labelTool.nextCamChannel()">-->
+                    <!--<i class="material-icons">chevron_right</i>-->
+                    <!--</button>-->
                     <!--</li>-->
                     <li class="label-header-item">
                         <button id="previous-frame-button" class="file-select-left-button"
@@ -92,13 +92,13 @@
     </div>
     <div id="label-tool-wrapper">
         <!--<div class="jpeg-label-sidebar second">-->
-            <!--<div class="jpeg-label-sidebar-header">-->
-                <!--<p class="jpeg-label-sidebar-header-text">ID | IMAGE | PCD</p>-->
-            <!--</div>-->
-            <!--<div id="jpeg-label-sidebar-body">-->
-                <!--<ul class="jpeg-label-sidebar-list" id="bbox-table">-->
-                <!--</ul>-->
-            <!--</div>-->
+        <!--<div class="jpeg-label-sidebar-header">-->
+        <!--<p class="jpeg-label-sidebar-header-text">ID | IMAGE | PCD</p>-->
+        <!--</div>-->
+        <!--<div id="jpeg-label-sidebar-body">-->
+        <!--<ul class="jpeg-label-sidebar-list" id="bbox-table">-->
+        <!--</ul>-->
+        <!--</div>-->
         <!--</div>-->
         <div id="canvas3d" style="z-index: 0; background-color: #000000;"></div>
         <div id="jpeg-label-canvas-front-left"></div>
@@ -143,11 +143,9 @@
     <script src='js/pcd_label_tool.js?ver=1.0'></script>
     <script src="js/image_label_tool.js?ver=1.0"></script>
     <script src='js/util/ajax_wrapper.js?ver=1.0'></script>
-    <script src='js/main.js?ver=1.0'></script>
-    <!--<script type="text/javascript">-->
-        <!--labelTool.setParameters(1);-->
-        <!--labelTool.getInformation();-->
-    <!--</script>-->
+    <script type="text/javascript">
+        labelTool.start();
+    </script>
 </div>
 </body>
 </html>

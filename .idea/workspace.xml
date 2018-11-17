@@ -2,13 +2,21 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="428d2e24-9b74-4b18-97ad-d2e286a506fa" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/scripts/nuscenes_devkit/python-sdk/examples/draw_2d_bb.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/nuscenes_devkit/python-sdk/examples/print_sensor_position.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/nuscenes_devkit/python-sdk/nuscenes_utils/projectBoundingBox.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/input/Annotations/CAM_FRONT/000000.txt" beforeDir="false" afterPath="$PROJECT_DIR$/input/Annotations/CAM_FRONT/000000.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/base_label_tool.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/base_label_tool.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/image_label_tool.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/image_label_tool.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/main.js" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/js/pcd_label_tool.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/pcd_label_tool.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/util/boundingbox.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/util/boundingbox.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/util/classesBoundingBox.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/util/classesBoundingBox.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/util/bbox_table.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/util/math.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/util/math.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/extract_labels.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/extract_labels.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/nuscenes_devkit/python-sdk/examples/calculateProjectionMatrices.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/nuscenes_devkit/python-sdk/examples/calculateProjectionMatrices.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/nuscenes_devkit/python-sdk/nuscenes_utils/geometry_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/nuscenes_devkit/python-sdk/nuscenes_utils/geometry_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/nuscenes_devkit/python-sdk/nuscenes_utils/nuscenes.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/nuscenes_devkit/python-sdk/nuscenes_utils/nuscenes.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -35,27 +43,27 @@
         <counts>
           <entry key="css" value="20" />
           <entry key="gitignore" value="1" />
-          <entry key="html" value="30" />
+          <entry key="html" value="31" />
           <entry key="ipynb" value="6" />
-          <entry key="jpg" value="19" />
-          <entry key="js" value="158" />
+          <entry key="jpg" value="22" />
+          <entry key="js" value="165" />
           <entry key="md" value="5" />
           <entry key="pcd" value="5" />
           <entry key="png" value="4" />
           <entry key="py" value="3" />
           <entry key="ts" value="9" />
-          <entry key="txt" value="108" />
+          <entry key="txt" value="110" />
           <entry key="yml" value="5" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="CSS" value="20" />
-          <entry key="HTML" value="30" />
-          <entry key="Image" value="23" />
-          <entry key="JavaScript" value="158" />
+          <entry key="HTML" value="31" />
+          <entry key="Image" value="26" />
+          <entry key="JavaScript" value="165" />
           <entry key="Markdown" value="5" />
-          <entry key="PLAIN_TEXT" value="123" />
+          <entry key="PLAIN_TEXT" value="125" />
           <entry key="TypeScript" value="9" />
           <entry key="YAML" value="5" />
         </counts>
@@ -64,21 +72,21 @@
         <counts>
           <entry key="css" value="794" />
           <entry key="gitignore" value="41" />
-          <entry key="html" value="691" />
+          <entry key="html" value="696" />
           <entry key="ipynb" value="1" />
-          <entry key="js" value="49907" />
+          <entry key="js" value="50583" />
           <entry key="md" value="995" />
-          <entry key="txt" value="385" />
+          <entry key="txt" value="412" />
           <entry key="yml" value="70" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="CSS" value="794" />
-          <entry key="HTML" value="691" />
-          <entry key="JavaScript" value="49907" />
+          <entry key="HTML" value="696" />
+          <entry key="JavaScript" value="50583" />
           <entry key="Markdown" value="995" />
-          <entry key="PLAIN_TEXT" value="427" />
+          <entry key="PLAIN_TEXT" value="454" />
           <entry key="YAML" value="70" />
         </counts>
       </usages-collector>
@@ -86,29 +94,20 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/js/base_label_tool.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="363">
-              <caret line="212" column="25" selection-start-line="212" selection-start-column="25" selection-end-line="212" selection-end-column="25" />
+            <state relative-caret-position="264">
+              <caret line="162" column="26" selection-start-line="162" selection-start-column="26" selection-end-line="162" selection-end-column="26" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/input/calibration.yml">
+        <entry file="file://$PROJECT_DIR$/js/image_label_tool.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="276">
-              <caret line="12" column="53" selection-start-line="12" selection-start-column="53" selection-end-line="12" selection-end-column="53" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/js/util/boundingbox.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="92">
-              <caret line="4" column="11" selection-start-line="4" selection-start-column="11" selection-end-line="4" selection-end-column="11" />
+            <state relative-caret-position="415">
+              <caret line="889" column="1" lean-forward="true" selection-start-line="889" selection-start-column="1" selection-end-line="889" selection-end-column="1" />
             </state>
           </provider>
         </entry>
@@ -123,58 +122,52 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/js/util/math.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="23">
+              <caret line="1" column="12" selection-start-line="1" selection-start-column="12" selection-end-line="1" selection-end-column="12" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/js/util/boundingbox.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-3841">
+              <caret line="4" column="11" selection-start-line="4" selection-start-column="11" selection-end-line="4" selection-end-column="11" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/js/pcd_label_tool.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="337">
-              <caret line="764" column="45" selection-start-line="764" selection-start-column="45" selection-end-line="764" selection-end-column="45" />
+            <state relative-caret-position="452">
+              <caret line="825" column="75" lean-forward="true" selection-start-line="825" selection-start-column="75" selection-end-line="825" selection-end-column="75" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/js/lib/three.js">
+        <entry file="file://$PROJECT_DIR$/js/util/ajax_wrapper.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="199">
-              <caret line="8362" column="30" selection-start-line="8362" selection-start-column="30" selection-end-line="8362" selection-end-column="30" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/js/lib/three.min.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="101">
-              <caret line="311" column="487" selection-start-line="311" selection-start-column="487" selection-end-line="311" selection-end-column="487" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/input/Annotations/CAM_FRONT_LEFT/000000.txt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="253">
-              <caret line="11" column="158" selection-start-line="11" selection-start-column="117" selection-end-line="11" selection-end-column="158" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/index.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="506">
-              <caret line="148" column="42" lean-forward="true" selection-start-line="148" selection-start-column="42" selection-end-line="148" selection-end-column="42" />
+            <state relative-caret-position="-592">
+              <caret line="73" column="25" selection-start-line="73" selection-start-column="25" selection-end-line="73" selection-end-column="25" />
               <folding>
-                <element signature="n#li#1;n#ul#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" />
+                <element signature="n#!!doc" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/js/image_label_tool.js">
+        <entry file="file://$PROJECT_DIR$/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="231">
-              <caret line="197" column="15" selection-start-line="197" selection-start-column="15" selection-end-line="197" selection-end-column="15" />
+            <state relative-caret-position="3174">
+              <caret line="141" column="57" lean-forward="true" selection-start-line="141" selection-start-column="57" selection-end-line="141" selection-end-column="57" />
+              <folding>
+                <element signature="n#li#1;n#ul#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -183,11 +176,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>calibration.yml</find>
-      <find>calculatepro</find>
-      <find>positionlidar</find>
-      <find>prism</find>
-      <find>on</find>
       <find>opacity</find>
       <find>getchann</find>
       <find>getchannelby</find>
@@ -210,9 +198,14 @@
       <find>annotationobjects.set(</find>
       <find>yaw</find>
       <find>lidar</find>
-      <find>rotate</find>
       <find>Rotate</find>
+      <find>channelbypo</find>
+      <find>cornerpo</find>
       <find>onchange</find>
+      <find>calculatep</find>
+      <find>d</find>
+      <find>var</find>
+      <find>rotate</find>
     </findStrings>
     <replaceStrings>
       <replace>#</replace>
@@ -244,7 +237,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/input/Annotations/000007.txt" />
         <option value="$PROJECT_DIR$/input/Annotations/000006.txt" />
         <option value="$PROJECT_DIR$/input/Annotations/000005.txt" />
         <option value="$PROJECT_DIR$/input/Annotations/000004.txt" />
@@ -284,15 +276,16 @@
         <option value="$PROJECT_DIR$/js/util/workspace.js" />
         <option value="$PROJECT_DIR$/css/label_tool.css" />
         <option value="$PROJECT_DIR$/input/Annotations_test/000000.txt" />
-        <option value="$PROJECT_DIR$/index.html" />
-        <option value="$PROJECT_DIR$/js/main.js" />
         <option value="$PROJECT_DIR$/input/Annotations/CAM_FRONT_RIGHT/000000.txt" />
         <option value="$PROJECT_DIR$/js/util/ajax_wrapper.js" />
         <option value="$PROJECT_DIR$/input/calibration.yml" />
-        <option value="$PROJECT_DIR$/js/util/math.js" />
         <option value="$PROJECT_DIR$/js/util/boundingbox.js" />
-        <option value="$PROJECT_DIR$/js/image_label_tool.js" />
         <option value="$PROJECT_DIR$/js/util/classesBoundingBox.js" />
+        <option value="$PROJECT_DIR$/input/Annotations/CAM_BACK/000000.txt" />
+        <option value="$PROJECT_DIR$/js/util/math.js" />
+        <option value="$PROJECT_DIR$/js/image_label_tool.js" />
+        <option value="$PROJECT_DIR$/js/main.js" />
+        <option value="$PROJECT_DIR$/index.html" />
         <option value="$PROJECT_DIR$/js/pcd_label_tool.js" />
         <option value="$PROJECT_DIR$/js/base_label_tool.js" />
       </list>
@@ -336,42 +329,6 @@
             <path>
               <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="b2602c69:ProjectViewProjectNode" />
               <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="462c0819:PsiDirectoryNode" />
-              <item name="css" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="b2602c69:ProjectViewProjectNode" />
-              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="462c0819:PsiDirectoryNode" />
-              <item name="input" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="b2602c69:ProjectViewProjectNode" />
-              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="462c0819:PsiDirectoryNode" />
-              <item name="input" type="462c0819:PsiDirectoryNode" />
-              <item name="Annotations" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="b2602c69:ProjectViewProjectNode" />
-              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="462c0819:PsiDirectoryNode" />
-              <item name="input" type="462c0819:PsiDirectoryNode" />
-              <item name="Annotations_test" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="b2602c69:ProjectViewProjectNode" />
-              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="462c0819:PsiDirectoryNode" />
-              <item name="input" type="462c0819:PsiDirectoryNode" />
-              <item name="Annotations_test" type="462c0819:PsiDirectoryNode" />
-              <item name="CAM_FRONT" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="b2602c69:ProjectViewProjectNode" />
-              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="462c0819:PsiDirectoryNode" />
-              <item name="input" type="462c0819:PsiDirectoryNode" />
-              <item name="Annotations_test" type="462c0819:PsiDirectoryNode" />
-              <item name="CAM_FRONT_RIGHT" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="b2602c69:ProjectViewProjectNode" />
-              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="462c0819:PsiDirectoryNode" />
               <item name="js" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -379,6 +336,11 @@
               <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="462c0819:PsiDirectoryNode" />
               <item name="js" type="462c0819:PsiDirectoryNode" />
               <item name="util" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="b2602c69:ProjectViewProjectNode" />
+              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="462c0819:PsiDirectoryNode" />
+              <item name="output" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -453,12 +415,12 @@
       <workItem from="1541040235091" duration="33021000" />
       <workItem from="1541361164788" duration="56830000" />
       <workItem from="1541715237228" duration="164314000" />
-      <workItem from="1542214862068" duration="41501000" />
+      <workItem from="1542214862068" duration="61864000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="537167000" />
+    <option name="totallyTimeSpent" value="557530000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -482,7 +444,7 @@
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" weight="0.32937366" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.3286638" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Database Changes" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="9" show_stripe_button="false" />
@@ -501,17 +463,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/img/background.png">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/input/Annotations_test/CAM_BACK/000000.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="115">
-          <caret line="5" column="45" selection-start-line="5" selection-start-column="45" selection-end-line="5" selection-end-column="45" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/js/util/keypoint.js" />
     <entry file="file://$PROJECT_DIR$/input/Annotations_test/CAM_FRONT_LEFT/000000.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="138">
@@ -640,13 +591,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/js/util/bbox_table.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="115">
-          <caret line="5" column="42" lean-forward="true" selection-start-line="5" selection-start-column="42" selection-end-line="5" selection-end-column="42" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/js/util/workspace.js" />
     <entry file="file://$PROJECT_DIR$/js/lib/jquery-ui.min.js">
       <provider selected="true" editor-type-id="text-editor">
@@ -710,33 +654,6 @@
     <entry file="file://$PROJECT_DIR$/input/JPEGImages/CAM_FRONT_RIGHT/000000.jpg">
       <provider selected="true" editor-type-id="images" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/js/main.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="92">
-          <caret line="6" column="13" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/js/util/ajax_wrapper.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="677">
-          <caret line="73" column="25" selection-start-line="73" selection-start-column="25" selection-end-line="73" selection-end-column="25" />
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/js/util/math.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="230">
-          <caret line="10" selection-start-line="10" selection-end-line="10" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/input/Annotations/CAM_FRONT_LEFT/000001.txt">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -746,9 +663,6 @@
           <caret line="5" column="22" selection-start-line="5" selection-start-column="22" selection-end-line="5" selection-end-column="22" />
         </state>
       </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/input/JPEGImages/CAM_FRONT/000000.jpg">
-      <provider selected="true" editor-type-id="images" />
     </entry>
     <entry file="file://$PROJECT_DIR$/input/JPEGImages/CAM_FRONT_LEFT/000000.jpg">
       <provider selected="true" editor-type-id="images" />
@@ -767,19 +681,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/js/util/boundingbox.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="92">
-          <caret line="4" column="11" selection-start-line="4" selection-start-column="11" selection-end-line="4" selection-end-column="11" />
-        </state>
-      </provider>
+    <entry file="file://$PROJECT_DIR$/output/000000.jpg">
+      <provider selected="true" editor-type-id="images" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/js/image_label_tool.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="231">
-          <caret line="197" column="15" selection-start-line="197" selection-start-column="15" selection-end-line="197" selection-end-column="15" />
-        </state>
-      </provider>
+    <entry file="file://$PROJECT_DIR$/input/JPEGImages/CAM_BACK/000000.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/input/JPEGImages/CAM_FRONT/000000.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/input/Annotations/CAM_BACK/000000.txt">
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/js/lib/three.min.js">
       <provider selected="true" editor-type-id="text-editor">
@@ -795,6 +707,50 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/js/util/bbox_table.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="115">
+          <caret line="5" column="42" lean-forward="true" selection-start-line="5" selection-start-column="42" selection-end-line="5" selection-end-column="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/image_label_tool.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="415">
+          <caret line="889" column="1" lean-forward="true" selection-start-line="889" selection-start-column="1" selection-end-line="889" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/main.js">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3174">
+          <caret line="141" column="57" lean-forward="true" selection-start-line="141" selection-start-column="57" selection-end-line="141" selection-end-column="57" />
+          <folding>
+            <element signature="n#li#1;n#ul#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/util/ajax_wrapper.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-592">
+          <caret line="73" column="25" selection-start-line="73" selection-start-column="25" selection-end-line="73" selection-end-column="25" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/util/boundingbox.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-3841">
+          <caret line="4" column="11" selection-start-line="4" selection-start-column="11" selection-end-line="4" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/js/util/classesBoundingBox.js">
       <provider selected="true" editor-type-id="text-editor">
         <state>
@@ -802,27 +758,24 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/js/util/math.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="12" selection-start-line="1" selection-start-column="12" selection-end-line="1" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/js/pcd_label_tool.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="337">
-          <caret line="764" column="45" selection-start-line="764" selection-start-column="45" selection-end-line="764" selection-end-column="45" />
+        <state relative-caret-position="452">
+          <caret line="825" column="75" lean-forward="true" selection-start-line="825" selection-start-column="75" selection-end-line="825" selection-end-column="75" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/js/base_label_tool.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="363">
-          <caret line="212" column="25" selection-start-line="212" selection-start-column="25" selection-end-line="212" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="506">
-          <caret line="148" column="42" lean-forward="true" selection-start-line="148" selection-start-column="42" selection-end-line="148" selection-end-column="42" />
-          <folding>
-            <element signature="n#li#1;n#ul#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" />
-          </folding>
+        <state relative-caret-position="264">
+          <caret line="162" column="26" selection-start-line="162" selection-start-column="26" selection-end-line="162" selection-end-column="26" />
         </state>
       </provider>
     </entry>
