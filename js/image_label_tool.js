@@ -322,26 +322,26 @@ function setAction(e) {
 
 function addEventsToImage(img) {
     img.mousemove(function (e) {
-        var e2 = convertPositionToPaper(e);
+        let e2 = convertPositionToPaper(e);
         mouseX = e.offsetX;
         mouseY = e.offsetY;
         setAction(e2);
     });
 
     img.mousedown(function (e) {
-        var e2 = convertPositionToPaper(e);
+        let e2 = convertPositionToPaper(e);
         // 3: rightclick
         if (e2.which != 3 || isDragging) {
             return;
         }
-        var clickedBBIndex = getClickedIndex(e2);
+        let clickedBBIndex = getClickedIndex(e2);
         if (clickedBBIndex != -1) {
             annotationObjects.remove(clickedBBIndex);
             annotationObjects.selectEmpty();
         } else {
             // no bounding box was selected
             // remove selection from current target
-            var selectedBBIndex = annotationObjects.getSelectionIndex();
+            let selectedBBIndex = annotationObjects.getSelectionIndex();
             // removeBoundingBoxHighlight(selectedBBIndex);
             removeTextBox(selectedBBIndex);
         }
@@ -864,7 +864,7 @@ function addTextBox(bbIndex, camChannel) {
 }
 
 function removeTextBox(index) {
-    var bbox = annotationObjects.contents[index];
+    let bbox = annotationObjects.contents[index];
     if (bbox["textBox"] === undefined) {
         return;
     }
@@ -874,8 +874,8 @@ function removeTextBox(index) {
 }
 
 function bboxString(index, label) {
-    var firstLetterOfClass = label.charAt(0);
-    var trackId = index + 1;
+    let firstLetterOfClass = label.charAt(0);
+    let trackId = index + 1;
     return "#" + firstLetterOfClass + trackId.toString() + " " + label;
     // TODO: adjust text length corresponding to font size
     // if (fontSize === 15) {
@@ -883,8 +883,8 @@ function bboxString(index, label) {
 }
 
 function adjustTextBox(index) {
-    var rect = annotationObjects.contents[index]["rect"];
-    var textBox = annotationObjects.contents[index]["textBox"];
+    let rect = annotationObjects.contents[index]["rect"];
+    let textBox = annotationObjects.contents[index]["textBox"];
     textBox["text"].attr({x: rect.attr("x"), y: rect.attr("y") - fontSize / 2});
     textBox["box"].attr({x: rect.attr("x"), y: rect.attr("y") - fontSize - 1});
 }
