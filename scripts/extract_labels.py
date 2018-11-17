@@ -17,6 +17,8 @@ for idx, sample in enumerate(nusc.sample):
 
     selected_data = {}
     for channel, sample_data_token in sample_data_record['data'].items():
+        if channel != 'CAM_BACK':
+            continue
         sd_record = nusc.get('sample_data', sample_data_token)
         sensor_modality = sd_record['sensor_modality']
         if sensor_modality in ['lidar', 'camera']:
@@ -41,13 +43,17 @@ for idx, sample in enumerate(nusc.sample):
                     rotation_y = box.orientation.angle
 
                     if sensor_modality == 'camera':
-                        # TODO: project 3d corner points into image to calculate 2D bounding box
                         camera_token = sample['data'][channel]
                         cam = nusc.get('sample_data', camera_token)
                         cs_record = nusc.get('calibrated_sensor', cam['calibrated_sensor_token'])
                         corners_3d = box.corners()  # box.z8 3D points in numpy format
                         # 1. parameter: 3D points 3xN
                         # 2. parameter: camera matrix
+                        # write labels that reside in point cloud space
+                        # TODO: 1. transform labels from point cloud space to ego vehicle space for timestamp of sweep
+                        # TODO: 2. transform labels from ego vehicle frame to global frame
+                        # TODO: 3. transform labels from global frame to ego vehicle frame for timestamp of image
+                        # TODO: 4. transform labels from ego vehicle frame to camera/sensor frame
                         corner_points_2d = view_points(corners_3d, np.array(cs_record['camera_intrinsic']),
                                                        normalize=True)
                         # # corner_points_2d: 8x2 array
@@ -61,7 +67,6 @@ for idx, sample in enumerate(nusc.sample):
                         xmax = 0
                         ymax = 0
                     score = 1.0
-
                     file_writer.write(
                         category + ' ' + str(truncated) + ' ' + str(occluded) + ' ' + str(alpha) + ' ' + str(
                             xmin) + ' ' + str(ymin) + ' ' + str(xmax) + ' ' + str(ymax) + ' ' + str(
