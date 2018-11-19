@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>three.js webgl - lensflares</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+        body {
+            background: #000;
+            padding: 0;
+            margin: 0;
+            font-weight: bold;
+            overflow: hidden;
+        }
+
+        #info {
+            position: absolute;
+            top: 10px;
+            width: 100%;
+            color: #ffffff;
+            padding: 5px;
+            font-family: Monospace;
+            font-size: 13px;
+            text-align: center;
+            z-index: 100;
+        }
+
+        a {
+            color: orange;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #0080ff;
+        }
+    </style>
+</head>
+
+<body>
+
+<script src="js/lib/three.js"></script>
+
+<!--<script src="js/lib/FlyControls.js"></script>-->
+<!--<script src="js/lib/Lensflare.js"></script>-->
+<script src="js/lib/PCDLoader.js"></script>
+<script src="js/lib/FirstPersonControls.js"></script>
+<script src="js/lib/threex.keyboardstate.js"></script>
+
+<script>
+    var container;
+    var camera, scene, renderer;
+
+    var clock;
+    var keyboard;
+
+    var controls;
+    var cameraControls;
+    // var clock = new THREE.Clock();
+    var rotationHorizontal = 0;
+    var rotationDelta = 1;
+    var rotSpeed = 1;
+    init();
+    animate();
+
+    function onDocumentKeyPress(event) {
+
+        var keyCode = event.which;
+        var positionDelta = 1;
+        var rotationDelta = 0.1;
+
+        var x = camera.position.x,
+            y = camera.position.y,
+            z = camera.position.z;
+        //A
+        if (keyCode === 97) {
+
+            // camera.position.x -= positionDelta;
+            camera.position.x = x * Math.cos(camera.rotation.y) + y * Math.sin(camera.rotation.y);
+            camera.position.y = y * Math.cos(camera.rotation.y) - x * Math.sin(camera.rotation.y);
+        }
+        //D
+        else if (keyCode === 100) {
+
+            // camera.position.x += positionDelta;
+            camera.position.x = x * Math.cos(camera.rotation.y) - y * Math.sin(camera.rotation.y);
+            camera.position.y = y * Math.cos(camera.rotation.y) + x * Math.sin(camera.rotation.y);
+        }
+        //W
+        else if (keyCode === 119) {
+            camera.position.y += positionDelta;
+        }
+        //S
+        else if (keyCode === 115) {
+            camera.position.y -= positionDelta;
+
+
+        }
+        //Q
+        else if (keyCode === 113) {
+            camera.position.z += positionDelta;
+
+        }
+        //E
+        else if (keyCode === 101) {
+            camera.position.z -= positionDelta;
+
+        }
+    }
+
+    function onDocumentKeyDown(event) {
+
+        var keyCode = event.which;
+        var rotationDelta = 0.1;
+
+        // UP
+        if (keyCode === 38) {
+            camera.rotation.x += rotationDelta;
+
+        }
+        // DOWN
+        else if (keyCode === 40) {
+            camera.rotation.x -= rotationDelta;
+
+        }
+        //LEFT
+        else if (keyCode === 37) {
+            camera.rotation.y += rotationDelta;
+
+        }
+        //RIGHT
+        else if (keyCode === 39) {
+            camera.rotation.y -= rotationDelta;
+        }
+    }
+
+    var rtWorldMatrix;
+
+    function init() {
+        /**
+         * CameraControls
+         */
+        function CameraControls() {
+            //constructor
+        }
+
+        CameraControls.prototype = {
+            constructor: CameraControls,
+            update: function (camera, keyboard, clock) {
+                //functionality to go here
+                var delta = clock.getDelta(); // seconds.
+                var moveDistance = 150 * delta; // 200 pixels per second
+                var rotateAngle = Math.PI / 2 * delta;   // pi/2 radians (90 degrees) per second
+                if (keyboard.pressed("w")) {
+                    camera.translateZ(-moveDistance);
+                }
+                if (keyboard.pressed("s")) {
+                    camera.translateZ(moveDistance);
+                }
+
+                if (keyboard.pressed("left")) {
+                    camera.rotateOnAxis(new THREE.Vector3(0, 1, 0), rotateAngle);
+                }
+                if (keyboard.pressed("right")) {
+                    camera.rotateOnAxis(new THREE.Vector3(0, 1, 0), -rotateAngle);
+                }
+                if (keyboard.pressed("up")) {
+                    camera.rotateOnAxis(new THREE.Vector3(1, 0, 0), rotateAngle);
+                }
+                if (keyboard.pressed("down")) {
+                    camera.rotateOnAxis(new THREE.Vector3(1, 0, 0), -rotateAngle);
+                }
+
+
+            }
+        };
+
+        cameraControls = new CameraControls();
+        keyboard = new THREEx.KeyboardState();
+        clock = new THREE.Clock();
+
+        // document.addEventListener('keypress', onDocumentKeyPress, false);
+        // document.addEventListener('keydown', onDocumentKeyDown, false);
+        container = document.createElement('div');
+        document.body.appendChild(container);
+        // camera
+        camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
+        camera.position.z = 10;
+        camera.rotation.x = Math.PI / 2;
+        camera.up.set(0, 0, 1);
+
+        // controls = new THREE.FirstPersonControls(camera);
+        // controls.movementSpeed = 70;
+        // controls.lookSpeed = 0.01;
+        // controls.noFly = true;
+        // controls.lookVertical = true;
+        // controls.enableRotate = true;
+        // controls.rotateSpeed = 2.0;
+
+        // controls = new THREE.FlyControls(camera);
+        // controls.movementSpeed = 25;
+        // controls.domElement = container;
+        // controls.rollSpeed = Math.PI / 20;
+        // controls.autoForward = false;
+        // controls.dragToLook = false;
+        // scene
+        scene = new THREE.Scene();
+
+        let pcd_loader = new THREE.PCDLoader();
+        let pcd_url = 'input/PCDPoints/all_scenes/000000.pcd';
+        pcd_loader.load(pcd_url, function (mesh) {
+            mesh.name = 'pointcloud';
+            scene.add(mesh);
+        });
+
+        // renderer
+        renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        container.appendChild(renderer.domElement);
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+
+        render();
+    }
+
+    function render() {
+        // var delta = clock.getDelta();
+        // controls.update(delta);
+        cameraControls.update(camera, keyboard, clock);
+        renderer.render(scene, camera);
+    }
+</script>
+
+</body>
+</html>

@@ -129,7 +129,7 @@ labelTool.onInitialize("CAM_BACK_LEFT", function () {
 });
 
 function loadData(camChannel) {
-    let imgURL = labelTool.workBlob + "/JPEGImages/" + camChannel + "/" + labelTool.getTargetFileName() + ".jpg";
+    let imgURL = labelTool.workBlob + "/NuScenes/images/" + camChannel + "/" + labelTool.getTargetFileName() + ".jpg";
     let channelIdx = getChannelIndexByName(camChannel);
     let img = imageArray[channelIdx];
     if (img !== undefined) {
