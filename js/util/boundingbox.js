@@ -1,7 +1,7 @@
-function getLine(channelIdx, pointStart, pointEnd) {
+function getLine(channelIdx, pointStart, pointEnd, color) {
     if (pointStart !== undefined && pointEnd !== undefined && isFinite(pointStart.x) && isFinite(pointStart.y) && isFinite(pointEnd.x) && isFinite(pointEnd.y)) {
         let line = paperArray[channelIdx].path(["M", pointStart.x, pointStart.y, "L", pointEnd.x, pointEnd.y]);
-        let color = classesBoundingBox[classesBoundingBox.__target].color;
+        // let color = classesBoundingBox[classesBoundingBox.__target].color;
         line.attr("stroke", color);
         line.attr("stroke-width", 3);
         return line;
@@ -14,21 +14,23 @@ function calculateLineSegments(channelObj) {
     let channel = channelObj.channel;
     let lineArray = [];
     let channelIdx = getChannelIndexByName(channel);
+    let color = '#ffff00';
     // bottom four lines
-    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[0], channelObj.projectedPoints[1]));
-    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[1], channelObj.projectedPoints[2]));
-    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[2], channelObj.projectedPoints[3]));
-    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[3], channelObj.projectedPoints[0]));
+    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[0], channelObj.projectedPoints[1], color));
+    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[1], channelObj.projectedPoints[2], color));
+    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[2], channelObj.projectedPoints[3], color));
+    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[3], channelObj.projectedPoints[0], color));
+    color = '#00ff00';
     // top four lines
-    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[4], channelObj.projectedPoints[5]));
-    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[5], channelObj.projectedPoints[6]));
-    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[6], channelObj.projectedPoints[7]));
-    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[7], channelObj.projectedPoints[4]));
+    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[4], channelObj.projectedPoints[5], color));
+    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[5], channelObj.projectedPoints[6], color));
+    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[6], channelObj.projectedPoints[7], color));
+    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[7], channelObj.projectedPoints[4], color));
     // vertical lines
-    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[0], channelObj.projectedPoints[4]));
-    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[1], channelObj.projectedPoints[5]));
-    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[2], channelObj.projectedPoints[6]));
-    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[3], channelObj.projectedPoints[7]));
+    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[0], channelObj.projectedPoints[4], color));
+    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[1], channelObj.projectedPoints[5], color));
+    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[2], channelObj.projectedPoints[6], color));
+    lineArray.push(getLine(channelIdx, channelObj.projectedPoints[3], channelObj.projectedPoints[7], color));
     return lineArray;
 }
 
@@ -88,14 +90,14 @@ let annotationObjects = {
         annotationObjects.contents[indexByDimension].channels.push(channelObj);
     },
     set: function (insertIndex, params) {
-        if (params.x !== -1 && params.y !== -1 && params.z !== -1 && params.width !== -1 && params.height !== -1 && params.depth !== -1) {
-            let obj = get3DLabel(params);
-            if (this.contents[insertIndex] === undefined) {
-                this.contents.push(obj);
-            } else {
-                this.contents[insertIndex] = obj;
-            }
+        // if (params.x !== -1 && params.y !== -1 && params.z !== -1 && params.width !== -1 && params.height !== -1 && params.depth !== -1) {
+        let obj = get3DLabel(params);
+        if (this.contents[insertIndex] === undefined) {
+            this.contents.push(obj);
+        } else {
+            this.contents[insertIndex] = obj;
         }
+        // }
         this.contents[insertIndex]["class"] = params.class;
         if (params.fromFile === false && this.__selectionIndex === -1) {
             this.contents[insertIndex]["trackId"] = classesBoundingBox[params.class].nextTrackId;
