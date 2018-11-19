@@ -1,4 +1,15 @@
 let camera, controls, scene, renderer;
+var clock;
+var container;
+var moveForward = false;
+var moveBackward = false;
+var moveLeft = false;
+var moveRight = false;
+var canJump = false;
+
+var velocity = new THREE.Vector3();
+var direction = new THREE.Vector3();
+
 let stats;
 let cube;
 let keyboard = new KeyboardState();
@@ -17,7 +28,7 @@ let clickedPoint = THREE.Vector3();
 let groundClickedPoint;
 let groundPlaneArray = [];
 let clickedPlaneArray = [];
-let birdViewFlag = true;
+let birdViewFlag = false;
 let cls = 0;
 let cFlag = false;
 let rFlag = false;
@@ -59,12 +70,9 @@ let parameters = {
     download: function () {
         download();
     },
-    view_mode: 'Image and point cloud',
-    annotation_mode:
-        'Bounding Boxes',
     i: -1,
-    bird_view: function () {
-        setBirdsEyeView();
+    switch_view: function () {
+        switchView();
     },
     camera_view: function () {
         setCameraView();
@@ -151,6 +159,16 @@ labelTool.onLoadData("PCD", function () {
     labelTool.removeObject('leftplane');
     labelTool.removeObject('prism');
     labelTool.drawFieldOfView();
+
+    let box = new THREE.BoxGeometry(70, 1, 1);
+    let material = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.9
+    });
+    let mesh = new THREE.Mesh(box, material);
+    scene.add(mesh);
 });
 
 annotationObjects.onSelect("PCD", function (selectionIndex) {
@@ -320,17 +338,10 @@ function download() {
 }
 
 //change camera position to bird view position
-function setBirdsEyeView() {
-    // birdViewFlag = true;
-    // setCamera();
+function switchView() {
+    birdViewFlag = !birdViewFlag;
 
-
-    labelTool.currentCameraChannelIndex++;
-    setCameraToChannel(labelTool.camChannels[labelTool.currentCameraChannelIndex].channel);
-    labelTool.removeObject('rightplane');
-    labelTool.removeObject('leftplane');
-    labelTool.removeObject('prism');
-    labelTool.drawFieldOfView();
+    setCamera();
 }
 
 //change camera position to initial position
@@ -379,9 +390,9 @@ function update2DBoundingBox(idx) {
                 let height = annotationObjects.contents[idx]["height"];
                 let depth = annotationObjects.contents[idx]["depth"];
                 let channel = channelObj.channel;
-                // TODO: exchange x with y because x should be longitudinal for correct projection
-                //channelObj.projectedPoints = calculateProjectedBoundingBox(-y, z, -x, height, width, depth, channel);
-                channelObj.projectedPoints = calculateProjectedBoundingBox(x, y, z, width, height, depth, channel);
+                // working, but back of camera
+                //channelObj.projectedPoints = calculateProjectedBoundingBox(x, -y, -z, width, height, depth, channel);
+                channelObj.projectedPoints = calculateProjectedBoundingBox(-x, -y, z, width, height, depth, channel);
                 // remove previous drawn lines
                 for (let lineObj in channelObj.lines) {
                     if (channelObj.lines.hasOwnProperty(lineObj)) {
@@ -532,73 +543,127 @@ function onWindowResize() {
 
 //set camera type
 function setCamera() {
+    scene.remove(camera);
     if (birdViewFlag === false) {
-        camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 100000);
+        container = document.createElement('div');
+        document.body.appendChild(container);
+        //camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 100000);
+        camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
+        // camera.position.z = 250;
+        // camera.up = new THREE.Vector3(0, 0, 1);
+        controls = new THREE.FlyControls(camera);
+        controls.movementSpeed = 2500;
+        controls.domElement = container;
+        controls.rollSpeed = Math.PI / 6;
+        controls.autoForward = false;
+        controls.dragToLook = false;
+        controls.domElement = container;
+        // scene.add(controls.getObject());
 
-        // camera.position.set(0.0000000001, 0, 0);//look left
-        // camera.position.set(0, 0.0000000001, 0);//look back
-        // camera.position.set(-0.0000000001, 0, 0);//look right
-        // camera.position.set(0, -0.0000000001, 0);//look forward
-        // camera.position.set(-0.0000000001, -0.0000000001, 0);// look front right
+        var onKeyDown = function (event) {
 
-        // camera.position.set(labelTool.camChannels[1].position[1], labelTool.camChannels[1].position[0] - labelTool.positionLidar[0], labelTool.camChannels[1].position[2]);
+            switch (event.keyCode) {
 
-        // let yPos = 1;
-        // let xPos = Math.tan(110 * Math.PI / 180) * yPos;
-        // camera.position.set(-xPos, -yPos, 1.5);
+                case 87: // w
+                    moveForward = true;
+                    break;
 
-        // camera.target = new THREE.Vector3(1500,500,0);
-        // camera.lookAt(scene.position);
-        camera.up = new THREE.Vector3(0, 0, 1);
-        // camera.lookAt(new THREE.Vector3(100, 100, 0));
+                case 65: // a
+                    moveLeft = true;
+                    break;
+
+                case 83: // s
+                    moveBackward = true;
+                    break;
+
+                case 68: // d
+                    moveRight = true;
+                    break;
+
+                case 32: // space
+                    if (canJump === true) velocity.y += 350;
+                    canJump = false;
+                    break;
+
+            }
+
+        };
+
+        var onKeyUp = function (event) {
+
+            switch (event.keyCode) {
+
+                case 87: // w
+                    moveForward = false;
+                    break;
+
+                case 65: // a
+                    moveLeft = false;
+                    break;
+
+                case 83: // s
+                    moveBackward = false;
+                    break;
+
+                case 68: // d
+                    moveRight = false;
+                    break;
+
+            }
+
+        };
+
+        document.addEventListener('keydown', onKeyDown, false);
+        document.addEventListener('keyup', onKeyUp, false);
 
 
-        // camera.updateProjectionMatrix();
+        // controls = new THREE.FlyControls(camera);
+        // controls.movementSpeed = 1000;
+        // //controls.domElement = renderer.domElement;
+        // controls.domElement = document.createElement('div');
+        // controls.rollSpeed = Math.PI / 24;
+        // controls.autoForward = false;
+        // controls.dragToLook = false;
+        // controls.object.position.set(0, 0, 0);
+        // controls.target = new THREE.Vector3(0, 0, 0)
 
+        // let pos = labelTool.camChannels[0].position;
+        // controls.object.position.set(-pos[1], pos[0] - labelTool.positionLidar[0], labelTool.positionLidar[2] - pos[2]);
+        // controls.target = new THREE.Vector3(-pos[1] - 0.0000001, pos[0] - labelTool.positionLidar[0] + 0.0000001, labelTool.positionLidar[2] - pos[2]);// look backward
     } else {
         camera = new THREE.OrthographicCamera(-40, 40, 20, -20, 0, 2000);
         camera.position.set(0, 0, 450);
         camera.up.set(0, 0, 1);
         camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        // controls.rotateSpeed = 2.0;
+        // controls.zoomSpeed = 0.3;
+        // controls.panSpeed = 0.2;
+        // controls.enableZoom = true;
+        controls.enablePan = true;
+        controls.enableRotate = false;
+
+        // controls.enableDamping = false;
+        // controls.dampingFactor = 0.3;
+        // controls.minDistance = 0.3;
+        // controls.maxDistance = 0.3 * 100;
+        // controls.noKey = true;
+        // controls.enabled = false;
+        // // controls.target.set(0, 0, 0);
+        // controls.autoRotate = false;
     }
     scene.add(camera);
-
-    controls = new THREE.OrbitControls(camera, renderer.domElement);
-    // controls.rotateSpeed = 2.0;
-    // controls.zoomSpeed = 0.3;
-    // controls.panSpeed = 0.2;
-    // controls.enableZoom = true;
-    controls.enablePan = true;
-    controls.enableRotate = false;// default: true
-    // controls.enableDamping = false;
-    // controls.dampingFactor = 0.3;
-    // controls.minDistance = 0.3;
-    // controls.maxDistance = 0.3 * 100;
-    // controls.noKey = true;
-    // controls.enabled = false;
-    // // controls.target.set(0, 0, 0);
-    // controls.autoRotate = false;
-
-    // front left
-    // let yPos = 0.001;
-    // let xPos = Math.tan(305 * Math.PI / 180) * yPos;
-    if (birdViewFlag === false) {
-        let pos = labelTool.camChannels[0].position;
-        controls.object.position.set(-pos[1], pos[0] - labelTool.positionLidar[0], labelTool.positionLidar[2] - pos[2]);
-        controls.target = new THREE.Vector3(-pos[1] - 0.0000001, pos[0] - labelTool.positionLidar[0] + 0.0000001, labelTool.positionLidar[2] - pos[2]);// look backward
-    }
-    // front
-    // let positionFront = labelTool.camChannels[1].position;
-    // controls.object.position.set(positionFront[1], positionFront[0], labelTool.positionLidar[2] - positionFront[2]);
-    // controls.target = new THREE.Vector3(positionFront[1], positionFront[0] + 0.00000000000001, labelTool.positionLidar[2] - positionFront[2]);// look backward
-    controls.update();
-
+    // controls.update();
 }
 
 //draw animation
 function animate() {
     requestAnimationFrame(animate);
-    keyboard.update();
+
+    var delta = clock.getDelta();
+    controls.update(delta);
+    // keyboard.update();
     // if (keyboard.down("shift")) {
     //     controls.enabled = true;
     //     bboxFlag = false;
@@ -638,7 +703,7 @@ function animate() {
     //     }
     // }
 
-    controls.update();
+    // controls.update();
     stats.update();
     // if (annotationObjects.getSelectionIndex() !== rotationBboxIndex) {
     //     rFlag = false;
@@ -733,9 +798,14 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
     // pos_lat = pos_lat - labelTool.positionLidar[0];
     // pos_vert = pos_vert - labelTool.positionLidar[2];
 
-    // xPos = xPos + labelTool.positionLidar[1];
-    yPos = yPos - labelTool.positionLidar[0];
-    // zPos = zPos - labelTool.positionLidar[2];
+    // working, but user sees back of camera
+    // xPos = xPos - labelTool.positionLidar[1];
+    // yPos = yPos - labelTool.positionLidar[2];
+    // zPos = zPos - labelTool.positionLidar[0];
+
+    xPos = xPos - labelTool.positionLidar[1];//lateral
+    yPos = yPos - labelTool.positionLidar[2];//longitudinal
+    zPos = zPos - labelTool.positionLidar[0];
 
 
     // let projectedPoints = [];
@@ -821,8 +891,9 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
         // projectedPoints.push(projector.projectVector(point, camera));
         //-------------
         let point = cornerPoints[cornerPoint];
-        let point3D = [-point.y, -point.x, point.z, 1];
-        //let point3D = [point.x, point.y, point.z, 1];//long, lat, vert
+        // working, but user sees back of camera
+        // let point3D = [point.y, point.x, point.z, 1];
+        let point3D = [point.y, -point.x, -point.z, 1];
         let projectionMatrix = labelTool.camChannels[idx].projectionMatrix;
         let point2D = matrixProduct(projectionMatrix, point3D);
         let windowX = point2D[0] / point2D[2];
@@ -834,87 +905,94 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
     return projectedPoints;
 }
 
-function setCameraToChannel(channel) {
-    let channelIdx = getChannelIndexByName(channel);
-    let fieldOfView = labelTool.camChannels[channelIdx].fieldOfView;
-    // scene.remove(camera);
-    camera = new THREE.PerspectiveCamera(fieldOfView, window.innerWidth / window.innerHeight, 0.01, 100000);
-    camera.up = new THREE.Vector3(0, 0, 1);
-    // scene.add(camera);
-    controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableRotate = false;
-    controls.enablePan = true;
-    if (channel === labelTool.camChannels[0].channel) {
-        // front left
-        let pos = labelTool.camChannels[0].position;
-        controls.object.position.set(-pos[1], pos[0] - labelTool.positionLidar[0], labelTool.positionLidar[2] - pos[2]);
-        controls.target = new THREE.Vector3(-pos[1] + 0.0000001, pos[0] - labelTool.positionLidar[0] + 0.0000001, labelTool.positionLidar[2] - pos[2]);// look backward
-    } else if (channel === labelTool.camChannels[1].channel) {
-        // front
-        let pos = labelTool.camChannels[1].position;
-        controls.object.position.set(pos[1], pos[0], labelTool.positionLidar[2] - pos[2]);
-        controls.target = new THREE.Vector3(pos[1], pos[0] + 0.0000001, labelTool.positionLidar[2] - pos[2]);
-    } else if (channel === labelTool.camChannels[2].channel) {
-        // front right
-        let yPos = 0.5;
-        let xPos = Math.tan(55 * Math.PI / 180) * yPos;
-        let pos = labelTool.camChannels[2].position;
-        controls.object.position.set(-pos[1] + xPos, pos[0] - labelTool.positionLidar[0] + yPos, labelTool.positionLidar[2] - pos[2]);
-        controls.target = new THREE.Vector3(-pos[1] + xPos + 0.0000001, pos[0] - labelTool.positionLidar[0] + yPos + 0.0000001, labelTool.positionLidar[2] - pos[2]);// look backward
-    } else if (channel === labelTool.camChannels[3].channel) {
-        // back right
-        let yPos = 0.5;
-        let xPos = Math.tan(110 * Math.PI / 180) * yPos;
-        let pos = labelTool.camChannels[3].position;
-        controls.object.position.set(-pos[1] - xPos, pos[0] - labelTool.positionLidar[0] - yPos, labelTool.positionLidar[2] - pos[2]);
-        controls.target = new THREE.Vector3(-pos[1] - xPos + 0.0000001, pos[0] - labelTool.positionLidar[0] - yPos - 0.0000001, labelTool.positionLidar[2] - pos[2]);// look backward
-    } else if (channel === labelTool.camChannels[4].channel) {
-        // back
-        let yPos = 0.5;
-        let xPos = Math.tan(180 * Math.PI / 180) * yPos;
-        let pos = labelTool.camChannels[4].position;
-        controls.object.position.set(-pos[1] - xPos, pos[0] - labelTool.positionLidar[0] - yPos, labelTool.positionLidar[2] - pos[2]);
-        controls.target = new THREE.Vector3(-pos[1] - xPos - 0.0000001, pos[0] - labelTool.positionLidar[0] - yPos - 0.01, labelTool.positionLidar[2] - pos[2]);// look backward
-    } else if (channel === labelTool.camChannels[5].channel) {
-        // back left
-        let yPos = 0.5;
-        let xPos = Math.tan(250 * Math.PI / 180) * yPos;
-        let pos = labelTool.camChannels[5].position;
-        controls.object.position.set(-pos[1] - xPos, pos[0] - labelTool.positionLidar[0] - yPos, labelTool.positionLidar[2] - pos[2]);
-        controls.target = new THREE.Vector3(-pos[1] - xPos - 0.00000001, pos[0] - labelTool.positionLidar[0] - yPos - 0.000000001, labelTool.positionLidar[2] - pos[2]);// look backward
-    } else {
-        // channel undefined
-    }
-    // camera.updateProjectionMatrix();
-    controls.update();
-}
+// function setCameraToChannel(channel) {
+//     let channelIdx = getChannelIndexByName(channel);
+//     let fieldOfView = labelTool.camChannels[channelIdx].fieldOfView;
+//     // scene.remove(camera);
+//     camera = new THREE.PerspectiveCamera(fieldOfView, window.innerWidth / window.innerHeight, 0.01, 100000);
+//     camera.up = new THREE.Vector3(0, 0, 1);
+//     // scene.add(camera);
+//     controls = new THREE.OrbitControls(camera, renderer.domElement);
+//     controls.enableRotate = false;
+//     controls.enablePan = true;
+//     if (channel === labelTool.camChannels[0].channel) {
+//         // front left
+//         let pos = labelTool.camChannels[0].position;
+//         controls.object.position.set(-pos[1], pos[0] - labelTool.positionLidar[0], labelTool.positionLidar[2] - pos[2]);
+//         controls.target = new THREE.Vector3(-pos[1] + 0.0000001, pos[0] - labelTool.positionLidar[0] + 0.0000001, labelTool.positionLidar[2] - pos[2]);// look backward
+//     } else if (channel === labelTool.camChannels[1].channel) {
+//         // front
+//         let pos = labelTool.camChannels[1].position;
+//         controls.object.position.set(pos[1], pos[0], labelTool.positionLidar[2] - pos[2]);
+//         controls.target = new THREE.Vector3(pos[1], pos[0] + 0.0000001, labelTool.positionLidar[2] - pos[2]);
+//     } else if (channel === labelTool.camChannels[2].channel) {
+//         // front right
+//         let yPos = 0.5;
+//         let xPos = Math.tan(55 * Math.PI / 180) * yPos;
+//         let pos = labelTool.camChannels[2].position;
+//         controls.object.position.set(-pos[1] + xPos, pos[0] - labelTool.positionLidar[0] + yPos, labelTool.positionLidar[2] - pos[2]);
+//         controls.target = new THREE.Vector3(-pos[1] + xPos + 0.0000001, pos[0] - labelTool.positionLidar[0] + yPos + 0.0000001, labelTool.positionLidar[2] - pos[2]);// look backward
+//     } else if (channel === labelTool.camChannels[3].channel) {
+//         // back right
+//         let yPos = 0.5;
+//         let xPos = Math.tan(110 * Math.PI / 180) * yPos;
+//         let pos = labelTool.camChannels[3].position;
+//         controls.object.position.set(-pos[1] - xPos, pos[0] - labelTool.positionLidar[0] - yPos, labelTool.positionLidar[2] - pos[2]);
+//         controls.target = new THREE.Vector3(-pos[1] - xPos + 0.0000001, pos[0] - labelTool.positionLidar[0] - yPos - 0.0000001, labelTool.positionLidar[2] - pos[2]);// look backward
+//     } else if (channel === labelTool.camChannels[4].channel) {
+//         // back
+//         let yPos = 0.5;
+//         let xPos = Math.tan(180 * Math.PI / 180) * yPos;
+//         let pos = labelTool.camChannels[4].position;
+//         controls.object.position.set(-pos[1] - xPos, pos[0] - labelTool.positionLidar[0] - yPos, labelTool.positionLidar[2] - pos[2]);
+//         controls.target = new THREE.Vector3(-pos[1] - xPos - 0.0000001, pos[0] - labelTool.positionLidar[0] - yPos - 0.01, labelTool.positionLidar[2] - pos[2]);// look backward
+//     } else if (channel === labelTool.camChannels[5].channel) {
+//         // back left
+//         let yPos = 0.5;
+//         let xPos = Math.tan(250 * Math.PI / 180) * yPos;
+//         let pos = labelTool.camChannels[5].position;
+//         controls.object.position.set(-pos[1] - xPos, pos[0] - labelTool.positionLidar[0] - yPos, labelTool.positionLidar[2] - pos[2]);
+//         controls.target = new THREE.Vector3(-pos[1] - xPos - 0.00000001, pos[0] - labelTool.positionLidar[0] - yPos - 0.000000001, labelTool.positionLidar[2] - pos[2]);// look backward
+//     } else {
+//         // channel undefined
+//     }
+//     // camera.updateProjectionMatrix();
+//     controls.update();
+// }
 
-function setCameraToBirdsEyeView() {
-    camera = new THREE.OrthographicCamera(-40, 40, 20, -20, 0, 2000);
-    camera.position.set(0, 0, 450);
-    camera.up.set(0, 1, 0);
-    camera.lookAt(new THREE.Vector3(0, 0, 0));
-
-    controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableRotate = false;
-    controls.enablePan = true;
-    controls.update();
-}
+// function setCameraToBirdsEyeView() {
+//     camera = new THREE.OrthographicCamera(-40, 40, 20, -20, 0, 2000);
+//     camera.position.set(0, 0, 450);
+//     camera.up.set(0, 1, 0);
+//     camera.lookAt(new THREE.Vector3(0, 0, 0));
+//
+//     controls = new THREE.OrbitControls(camera, renderer.domElement);
+//     controls.enableRotate = false;
+//     controls.enablePan = true;
+//     controls.update();
+// }
 
 function init() {
+    clock = new THREE.Clock();
     scene = new THREE.Scene();
+
+    scene.background = new THREE.Color(0x323232);
+    scene.fog = new THREE.Fog(scene.background, 3500, 15000);
+
     let axisHelper = new THREE.AxisHelper(1);
     axisHelper.position.set(0, 0, 0);
     scene.add(axisHelper);
+
+    let canvas3D = document.getElementById('canvas3d');
+    setCamera();
+    controls.domElement = container;
 
     renderer = new THREE.WebGLRenderer({antialias: true});
     renderer.setClearColor(0x161616);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
-    setCamera();
 
-    let canvas3D = document.getElementById('canvas3d');
     canvas3D.appendChild(renderer.domElement);
     stats = new Stats();
     canvas3D.appendChild(stats.dom);
@@ -1123,7 +1201,7 @@ function init() {
                     if (Math.abs(groundUpPoint.x - groundClickedPoint.x) > 0.1) {
                         let xPos = (groundUpPoint.x + groundClickedPoint.x) / 2;
                         let yPos = -(groundUpPoint.y + groundClickedPoint.y) / 2;
-                        let zPos = 1;
+                        let zPos = -1;
                         let addBboxParameters = {
                             class: classesBoundingBox.targetName(),
                             x: xPos,
@@ -1161,10 +1239,9 @@ function init() {
                         for (let i = 0; i < channels.length; i++) {
                             let channel = channels[i];
                             addBboxParameters.channels[i].channel = channel;
-                            // set camera to current channel
-                            setCameraToChannel(channel);
-                            let projectedBoundingBox = calculateProjectedBoundingBox(xPos, yPos, zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth, channel);
-                            setCameraToBirdsEyeView();
+                            // working, but user sees back of camera
+                            //let projectedBoundingBox = calculateProjectedBoundingBox(xPos, yPos, -zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth, channel);
+                            let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -yPos, zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth, channel);
                             addBboxParameters.channels[i].projectedPoints = projectedBoundingBox;
                         }
                         // calculate line segments
@@ -1273,7 +1350,7 @@ function init() {
 
     // 3D BB controls
     guiOptions.add(parameters, 'download').name("Download");
-    guiOptions.add(parameters, 'bird_view').name("Birds-Eye-View");
+    guiOptions.add(parameters, 'switch_view').name("Switch view");
     // guiOptions.add(parameters, 'setCameraView').name("Camera View");
     readYAMLFile(labelTool.workBlob + "/calibration.yml");
     loadPCDData(parameters);

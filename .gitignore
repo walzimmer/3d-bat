@@ -20,8 +20,12 @@ doc
 .project
 .pydevproject
 _ext
-input/PCDPoints/all_scenes
-input/JPEGImages
+input/*
+input/NuScenes/pointclouds/all_scenes
+input/NuScenes/images
+input/LISA_T/2018-05-23-001-frame-00042917-00043816/annotations
+input/LISA_T/2018-05-23-001-frame-00042917-00043816/pointclouds
+input/LISA_T/2018-05-23-001-frame-00042917-00043816/images
 
 # Logs
 logs
