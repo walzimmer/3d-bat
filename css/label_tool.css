@@ -162,6 +162,8 @@
     /*position: absolute;*/
     /*top: 0px;*/
     /*left: 0px;*/
+    float: left;
+    height: 100%;
     z-index: 100;
     background-color: white;
     margin: 0px;
@@ -172,6 +174,8 @@
     /*position: absolute;*/
     /*top: 0px;*/
     /*left: 320px;*/
+    float: left;
+    height: 100%;
     z-index: 100;
     background-color: white;
     margin: 0px;
@@ -179,28 +183,33 @@
 }
 
 #image-cam-front-right {
-    position: absolute;
-    left: 639px;
+    float: left;
+    height: 100%;
+    /*position: absolute;*/
+    /*left: 639px;*/
 }
 
 #image-cam-back-right {
-    position: absolute;
-    left: 959px;
-    /*bottom: 0px;*/
-    /*left: 0px;*/
+    float: left;
+    height: 100%;
+    /*position: absolute;*/
+    /*left: 959px;*/
 }
 
 #image-cam-back {
-    position: absolute;
-    left: 1279px;
-    /*bottom: 0px;*/
-    /*left: 640px;*/
+    float: left;
+    height: 100%;
+    /*position: absolute;*/
+    /*left: 1279px;*/
 }
 
 #image-cam-back-left {
-    position: absolute;
-    /*bottom: 0px;*/
-    right: 0px;
+    float: left;
+    height: 100%;
+    width: 318px;
+
+    /*position: absolute;*/
+    /*right: 0px;*/
 }
 
 .jpeg-label-sidebar {

@@ -140,7 +140,7 @@ function storeAnnotations(annotations, camChannel) {
 function initPanes() {
     let height;
     if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-        height = 240;
+        height = 480;
     } else {
         height = 180;
     }
@@ -546,7 +546,8 @@ let labelTool = {
                 imageContainer.append("<div id='" + id + "'></div>");
                 let canvasElem = imageContainer["0"].children[channelIdx];
                 canvasArray.push(canvasElem);
-                paperArray.push(Raphael(canvasElem, image_width, image_height));
+                let height = $("#layout_layout_resizer_top").attr("top");
+                paperArray.push(Raphael(canvasElem, image_width, height));
             }
         }
         let pointCloudContainer = $("#layout_layout_panel_main .w2ui-panel-content");
