@@ -8,6 +8,7 @@
 
     <title>3D BAT</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/w2ui-1.5.rc1.min.css" rel="stylesheet">
     <link type="text/css" rel="stylesheet" href="css/jquery-ui.min.css">
     <link href="css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <script src="js/lib/jquery-2.2.4.min.js"></script>
@@ -91,22 +92,13 @@
         </ul>
     </div>
     <div id="label-tool-wrapper">
-        <!--<div class="jpeg-label-sidebar second">-->
-        <!--<div class="jpeg-label-sidebar-header">-->
-        <!--<p class="jpeg-label-sidebar-header-text">ID | IMAGE | PCD</p>-->
-        <!--</div>-->
-        <!--<div id="jpeg-label-sidebar-body">-->
-        <!--<ul class="jpeg-label-sidebar-list" id="bbox-table">-->
-        <!--</ul>-->
-        <!--</div>-->
-        <!--</div>-->
-        <div id="canvas3d" style="z-index: 0; background-color: #000000;"></div>
-        <div id="jpeg-label-canvas-front-left"></div>
-        <div id="jpeg-label-canvas-front"></div>
-        <div id="jpeg-label-canvas-front-right"></div>
-        <div id="jpeg-label-canvas-back-right"></div>
-        <div id="jpeg-label-canvas-back"></div>
-        <div id="jpeg-label-canvas-back-left"></div>
+        <!--<div id="canvas3d" style="z-index: 0; background-color: #000000;"></div>-->
+        <!--<div id="jpeg-label-canvas-front-left"></div>-->
+        <!--<div id="jpeg-label-canvas-front"></div>-->
+        <!--<div id="jpeg-label-canvas-front-right"></div>-->
+        <!--<div id="jpeg-label-canvas-back-right"></div>-->
+        <!--<div id="jpeg-label-canvas-back"></div>-->
+        <!--<div id="jpeg-label-canvas-back-left"></div>-->
     </div>
 
     <!-- <div id="label-tool-status-overlay" class="label-tool-overlay">
@@ -140,6 +132,8 @@
     <script src="js/lib/stats.min.js"></script>
     <script src='js/lib/dat.gui.min.js'></script>
     <script src='js/lib/KeyboardState.js'></script>
+    <script src="js/lib/FirstPersonControls.js"></script>
+    <script src="js/lib/threex.keyboardstate.js"></script>
     <script src='js/lib/Projector.js'></script>
     <script src="js/util/math.js?ver=1.0"></script>
     <script src='js/util/classesBoundingBox.js?ver=1.0'></script>
@@ -148,6 +142,8 @@
     <script src='js/pcd_label_tool.js?ver=1.0'></script>
     <script src="js/image_label_tool.js?ver=1.0"></script>
     <script src='js/util/ajax_wrapper.js?ver=1.0'></script>
+    <!--<script src='js/util/createColorMapBrowser.js?ver=1.0'></script>-->
+    <script src='js/lib/w2ui-1.5.rc1.min.js?ver=1.0'></script>
     <script type="text/javascript">
         labelTool.start();
     </script>

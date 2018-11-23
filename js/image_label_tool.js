@@ -1,16 +1,27 @@
-var canvasArray = [document.getElementById("jpeg-label-canvas-front-left"), document.getElementById("jpeg-label-canvas-front"), document.getElementById("jpeg-label-canvas-front-right"), document.getElementById("jpeg-label-canvas-back-right"), document.getElementById("jpeg-label-canvas-back"), document.getElementById("jpeg-label-canvas-back-left")];
-var canvasParamsArray = [{}, {}, {}, {}, {}, {}];
-var imgFrontLeft, imgFront, imgFrontRight, imgBackRight, imgBack, imgBackLeft;
-var paperArray = [Raphael(canvasArray[0], 640, 360), Raphael(canvasArray[1], 640, 360), Raphael(canvasArray[2], 640, 360), Raphael(canvasArray[3], 640, 360), Raphael(canvasArray[4], 640, 360), Raphael(canvasArray[5], 640, 360)];
-var imageArray = [imgFrontLeft, imgFront, imgFrontRight, imgBackRight, imgBack, imgBackLeft];
-var fontSize = 20;
-var isDragging = false; // For distinguishing click and drag.
-var action = "add";
+//let canvasArray = [document.getElementById("jpeg-label-canvas-front-left"), document.getElementById("jpeg-label-canvas-front"), document.getElementById("jpeg-label-canvas-front-right"), document.getElementById("jpeg-label-canvas-back-right"), document.getElementById("jpeg-label-canvas-back"), document.getElementById("jpeg-label-canvas-back-left")];
+let canvasArray = [];
+let canvasParamsArray = [{}, {}, {}, {}, {}, {}];
+let image_height;
+let image_width;
+if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+    image_width = 320;
+    image_height = 240;
+} else {
+    image_width = 640;
+    image_height = 360;
+}
+//var paperArray = [Raphael(canvasArray[0], width, height), Raphael(canvasArray[1], width, height), Raphael(canvasArray[2], width, height), Raphael(canvasArray[3], width, height), Raphael(canvasArray[4], width, height), Raphael(canvasArray[5], width, height)];
+let paperArray = [];
+let imageArray = [];
+let fontSize = 20;
+let isDragging = false; // For distinguishing click and drag.
+let action = "add";
 // var grabbedSide = "";
-var mouseX = 0;
-var mouseY = 0;
+let mouseX = 0;
+let mouseY = 0;
 
 // var isIsolated = false;
+
 
 function remove(index) {
     // TODO: highlight 12 lines (draw 4 transparent (0.5) parallelograms and 2 transparent rectangles (front and rear))
@@ -20,7 +31,39 @@ function remove(index) {
     // annotationObjects.contents[index]["rect"].remove();
 }
 
+jQuery.fn.onPositionChanged = function (trigger, millis) {
+    if (millis == null) millis = 100;
+    var o = $(this[0]); // our jquery object
+    if (o.length < 1) return o;
+
+    var lastPos = null;
+    var lastOff = null;
+    setInterval(function () {
+        if (o == null || o.length < 1) return o; // abort if element is non existend eny more
+        if (lastPos == null) lastPos = o.position();
+        if (lastOff == null) lastOff = o.offset();
+        var newPos = o.position();
+        var newOff = o.offset();
+        if (lastPos.top != newPos.top || lastPos.left != newPos.left) {
+            $(this).trigger('onPositionChanged', {lastPos: lastPos, newPos: newPos});
+            if (typeof (trigger) == "function") trigger(lastPos, newPos);
+            lastPos = o.position();
+        }
+        if (lastOff.top != newOff.top || lastOff.left != newOff.left) {
+            $(this).trigger('onOffsetChanged', {lastOff: lastOff, newOff: newOff});
+            if (typeof (trigger) == "function") trigger(lastOff, newOff);
+            lastOff = o.offset();
+        }
+    }, millis);
+
+    return o;
+};
+
 /*********** Event handlers **************/
+
+$("#layout_layout_resizer_top").onPositionChanged(function () {
+    alert("foobar")
+});
 
 annotationObjects.onRemove("CAMERA", function (index) {
     remove(index);
@@ -92,7 +135,7 @@ annotationObjects.onSelect("CAM_BACK_LEFT", function (newIndex) {
 });
 
 function initialize(camChannel) {
-    var canvas = canvasArray[getChannelIndexByName(camChannel)];
+    let canvas = canvasArray[getChannelIndexByName(camChannel)];
     canvasParamsArray[getChannelIndexByName(camChannel)] = {
         x: canvas.offsetLeft,
         y: canvas.offsetTop,
@@ -100,7 +143,16 @@ function initialize(camChannel) {
         height: canvas.offsetHeight,
         center: {x: canvas.offsetWidth / 2, y: canvas.offsetHeight / 2}
     };
-    changeCanvasSize(640, 360, camChannel);
+    let width;
+    let height;
+    if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+        width = 320;
+        height = 240;
+    } else {
+        width = 640;
+        height = 360;
+    }
+    changeCanvasSize(width, height, camChannel);
     labelTool.addResizeEventForImage();
 }
 
@@ -129,7 +181,13 @@ labelTool.onInitialize("CAM_BACK_LEFT", function () {
 });
 
 function loadData(camChannel) {
-    let imgURL = labelTool.workBlob + "/NuScenes/images/" + camChannel + "/" + labelTool.getTargetFileName() + ".jpg";
+    let imgURL;
+    if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+        imgURL = labelTool.workBlob + "/" + labelTool.currentDataset + "/" + labelTool.currentSequence + "/images/" + camChannel + "/" + labelTool.getTargetFileName() + ".jpg";
+    } else {
+        imgURL = labelTool.workBlob + "/" + labelTool.currentDataset + "/images/" + camChannel + "/" + labelTool.getTargetFileName() + ".jpg";
+    }
+
     let channelIdx = getChannelIndexByName(camChannel);
     let img = imageArray[channelIdx];
     if (img !== undefined) {
@@ -242,12 +300,12 @@ $(window).keydown(function (e) {
         case "66": // B
             labelTool.previousFrame();
             break;
-        case "84": // T
-            toggleIsolation();
-            break;
-        case "68": // D
-            annotationObjects.removeSelectedBoundingBox();
-            break;
+        // case "84": // T
+        //     toggleIsolation();
+        //     break;
+        // case "68": // D
+        //     annotationObjects.removeSelectedBoundingBox();
+        //     break;
     }
     setAction(e);
 });
@@ -727,7 +785,7 @@ function changeCanvasSize(width, height, camChannel) {
         for (let canvasElem in canvasArray) {
             let canvasElement = canvasArray[canvasElem];
             let element = $("#" + canvasElement.id);
-            element.css('width', width + 'px');
+            element.css('image_width', width + 'px');
             element.css('height', height + 'px');
             // $('#jpeg-label-canvas-front-left').css('width', width + 'px');
             // $('#jpeg-label-canvas-front-left').css('height', height + 'px');
@@ -752,11 +810,11 @@ function changeCanvasSize(width, height, camChannel) {
 
 // TODO: adjust all projected bounding boxes if images size changes
 function adjustAllBBoxes(camChannel) {
-    for (var i = 0; i < annotationObjects.contents.length; ++i) {
-        var canvas = canvasArray[getChannelIndexByName(camChannel)];
-        var canvasParams = canvasParamsArray[getChannelIndexByName(camChannel)];
-        var linesChannelOne = annotationObjects.contents[i]["channels"][0]["lines"];
-        var linesChannelTwo = annotationObjects.contents[i]["channels"][1]["lines"];
+    for (let i = 0; i < annotationObjects.contents.length; ++i) {
+        let canvas = canvasArray[getChannelIndexByName(camChannel)];
+        let canvasParams = canvasParamsArray[getChannelIndexByName(camChannel)];
+        let linesChannelOne = annotationObjects.contents[i]["channels"][0]["lines"];
+        let linesChannelTwo = annotationObjects.contents[i]["channels"][1]["lines"];
         // var rect = annotationObjects.contents[i]["rect"];
         // rect.attr({
         //     width: rect.attr("width") * canvas.offsetWidth / canvasParams.width,
@@ -852,7 +910,7 @@ function addTextBox(bbIndex, camChannel) {
                     "text-anchor": "start"
                 })
         };
-    var box = bbox["textBox"]["text"].getBBox();
+    let box = bbox["textBox"]["text"].getBBox();
     bbox["textBox"]["box"] = paper.rect(box.x, box.y, box.width, box.height)
         .attr({
             fill: classesBoundingBox[label].color,
