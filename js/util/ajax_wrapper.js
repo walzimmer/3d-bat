@@ -25,15 +25,33 @@ function request(options) {
                 options.complete(res);
                 break;
             case "/label/image_size/":
-                responseDict = {
-                    width: 640,
-                    height: 360
-                };
+                if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+                    responseDict = {
+                        width: 320,
+                        height: 240
+                        // width: 640,
+                        // height: 480
+                    };
+                } else {
+                    responseDict = {
+                        width: 320,
+                        height: 180
+                        // width: 640,
+                        // height: 360
+                    };
+                }
+
                 res = {responseText: JSON.stringify(responseDict)};
                 options.complete(res);
                 break;
             case "/label/file_names/":
-                let numFiles = 3962;
+                let numFiles;
+                if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+                    numFiles = 900;
+                } else {
+                    numFiles = 3962;
+                }
+
                 let fileNameArray = [];
                 for (let i = 0; i < numFiles; i++) {
                     fileNameArray.push(pad(i, 6))
@@ -90,13 +108,18 @@ function request(options) {
 
 function annotationFileExist(fileIndex, channel) {
     let url;
-    if (labelTool.loadNuScenesLabels === true) {
-        // load already created annotations provided by NuScenes
-        url = labelTool.workBlob + '/Annotations/' + channel + '/' + labelTool.fileNames[fileIndex] + '.txt';
+    if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+        url = labelTool.workBlob + '/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/annotations/' + labelTool.fileNames[fileIndex] + '.txt';
     } else {
-        // load annotations from user
-        url = labelTool.workBlob + '/Annotations_test/' + labelTool.fileNames[fileIndex] + '.txt';
+        if (labelTool.loadNuScenesLabels === true) {
+            // load already created annotations provided by NuScenes
+            url = labelTool.workBlob + '/' + labelTool.currentDataset + '/Annotations/' + channel + '/' + labelTool.fileNames[fileIndex] + '.txt';
+        } else {
+            // load annotations from user
+            url = labelTool.workBlob + '/' + labelTool.currentDataset + '/Annotations_test/' + labelTool.fileNames[fileIndex] + '.txt';
+        }
     }
+
 
     let http = new XMLHttpRequest();
     http.open('HEAD', url, false);
@@ -108,11 +131,16 @@ function parseAnnotationFile(fileName, channel) {
     let rawFile = new XMLHttpRequest();
     let res = [];
     try {
-        if (labelTool.loadNuScenesLabels === true) {
-            rawFile.open("GET", labelTool.workBlob + '/Annotations/' + channel + '/' + fileName, false);
+        if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+            rawFile.open("GET", labelTool.workBlob + '/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/annotations/' + channel + '/' + fileName, false);
         } else {
-            rawFile.open("GET", labelTool.workBlob + '/Annotations_test/' + fileName, false);
+            if (labelTool.loadNuScenesLabels === true) {
+                rawFile.open("GET", labelTool.workBlob + '/' + labelTool.currentDataset + '/Annotations/' + channel + '/' + fileName, false);
+            } else {
+                rawFile.open("GET", labelTool.workBlob + '/' + labelTool.currentDataset + '/Annotations_test/' + fileName, false);
+            }
         }
+
 
     } catch (error) {
         // no labels available for this camera image
