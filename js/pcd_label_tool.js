@@ -1,21 +1,25 @@
 let camera, controls, scene, renderer;
 var clock;
 var container;
+var keyboard;
 var moveForward = false;
 var moveBackward = false;
 var moveLeft = false;
 var moveRight = false;
-var canJump = false;
+// var canJump = false;
+//
+// var velocity = new THREE.Vector3();
+// var direction = new THREE.Vector3();
 
-var velocity = new THREE.Vector3();
-var direction = new THREE.Vector3();
-
-let stats;
+// let stats;
 let cube;
-let keyboard = new KeyboardState();
+
+// let keyboard = new KeyboardState();
+
 let guiAnnotationClasses = new dat.GUI();
 let guiBoundingBoxAnnotationMap = {};
 let guiOptions = new dat.GUI();
+let showProjectedPointsFlag = false;
 let folderBoundingBox3DArray = [];
 let folderPositionArray = [];
 let folderSizeArray = [];
@@ -28,13 +32,17 @@ let clickedPoint = THREE.Vector3();
 let groundClickedPoint;
 let groundPlaneArray = [];
 let clickedPlaneArray = [];
-let birdViewFlag = false;
+let birdViewFlag = true;
 let cls = 0;
 let cFlag = false;
 let rFlag = false;
 let rotWorldMatrix;
 let rotObjectMatrix;
-
+let circleArray = [];
+let colorMap = [];
+let activeColorMap = 'colorMapJet.js';
+let currentPoints3D = [];
+let currentDistances = [];
 let parametersBoundingBox = {
     "Vehicle": function () {
         classesBoundingBox.select("Vehicle");
@@ -74,9 +82,8 @@ let parameters = {
     switch_view: function () {
         switchView();
     },
-    camera_view: function () {
-        setCameraView();
-    }
+    datasets: 'LISA_T',
+    show_projected_points: false
 };
 
 /*********** Event handlers **************/
@@ -149,7 +156,13 @@ labelTool.onLoadData("PCD", function () {
 
     // ASCII pcd files
     let pcd_loader = new THREE.PCDLoader();
-    let pcd_url = labelTool.workBlob + '/PCDPoints/all_scenes/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
+    let pcd_url;
+    if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+        pcd_url = labelTool.workBlob + '/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/' + 'pointclouds/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
+    } else {
+        pcd_url = labelTool.workBlob + '/' + labelTool.currentDataset + '/pointclouds/all_scenes/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
+    }
+
     pcd_loader.load(pcd_url, function (mesh) {
         mesh.name = 'pointcloud';
         scene.add(mesh);
@@ -160,15 +173,6 @@ labelTool.onLoadData("PCD", function () {
     labelTool.removeObject('prism');
     labelTool.drawFieldOfView();
 
-    let box = new THREE.BoxGeometry(70, 1, 1);
-    let material = new THREE.MeshBasicMaterial({
-        color: 0xffffff,
-        side: THREE.DoubleSide,
-        transparent: true,
-        opacity: 0.9
-    });
-    let mesh = new THREE.Mesh(box, material);
-    scene.add(mesh);
 });
 
 annotationObjects.onSelect("PCD", function (selectionIndex) {
@@ -340,17 +344,8 @@ function download() {
 //change camera position to bird view position
 function switchView() {
     birdViewFlag = !birdViewFlag;
-
     setCamera();
 }
-
-//change camera position to initial position
-function setCameraView() {
-    birdViewFlag = false;
-    setCamera();
-}
-
-//add new bounding box
 
 function get3DLabel(parameters) {
     let bbox = parameters;
@@ -368,7 +363,7 @@ function get3DLabel(parameters) {
 
     let cubeMaterial = new THREE.MeshBasicMaterial({color: color, transparent: true, opacity: 0.4});
     let cubeMesh = new THREE.Mesh(cubeGeometry, cubeMaterial);
-    cubeMesh.position.set(bbox.x, -bbox.y, bbox.z);
+    cubeMesh.position.set(bbox.x, bbox.y, bbox.z);
     cubeMesh.scale.set(bbox.width, bbox.height, bbox.depth);
     cubeMesh.rotation.z = bbox.yaw;
     cubeMesh.name = "cube-" + parameters.class.charAt(0) + parameters.trackId;
@@ -397,10 +392,16 @@ function update2DBoundingBox(idx) {
                 for (let lineObj in channelObj.lines) {
                     if (channelObj.lines.hasOwnProperty(lineObj)) {
                         let line = channelObj.lines[lineObj];
-                        line.remove();
+                        if (line !== undefined) {
+                            line.remove();
+                        }
+
                     }
                 }
-                channelObj.lines = calculateLineSegments(channelObj);
+                if (channelObj.projectedPoints !== undefined && channelObj.projectedPoints.length === 8) {
+                    channelObj.lines = calculateLineSegments(channelObj);
+                }
+
             }
         }
     }
@@ -413,17 +414,17 @@ function addBoundingBoxGui(bbox) {
     folderBoundingBox3DArray.push(bb);
 
     let folderPosition = folderBoundingBox3DArray[insertIndex].addFolder('Position');
-    let cubeX = folderPosition.add(bbox, 'x').min(-50).max(50).step(0.01).listen();
-    let cubeY = folderPosition.add(bbox, 'y').min(-50).max(50).step(0.01).listen();
+    let cubeX = folderPosition.add(bbox, 'x').min(-100).max(100).step(0.01).listen();
+    let cubeY = folderPosition.add(bbox, 'y').min(-100).max(100).step(0.01).listen();
     let cubeZ = folderPosition.add(bbox, 'z').min(-3).max(10).step(0.01).listen();
     let cubeYaw = folderPosition.add(bbox, 'yaw').min(-Math.PI).max(Math.PI).step(0.05).listen();
     folderPosition.close();
     folderPositionArray.push(folderPosition);
 
     let folderSize = folderBoundingBox3DArray[insertIndex].addFolder('Size');
-    let cubeW = folderSize.add(bbox, 'width').min(0).max(10).step(0.01).listen();
-    let cubeH = folderSize.add(bbox, 'height').min(0).max(10).step(0.01).listen();
-    let cubeD = folderSize.add(bbox, 'depth').min(0).max(10).step(0.01).listen();
+    let cubeW = folderSize.add(bbox, 'width').min(0).max(20).step(0.01).listen();
+    let cubeH = folderSize.add(bbox, 'height').min(0).max(20).step(0.01).listen();
+    let cubeD = folderSize.add(bbox, 'depth').min(0).max(20).step(0.01).listen();
     folderSize.close();
     folderSizeArray.push(folderSize);
 
@@ -545,19 +546,23 @@ function onWindowResize() {
 function setCamera() {
     scene.remove(camera);
     if (birdViewFlag === false) {
-        container = document.createElement('div');
-        document.body.appendChild(container);
-        //camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 100000);
-        camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
-        // camera.position.z = 250;
+        // container = document.createElement('div');
+        // document.body.appendChild(container);
+        camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 100000);
+        // camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
+        camera.position.set(0, 0, 10);
         // camera.up = new THREE.Vector3(0, 0, 1);
-        controls = new THREE.FlyControls(camera);
-        controls.movementSpeed = 2500;
-        controls.domElement = container;
-        controls.rollSpeed = Math.PI / 6;
-        controls.autoForward = false;
-        controls.dragToLook = false;
-        controls.domElement = container;
+        camera.up.set(0, 0, 1);
+
+        // controls = new THREE.FlyControls(camera);
+        // controls = new THREE.OrbitControls(camera, renderer.domElement);
+        // controls.enablePan = false;
+        // controls.enableRotate = false;
+        // controls.movementSpeed = 2500;
+        // controls.domElement = container;
+        // controls.rollSpeed = Math.PI / 6;
+        // controls.autoForward = false;
+        // controls.dragToLook = false;
         // scene.add(controls.getObject());
 
         var onKeyDown = function (event) {
@@ -579,12 +584,6 @@ function setCamera() {
                 case 68: // d
                     moveRight = true;
                     break;
-
-                case 32: // space
-                    if (canJump === true) velocity.y += 350;
-                    canJump = false;
-                    break;
-
             }
 
         };
@@ -632,7 +631,7 @@ function setCamera() {
         // controls.target = new THREE.Vector3(-pos[1] - 0.0000001, pos[0] - labelTool.positionLidar[0] + 0.0000001, labelTool.positionLidar[2] - pos[2]);// look backward
     } else {
         camera = new THREE.OrthographicCamera(-40, 40, 20, -20, 0, 2000);
-        camera.position.set(0, 0, 450);
+        camera.position.set(0, 0, 100);
         camera.up.set(0, 0, 1);
         camera.lookAt(new THREE.Vector3(0, 0, 0));
 
@@ -641,7 +640,7 @@ function setCamera() {
         // controls.zoomSpeed = 0.3;
         // controls.panSpeed = 0.2;
         // controls.enableZoom = true;
-        controls.enablePan = true;
+        // controls.enablePan = true;
         controls.enableRotate = false;
 
         // controls.enableDamping = false;
@@ -652,17 +651,18 @@ function setCamera() {
         // controls.enabled = false;
         // // controls.target.set(0, 0, 0);
         // controls.autoRotate = false;
+        controls.update();
     }
     scene.add(camera);
-    // controls.update();
+
 }
 
 //draw animation
 function animate() {
     requestAnimationFrame(animate);
 
-    var delta = clock.getDelta();
-    controls.update(delta);
+    // var delta = clock.getDelta();
+    // controls.update(delta);
     // keyboard.update();
     // if (keyboard.down("shift")) {
     //     controls.enabled = true;
@@ -704,7 +704,7 @@ function animate() {
     // }
 
     // controls.update();
-    stats.update();
+    // stats.update();
     // if (annotationObjects.getSelectionIndex() !== rotationBboxIndex) {
     //     rFlag = false;
     // }
@@ -743,6 +743,7 @@ function animate() {
     //         labelTool.cubeArray[labelTool.currentFileIndex][i].material.color.setHex(0x008866);
     //     }
     // }
+    cameraControls.update(camera, keyboard, clock);
     renderer.render(scene, camera);
 }
 
@@ -803,9 +804,11 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
     // yPos = yPos - labelTool.positionLidar[2];
     // zPos = zPos - labelTool.positionLidar[0];
 
-    xPos = xPos - labelTool.positionLidar[1];//lateral
-    yPos = yPos - labelTool.positionLidar[2];//longitudinal
-    zPos = zPos - labelTool.positionLidar[0];
+    if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
+        xPos = xPos - labelTool.positionLidar[1];//lateral
+        yPos = yPos - labelTool.positionLidar[0];//longitudinal
+        zPos = zPos - labelTool.positionLidar[2];//vertical
+    }
 
 
     // let projectedPoints = [];
@@ -893,14 +896,21 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
         let point = cornerPoints[cornerPoint];
         // working, but user sees back of camera
         // let point3D = [point.y, point.x, point.z, 1];
-        let point3D = [point.y, -point.x, -point.z, 1];
-        let projectionMatrix = labelTool.camChannels[idx].projectionMatrix;
-        let point2D = matrixProduct(projectionMatrix, point3D);
-        let windowX = point2D[0] / point2D[2];
-        let windowY = point2D[1] / point2D[2];
-        // windowX = Math.round(windowX / 2.5);
-        // windowY = Math.round(windowY / 2.5);
-        projectedPoints.push({x: windowX, y: windowY});
+        let point3D = [point.x * 100, point.y * 100, -point.z * 100, 1];
+        let projectionMatrix = labelTool.camChannels[idx].projectionMatrixLISA;
+        let point2D = matrixProduct3x4(projectionMatrix, point3D);
+        if (point2D[2] < 0) {
+            // add only points that are in front of camera
+            let windowX = point2D[0] / point2D[2];
+            let windowY = point2D[1] / point2D[2];
+            // windowX = Math.round(windowX / 2.5);
+            // windowY = Math.round(windowY / 2.5);
+            projectedPoints.push({x: windowX / 6, y: windowY / 6});
+        } else {
+            // do not draw bounding box if it is too close too camera or behind
+            return [];
+        }
+
     }
     return projectedPoints;
 }
@@ -972,8 +982,229 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
 //     controls.update();
 // }
 
+function changeDataset(datasetName) {
+    labelTool.currentDataset = datasetName;
+    labelTool.reset();
+    labelTool.start();
+}
+
+function readPointCloud() {
+    let rawFile = new XMLHttpRequest();
+    try {
+        if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+            rawFile.open("GET", labelTool.workBlob + '/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/pointclouds/' + pad(labelTool.currentFileIndex, 6) + '.pcd', false);
+        } else {
+            rawFile.open("GET", labelTool.workBlob + '/' + labelTool.currentDataset + '/pointclouds/all_scenes/' + pad(labelTool.currentFileIndex, 6) + '.txt', false);
+        }
+    } catch (error) {
+        // no labels available for this camera image
+        // do not through an error message
+    }
+
+    let points3D = [];
+    rawFile.onreadystatechange = function () {
+        if (rawFile.readyState === 4) {
+            if (rawFile.status === 200 || rawFile.status === 0) {
+                let allText = rawFile.responseText;
+                let allLines = allText.split("\n");
+                for (let i = 0; i < allLines.length; i++) {
+                    if (i < 11) {
+                        // skip header
+                        continue;
+                    }
+                    let points3DStringArray = allLines[i].split(" ");
+                    let point3D = [];
+                    // skip the last value (intensity)
+                    for (let j = 0; j < points3DStringArray.length - 1; j++) {
+                        let value = Number(points3DStringArray[j]);
+                        // points are stored in meters within .h5 file and .pcd files
+                        // multiply by 100 to get points in cm, because projection matrix requires it
+                        point3D.push(value * 100);
+                    }
+                    // make point a 4x1 vector to multiply it with the 3x4 projection matrix P*X
+                    point3D.push(1);
+                    points3D.push(point3D);
+                }
+                return points3D;
+            }
+        }
+    };
+    rawFile.send(null);
+    return points3D;
+}
+
+function projectPoints(points3D, channelIdx) {
+    let points2D = [];
+    currentPoints3D = [];
+    currentDistances = [];
+    let projectionMatrix = labelTool.camChannels[channelIdx].projectionMatrixLISA;
+    for (let point3DObj in points3D) {
+        if (points3D.hasOwnProperty(point3DObj)) {
+            let point3D = points3D[point3DObj];
+            let point2D = matrixProduct3x4(projectionMatrix, point3D);
+            if (point2D[2] > 0) {
+                // use only points that are in front of the camera
+                let windowX = point2D[0] / point2D[2];
+                let windowY = point2D[1] / point2D[2];
+                currentPoints3D.push(point3D);
+                // calculate distance
+                let distance = Math.sqrt(Math.pow(point3D[0], 2) + Math.pow(point3D[1], 2) + Math.pow(point3D[2], 2));
+                currentDistances.push(distance);
+                points2D.push({x: windowX / 6, y: windowY / 6});
+            }
+        }
+    }
+    return points2D;
+}
+
+function normalizeDistances() {
+    let maxDistance = 0;
+    for (let distanceIdx in currentDistances) {
+        if (currentDistances.hasOwnProperty(distanceIdx)) {
+            let distance = currentDistances[distanceIdx];
+            if (distance > maxDistance) {
+                maxDistance = distance;
+            }
+        }
+    }
+    for (let i = 0; i < currentDistances.length; i++) {
+        currentDistances[i] = (currentDistances[i] / (maxDistance - 7000)) * 255;
+    }
+}
+
+// function filterPoints(points3D, channel) {
+//     for (let ){
+//
+//     }
+// }
+
+function showProjectedPoints() {
+    let points3D = readPointCloud();
+    for (let channelIdx in labelTool.camChannels) {
+        if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
+            let channelObj = labelTool.camChannels[channelIdx];
+            let channelIndexByName = getChannelIndexByName(channelObj.channel);
+            let paper = paperArray[channelIndexByName];
+            // remove points that are behind the camera
+            // returns indices of points that are in current field of view
+            // let visiblePointsIndices = filterPoints(points3D, channel);
+            // let currentPoints3D = [];
+            // let currentDistances = [];
+            // for (let i = 0; i < visiblePointsIndices.length; i++) {
+            //     currentPoints3D.push(points3D[i]);
+            //     currentDistances.push(distanceArray[i]);
+            // }
+            let points2D = projectPoints(points3D, channelIndexByName);
+            normalizeDistances();
+            for (let i = 0; i < points2D.length; i++) {
+                let pt2D = points2D[i];
+                let circle = paper.circle(pt2D.x, pt2D.y, 1);
+                let distance = currentDistances[i];
+                let color = colorMap[Math.floor(distance)];
+                circle.attr("stroke", color);
+                circle.attr("stroke-width", 1);
+                circleArray.push(circle);
+            }
+
+        }
+    }
+
+}
+
+function hideProjectedPoints() {
+    for (let i = circleArray.length - 1; i >= 0; i--) {
+        let circle = circleArray[i];
+        circle.remove();
+        circleArray.remove(circle);
+    }
+}
+
+function loadColorMap() {
+    let rawFile = new XMLHttpRequest();
+    try {
+        rawFile.open("GET", 'colormaps/' + activeColorMap, false);
+    } catch (error) {
+    }
+
+    rawFile.onreadystatechange = function () {
+        if (rawFile.readyState === 4) {
+            if (rawFile.status === 200 || rawFile.status === 0) {
+                let allText = rawFile.responseText;
+                colorMap = allText.replace(/"/g, '').split("\n");
+            }
+        }
+    };
+    rawFile.send(null);
+}
+
 function init() {
+    /**
+     * CameraControls
+     */
+    function CameraControls() {
+        //constructor
+    }
+
+    CameraControls.prototype = {
+        constructor: CameraControls,
+        update: function (camera, keyboard, clock) {
+            //functionality to go here
+            var delta = clock.getDelta(); // seconds.
+            var moveDistance = 10 * delta; // 200 pixels per second
+            var rotateAngle = delta;   // pi/2 radians (90 degrees) per second
+            if (keyboard.pressed("w")) {
+                // camera.translateZ(-moveDistance);
+                let angle = Math.abs(camera.rotation.y + Math.PI / 2);
+                let posX = camera.position.x + Math.cos(angle) * moveDistance;
+                let posY = camera.position.y + Math.sin(angle) * moveDistance;
+                camera.position.set(posX, posY, camera.position.z);
+            }
+            if (keyboard.pressed("s")) {
+                let angle = Math.abs(camera.rotation.y + Math.PI / 2);
+                moveDistance = -moveDistance;
+                let posX = camera.position.x + Math.cos(angle) * moveDistance;
+                let posY = camera.position.y + Math.sin(angle) * moveDistance;
+                camera.position.set(posX, posY, camera.position.z);
+                // camera.position.set(0, 0, camera.position.z + moveDistance);
+                // camera.translateZ(moveDistance);
+            }
+            if (keyboard.pressed("a")) {
+                camera.translateX(-moveDistance);//great!
+            }
+            if (keyboard.pressed("d")) {
+                camera.translateX(moveDistance);//great!
+            }
+            if (keyboard.pressed("q")) {
+                camera.position.z = camera.position.z - moveDistance;
+            }
+            if (keyboard.pressed("e")) {
+                camera.position.z = camera.position.z + moveDistance;
+            }
+
+            if (keyboard.pressed("left")) {
+                camera.rotateOnAxis(new THREE.Vector3(0, 1, 0), rotateAngle);
+            }
+            if (keyboard.pressed("right")) {
+                camera.rotateOnAxis(new THREE.Vector3(0, 1, 0), -rotateAngle);
+            }
+            if (keyboard.pressed("up")) {
+                camera.rotateOnAxis(new THREE.Vector3(1, 0, 0), rotateAngle);
+            }
+            if (keyboard.pressed("down")) {
+                camera.rotateOnAxis(new THREE.Vector3(1, 0, 0), -rotateAngle);
+            }
+
+
+        }
+    };
+
+    cameraControls = new CameraControls();
+    keyboard = new THREEx.KeyboardState();
     clock = new THREE.Clock();
+    // container = document.createElement('div');
+    // document.body.appendChild(container);
+
+
     scene = new THREE.Scene();
 
     scene.background = new THREE.Color(0x323232);
@@ -984,18 +1215,22 @@ function init() {
     scene.add(axisHelper);
 
     let canvas3D = document.getElementById('canvas3d');
-    setCamera();
-    controls.domElement = container;
+    // controls.domElement = container;
 
     renderer = new THREE.WebGLRenderer({antialias: true});
     renderer.setClearColor(0x161616);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
+    setCamera();
 
+    if ($("#canvas3d").children().size() > 0) {
+        $($("#canvas3d").children()[0]).remove();
+    }
     canvas3D.appendChild(renderer.domElement);
-    stats = new Stats();
-    canvas3D.appendChild(stats.dom);
+
+    // stats = new Stats();
+    // canvas3D.appendChild(stats.dom);
     window.addEventListener('resize', onWindowResize, false);
     window.addEventListener("contextmenu", function (e) {
         e.preventDefault();
@@ -1067,6 +1302,12 @@ function init() {
                         guiOptions.removeFolder(label + ' ' + trackId);
                         annotationObjects.remove(clickedObjectIndex);
                         annotationObjects.selectEmpty();
+                        // close folder
+                        for (let i = 0; i < folderBoundingBox3DArray.length; i++) {
+                            if (folderBoundingBox3DArray[i] !== undefined) {
+                                folderBoundingBox3DArray[i].close();
+                            }
+                        }
                     }
                 } else if (birdViewFlag === true) {
                     clickedObjectIndex = -1;
@@ -1171,6 +1412,16 @@ function init() {
                     }
 
                 }
+
+                if (clickedObjectIndex === -1) {
+                    annotationObjects.selectEmpty();
+                    // close folders
+                    for (let i = 0; i < folderBoundingBox3DArray.length; i++) {
+                        if (folderBoundingBox3DArray[i] !== undefined) {
+                            folderBoundingBox3DArray[i].close();
+                        }
+                    }
+                }
                 if (clickFlag === true) {
                     clickedPlaneArray = [];
                     let selectionIndex = labelTool.bboxIndexArray[labelTool.currentFileIndex][clickedObjectIndex];
@@ -1200,7 +1451,7 @@ function init() {
                     // set channel based on 3d position of new bonding box
                     if (Math.abs(groundUpPoint.x - groundClickedPoint.x) > 0.1) {
                         let xPos = (groundUpPoint.x + groundClickedPoint.x) / 2;
-                        let yPos = -(groundUpPoint.y + groundClickedPoint.y) / 2;
+                        let yPos = (groundUpPoint.y + groundClickedPoint.y) / 2;
                         let zPos = -1;
                         let addBboxParameters = {
                             class: classesBoundingBox.targetName(),
@@ -1213,7 +1464,7 @@ function init() {
                             yaw: 0,
                             org: {
                                 x: (groundUpPoint.x + groundClickedPoint.x) / 2,
-                                y: -(groundUpPoint.y + groundClickedPoint.y) / 2,
+                                y: (groundUpPoint.y + groundClickedPoint.y) / 2,
                                 z: zPos,
                                 width: Math.abs(groundUpPoint.x - groundClickedPoint.x),
                                 height: Math.abs(groundUpPoint.y - groundClickedPoint.y),
@@ -1235,7 +1486,7 @@ function init() {
                             fromFile: false
                         };
                         // set channel
-                        let channels = getChannelByPosition(xPos, yPos);
+                        let channels = getChannelByPosition(xPos, -yPos);
                         for (let i = 0; i < channels.length; i++) {
                             let channel = channels[i];
                             addBboxParameters.channels[i].channel = channel;
@@ -1245,9 +1496,15 @@ function init() {
                             addBboxParameters.channels[i].projectedPoints = projectedBoundingBox;
                         }
                         // calculate line segments
+
                         for (let i = 0; i < addBboxParameters.channels.length; i++) {
                             let channelObj = addBboxParameters.channels[i];
-                            addBboxParameters.channels[i]["lines"] = calculateLineSegments(channelObj);
+                            if (channelObj.channel !== undefined && channelObj.channel !== '') {
+                                if (addBboxParameters.channels[i].projectedPoints !== undefined && addBboxParameters.channels[i].projectedPoints.length === 8) {
+                                    addBboxParameters.channels[i]["lines"] = calculateLineSegments(channelObj);
+                                }
+
+                            }
                         }
 
                         annotationObjects.set(insertIndex, addBboxParameters);
@@ -1320,15 +1577,12 @@ function init() {
                 }
 
             }
-            if (clickedObjectIndex === -1) {
-                annotationObjects.selectEmpty();
-            }
         }
     };
     labelTool.cubeArray = [];
     labelTool.bboxIndexArray = [];
     labelTool.savedFrames = [];
-    for (let i = 0; i < 3962; i++) {
+    for (let i = 0; i < labelTool.numFrames; i++) {
         labelTool.cubeArray.push([]);
         labelTool.bboxIndexArray.push([]);
         labelTool.savedFrames.push([]);
@@ -1351,8 +1605,24 @@ function init() {
     // 3D BB controls
     guiOptions.add(parameters, 'download').name("Download");
     guiOptions.add(parameters, 'switch_view').name("Switch view");
+    guiOptions.add(parameters, 'datasets', ['NuScenes', 'LISA_T']).name("Choose dataset")
+        .onChange(function (value) {
+            changeDataset(value);
+        });
+
+    let showProjectedPointsCheckbox = guiOptions.add(parameters, 'show_projected_points').name('Show projected points').listen();
+    showProjectedPointsCheckbox.onChange(function (value) {
+        showProjectedPointsFlag = value;
+        if (showProjectedPointsFlag === true) {
+            showProjectedPoints();
+        } else {
+            hideProjectedPoints();
+        }
+    });
+
+
     // guiOptions.add(parameters, 'setCameraView').name("Camera View");
-    readYAMLFile(labelTool.workBlob + "/calibration.yml");
+    readYAMLFile(labelTool.workBlob + "/NuScenes/calibration.yml");
     loadPCDData(parameters);
     guiOptions.domElement.id = 'bounding-box-3d-menu';
     $('#bounding-box-3d-menu').css('width', '290px');
@@ -1374,4 +1644,6 @@ function init() {
     let elem = $("#label-tool-log");
     elem.val("1. Draw bounding box ");
     elem.css("color", "#969696");
+
+    loadColorMap();
 }
