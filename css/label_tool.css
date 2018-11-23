@@ -125,10 +125,10 @@
 }
 
 #canvas3d {
-    position: fixed;
-    top: 40px;
-    bottom: 0px;
-    width: 100%;
+    /*position: fixed;*/
+    /*top: 40px;*/
+    /*bottom: 0px;*/
+    /*width: 100%;*/
 }
 
 #canvas3d canvas {
@@ -158,61 +158,49 @@
     font-weight: bold;
 }
 
-#jpeg-label-canvas-front-left {
-    position: fixed;
-    top: 50px;
-    left: 0px;
+#image-cam-front-left {
+    /*position: absolute;*/
+    /*top: 0px;*/
+    /*left: 0px;*/
     z-index: 100;
     background-color: white;
     margin: 0px;
     padding: 0px;
-    width: 640px !important;
-    height: 360px !important;
 }
 
-#jpeg-label-canvas-front {
-    position: fixed;
-    top: 50px;
-    left: 640px;
+#image-cam-front {
+    /*position: absolute;*/
+    /*top: 0px;*/
+    /*left: 320px;*/
     z-index: 100;
     background-color: white;
     margin: 0px;
     padding: 0px;
-    width: 640px !important;
-    height: 360px !important;
 }
 
-#jpeg-label-canvas-front-right {
+#image-cam-front-right {
     position: absolute;
+    left: 639px;
+}
+
+#image-cam-back-right {
+    position: absolute;
+    left: 959px;
+    /*bottom: 0px;*/
+    /*left: 0px;*/
+}
+
+#image-cam-back {
+    position: absolute;
+    left: 1279px;
+    /*bottom: 0px;*/
+    /*left: 640px;*/
+}
+
+#image-cam-back-left {
+    position: absolute;
+    /*bottom: 0px;*/
     right: 0px;
-}
-
-#jpeg-label-canvas-back-right {
-    position: absolute;
-    bottom: 0px;
-    left: 0px;
-}
-
-#jpeg-label-canvas-back {
-    position: absolute;
-    bottom: 0px;
-    left: 640px;
-}
-
-#jpeg-label-canvas-back-left {
-    position: absolute;
-    bottom: 0px;
-    right: 0px;
-}
-
-#jpeg-label-canvas-front-left svg, #jpeg-label-canvas-front svg {
-    width: 640px;
-    height: 360px;
-}
-
-#jpeg-label-canvas-front-left svg image, #jpeg-label-canvas-front svg image {
-    width: 640px;
-    height: 360px;
 }
 
 .jpeg-label-sidebar {
@@ -495,3 +483,22 @@ text {
     width: 150px;
 }
 
+#class-picker {
+    right: 0px;
+    bottom: 0px;
+    padding-bottom: 30px;
+    float: none;
+    position: fixed;
+}
+
+#bounding-box-3d-menu {
+    left: 10px;
+    bottom: 0px;
+    padding-bottom: 30px;
+    float: none;
+    position: fixed;
+}
+
+#layout_layout_resizer_top {
+    height: 10px !important;
+}

@@ -206,7 +206,7 @@
         scene = new THREE.Scene();
 
         let pcd_loader = new THREE.PCDLoader();
-        let pcd_url = 'input/PCDPoints/all_scenes/000000.pcd';
+        let pcd_url = 'input/NuScenes/pointclouds/all_scenes/000000.pcd';
         pcd_loader.load(pcd_url, function (mesh) {
             mesh.name = 'pointcloud';
             scene.add(mesh);
