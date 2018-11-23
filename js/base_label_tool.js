@@ -73,7 +73,7 @@ function storeAnnotations(annotations, camChannel) {
                 params.channels[0].rect = rect;
             }
             // TODO: why multiply with cameraMatrix?
-            let readMat = matrixProduct(this.cameraMatrix, [parseFloat(annotation.x),
+            let readMat = matrixProduct4x4(this.cameraMatrix, [parseFloat(annotation.x),
                 parseFloat(annotation.y),
                 parseFloat(annotation.z),
                 1]);
@@ -105,7 +105,10 @@ function storeAnnotations(annotations, camChannel) {
             params.channels[0].projectedPoints = calculateProjectedBoundingBox(params.x, params.y, -params.z, params.width, params.height, params.depth, channel);
             // calculate line segments
             let channelObj = params.channels[0];
-            params.channels[0].lines = calculateLineSegments(channelObj);
+            if (params.channels[0].projectedPoints !== undefined && params.channels[0].projectedPoints.length === 8) {
+                params.channels[0].lines = calculateLineSegments(channelObj);
+            }
+
 
             // check if that object already exists in annotationObjects.contents array (e.g. in another channel)
             let indexByDimension = getIndexByDimension(params.width, params.height, params.depth);
@@ -134,7 +137,32 @@ function storeAnnotations(annotations, camChannel) {
     // this.setTrackIds();
 }
 
+function initPanes() {
+    let height;
+    if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+        height = 240;
+    } else {
+        height = 180;
+    }
+    let topStyle = 'background-color: #F5F6F7; border: 1px solid #dfdfdf; padding: 0px;';
+    $('#label-tool-wrapper').w2layout({
+        name: 'layout',
+        panels: [
+            {type: 'top', size: height, resizable: true, style: topStyle}
+        ]
+    });
+}
+
 let labelTool = {
+    datasets: Object.freeze({"NuScenes": "NuScenes", "LISA_T": "LISA_T"}),
+    sequences: Object.freeze({
+        "FIRST": "2018-05-23-001-frame-00042917-00043816",
+        "SECOND": "2018-05-23-001-frame-00077323-00078222",
+        "THIRD": "2018-05-23-001-frame-00080020-00080919"
+    }),
+    currentDataset: 'LISA_T',
+    currentSequence: '',
+    numFrames: 0,
     dataTypes: [],
     workBlob: '',         // Base url of blob
     currentFileIndex: 0,           // Base name of current file
@@ -162,13 +190,11 @@ let labelTool = {
         rotationY: 305 * Math.PI / 180,//305 degree
         projectionMatrix: [[5.85177527e+02, -4.87057717e+01, 1.36795440e+01, -1.25263992e+03],
             [1.09848120e+02, 1.35213575e+02, -5.00233407e+02, -4.94018067e+02],
-            [5.86538603e-01, 8.09812692e-01, 1.32616689e-02, -1.53500000e+00],
-            [0, 0, 0, 1]],
-        projectionMatrixLISA:
-            [[-3.69693341e+02, -1.23029801e+03, 1.94974645e+02, 1.11202454e+03],
-                [-5.65668845e+02, -2.38136033e+02, 9.08047474e+02, 8.06324234e+04],
-                [-8.43178206e-01, -5.28564220e-01, 9.83884029e-02, 4.75651297e+01],
-                [0, 0, 0, 1]],
+            [5.86538603e-01, 8.09812692e-01, 1.32616689e-02, -1.53500000e+00]],
+        projectionMatrixLISA: [[-251.25471266126286, 1271.4131017512532, -94.08147145637669, -82230.40765539104],
+            [-480.6212728089816, 371.7218954940578, -912.1641583067685, -58976.298755304604],
+            [-0.7873, 0.6091, -0.0958, -82.9684]],
+        rotation: 305
     }, {
         channel: 'CAM_FRONT',
         position: [1.671, -0.026, 1.536],
@@ -176,13 +202,22 @@ let labelTool = {
         rotationY: 0, // 0 degree
         projectionMatrix: [[3.12258552e+02, -5.06569044e+02, 7.10472974e+00, -1.32739702e+03],
             [1.82040476e+02, -3.66543008e+00, -5.02684133e+02, -2.55967282e+02],
-            [9.99896593e-01, -4.63590596e-03, 1.36129354e-02, -1.53600000e+00],
-            [0, 0, 0, 1]],
-        projectionMatrixLISA: [[8.36655910e+02, -9.87880454e+02, 1.11251669e+02, -1.31315787e+04],
-            [-7.14176669e+01, -6.48807974e+02, 8.80425447e+02, 4.43728052e+04],
-            [-1.30263844e-02, -9.98706359e-01, 4.91520232e-02, -1.04301000e+01],
-            [0, 0, 0, 1]],
-
+            [9.99896593e-01, -4.63590596e-03, 1.36129354e-02, -1.53600000e+00]],
+        //  using translation_vector_lidar_to_cam_front = -np.array([-59.7093, 7.7151, -13.4829]).T
+        // projectionMatrixLISA: [[1.39444832e+02, -1.64650603e+02, 1.85512595e+01, 8.66888457e+03],
+        //     [-1.18951416e+01, -1.08130948e+02, 1.46736454e+02, 8.79774529e+03],
+        //     [-1.30000000e-02, -9.98700000e-01, 4.92000000e-02, 5.97093000e+01]]
+        // using translation_vector_lidar_to_cam_front = -np.array([7.7151, -59.7093, -13.4829]).T
+        // projectionMatrixLISA: [[139.44483229405185, -164.65060309249841, 18.551259509590313, 1109.5419777589204],
+        //     [-11.8951415546322, -108.13094806356696, 146.73645394171749, 10011.875332363627],
+        //     [-0.013, -0.9987, 0.0492, 13.4829]]
+        // projectionMatrixLISA: [[139.44483229405185, -164.65060309249841, 18.551259509590313, -1109.5419777589204],
+        //     [-11.8951415546322, -108.13094806356696, 146.73645394171749, -10011.875332363627],
+        //     [-0.013, -0.9987, 0.0492, -13.4829]]
+        projectionMatrixLISA: [[922.033620236691, 914.742127292118, 37.1306002570457, -52013.3448439892],
+            [43.2552503707437, 731.907745080755, -814.641807656038, -52786.4684187814],
+            [0.0739896518701493, 0.996046991878090, 0.0491520232212485, -59.7093249377266]],
+        rotation: 0
     }, {
         channel: 'CAM_FRONT_RIGHT',
         position: [1.593, -0.527, 1.526],
@@ -190,12 +225,11 @@ let labelTool = {
         rotationY: 55 * Math.PI / 180, // 55 degree
         projectionMatrix: [[-2.31755207e+02, -5.42971937e+02, -4.83981324e+00, -1.27054365e+03],
             [1.06727074e+02, -1.34248981e+02, -5.03820234e+02, 1.31146956e+01],
-            [5.84932270e-01, -8.11014555e-01, 1.04704634e-02, -1.52600000e+00],
-            [0, 0, 0, 1]],
-        projectionMatrixLISA: [[1.28520652e+03, 1.60361082e+02, 1.03853301e+02, 7.73253771e+04],
-            [4.79650174e+02, -2.29219205e+02, 9.58502780e+02, 7.61011804e+04],
-            [8.16944339e-01, -5.47076598e-01, 1.82555125e-01, 3.84545378e+01],
-            [0, 0, 0, 1]],
+            [5.84932270e-01, -8.11014555e-01, 1.04704634e-02, -1.52600000e+00]],
+        projectionMatrixLISA: [[1271.3136011165718, -264.8077615167896, -42.35337418192368, -58914.95130031767],
+            [561.3394288862174, 273.6681408112988, -900.78438804512, -49758.5316810427],
+            [0.8704, 0.4861, -0.0785, -68.6021]],
+        rotation: 55
     }, {
         channel: 'CAM_BACK_RIGHT',
         position: [1.042, -0.456, 1.595],
@@ -203,12 +237,12 @@ let labelTool = {
         rotationY: 110 * Math.PI / 180, // 110 degree
         projectionMatrix: [[-5.77808286e+02, -1.02972103e+02, -5.55447232e+00, -1.00531506e+03],
             [-5.59368762e+01, -1.61381901e+02, -5.04106508e+02, -4.42780364e+01],
-            [-3.54597523e-01, -9.35016690e-01, -2.09429354e-03, -1.59500000e+00],
-            [0, 0, 0, 1]],
-        projectionMatrixLISA: [[8.69735894e+02, 9.55554806e+02, 1.37373869e+02, 2.05306241e+05],
-            [5.45031100e+02, 7.84029467e+01, 9.47623008e+02, 9.21192945e+04],
-            [9.81369176e-01, 1.11068716e-01, 1.56834344e-01, 7.72576958e+01],
-            [0, 0, 0, 1]],
+            [-3.54597523e-01, -9.35016690e-01, -2.09429354e-03, -1.59500000e+00]],
+        projectionMatrixLISA: [[794.0356195429831, -1012.8849095439483, -179.07770087021203, -128602.00570706779],
+            [599.7750068083451, -38.26710841555636, -916.4982974817447, -43877.90381297301],
+            [0.977, -0.1837, -0.1082, -60.6184]],
+        rotation: 110
+
     }, {
         channel: 'CAM_BACK',
         position: [0.086, -0.007, 1.541],
@@ -216,12 +250,11 @@ let labelTool = {
         rotationY: Math.PI,//180 degree
         projectionMatrix: [[-2.65847240e+02, 3.24032801e+02, -4.08488699e+00, -4.45996076e+02],
             [-1.62919716e+02, 2.84450505e+00, -3.21702344e+02, -2.56189382e+02],
-            [-9.99731565e-01, 1.77968704e-02, -1.48347542e-02, -1.54100000e+00],
-            [0, 0, 0, 1]],
-        projectionMatrixLISA: [[-8.10027806e+02, 1.01289699e+03, -7.79750544e+01, 1.66123588e+05],
-            [-4.30357513e+01, 7.00945544e+02, 8.41488277e+02, 1.55682044e+05],
-            [3.89369831e-02, 9.99206420e-01, -7.71048837e-03, 1.67845316e+02],
-            [0, 0, 0, 1]],
+            [-9.99731565e-01, 1.77968704e-02, -1.48347542e-02, -1.54100000e+00]],
+        projectionMatrixLISA: [[-895.4304585339987, -938.871846096237, -71.02888985836256, -5982.317869225711],
+            [-44.155367517485175, -612.6590140263143, -907.7438241324993, -84384.88883048057],
+            [-0.0455, -0.995, -0.0888, -4.2963]],
+        rotation: 180
     }, {
         channel: 'CAM_BACK_LEFT',
         position: [1.055, 0.441, 1.605],
@@ -229,12 +262,11 @@ let labelTool = {
         rotationY: 250 * Math.PI / 180, //250 degree
         projectionMatrix: [[3.79416560e+02, 4.44554116e+02, 4.90223542e+00, -1.00791882e+03],
             [-5.18851401e+01, 1.62909404e+02, -5.02685127e+02, -4.93475056e+02],
-            [-3.24931351e-01, 9.45731163e-01, 3.49054849e-03, -1.60500000e+00],
-            [0, 0, 0, 1]],
-        projectionMatrixLISA: [[-1.09813962e+03, -6.94242115e+02, -1.65358550e+01, -3.04704025e+04],
-            [-7.06875036e+02, 1.20243649e+02, 8.28854852e+02, 1.01806649e+05],
-            [-9.88159385e-01, 1.50516707e-01, -2.95033992e-02, 9.28057035e+01],
-            [0, 0, 0, 1]],
+            [-3.24931351e-01, 9.45731163e-01, 3.49054849e-03, -1.60500000e+00]],
+        projectionMatrixLISA: [[-1034.7887558860443, 785.54017213604, 19.44397266029749, -22415.14333034558],
+            [-656.3615503272123, 21.601386673152174, -877.404677400356, -57939.50633439972],
+            [-0.997, -0.0632, -0.0446, -84.9344]],
+        rotation: 305
     }],
 
     currentChannelLabel: document.getElementById('cam_channel'),
@@ -475,12 +507,12 @@ let labelTool = {
                 this.cubeArray[this.currentFileIndex][i].position.y,
                 this.cubeArray[this.currentFileIndex][i].position.z,
                 1];
-            let resultMat = matrixProduct(inverseMatrix(this.cameraMatrix), cubeMat);
+            let resultMat = matrixProduct4x4(inverseMatrix(this.cameraMatrix), cubeMat);
             let annotation = {
                 class: annotationObj["class"],
                 truncated: 0,
                 occluded: 3,
-                alpha: 0, // calculated by python script
+                alpha: 0,
                 left: minPos[0],
                 top: minPos[1],
                 right: maxPos[0],
@@ -503,6 +535,30 @@ let labelTool = {
     },
 
     initialize: function () {
+        initPanes();
+
+        let imageContainer = $("#layout_layout_panel_top .w2ui-panel-content");
+        // create six image divs
+        for (let channelIdx in labelTool.camChannels) {
+            if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
+                let channel = labelTool.camChannels[channelIdx].channel;
+                let id = "image-" + channel.toLowerCase().replace(/_/g, '-');
+                imageContainer.append("<div id='" + id + "'></div>");
+                let canvasElem = imageContainer["0"].children[channelIdx];
+                canvasArray.push(canvasElem);
+                paperArray.push(Raphael(canvasElem, image_width, image_height));
+            }
+        }
+        let pointCloudContainer = $("#layout_layout_panel_main .w2ui-panel-content");
+        pointCloudContainer.append('<div id="canvas3d" style="z-index: 0; background-color: #000000;"></div>');
+
+        if (this.currentDataset === this.datasets.LISA_T) {
+            this.numFrames = 900;
+        } else {
+            this.numFrames = 3962;
+        }
+
+        this.currentSequence = this.sequences.FIRST;
         this.pageBox.placeholder = (this.currentFileIndex + 1) + "/" + this.fileNames.length;
         this.camChannels.forEach(function (channelObj) {
             this.localOnInitialize[channelObj.channel]();
@@ -531,6 +587,34 @@ let labelTool = {
             error: function (res) {
                 this.loadCount--;
             }.bind(this)
+        });
+    },
+
+    reset() {
+        this.currentFileIndex = 0;
+        this.fileNames = [];
+        this.originalAnnotations = [];
+        this.targetClass = "Vehicle";
+        this.savedFrames = [];
+        this.cubeArray = [];
+        this.currentCameraChannelIndex = 0;
+        guiAnnotationClasses = new dat.GUI();
+        guiOptions = new dat.GUI();
+        folderBoundingBox3DArray = [];
+        folderPositionArray = [];
+        folderSizeArray = [];
+
+        let classPickerElem = $('#class-picker ul li');
+        classPickerElem.css('background-color', '#353535');
+        $(classPickerElem[0]).css('background-color', '#525252');
+        classPickerElem.css('border-bottom', '0px');
+
+        classPickerElem.each(function (i, item) {
+            let propNamesArray = Object.getOwnPropertyNames(classesBoundingBox);
+            let color = classesBoundingBox[propNamesArray[i]].color;
+            let attribute = "20px solid" + ' ' + color;
+            $(item).css("border-left", attribute);
+            $(item).css('border-bottom', '0px');
         });
     },
 
@@ -882,7 +966,7 @@ let labelTool = {
         $(window).unbind("resize");
         $(window).resize(function () {
             $(function () {
-                if ($("#jpeg-label-canvas-front-left").css("display") == "block") {
+                if ($("#image-cam-front-left").css("display") === "block") {
                     var windowWidth = $('#label-tool-wrapper').width();
                     var width = windowWidth / 4 > 100 ? windowWidth / 4 : 100;
                     var height = width * 5 / 8;
