@@ -147,7 +147,8 @@ function initialize(camChannel) {
     let height;
     if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
         width = 320;
-        height = 240;
+        height = $("#layout_layout_resizer_top").attr("top");
+        // height = 240;
     } else {
         width = 640;
         height = 360;
