@@ -1,15 +1,15 @@
 let camera, controls, scene, renderer;
-var clock;
-var container;
-var keyboard;
-var moveForward = false;
-var moveBackward = false;
-var moveLeft = false;
-var moveRight = false;
-// var canJump = false;
+let clock;
+let container;
+let keyboard;
+let moveForward = false;
+let moveBackward = false;
+let moveLeft = false;
+let moveRight = false;
+//let canJump = false;
 //
-// var velocity = new THREE.Vector3();
-// var direction = new THREE.Vector3();
+// let velocity = new THREE.Vector3();
+// let direction = new THREE.Vector3();
 
 // let stats;
 let cube;
@@ -331,7 +331,7 @@ function download() {
         outputString += annotations[i].x + " ";//lateral x
         outputString += annotations[i].y + " ";
         outputString += annotations[i].z + " ";
-        outputString += annotations[i].rotation_y + " ";
+        outputString += annotations[i].rotationYaw + " ";
         outputString += annotations[i].score + " ";
         outputString += annotations[i].trackId + " ";
         outputString += annotations[i].channel + "\n";
@@ -565,7 +565,7 @@ function setCamera() {
         // controls.dragToLook = false;
         // scene.add(controls.getObject());
 
-        var onKeyDown = function (event) {
+        let onKeyDown = function (event) {
 
             switch (event.keyCode) {
 
@@ -588,7 +588,7 @@ function setCamera() {
 
         };
 
-        var onKeyUp = function (event) {
+        let onKeyUp = function (event) {
 
             switch (event.keyCode) {
 
@@ -897,7 +897,13 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
         // working, but user sees back of camera
         // let point3D = [point.y, point.x, point.z, 1];
         let point3D = [point.x * 100, point.y * 100, -point.z * 100, 1];
-        let projectionMatrix = labelTool.camChannels[idx].projectionMatrixLISA;
+        let projectionMatrix;
+        if (labelTool.currentDataset===labelTool.datasets.LISA_T){
+            projectionMatrix = labelTool.camChannels[idx].projectionMatrixLISAT;
+        }else{
+            projectionMatrix = labelTool.camChannels[idx].projectionMatrixNuScenes;
+        }
+
         let point2D = matrixProduct3x4(projectionMatrix, point3D);
         if (point2D[2] < 0) {
             // add only points that are in front of camera
@@ -1149,9 +1155,9 @@ function init() {
         constructor: CameraControls,
         update: function (camera, keyboard, clock) {
             //functionality to go here
-            var delta = clock.getDelta(); // seconds.
-            var moveDistance = 10 * delta; // 200 pixels per second
-            var rotateAngle = delta;   // pi/2 radians (90 degrees) per second
+            let delta = clock.getDelta(); // seconds.
+            let moveDistance = 10 * delta; // 200 pixels per second
+            let rotateAngle = delta;   // pi/2 radians (90 degrees) per second
             if (keyboard.pressed("w")) {
                 // camera.translateZ(-moveDistance);
                 let angle = Math.abs(camera.rotation.y + Math.PI / 2);

@@ -1,14 +1,14 @@
 //let canvasArray = [document.getElementById("jpeg-label-canvas-front-left"), document.getElementById("jpeg-label-canvas-front"), document.getElementById("jpeg-label-canvas-front-right"), document.getElementById("jpeg-label-canvas-back-right"), document.getElementById("jpeg-label-canvas-back"), document.getElementById("jpeg-label-canvas-back-left")];
 let canvasArray = [];
 let canvasParamsArray = [{}, {}, {}, {}, {}, {}];
-let image_height;
-let image_width;
+let imageHeight;
+let imageWidth;
 if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-    image_width = 320;
-    image_height = 240;
+    imageWidth = 320;
+    imageHeight = 240;
 } else {
-    image_width = 640;
-    image_height = 360;
+    imageWidth = 640;
+    imageHeight = 360;
 }
 //var paperArray = [Raphael(canvasArray[0], width, height), Raphael(canvasArray[1], width, height), Raphael(canvasArray[2], width, height), Raphael(canvasArray[3], width, height), Raphael(canvasArray[4], width, height), Raphael(canvasArray[5], width, height)];
 let paperArray = [];
@@ -31,39 +31,7 @@ function remove(index) {
     // annotationObjects.contents[index]["rect"].remove();
 }
 
-jQuery.fn.onPositionChanged = function (trigger, millis) {
-    if (millis == null) millis = 100;
-    var o = $(this[0]); // our jquery object
-    if (o.length < 1) return o;
-
-    var lastPos = null;
-    var lastOff = null;
-    setInterval(function () {
-        if (o == null || o.length < 1) return o; // abort if element is non existend eny more
-        if (lastPos == null) lastPos = o.position();
-        if (lastOff == null) lastOff = o.offset();
-        var newPos = o.position();
-        var newOff = o.offset();
-        if (lastPos.top != newPos.top || lastPos.left != newPos.left) {
-            $(this).trigger('onPositionChanged', {lastPos: lastPos, newPos: newPos});
-            if (typeof (trigger) == "function") trigger(lastPos, newPos);
-            lastPos = o.position();
-        }
-        if (lastOff.top != newOff.top || lastOff.left != newOff.left) {
-            $(this).trigger('onOffsetChanged', {lastOff: lastOff, newOff: newOff});
-            if (typeof (trigger) == "function") trigger(lastOff, newOff);
-            lastOff = o.offset();
-        }
-    }, millis);
-
-    return o;
-};
-
 /*********** Event handlers **************/
-
-$("#layout_layout_resizer_top").onPositionChanged(function () {
-    alert("foobar")
-});
 
 annotationObjects.onRemove("CAMERA", function (index) {
     remove(index);
@@ -100,8 +68,8 @@ function select(newIndex, channel) {
     //     hideAllBoundingBoxes(newIndex);
     // }
     // unhighlight bb in BEV
-    for (var mesh in labelTool.cubeArray[labelTool.currentFileIndex]) {
-        var meshObject = labelTool.cubeArray[labelTool.currentFileIndex][mesh];
+    for (let mesh in labelTool.cubeArray[labelTool.currentFileIndex]) {
+        let meshObject = labelTool.cubeArray[labelTool.currentFileIndex][mesh];
         meshObject.material.opacity = 0.4;
     }
     // highlight selected bb in BEV
@@ -729,7 +697,7 @@ function addEvent(element, trigger, action) {
         element[trigger + action] = function () {
             element['e' + trigger + action](window.event);
         };
-        var r = element.attachEvent('on' + trigger, element[trigger + action]);
+        let r = element.attachEvent('on' + trigger, element[trigger + action]);
         return r;
     }
     else {
@@ -803,7 +771,10 @@ function changeCanvasSize(width, height, camChannel) {
         width: canvas.offsetWidth,
         height: canvas.offsetHeight,
         center: {x: canvas.offsetWidth / 2, y: canvas.offsetHeight / 2}
-    }
+    };
+    console.log('resize');
+    // redraw canvas
+    // $('#image-' + camChannel.toLowerCase().replace(/_/g, '-')).hide().show(0);
 }
 
 // TODO: adjust all projected bounding boxes if images size changes
@@ -891,14 +862,14 @@ function adjustAllBBoxes(camChannel) {
 
 // TODO:
 function addTextBox(bbIndex, camChannel) {
-    var bbox = annotationObjects.contents[bbIndex];
-    var trackId = bbox["trackId"];
+    let bbox = annotationObjects.contents[bbIndex];
+    let trackId = bbox["trackId"];
     let channelIdx = getChannelIndexByName(camChannel);
-    var posX = bbox["channels"][channelIdx]["lines"][5].attr("x");
-    var posY = bbox["rect"].attr("y");
-    var label = bbox["class"];
-    var firstLetterOfClass = label.charAt(0);
-    var paper = paperArray[getChannelIndexByName(camChannel)];
+    let posX = bbox["channels"][channelIdx]["lines"][5].attr("x");
+    let posY = bbox["rect"].attr("y");
+    let label = bbox["class"];
+    let firstLetterOfClass = label.charAt(0);
+    let paper = paperArray[getChannelIndexByName(camChannel)];
     bbox["textBox"] =
         {
             text: paper.text(posX, posY - fontSize / 2, "#" + firstLetterOfClass + trackId + " " + label)
