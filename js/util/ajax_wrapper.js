@@ -27,17 +27,17 @@ function request(options) {
             case "/label/image_size/":
                 if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
                     responseDict = {
-                        width: 320,
-                        height: 240
-                        // width: 640,
-                        // height: 480
+                        minWidth: 320,
+                        minHeight: 240,
+                        maxWidth: 640,
+                        maxHeight: 480
                     };
                 } else {
                     responseDict = {
-                        width: 320,
-                        height: 180
-                        // width: 640,
-                        // height: 360
+                        minWidth: 320,
+                        minHeight: 180,
+                        maxWidth: 640,
+                        maxHeight: 360
                     };
                 }
 
