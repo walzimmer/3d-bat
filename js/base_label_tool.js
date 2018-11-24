@@ -137,51 +137,6 @@ function storeAnnotations(annotations, camChannel) {
     // this.setTrackIds();
 }
 
-function initPanes() {
-    let maxHeight;
-    let minHeight;
-    if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-        maxHeight = 480;
-        minHeight = 240;
-    } else {
-        maxHeight = 360;
-        minHeight = 180;
-    }
-    let topStyle = 'background-color: #F5F6F7; border: 1px solid #dfdfdf; padding: 0px;';
-
-    $('#label-tool-wrapper').w2layout({
-        name: 'layout',
-        panels: [
-            {type: 'top', size: maxHeight, resizable: true, style: topStyle, minSize: minHeight, maxSize: maxHeight}
-        ],
-        onResizing: function (event) {
-            console.log('resize');
-            let topElem = $("#layout_layout_panel_top")[0];
-            let newHeight = topElem.offsetHeight;
-            let newWidth = newHeight * 1.33333;
-            if (newHeight === 0 || newWidth === 0) {
-                return;
-            }
-            for (let channelIdx in labelTool.camChannels) {
-                if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
-                    let channelObj = labelTool.camChannels[channelIdx];
-                    let channel = channelObj.channel;
-                    changeCanvasSize(newWidth, newHeight, channel);
-
-                    // let id = "#image-" + channel.toLowerCase().replace(/_/g, '-');
-                    // let imageElem = $(id)[0];
-                    // imageElem.clientHeight = newHeight;
-                    // imageElem.clientWidth = newHeight * 1.33333;
-
-                }
-            }
-        }
-    });
-    w2ui['layout'].resizer = 10;
-    w2ui['layout'].resize();
-
-}
-
 let labelTool = {
     datasets: Object.freeze({"NuScenes": "NuScenes", "LISA_T": "LISA_T"}),
     sequences: Object.freeze({
@@ -217,10 +172,10 @@ let labelTool = {
         position: [1.564, 0.472, 1.535],
         fieldOfView: 70,
         rotationY: 305 * Math.PI / 180,//305 degree
-        projectionMatrix: [[5.85177527e+02, -4.87057717e+01, 1.36795440e+01, -1.25263992e+03],
+        projectionMatrixNuScenes: [[5.85177527e+02, -4.87057717e+01, 1.36795440e+01, -1.25263992e+03],
             [1.09848120e+02, 1.35213575e+02, -5.00233407e+02, -4.94018067e+02],
             [5.86538603e-01, 8.09812692e-01, 1.32616689e-02, -1.53500000e+00]],
-        projectionMatrixLISA: [[-251.25471266126286, 1271.4131017512532, -94.08147145637669, -82230.40765539104],
+        projectionMatrixLISAT: [[-251.25471266126286, 1271.4131017512532, -94.08147145637669, -82230.40765539104],
             [-480.6212728089816, 371.7218954940578, -912.1641583067685, -58976.298755304604],
             [-0.7873, 0.6091, -0.0958, -82.9684]],
         rotation: 305
@@ -229,7 +184,7 @@ let labelTool = {
         position: [1.671, -0.026, 1.536],
         fieldOfView: 70,
         rotationY: 0, // 0 degree
-        projectionMatrix: [[3.12258552e+02, -5.06569044e+02, 7.10472974e+00, -1.32739702e+03],
+        projectionMatrixNuScenes: [[3.12258552e+02, -5.06569044e+02, 7.10472974e+00, -1.32739702e+03],
             [1.82040476e+02, -3.66543008e+00, -5.02684133e+02, -2.55967282e+02],
             [9.99896593e-01, -4.63590596e-03, 1.36129354e-02, -1.53600000e+00]],
         //  using translation_vector_lidar_to_cam_front = -np.array([-59.7093, 7.7151, -13.4829]).T
@@ -243,7 +198,7 @@ let labelTool = {
         // projectionMatrixLISA: [[139.44483229405185, -164.65060309249841, 18.551259509590313, -1109.5419777589204],
         //     [-11.8951415546322, -108.13094806356696, 146.73645394171749, -10011.875332363627],
         //     [-0.013, -0.9987, 0.0492, -13.4829]]
-        projectionMatrixLISA: [[922.033620236691, 914.742127292118, 37.1306002570457, -52013.3448439892],
+        projectionMatrixLISAT: [[922.033620236691, 914.742127292118, 37.1306002570457, -52013.3448439892],
             [43.2552503707437, 731.907745080755, -814.641807656038, -52786.4684187814],
             [0.0739896518701493, 0.996046991878090, 0.0491520232212485, -59.7093249377266]],
         rotation: 0
@@ -252,10 +207,10 @@ let labelTool = {
         position: [1.593, -0.527, 1.526],
         fieldOfView: 70,
         rotationY: 55 * Math.PI / 180, // 55 degree
-        projectionMatrix: [[-2.31755207e+02, -5.42971937e+02, -4.83981324e+00, -1.27054365e+03],
+        projectionMatrixNuScenes: [[-2.31755207e+02, -5.42971937e+02, -4.83981324e+00, -1.27054365e+03],
             [1.06727074e+02, -1.34248981e+02, -5.03820234e+02, 1.31146956e+01],
             [5.84932270e-01, -8.11014555e-01, 1.04704634e-02, -1.52600000e+00]],
-        projectionMatrixLISA: [[1271.3136011165718, -264.8077615167896, -42.35337418192368, -58914.95130031767],
+        projectionMatrixLISAT: [[1271.3136011165718, -264.8077615167896, -42.35337418192368, -58914.95130031767],
             [561.3394288862174, 273.6681408112988, -900.78438804512, -49758.5316810427],
             [0.8704, 0.4861, -0.0785, -68.6021]],
         rotation: 55
@@ -264,10 +219,10 @@ let labelTool = {
         position: [1.042, -0.456, 1.595],
         fieldOfView: 70,
         rotationY: 110 * Math.PI / 180, // 110 degree
-        projectionMatrix: [[-5.77808286e+02, -1.02972103e+02, -5.55447232e+00, -1.00531506e+03],
+        projectionMatrixNuScenes: [[-5.77808286e+02, -1.02972103e+02, -5.55447232e+00, -1.00531506e+03],
             [-5.59368762e+01, -1.61381901e+02, -5.04106508e+02, -4.42780364e+01],
             [-3.54597523e-01, -9.35016690e-01, -2.09429354e-03, -1.59500000e+00]],
-        projectionMatrixLISA: [[794.0356195429831, -1012.8849095439483, -179.07770087021203, -128602.00570706779],
+        projectionMatrixLISAT: [[794.0356195429831, -1012.8849095439483, -179.07770087021203, -128602.00570706779],
             [599.7750068083451, -38.26710841555636, -916.4982974817447, -43877.90381297301],
             [0.977, -0.1837, -0.1082, -60.6184]],
         rotation: 110
@@ -277,10 +232,10 @@ let labelTool = {
         position: [0.086, -0.007, 1.541],
         fieldOfView: 130,
         rotationY: Math.PI,//180 degree
-        projectionMatrix: [[-2.65847240e+02, 3.24032801e+02, -4.08488699e+00, -4.45996076e+02],
+        projectionMatrixNuScenes: [[-2.65847240e+02, 3.24032801e+02, -4.08488699e+00, -4.45996076e+02],
             [-1.62919716e+02, 2.84450505e+00, -3.21702344e+02, -2.56189382e+02],
             [-9.99731565e-01, 1.77968704e-02, -1.48347542e-02, -1.54100000e+00]],
-        projectionMatrixLISA: [[-895.4304585339987, -938.871846096237, -71.02888985836256, -5982.317869225711],
+        projectionMatrixLISAT: [[-895.4304585339987, -938.871846096237, -71.02888985836256, -5982.317869225711],
             [-44.155367517485175, -612.6590140263143, -907.7438241324993, -84384.88883048057],
             [-0.0455, -0.995, -0.0888, -4.2963]],
         rotation: 180
@@ -289,10 +244,10 @@ let labelTool = {
         position: [1.055, 0.441, 1.605],
         fieldOfView: 70,
         rotationY: 250 * Math.PI / 180, //250 degree
-        projectionMatrix: [[3.79416560e+02, 4.44554116e+02, 4.90223542e+00, -1.00791882e+03],
+        projectionMatrixNuScenes: [[3.79416560e+02, 4.44554116e+02, 4.90223542e+00, -1.00791882e+03],
             [-5.18851401e+01, 1.62909404e+02, -5.02685127e+02, -4.93475056e+02],
             [-3.24931351e-01, 9.45731163e-01, 3.49054849e-03, -1.60500000e+00]],
-        projectionMatrixLISA: [[-1034.7887558860443, 785.54017213604, 19.44397266029749, -22415.14333034558],
+        projectionMatrixLISAT: [[-1034.7887558860443, 785.54017213604, 19.44397266029749, -22415.14333034558],
             [-656.3615503272123, 21.601386673152174, -877.404677400356, -57939.50633439972],
             [-0.997, -0.0632, -0.0446, -84.9344]],
         rotation: 305
@@ -302,6 +257,10 @@ let labelTool = {
     positionLidar: [0.891067, 0.0, 1.84292],//(long, lat, vert)
     // positionLidar: [1.84, 0.0, 1.84292],//(long, lat, vert)
     loadNuScenesLabels: false,
+    imageAspectRatioNuScenes: 1.777777778,
+    imageAspectRatioLISAT: 1.333333333,
+
+
     /********** Externally defined functions **********
      * Define these functions in the labeling tools.
      **************************************************/
@@ -553,7 +512,7 @@ let labelTool = {
                 x: resultMat[0],
                 y: resultMat[1],
                 z: resultMat[2],
-                rotation_y: this.cubeArray[this.currentFileIndex][i].rotation.z,
+                rotationYaw: this.cubeArray[this.currentFileIndex][i].rotation.z,
                 score: 1,
                 trackId: annotationObj["trackId"],
                 channel: annotationObj["channel"]
@@ -576,9 +535,15 @@ let labelTool = {
                 let canvasElem = imageContainer["0"].children[channelIdx];
                 canvasArray.push(canvasElem);
                 let height = $("#layout_layout_resizer_top").attr("top");
-                paperArray.push(Raphael(canvasElem, image_width, height));
+                paperArray.push(Raphael(canvasElem, imageWidth, height));
             }
         }
+
+        // make image container scrollable
+        $("#layout_layout_panel_top .w2ui-panel-content").addClass("dragscroll");
+        $("#layout_layout_panel_top .w2ui-panel-content").css("overflow", "scroll");
+        // <div class="dragscroll" style="width: 320px; height: 160px; overflow: scroll; cursor: grab; cursor : -o-grab; cursor : -moz-grab; cursor : -webkit-grab;">
+
         let pointCloudContainer = $("#layout_layout_panel_main .w2ui-panel-content");
         pointCloudContainer.append('<div id="canvas3d" style="z-index: 0; background-color: #000000;"></div>');
 
@@ -598,8 +563,8 @@ let labelTool = {
 
     getAnnotations(currentFileIndex) {
         this.loadCount++;
-        var fileName = this.fileNames[currentFileIndex] + ".txt";
-        var targetFile = this.currentFileIndex;
+        let fileName = this.fileNames[currentFileIndex] + ".txt";
+        let targetFile = this.currentFileIndex;
         request({
             url: '/label/annotations/',
             type: 'GET',
@@ -621,13 +586,25 @@ let labelTool = {
     },
 
     reset() {
+        // base label tool
         this.currentFileIndex = 0;
+        this.bboxIndexArray = [];
         this.fileNames = [];
         this.originalAnnotations = [];
         this.targetClass = "Vehicle";
         this.savedFrames = [];
         this.cubeArray = [];
         this.currentCameraChannelIndex = 0;
+
+        // $("#label-tool-wrapper").remove();
+        // $("#label-tool-wrapper").attr("name", "");
+        // $("#label-tool-wrapper").attr("class", "");
+        // image label tool
+        canvasArray = [];
+        canvasParamsArray = [];
+        paperArray = [];
+        imageArray = [];
+        // pcd label tool
         guiAnnotationClasses = new dat.GUI();
         guiOptions = new dat.GUI();
         folderBoundingBox3DArray = [];
@@ -646,6 +623,28 @@ let labelTool = {
             $(item).css("border-left", attribute);
             $(item).css('border-bottom', '0px');
         });
+
+        // remove image divs
+        $("#layout_layout_panel_top .w2ui-panel-content").empty();
+
+        if (this.currentDataset === this.datasets.LISA_T) {
+            w2ui['layout'].panels[0].maxSize = 480;
+            w2ui['layout'].panels[0].minSize = 240;
+            w2ui['layout'].panels[0].size = 480;
+            // let resizerElem = $("#layout_layout_resizer_top")[0];
+            // resizerElem.offsetTop = 480;
+            // console.log(resizerElem.offsetTop);
+        } else {
+            w2ui['layout'].panels[0].maxSize = 360;
+            w2ui['layout'].panels[0].minSize = 180;
+            w2ui['layout'].panels[0].size = 360;
+            // let resizerElem = $("#layout_layout_resizer_top")[0];
+            // resizerElem.offsetTop = 360;
+            // console.log(resizerElem.offsetTop);
+        }
+        // w2ui['layout'].refresh();
+        w2ui['layout'].resize();
+
     },
 
     start() {
@@ -656,7 +655,7 @@ let labelTool = {
             // data: {label_id: this.labelId},
             data: {},
             complete: function (res) {
-                var dict = JSON.parse(res.responseText)[0];
+                let dict = JSON.parse(res.responseText)[0];
                 this.workBlob = dict.blob;
                 this.getImageSize();
             }.bind(this)
@@ -671,9 +670,9 @@ let labelTool = {
             // data: {label_id: this.labelId},
             data: {},
             complete: function (res) {
-                var dict = JSON.parse(res.responseText);
-                this.originalSize[0] = dict.width;
-                this.originalSize[1] = dict.height;
+                let dict = JSON.parse(res.responseText);
+                this.originalSize[0] = dict.maxWidth;
+                this.originalSize[1] = dict.maxHeight;
                 this.getFileNames();
             }.bind(this)
         })
@@ -687,7 +686,7 @@ let labelTool = {
             // data: {label_id: this.labelId},
             data: {},
             complete: function (res) {
-                var dict = JSON.parse(res.responseText);
+                let dict = JSON.parse(res.responseText);
                 this.fileNames = dict["file_names"];
                 this.initialize();
                 this.showData();
@@ -997,9 +996,9 @@ let labelTool = {
         $(window).resize(function () {
             $(function () {
                 if ($("#image-cam-front-left").css("display") === "block") {
-                    var windowWidth = $('#label-tool-wrapper').width();
-                    var width = windowWidth / 4 > 100 ? windowWidth / 4 : 100;
-                    var height = width * 5 / 8;
+                    let windowWidth = $('#label-tool-wrapper').width();
+                    let width = windowWidth / 4 > 100 ? windowWidth / 4 : 100;
+                    let height = width * 5 / 8;
                     // changeCanvasSize(width, height);
                 }
             });
@@ -1050,6 +1049,58 @@ let labelTool = {
     }
 };
 
+function initPanes() {
+    let maxHeight;
+    let minHeight;
+    if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+        maxHeight = 480;
+        minHeight = 240;
+    } else {
+        maxHeight = 360;
+        minHeight = 180;
+    }
+    let topStyle = 'background-color: #F5F6F7; border: 1px solid #dfdfdf; padding: 0px;';
+
+    // let wrapperElem = $("#wrapper").append("<div id=\"label-tool-wrapper\"></div>")[0];
+    // let numChildren = wrapperElem.children.length;
+    // $(wrapperElem.children[numChildren - 1]).w2layout({
+    $('#label-tool-wrapper').w2layout({
+        name: 'layout',
+        panels: [
+            {type: 'top', size: maxHeight, resizable: true, style: topStyle, minSize: minHeight, maxSize: maxHeight}
+        ],
+        onResizing: function (event) {
+            let topElem = $("#layout_layout_panel_top")[0];
+            let newHeight = topElem.offsetHeight;
+            let newWidth;
+            if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+                newWidth = newHeight * labelTool.imageAspectRatioLISAT;
+            } else {
+                newWidth = newHeight * labelTool.imageAspectRatioNuScenes;
+            }
+            if (newHeight === 0 || newWidth === 0) {
+                return;
+            }
+            for (let channelIdx in labelTool.camChannels) {
+                if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
+                    let channelObj = labelTool.camChannels[channelIdx];
+                    let channel = channelObj.channel;
+                    changeCanvasSize(newWidth, newHeight, channel);
+                }
+            }
+            w2ui['layout'].set('top', {size: newHeight});
+
+
+        },
+        onRefresh: function (event) {
+            console.log('object ' + event.target + ' is refreshed');
+        }
+    });
+    w2ui['layout'].resizer = 10;
+    w2ui['layout'].resize();
+
+}
+
 $("#previous-frame-button").keyup(function (e) {
     if (e.which === 32) {
         return false;
@@ -1063,7 +1114,7 @@ $("#next-frame-button").keyup(function (e) {
 });
 
 $("#frame-skip").change(function () {
-    var value = $(this).val();
+    let value = $(this).val();
     if (value == "") {
         value = 1;
     } else {
