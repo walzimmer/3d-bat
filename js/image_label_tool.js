@@ -146,8 +146,8 @@ function initialize(camChannel) {
     let width;
     let height;
     if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-        width = 320;
-        height = $("#layout_layout_resizer_top").attr("top");
+        height = $("#layout_layout_resizer_top").position().top;
+        width = height * 1.333333333;
         // height = 240;
     } else {
         width = 640;
@@ -312,8 +312,8 @@ $(window).keydown(function (e) {
 });
 
 function setCursor(cursorType) {
-    for (var img in imageArray) {
-        var imgObj = imageArray[img];
+    for (let img in imageArray) {
+        let imgObj = imageArray[img];
         imgObj.attr({cursor: cursorType});
     }
 }
@@ -332,7 +332,7 @@ function setAction(e) {
     if (isDragging) {
         return;
     }
-    setCursor("crosshair");
+    setCursor("hand");//crosshair
     // action = "add";
     // let bbox = undefined;
     // let selectedBoundingBox = annotationObjects.getSelectedBoundingBox();
@@ -782,31 +782,28 @@ function changeCanvasSize(width, height, camChannel) {
     let channelIdx = getChannelIndexByName(camChannel);
     let paper = paperArray[channelIdx];
     let canvas = canvasArray[channelIdx];
-    $(function () {
-        for (let canvasElem in canvasArray) {
-            let canvasElement = canvasArray[canvasElem];
-            let element = $("#" + canvasElement.id);
-            element.css('image_width', width + 'px');
-            element.css('height', height + 'px');
-            // $('#jpeg-label-canvas-front-left').css('width', width + 'px');
-            // $('#jpeg-label-canvas-front-left').css('height', height + 'px');
-        }
-
-        paper.setViewBox(0, 0, width, height, true);
-        paper.setSize("100%", "100%");
-        fontSize = canvas.offsetWidth / 50;
-        if (fontSize < 15) {
-            fontSize = 15;
-        }
-        adjustAllBBoxes(camChannel);
-        canvasParamsArray[channelIdx] = {
-            x: canvas.offsetLeft,
-            y: canvas.offsetTop,
-            width: canvas.offsetWidth,
-            height: canvas.offsetHeight,
-            center: {x: canvas.offsetWidth / 2, y: canvas.offsetHeight / 2}
-        }
-    });
+    for (let canvasElem in canvasArray) {
+        let canvasElement = canvasArray[canvasElem];
+        let element = $("#" + canvasElement.id);
+        element.css('width', width + 'px');
+        element.css('height', height + 'px');
+    }
+    paper.setViewBox(0, 0, width, height, true);
+    paper.setSize("100%", "100%");
+    fontSize = canvas.offsetWidth / 50;
+    if (fontSize < 15) {
+        fontSize = 15;
+    }
+    // TODO:
+    adjustAllBBoxes(camChannel);
+    // TODO: adjust also all projected point clouds
+    canvasParamsArray[channelIdx] = {
+        x: canvas.offsetLeft,
+        y: canvas.offsetTop,
+        width: canvas.offsetWidth,
+        height: canvas.offsetHeight,
+        center: {x: canvas.offsetWidth / 2, y: canvas.offsetHeight / 2}
+    }
 }
 
 // TODO: adjust all projected bounding boxes if images size changes
