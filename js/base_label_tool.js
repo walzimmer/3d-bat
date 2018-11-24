@@ -138,19 +138,48 @@ function storeAnnotations(annotations, camChannel) {
 }
 
 function initPanes() {
-    let height;
+    let maxHeight;
+    let minHeight;
     if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-        height = 480;
+        maxHeight = 480;
+        minHeight = 240;
     } else {
-        height = 180;
+        maxHeight = 360;
+        minHeight = 180;
     }
     let topStyle = 'background-color: #F5F6F7; border: 1px solid #dfdfdf; padding: 0px;';
+
     $('#label-tool-wrapper').w2layout({
         name: 'layout',
         panels: [
-            {type: 'top', size: height, resizable: true, style: topStyle}
-        ]
+            {type: 'top', size: maxHeight, resizable: true, style: topStyle, minSize: minHeight, maxSize: maxHeight}
+        ],
+        onResizing: function (event) {
+            console.log('resize');
+            let topElem = $("#layout_layout_panel_top")[0];
+            let newHeight = topElem.offsetHeight;
+            let newWidth = newHeight * 1.33333;
+            if (newHeight === 0 || newWidth === 0) {
+                return;
+            }
+            for (let channelIdx in labelTool.camChannels) {
+                if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
+                    let channelObj = labelTool.camChannels[channelIdx];
+                    let channel = channelObj.channel;
+                    changeCanvasSize(newWidth, newHeight, channel);
+
+                    // let id = "#image-" + channel.toLowerCase().replace(/_/g, '-');
+                    // let imageElem = $(id)[0];
+                    // imageElem.clientHeight = newHeight;
+                    // imageElem.clientWidth = newHeight * 1.33333;
+
+                }
+            }
+        }
     });
+    w2ui['layout'].resizer = 10;
+    w2ui['layout'].resize();
+
 }
 
 let labelTool = {
