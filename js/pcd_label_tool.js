@@ -898,9 +898,9 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
         // let point3D = [point.y, point.x, point.z, 1];
         let point3D = [point.x * 100, point.y * 100, -point.z * 100, 1];
         let projectionMatrix;
-        if (labelTool.currentDataset===labelTool.datasets.LISA_T){
+        if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
             projectionMatrix = labelTool.camChannels[idx].projectionMatrixLISAT;
-        }else{
+        } else {
             projectionMatrix = labelTool.camChannels[idx].projectionMatrixNuScenes;
         }
 
@@ -1000,7 +1000,7 @@ function readPointCloud() {
         if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
             rawFile.open("GET", labelTool.workBlob + '/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/pointclouds/' + pad(labelTool.currentFileIndex, 6) + '.pcd', false);
         } else {
-            rawFile.open("GET", labelTool.workBlob + '/' + labelTool.currentDataset + '/pointclouds/all_scenes/' + pad(labelTool.currentFileIndex, 6) + '.txt', false);
+            rawFile.open("GET", labelTool.workBlob + '/' + labelTool.currentDataset + '/pointclouds/all_scenes/' + pad(labelTool.currentFileIndex, 6) + '.pcd', false);
         }
     } catch (error) {
         // no labels available for this camera image
@@ -1024,8 +1024,13 @@ function readPointCloud() {
                     for (let j = 0; j < points3DStringArray.length - 1; j++) {
                         let value = Number(points3DStringArray[j]);
                         // points are stored in meters within .h5 file and .pcd files
-                        // multiply by 100 to get points in cm, because projection matrix requires it
-                        point3D.push(value * 100);
+                        // For LISA_T dataset multiply by 100 to get points in cm, because projection matrix requires it
+                        if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+                            point3D.push(value * 100);
+                        } else {
+                            point3D.push(value);
+                        }
+
                     }
                     // make point a 4x1 vector to multiply it with the 3x4 projection matrix P*X
                     point3D.push(1);
@@ -1043,7 +1048,13 @@ function projectPoints(points3D, channelIdx) {
     let points2D = [];
     currentPoints3D = [];
     currentDistances = [];
-    let projectionMatrix = labelTool.camChannels[channelIdx].projectionMatrixLISA;
+    let projectionMatrix;
+    if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+        projectionMatrix = labelTool.camChannels[channelIdx].projectionMatrixLISAT;
+    } else {
+        projectionMatrix = labelTool.camChannels[channelIdx].projectionMatrixNuScenes;
+    }
+
     for (let point3DObj in points3D) {
         if (points3D.hasOwnProperty(point3DObj)) {
             let point3D = points3D[point3DObj];
@@ -1074,7 +1085,7 @@ function normalizeDistances() {
         }
     }
     for (let i = 0; i < currentDistances.length; i++) {
-        currentDistances[i] = (currentDistances[i] / (maxDistance - 7000)) * 255;
+        currentDistances[i] = (currentDistances[i] / (maxDistance)) * 255;
     }
 }
 
@@ -1091,15 +1102,6 @@ function showProjectedPoints() {
             let channelObj = labelTool.camChannels[channelIdx];
             let channelIndexByName = getChannelIndexByName(channelObj.channel);
             let paper = paperArray[channelIndexByName];
-            // remove points that are behind the camera
-            // returns indices of points that are in current field of view
-            // let visiblePointsIndices = filterPoints(points3D, channel);
-            // let currentPoints3D = [];
-            // let currentDistances = [];
-            // for (let i = 0; i < visiblePointsIndices.length; i++) {
-            //     currentPoints3D.push(points3D[i]);
-            //     currentDistances.push(distanceArray[i]);
-            // }
             let points2D = projectPoints(points3D, channelIndexByName);
             normalizeDistances();
             for (let i = 0; i < points2D.length; i++) {
@@ -1121,7 +1123,7 @@ function hideProjectedPoints() {
     for (let i = circleArray.length - 1; i >= 0; i--) {
         let circle = circleArray[i];
         circle.remove();
-        circleArray.remove(circle);
+        circleArray.splice(i, 1);
     }
 }
 

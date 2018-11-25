@@ -2,6 +2,7 @@ import os
 import numpy as np
 import cv2
 
+# 2D points were calculated and exported in matlab
 points_path = '/media/cvrr/161d15ca-26dc-4d36-b085-945b15ce24b8/sandbox/datasets/lisat/data/sequences/2018-05-23-001-frame-00042917-00043816/undistorted/projected_points/CAM_FRONT/'
 image_in_path = 'CAM_FRONT_000000.jpg'
 with open(points_path + '000000.txt') as file_reader:
