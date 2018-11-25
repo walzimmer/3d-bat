@@ -148,11 +148,9 @@ let labelTool = {
     currentSequence: '',
     numFrames: 0,
     dataTypes: [],
-    workBlob: '',         // Base url of blob
-    currentFileIndex: 0,           // Base name of current file
-    // fileNames: ['000000', '000001', '000002', '000003', '000004', '000005', '000006', '000007', '000008', '000009', '000010', '000011', '000012', '000013', '000014'],         // List of basenames of the files
+    workBlob: '',
+    currentFileIndex: 0,
     fileNames: [],
-    // labelId: -1,          // Initialize with 'setParameters'
     hasLoadedImage: [false, false, false, false, false, false],
     hasLoadedPCD: false,
     originalSize: [0, 0], // Original size of jpeg image
@@ -1094,10 +1092,17 @@ function initPanes() {
         },
         onRefresh: function (event) {
             console.log('object ' + event.target + ' is refreshed');
+            event.onComplete = function () {
+                $("#layout_layout_resizer_top").on('click', function () {
+                    w2ui['layout'].resize();
+                });
+            }
         }
     });
+
     w2ui['layout'].resizer = 10;
     w2ui['layout'].resize();
+    w2ui['layout'].refresh();
 
 }
 
