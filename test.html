@@ -1,13 +1,30 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-    <title>Dragscroll Demo</title>
-    <script type="text/javascript" src="https://cdn.rawgit.com/asvd/dragscroll/master/dragscroll.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>jQuery UI Resizable - Default functionality</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="/resources/demos/style.css">
+    <style>
+        #resizable { width: 150px; height: 150px; padding: 0.5em; }
+        #resizable h3 { text-align: center; margin: 0; }
+    </style>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        $( function() {
+            $( "#resizable" ).resizable();
+        } );
+    </script>
 </head>
 <body>
-<div class="dragscroll" style="width: 320px; height: 160px; overflow: scroll; cursor: grab; cursor : -o-grab; cursor : -moz-grab; cursor : -webkit-grab;">
-    <img src="http://qnimate.com/wp-content/uploads/2014/09/header-scroll-effect.jpg" />
-    <img src="http://qnimate.com/wp-content/uploads/2014/09/header-scroll-effect.jpg" />
+
+<div id="resizable" class="ui-widget-content" style="overflow: scroll">
+    <img src="http://qnimate.com/wp-content/uploads/2014/09/header-scroll-effect.jpg" style="display: inline-block; position: relative"/>
+    <img src="http://qnimate.com/wp-content/uploads/2014/09/header-scroll-effect.jpg" style="display: inline-block; position: relative"/>
 </div>
+
+
 </body>
 </html>
