@@ -163,7 +163,12 @@ let annotationObjects = {
         // }
         this.contents[insertIndex]["class"] = params.class;
         if (params.fromFile === false && this.__selectionIndex === -1) {
-            this.contents[insertIndex]["trackId"] = classesBoundingBox[params.class].nextTrackId;
+            if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
+                this.contents[insertIndex]["trackId"] = classesBoundingBox.content[params.class].nextTrackId;
+            } else {
+                this.contents[insertIndex]["trackId"] = classesBoundingBox[params.class].nextTrackId;
+            }
+
         } else {
             this.contents[insertIndex]["trackId"] = params.trackId;
         }
