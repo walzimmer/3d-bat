@@ -65,21 +65,21 @@ function request(options) {
             case "/label/annotations/":
                 let fileName = options.data["file_name"];
                 res = [];
-                if (labelTool.loadNuScenesLabels === true) {
-                    for (let channelObj in labelTool.camChannels) {
-                        if (labelTool.camChannels.hasOwnProperty(channelObj)) {
-                            let channelObject = labelTool.camChannels[channelObj];
-                            let channel = channelObject.channel;
-                            // if (fileName in __labelData) {
-                            //     res = JSON.parse(__labelData[fileName]);
-                            // } else {
-                            let resChannel = parseAnnotationFile(fileName, channel);
-                            let loadedChannelObj = {channel: channel, content: resChannel};
-                            res.push(loadedChannelObj);
-                            // }
-                        }
-
-                    }
+                if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
+                    res = parseAnnotationFile(fileName, undefined);
+                    // for (let channelObj in labelTool.camChannels) {
+                    //     if (labelTool.camChannels.hasOwnProperty(channelObj)) {
+                    //         let channelObject = labelTool.camChannels[channelObj];
+                    //         let channel = channelObject.channel;
+                    //         // if (fileName in __labelData) {
+                    //         //     res = JSON.parse(__labelData[fileName]);
+                    //         // } else {
+                    //         let resChannel = parseAnnotationFile(fileName, channel);
+                    //         let loadedChannelObj = {channel: channel, content: resChannel};
+                    //         res.push(loadedChannelObj);
+                    //         // }
+                    //     }
+                    // }
 
                 } else {
                     // if (fileName in __labelData) {
@@ -111,7 +111,7 @@ function annotationFileExist(fileIndex, channel) {
     if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
         url = labelTool.workBlob + '/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/annotations/' + labelTool.fileNames[fileIndex] + '.txt';
     } else {
-        if (labelTool.loadNuScenesLabels === true) {
+        if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
             // load already created annotations provided by NuScenes
             url = labelTool.workBlob + '/' + labelTool.currentDataset + '/Annotations/' + channel + '/' + labelTool.fileNames[fileIndex] + '.txt';
         } else {
@@ -134,8 +134,8 @@ function parseAnnotationFile(fileName, channel) {
         if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
             rawFile.open("GET", labelTool.workBlob + '/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/annotations/' + channel + '/' + fileName, false);
         } else {
-            if (labelTool.loadNuScenesLabels === true) {
-                rawFile.open("GET", labelTool.workBlob + '/' + labelTool.currentDataset + '/Annotations/' + channel + '/' + fileName, false);
+            if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
+                rawFile.open("GET", labelTool.workBlob + '/' + labelTool.currentDataset + '/Annotations/LIDAR_TOP/' + fileName, false);
             } else {
                 rawFile.open("GET", labelTool.workBlob + '/' + labelTool.currentDataset + '/Annotations_test/' + fileName, false);
             }
@@ -154,7 +154,7 @@ function parseAnnotationFile(fileName, channel) {
                 let str_list = allText.split("\n");
                 for (let i = 0; i < str_list.length; i++) {
                     let str = str_list[i].split(" ");
-                    if (labelTool.loadNuScenesLabels === true && str.length === 16) {
+                    if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes && str.length === 16) {
                         res.push({
                             class: str[0],
                             truncated: str[1],
@@ -173,7 +173,7 @@ function parseAnnotationFile(fileName, channel) {
                             rotation_y: str[14],
                             score: str[15]
                         });
-                    } else if (labelTool.loadNuScenesLabels === false && str.length === 18) {
+                    } else if (labelTool.showOriginalNuScenesLabels === false && labelTool.currentDataset === labelTool.datasets.NuScenes && str.length === 18) {
                         res.push({
                             class: str[0],
                             truncated: str[1],
