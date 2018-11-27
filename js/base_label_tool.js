@@ -44,13 +44,23 @@ function storeAnnotations(annotations, camChannel) {
                     projectedPoints: [],
                     lines: [],
                     channel: ''
+                }, {
+                    rect: [],
+                    projectedPoints: [],
+                    lines: [],
+                    channel: ''
                 }],
                 fromFile: true
             };
             let channel;
-            if (labelTool.loadNuScenesLabels === true) {
+            let channels = [];
+            if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
                 classesBoundingBox.add(annotation.class);
-                channel = camChannel;
+                // channel = camChannel;
+                channels = getChannelsByPosition(parseFloat(annotation.x), parseFloat(annotation.y));
+                for (let i = 0; i < channels.length; i++) {
+                    params.channels[i].channel = channels[i];
+                }
                 classesBoundingBox.__target = Object.keys(classesBoundingBox.content)[0];
                 params.trackId = classesBoundingBox.content[annotation.class].nextTrackId;
                 classesBoundingBox.content[annotation.class].nextTrackId++;
@@ -58,25 +68,50 @@ function storeAnnotations(annotations, camChannel) {
                 params.trackId = annotation.trackId;
                 classesBoundingBox[annotation.class].nextTrackId++;
                 channel = annotation.channel;
+                params.channels[0].channel = channel;
             }
-            params.channels[0].channel = channel;
 
-            let rect = [];
-            if (annotation.left !== 0 && annotation.top !== 0 &&
-                annotation.right !== 0 && annotation.bottom !== 0) {
-                let minPos = convertPositionToCanvas(annotation.left, annotation.top, channel);
-                let maxPos = convertPositionToCanvas(annotation.right, annotation.bottom, channel);
-                rect.push(minPos[0]);
-                rect.push(minPos[1]);
-                rect.push(maxPos[0] - minPos[0]);
-                rect.push(maxPos[1] - minPos[1]);
-                params.channels[0].rect = rect;
+
+            // let rect = [];
+            // if (annotation.left !== 0 && annotation.top !== 0 &&
+            //     annotation.right !== 0 && annotation.bottom !== 0) {
+            //     let minPos = convertPositionToCanvas(annotation.left, annotation.top, channel);
+            //     let maxPos = convertPositionToCanvas(annotation.right, annotation.bottom, channel);
+            //     rect.push(minPos[0]);
+            //     rect.push(minPos[1]);
+            //     rect.push(maxPos[0] - minPos[0]);
+            //     rect.push(maxPos[1] - minPos[1]);
+            //     params.channels[0].rect = rect;
+            // }
+            // Nuscenes labels are stored in global frame in the database
+            // Nuscenes: labels (3d positions) are transformed from global frame to point cloud (global -> ego, ego -> point cloud) before exporting them
+            // LISAT: labels are stored in ego frame which is also the point cloud frame (no transformation needed)
+            // let channelIndexByName = getChannelIndexByName(channel);
+            if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+                params.x = parseFloat(annotation.x);
+                params.y = -parseFloat(annotation.y);
+                params.z = parseFloat(annotation.z);
+                params.org.x = parseFloat(annotation.x);
+                params.org.y = -parseFloat(annotation.y);
+                params.org.z = parseFloat(annotation.z);
+            } else {
+                // let transformedPosition = matrixProduct4x4(this.camChannels[channelIndexByName].transformationMatrixEgoToCamNuScenes, [parseFloat(annotation.x),
+                //     parseFloat(annotation.y),
+                //     parseFloat(annotation.z),
+                //     1]);
+                params.x = parseFloat(annotation.x);
+                params.y = -parseFloat(annotation.y);
+                params.z = parseFloat(annotation.z);
+                params.org.x = parseFloat(annotation.x);
+                params.org.y = -parseFloat(annotation.y);
+                params.org.z = parseFloat(annotation.z);
+                // params.x = transformedPosition[0];
+                // params.y = -transformedPosition[1];
+                // params.z = transformedPosition[2];
+                // params.org.x = transformedPosition[0];
+                // params.org.y = -transformedPosition[1];
+                // params.org.z = transformedPosition[2];
             }
-            // TODO: why multiply with cameraMatrix?
-            let readMat = matrixProduct4x4(this.cameraMatrix, [parseFloat(annotation.x),
-                parseFloat(annotation.y),
-                parseFloat(annotation.z),
-                1]);
             let tmpWidth = parseFloat(annotation.width);
             let tmpHeight = parseFloat(annotation.height);
             let tmpDepth = parseFloat(annotation.length);
@@ -84,66 +119,91 @@ function storeAnnotations(annotations, camChannel) {
                 tmpWidth = Math.max(tmpWidth, 0.0001);
                 tmpHeight = Math.max(tmpHeight, 0.0001);
                 tmpDepth = Math.max(tmpDepth, 0.0001);
-                params.x = readMat[0];
-                params.y = -readMat[1];
-                params.z = readMat[2];
                 params.delta_x = 0;
                 params.delta_y = 0;
                 params.delta_z = 0;
                 params.width = tmpWidth;
                 params.height = tmpHeight;
                 params.depth = tmpDepth;
-                params.org.x = readMat[0];
-                params.org.y = -readMat[1];
-                params.org.z = readMat[2];
                 params.org.width = tmpWidth;
                 params.org.height = tmpHeight;
                 params.org.depth = tmpDepth;
             }
 
             // project 3D position into 2D camera image
-            params.channels[0].projectedPoints = calculateProjectedBoundingBox(params.x, params.y, -params.z, params.width, params.height, params.depth, channel);
-            // calculate line segments
-            let channelObj = params.channels[0];
-            if (params.channels[0].projectedPoints !== undefined && params.channels[0].projectedPoints.length === 8) {
-                params.channels[0].lines = calculateLineSegments(channelObj);
+            if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
+                for (let i = 0; i < channels.length; i++) {
+                    params.channels[i].projectedPoints = calculateProjectedBoundingBox(params.x, params.y, -params.z, params.width, params.height, params.depth, channels[i]);
+                    // calculate line segments
+                    let channelObj = params.channels[i];
+                    if (params.channels[i].projectedPoints !== undefined && params.channels[i].projectedPoints.length === 8) {
+                        params.channels[i].lines = calculateLineSegments(channelObj);
+                    }
+                }
+            } else {
+                params.channels[0].projectedPoints = calculateProjectedBoundingBox(params.x, params.y, -params.z, params.width, params.height, params.depth, channel);
+                // calculate line segments
+                let channelObj = params.channels[0];
+                if (params.channels[0].projectedPoints !== undefined && params.channels[0].projectedPoints.length === 8) {
+                    params.channels[0].lines = calculateLineSegments(channelObj);
+                }
             }
 
 
             // check if that object already exists in annotationObjects.contents array (e.g. in another channel)
-            let indexByDimension = getIndexByDimension(params.width, params.height, params.depth);
-            if (indexByDimension !== -1) {
-                // attach 2D bounding box to existing object
-                annotationObjects.add2DBoundingBox(indexByDimension, params.channels[0]);
-            } else {
-                // add new entry to contents array
-                annotationObjects.set(annotationObjects.__insertIndex, params);
-                annotationObjects.__insertIndex++;
-            }
-
-            classesBoundingBox.target().nextTrackId++;
-
-            // let channels = getChannelByPosition(annotationObjects.contents[annotationObjects.__insertIndex]["x"], annotationObjects.contents[annotationObjects.__insertIndex]["y"]);
-            // for (let channel in channels) {
-            //     if (channels.hasOwnProperty(channel)) {
-            //         let camChannel = channels[channel];
-            //         annotationObjects.select(annotationObjects.__insertIndex, camChannel);
-            //     }
+            // let indexByDimension = getIndexByDimension(params.width, params.height, params.depth);
+            // if (indexByDimension !== -1) {
+            //     // attach 2D bounding box to existing object
+            //     annotationObjects.add2DBoundingBox(indexByDimension, params.channels[0]);
+            // } else {
+            //     // add new entry to contents array
+            //     annotationObjects.set(annotationObjects.__insertIndex, params);
+            //     annotationObjects.__insertIndex++;
             // }
 
+            // add new entry to contents array
+            annotationObjects.set(annotationObjects.__insertIndex, params);
+            annotationObjects.__insertIndex++;
+            classesBoundingBox.target().nextTrackId++;
         }
-
     }
-    // this.setTrackIds();
+}
+
+function numberToText(n) {
+    if (n === 0) {
+        return "";
+    } else if (n <= 19) {
+        let textNumbers = ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+        return textNumbers[n - 1];
+    } else if (n <= 99) {
+        let textNumbers = ["Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+        let firstPart = textNumbers[Math.floor(n / 10) - 2];
+        let secondPart = numberToText(n % 10);
+        if (secondPart === "") {
+            return firstPart;
+        } else {
+            return firstPart + "_" + secondPart;
+        }
+    } else if (n === 100) {
+        return "HUNDRED";
+    }
+}
+
+function setSequences() {
+    for (let i = 1; i <= 100; i++) {
+        let numberAsText = numberToText(i).toUpperCase();
+        labelTool.sequencesNuScenes.push(numberAsText);
+    }
 }
 
 let labelTool = {
     datasets: Object.freeze({"NuScenes": "NuScenes", "LISA_T": "LISA_T"}),
-    sequences: Object.freeze({
+    sequencesLISAT: Object.freeze({
         "FIRST": "2018-05-23-001-frame-00042917-00043816",
         "SECOND": "2018-05-23-001-frame-00077323-00078222",
         "THIRD": "2018-05-23-001-frame-00080020-00080919"
     }),
+    sequencesNuScenes: [],
     currentDataset: 'LISA_T',
     currentSequence: '',
     numFrames: 0,
@@ -161,7 +221,6 @@ let labelTool = {
     targetClass: "Vehicle",
     pageBox: document.getElementById('page_num'),
     savedFrames: [],
-    cameraMatrix: [],
     cubeArray: [],
     bboxIndexArray: [],
     currentCameraChannelIndex: 0,
@@ -170,59 +229,91 @@ let labelTool = {
         position: [1.564, 0.472, 1.535],
         fieldOfView: 70,
         rotationY: 305 * Math.PI / 180,//305 degree
-        projectionMatrixNuScenes: [[5.85177527e+02, -4.87057717e+01, 1.36795440e+01, -1.25263992e+03],
-            [1.09848120e+02, 1.35213575e+02, -5.00233407e+02, -4.94018067e+02],
-            [5.86538603e-01, 8.09812692e-01, 1.32616689e-02, -1.53500000e+00]],
-        projectionMatrixLISAT: [[-251.25471266126286, 1271.4131017512532, -94.08147145637669, -82230.40765539104],
-            [-480.6212728089816, 371.7218954940578, -912.1641583067685, -58976.298755304604],
+        projectionMatrixNuScenes: [[110.4698206116641, 1464.0011761439307, 26.41455707029287, -916.4598489300432],
+            [-337.97741211920834, 265.1972065752412, -1252.6308707181809, -729.4327569362895],
+            [-0.8143136873894475, 0.5803598650034878, 0.008697449242951868, -0.7728492390141875]],
+        transformationMatrixEgoToCamNuScenes: [[8.09585281e-01, -5.86688274e-01, 1.91974424e-02, 1.56400000e+00],
+            [2.33267982e-02, -5.23589075e-04, -9.99727756e-01, 4.72000000e-01],
+            [5.86538603e-01, 8.09812692e-01, 1.32616689e-02, 1.53500000e+00],
+            [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 1.00000000e+00]],
+        // projectionMatrixLISAT: [[-251.25471266126286, 1271.4131017512532, -94.08147145637669, -82230.40765539104],
+        //     [-480.6212728089816, 371.7218954940578, -912.1641583067685, -58976.298755304604],
+        //     [-0.7873, 0.6091, -0.0958, -82.9684]],
+        projectionMatrixLISAT: [[-215.2526681977112, 1310.3693441729433, -93.64018907169996, -81894.77674601768],
+            [-491.1015539416495, 379.8210484742729, -980.7314142419619, -60737.10982639055],
             [-0.7873, 0.6091, -0.0958, -82.9684]],
+        transformationMatrixEgoToCamLISAT: [[0.6119, 0.791, -0.0001, -0.9675],
+            [0.0757, -0.0587, -0.9954, -1.8214],
+            [-0.7873, 0.6091, -0.0958, -82.9684],
+            [0, 0, 0, 1]],
         rotation: 305
     }, {
         channel: 'CAM_FRONT',
         position: [1.671, -0.026, 1.536],
         fieldOfView: 70,
         rotationY: 0, // 0 degree
-        projectionMatrixNuScenes: [[3.12258552e+02, -5.06569044e+02, 7.10472974e+00, -1.32739702e+03],
-            [1.82040476e+02, -3.66543008e+00, -5.02684133e+02, -2.55967282e+02],
-            [9.99896593e-01, -4.63590596e-03, 1.36129354e-02, -1.53600000e+00]],
-        //  using translation_vector_lidar_to_cam_front = -np.array([-59.7093, 7.7151, -13.4829]).T
-        // projectionMatrixLISA: [[1.39444832e+02, -1.64650603e+02, 1.85512595e+01, 8.66888457e+03],
-        //     [-1.18951416e+01, -1.08130948e+02, 1.46736454e+02, 8.79774529e+03],
-        //     [-1.30000000e-02, -9.98700000e-01, 4.92000000e-02, 5.97093000e+01]]
-        // using translation_vector_lidar_to_cam_front = -np.array([7.7151, -59.7093, -13.4829]).T
-        // projectionMatrixLISA: [[139.44483229405185, -164.65060309249841, 18.551259509590313, 1109.5419777589204],
-        //     [-11.8951415546322, -108.13094806356696, 146.73645394171749, 10011.875332363627],
-        //     [-0.013, -0.9987, 0.0492, 13.4829]]
-        // projectionMatrixLISA: [[139.44483229405185, -164.65060309249841, 18.551259509590313, -1109.5419777589204],
-        //     [-11.8951415546322, -108.13094806356696, 146.73645394171749, -10011.875332363627],
-        //     [-0.013, -0.9987, 0.0492, -13.4829]]
-        projectionMatrixLISAT: [[922.033620236691, 914.742127292118, 37.1306002570457, -52013.3448439892],
-            [43.2552503707437, 731.907745080755, -814.641807656038, -52786.4684187814],
-            [0.0739896518701493, 0.996046991878090, 0.0491520232212485, -59.7093249377266]],
+        projectionMatrixNuScenes: [[1260.3593003446563, 790.4433526756009, 15.627522424805397, -636.3274027306582],
+            [7.834243891370816, 448.30558439994263, -1259.159501002805, -740.8962245421313],
+            [-0.003064512389859362, 0.9999620062762187, 0.008160561736325754, -0.7757948007768039]],
+        transformationMatrixEgoToCamNuScenes: [[-0.0047123, -0.9999733, 0.00558502, 1.671],
+            [0.01358668, -0.0056486, -0.99989174, -0.026],
+            [0.99989659, -0.00463591, 0.01361294, 1.536],
+            [0, 0, 0, 1,]],
+        // projectionMatrixLISAT: [[922.033620236691, 914.742127292118, 37.1306002570457, -52013.3448439892],
+        //     [43.2552503707437, 731.907745080755, -814.641807656038, -52786.4684187814],
+        //     [0.0739896518701493, 0.996046991878090, 0.0491520232212485, -59.7093249377266]],
+        projectionMatrixLISAT: [[1032.0809269597441, 983.234693051346, 39.603066911575674, 55773.41899194405],
+            [46.91969034275177, 800.4238080880446, -918.475825334129, 58018.158075382664],
+            [0.074, 0.996, 0.0492, 59.7093]],
+        transformationMatrixEgoToCamLISAT: [[9.97200e-01, -9.40000e-03, 7.40000e-02, -7.71510e+00],
+            [-7.34000e-02, 5.00000e-02, 9.96000e-01, 1.34829e+01],
+            [-1.30000e-02, -9.98700e-01, 4.92000e-02, 5.97093e+01]],
         rotation: 0
     }, {
         channel: 'CAM_FRONT_RIGHT',
         position: [1.593, -0.527, 1.526],
         fieldOfView: 70,
         rotationY: 55 * Math.PI / 180, // 55 degree
-        projectionMatrixNuScenes: [[-2.31755207e+02, -5.42971937e+02, -4.83981324e+00, -1.27054365e+03],
-            [1.06727074e+02, -1.34248981e+02, -5.03820234e+02, 1.31146956e+01],
-            [5.84932270e-01, -8.11014555e-01, 1.04704634e-02, -1.52600000e+00]],
-        projectionMatrixLISAT: [[1271.3136011165718, -264.8077615167896, -42.35337418192368, -58914.95130031767],
-            [561.3394288862174, 273.6681408112988, -900.78438804512, -49758.5316810427],
+        projectionMatrixNuScenes: [[1361.856983203004, -568.9937879652269, -6.653895294513566, -312.50854189580144],
+            [335.73347658567, 262.5244187804859, -1260.4228451038455, -763.337941668381],
+            [0.8064805242536375, 0.5911975331694409, 0.00863948921786484, -0.8346696345144945]],
+        transformationMatrixEgoToCamNuScenes: [[-8.10859430e-01, -5.85025428e-01, -1.58818285e-02, 1.59300000e+00],
+            [1.90058814e-02, 7.99720013e-04, -9.99819052e-01, -5.27000000e-01],
+            [5.84932270e-01, -8.11014555e-01, 1.04704634e-02, 1.52600000e+00],
+            [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 1.00000000e+00]],
+        // projectionMatrixLISAT: [[1271.3136011165718, -264.8077615167896, -42.35337418192368, -58914.95130031767],
+        //     [561.3394288862174, 273.6681408112988, -900.78438804512, -49758.5316810427],
+        //     [0.8704, 0.4861, -0.0785, -68.6021]],
+        projectionMatrixLISAT: [[1271.6922710846952, -304.99836406619386, -39.3907887583833, -57233.65791384971],
+            [583.4133290049833, 284.0465837849785, -944.3857374439146, -51768.28201250383],
             [0.8704, 0.4861, -0.0785, -68.6021]],
+        transformationMatrixEgoToCamLISAT: [[4.89900e-01, -8.70800e-01, 4.07000e-02, 9.85610e+00],
+            [-4.84000e-02, -7.39000e-02, -9.96100e-01, -2.67600e+00],
+            [8.70400e-01, 4.86100e-01, -7.85000e-02, -6.86021e+01],
+            [0, 0, 0, 1]],
         rotation: 55
     }, {
         channel: 'CAM_BACK_RIGHT',
         position: [1.042, -0.456, 1.595],
         fieldOfView: 70,
         rotationY: 110 * Math.PI / 180, // 110 degree
-        projectionMatrixNuScenes: [[-5.77808286e+02, -1.02972103e+02, -5.55447232e+00, -1.00531506e+03],
-            [-5.59368762e+01, -1.61381901e+02, -5.04106508e+02, -4.42780364e+01],
-            [-3.54597523e-01, -9.35016690e-01, -2.09429354e-03, -1.59500000e+00]],
-        projectionMatrixLISAT: [[794.0356195429831, -1012.8849095439483, -179.07770087021203, -128602.00570706779],
-            [599.7750068083451, -38.26710841555636, -916.4982974817447, -43877.90381297301],
+        projectionMatrixNuScenes: [[268.5366860205932, -1442.5534066704236, -5.5654251139895745, 97.19498615315976],
+            [406.6870884392414, -143.59988581953755, -1258.8039286060184, -475.31377943361736],
+            [0.9377138162782094, -0.34740581495648687, 0.0014136814971854525, -0.37336636003724444]],
+        transformationMatrixEgoToCamNuScenes: [[-9.34966822e-01, 3.54600502e-01, -9.77368820e-03, 1.04200000e+00],
+            [9.88119913e-03, -1.50763065e-03, -9.99950043e-01, -4.56000000e-01],
+            [-3.54597523e-01, -9.35016690e-01, -2.09429354e-03, 1.59500000e+00],
+            [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 1.00000000e+00]],
+        // projectionMatrixLISAT: [[794.0356195429831, -1012.8849095439483, -179.07770087021203, -128602.00570706779],
+        //     [599.7750068083451, -38.26710841555636, -916.4982974817447, -43877.90381297301],
+        //     [0.977, -0.1837, -0.1082, -60.6184]],
+        projectionMatrixLISAT: [[848.5512598840686, -1129.2646483996264, -196.315756621337, -141734.32068581556],
+            [652.1020273778403, -38.71272862691212, -1029.46526109555, -47964.78590957537],
             [0.977, -0.1837, -0.1082, -60.6184]],
+        transformationMatrixEgoToCamLISAT: [[-0.1932, -0.9775, -0.0856, -81.1507],
+            [-0.09, 0.1046, -0.9904, -2.2588],
+            [0.977, -0.1837, -0.1082, -60.6184],
+            [0, 0, 0, 1]],
         rotation: 110
 
     }, {
@@ -230,33 +321,58 @@ let labelTool = {
         position: [0.086, -0.007, 1.541],
         fieldOfView: 130,
         rotationY: Math.PI,//180 degree
-        projectionMatrixNuScenes: [[-2.65847240e+02, 3.24032801e+02, -4.08488699e+00, -4.45996076e+02],
-            [-1.62919716e+02, 2.84450505e+00, -3.21702344e+02, -2.56189382e+02],
-            [-9.99731565e-01, 1.77968704e-02, -1.48347542e-02, -1.54100000e+00]],
-        projectionMatrixLISAT: [[-895.4304585339987, -938.871846096237, -71.02888985836256, -5982.317869225711],
-            [-44.155367517485175, -612.6590140263143, -907.7438241324993, -84384.88883048057],
+        projectionMatrixNuScenes: [[-804.9366490955063, -670.8712520139895, -7.944554855775981, -532.4747992653032],
+            [-2.598392799509179, -411.71700732441207, -802.0306250329542, -570.6743676244683],
+            [-0.010095206737515048, -0.9999048082463075, -0.009405383928480443, -0.8092052225128153]],
+        transformationMatrixEgoToCamNuScenes: [[1.78014178e-02, 9.99841527e-01, -1.74532924e-04, 8.60000000e-02],
+            [1.48292972e-02, -4.38565732e-04, -9.99889944e-01, -7.00000000e-03],
+            [-9.99731565e-01, 1.77968704e-02, -1.48347542e-02, 1.54100000e+00],
+            [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 1.00000000e+00]],
+        // projectionMatrixLISAT: [[-895.4304585339987, -938.871846096237, -71.02888985836256, -5982.317869225711],
+        //     [-44.155367517485175, -612.6590140263143, -907.7438241324993, -84384.88883048057],
+        //     [-0.0455, -0.995, -0.0888, -4.2963]],
+        projectionMatrixLISAT: [[-986.505781537663, -883.3532006027316, -64.67265646137503, -5954.352319473563],
+            [-47.88317051477141, -651.6533925460091, -1014.0108621580484, -94402.14753624998],
             [-0.0455, -0.995, -0.0888, -4.2963]],
+        transformationMatrixEgoToCamLISAT: [[-0.9988, 0.0439, 0.0189, -2.0743],
+            [-0.0149, 0.0895, -0.9959, -95.8045],
+            [-0.0455, -0.995, -0.0888, -4.2963],
+            [0, 0, 0, 1]],
         rotation: 180
     }, {
         channel: 'CAM_BACK_LEFT',
         position: [1.055, 0.441, 1.605],
         fieldOfView: 70,
         rotationY: 250 * Math.PI / 180, //250 degree
-        projectionMatrixNuScenes: [[3.79416560e+02, 4.44554116e+02, 4.90223542e+00, -1.00791882e+03],
-            [-5.18851401e+01, 1.62909404e+02, -5.02685127e+02, -4.93475056e+02],
-            [-3.24931351e-01, 9.45731163e-01, 3.49054849e-03, -1.60500000e+00]],
-        projectionMatrixLISAT: [[-1034.7887558860443, 785.54017213604, 19.44397266029749, -22415.14333034558],
-            [-656.3615503272123, 21.601386673152174, -877.404677400356, -57939.50633439972],
+        projectionMatrixNuScenes: [[-1118.65453545052, 940.0229558602045, 5.20775624882033, -642.7023004564963],
+            [-404.09996798165156, -139.683623818749, -1256.6685898616693, -457.3405152874417],
+            [-0.943213201117988, -0.33216765461657427, 0.003675114050138092, -0.36297000058026163]],
+        transformationMatrixEgoToCamNuScenes: [[0.94571775, 0.3248984, 0.00767937, 1.055],
+            [0.00612855, 0.00579634, -0.99996442, 0.441],
+            [-0.32493135, 0.94573116, 0.00349055, 1.605],
+            [0, 0, 0, 1]],
+        // projectionMatrixLISAT: [[-1034.7887558860443, 785.54017213604, 19.44397266029749, -22415.14333034558],
+        //     [-656.3615503272123, 21.601386673152174, -877.404677400356, -57939.50633439972],
+        //     [-0.997, -0.0632, -0.0446, -84.9344]],
+        projectionMatrixLISAT: [[-1017.8956117124864, 947.0278929555594, 32.58889806014775, -8586.028158741105],
+            [-750.7556140821051, 27.649591167257046, -1043.054541250592, -66366.2238780424],
             [-0.997, -0.0632, -0.0446, -84.9344]],
+        transformationMatrixEgoToCamLISAT: [[-0.0664, 0.995, 0.0742, 71.5185],
+            [0.0397, 0.0769, -0.9962, 1.0001],
+            [-0.997, -0.0632, -0.0446, -84.9344],
+            [0, 0, 0, 1]],
         rotation: 305
     }],
 
     currentChannelLabel: document.getElementById('cam_channel'),
-    positionLidar: [0.891067, 0.0, 1.84292],//(long, lat, vert)
-    // positionLidar: [1.84, 0.0, 1.84292],//(long, lat, vert)
-    loadNuScenesLabels: false,
+    // position of the lidar sensor in ego vehicle space
+    positionLidarNuscenes: [0.891067, 0.0, 1.84292],//(long, lat, vert)
+    translationVectorLidarToCamFront: [0.77, -0.02, -0.3],
+    // positionLidarNuscenes: [1.84, 0.0, 1.84292],//(long, lat, vert)
+    showOriginalNuScenesLabels: true,
     imageAspectRatioNuScenes: 1.777777778,
     imageAspectRatioLISAT: 1.333333333,
+    showFieldOfView: false,
 
 
     /********** Externally defined functions **********
@@ -466,13 +582,14 @@ let labelTool = {
         // Remove old bounding boxes of current frame.
         annotationObjects.clear();
         // Add new bounding boxes.
-        if (labelTool.loadNuScenesLabels) {
-            for (let annotationObj in annotations) {
-                if (annotations.hasOwnProperty(annotationObj)) {
-                    let annotationObject = annotations[annotationObj];
-                    storeAnnotations.call(this, annotationObject.content, annotationObject.channel);
-                }
-            }
+        if (labelTool.showOriginalNuScenesLabels && labelTool.currentDataset === labelTool.datasets.NuScenes) {
+            storeAnnotations.call(this, annotations, undefined);
+            // for (let annotationObj in annotations) {
+            //     if (annotations.hasOwnProperty(annotationObj)) {
+            //         let annotationObject = annotations[annotationObj];
+            //         storeAnnotations.call(this, annotationObject.content, annotationObject.channel);
+            //     }
+            // }
 
         } else {
             storeAnnotations.call(this, annotations, undefined);
@@ -485,15 +602,27 @@ let labelTool = {
         let annotations = [];
         for (let i = 0; i < annotationObjects.length; i++) {
             let annotationObj = this.annotationObjects[i];
+            let camChannel = annotationObj["channel"];
             let rect = annotationObj["rect"];
-            let minPos = convertPositionToFile(rect.attr("x"), rect.attr("y"), annotationObj["channel"]);
+            let minPos = convertPositionToFile(rect.attr("x"), rect.attr("y"), camChannel);
             let maxPos = convertPositionToFile(rect.attr("x") + rect.attr("width"),
                 rect.attr("y") + rect.attr("height"), annotationObj["channel"]);
-            let cubeMat = [this.cubeArray[this.currentFileIndex][i].position.x,
+            let objectPosition = [this.cubeArray[this.currentFileIndex][i].position.x,
                 this.cubeArray[this.currentFileIndex][i].position.y,
                 this.cubeArray[this.currentFileIndex][i].position.z,
                 1];
-            let resultMat = matrixProduct4x4(inverseMatrix(this.cameraMatrix), cubeMat);
+            // LISAT: labels are stored in ego frame which is also the point cloud frame (no transformation needed)
+            let channelIndexByName = getChannelIndexByName(camChannel);
+            let transformedPosition = [];
+            if (this.currentDataset === this.datasets.LISA_T) {
+                // no transformation needed
+                transformedPosition = objectPosition;
+            } else {
+                // TODO:
+                // Nuscenes labels are stored in global frame
+                // Nuscenes: transform 3d positions from point cloud to global frame (point cloud-> ego, ego -> global)
+                transformedPosition = matrixProduct4x4(inverseMatrix(this.camChannels[channelIndexByName].transformationMatrixEgoToCamNuScenes), objectPosition);
+            }
             let annotation = {
                 class: annotationObj["class"],
                 truncated: 0,
@@ -507,13 +636,13 @@ let labelTool = {
                 height: this.cubeArray[this.currentFileIndex][i].scale.y,
                 width: this.cubeArray[this.currentFileIndex][i].scale.x,
                 length: this.cubeArray[this.currentFileIndex][i].scale.z, // depth
-                x: resultMat[0],
-                y: resultMat[1],
-                z: resultMat[2],
+                x: transformedPosition[0],
+                y: transformedPosition[1],
+                z: transformedPosition[2],
                 rotationYaw: this.cubeArray[this.currentFileIndex][i].rotation.z,
                 score: 1,
                 trackId: annotationObj["trackId"],
-                channel: annotationObj["channel"]
+                channel: camChannel
             };
             annotations.push(annotation);
         }
@@ -547,11 +676,14 @@ let labelTool = {
 
         if (this.currentDataset === this.datasets.LISA_T) {
             this.numFrames = 900;
+            this.currentSequence = this.sequencesLISAT.FIRST;
         } else {
             this.numFrames = 3962;
+            setSequences();
+            this.currentSequence = this.sequencesNuScenes[0];
         }
 
-        this.currentSequence = this.sequences.FIRST;
+
         this.pageBox.placeholder = (this.currentFileIndex + 1) + "/" + this.fileNames.length;
         this.camChannels.forEach(function (channelObj) {
             this.localOnInitialize[channelObj.channel]();
@@ -863,39 +995,39 @@ let labelTool = {
         switch (labelTool.currentCameraChannelIndex) {
             case 0:
                 // front left
-                this.createPlane('rightplane', Math.PI / 2 - 340 * 2 * Math.PI / 360, this.camChannels[0].position[0] - this.positionLidar[0] + this.camChannels[0].fieldOfView / 2 * Math.cos(340 * 2 * Math.PI / 360), -this.camChannels[0].position[1] + this.camChannels[0].fieldOfView / 2 * Math.sin(340 * 2 * Math.PI / 360), "CAM_FRONT_LEFT");
-                this.createPlane('leftplane', Math.PI / 2 - 270 * 2 * Math.PI / 360, this.camChannels[0].position[0] - this.positionLidar[0] + this.camChannels[0].fieldOfView / 2 * Math.cos(270 * 2 * Math.PI / 360), -this.camChannels[0].position[1] + this.camChannels[0].fieldOfView / 2 * Math.sin(270 * 2 * Math.PI / 360), "CAM_FRONT_LEFT");
-                this.createPrism(-305 * 2 * Math.PI / 360, this.camChannels[0].position[0] - this.positionLidar[0], this.camChannels[0].position[1], 0.3, 1.0, 0.073);
+                this.createPlane('rightplane', Math.PI / 2 - 340 * 2 * Math.PI / 360, this.camChannels[0].position[0] - this.positionLidarNuscenes[0] + this.camChannels[0].fieldOfView / 2 * Math.cos(340 * 2 * Math.PI / 360), -this.camChannels[0].position[1] + this.camChannels[0].fieldOfView / 2 * Math.sin(340 * 2 * Math.PI / 360), "CAM_FRONT_LEFT");
+                this.createPlane('leftplane', Math.PI / 2 - 270 * 2 * Math.PI / 360, this.camChannels[0].position[0] - this.positionLidarNuscenes[0] + this.camChannels[0].fieldOfView / 2 * Math.cos(270 * 2 * Math.PI / 360), -this.camChannels[0].position[1] + this.camChannels[0].fieldOfView / 2 * Math.sin(270 * 2 * Math.PI / 360), "CAM_FRONT_LEFT");
+                this.createPrism(-305 * 2 * Math.PI / 360, this.camChannels[0].position[0] - this.positionLidarNuscenes[0], this.camChannels[0].position[1], 0.3, 1.0, 0.073);
                 break;
             case 1:
                 // front
-                this.createPlane('rightplane', Math.PI / 2 - 35 * 2 * Math.PI / 360, this.camChannels[1].position[0] - this.positionLidar[0] + this.camChannels[1].fieldOfView / 2 * Math.cos(35 * 2 * Math.PI / 360), -this.camChannels[1].position[1] + this.camChannels[1].fieldOfView / 2 * Math.sin(35 * 2 * Math.PI / 360), "CAM_FRONT");
-                this.createPlane('leftplane', Math.PI / 2 - (-35) * 2 * Math.PI / 360, this.camChannels[1].position[0] - this.positionLidar[0] + this.camChannels[1].fieldOfView / 2 * Math.cos(-35 * 2 * Math.PI / 360), -this.camChannels[1].position[1] + this.camChannels[1].fieldOfView / 2 * Math.sin(-35 * 2 * Math.PI / 360), "CAM_FRONT");
-                this.createPrism(0 * 2 * Math.PI / 360, this.camChannels[1].position[0] - this.positionLidar[0], this.camChannels[1].position[1], 0.3, 1.0, 0.073);
+                this.createPlane('rightplane', Math.PI / 2 - 35 * 2 * Math.PI / 360, this.camChannels[1].position[0] - this.positionLidarNuscenes[0] + this.camChannels[1].fieldOfView / 2 * Math.cos(35 * 2 * Math.PI / 360), -this.camChannels[1].position[1] + this.camChannels[1].fieldOfView / 2 * Math.sin(35 * 2 * Math.PI / 360), "CAM_FRONT");
+                this.createPlane('leftplane', Math.PI / 2 - (-35) * 2 * Math.PI / 360, this.camChannels[1].position[0] - this.positionLidarNuscenes[0] + this.camChannels[1].fieldOfView / 2 * Math.cos(-35 * 2 * Math.PI / 360), -this.camChannels[1].position[1] + this.camChannels[1].fieldOfView / 2 * Math.sin(-35 * 2 * Math.PI / 360), "CAM_FRONT");
+                this.createPrism(0 * 2 * Math.PI / 360, this.camChannels[1].position[0] - this.positionLidarNuscenes[0], this.camChannels[1].position[1], 0.3, 1.0, 0.073);
                 break;
             case 2:
                 // front right
-                this.createPlane('rightplane', Math.PI / 2 - 90 * 2 * Math.PI / 360, this.camChannels[2].position[0] - this.positionLidar[0] + this.camChannels[2].fieldOfView / 2 * Math.cos(90 * 2 * Math.PI / 360), -this.camChannels[2].position[1] + this.camChannels[2].fieldOfView / 2 * Math.sin(90 * 2 * Math.PI / 360), "CAM_FRONT_RIGHT");
-                this.createPlane('leftplane', Math.PI / 2 - 20 * 2 * Math.PI / 360, this.camChannels[2].position[0] - this.positionLidar[0] + this.camChannels[2].fieldOfView / 2 * Math.cos(20 * 2 * Math.PI / 360), -this.camChannels[2].position[1] + this.camChannels[2].fieldOfView / 2 * Math.sin(20 * 2 * Math.PI / 360), "CAM_FRONT_RIGHT");
-                this.createPrism(-55 * 2 * Math.PI / 360, this.camChannels[2].position[0] - this.positionLidar[0], this.camChannels[2].position[1], 0.3, 1.0, 0.073);
+                this.createPlane('rightplane', Math.PI / 2 - 90 * 2 * Math.PI / 360, this.camChannels[2].position[0] - this.positionLidarNuscenes[0] + this.camChannels[2].fieldOfView / 2 * Math.cos(90 * 2 * Math.PI / 360), -this.camChannels[2].position[1] + this.camChannels[2].fieldOfView / 2 * Math.sin(90 * 2 * Math.PI / 360), "CAM_FRONT_RIGHT");
+                this.createPlane('leftplane', Math.PI / 2 - 20 * 2 * Math.PI / 360, this.camChannels[2].position[0] - this.positionLidarNuscenes[0] + this.camChannels[2].fieldOfView / 2 * Math.cos(20 * 2 * Math.PI / 360), -this.camChannels[2].position[1] + this.camChannels[2].fieldOfView / 2 * Math.sin(20 * 2 * Math.PI / 360), "CAM_FRONT_RIGHT");
+                this.createPrism(-55 * 2 * Math.PI / 360, this.camChannels[2].position[0] - this.positionLidarNuscenes[0], this.camChannels[2].position[1], 0.3, 1.0, 0.073);
                 break;
             case 3:
                 // back right
-                this.createPlane('rightplane', Math.PI / 2 - 145 * 2 * Math.PI / 360, this.camChannels[3].position[0] - this.positionLidar[0] + this.camChannels[3].fieldOfView / 2 * Math.cos(145 * 2 * Math.PI / 360), -this.camChannels[3].position[1] + this.camChannels[3].fieldOfView / 2 * Math.sin(145 * 2 * Math.PI / 360), "CAM_BACK_RIGHT");
-                this.createPlane('leftplane', Math.PI / 2 - 75 * 2 * Math.PI / 360, this.camChannels[3].position[0] - this.positionLidar[0] + this.camChannels[3].fieldOfView / 2 * Math.cos(75 * 2 * Math.PI / 360), -this.camChannels[3].position[1] + this.camChannels[3].fieldOfView / 2 * Math.sin(75 * 2 * Math.PI / 360), "CAM_BACK_RIGHT");
-                this.createPrism(-110 * 2 * Math.PI / 360, this.camChannels[3].position[0] - this.positionLidar[0], this.camChannels[3].position[1], 0.3, 1.0, 0.073);
+                this.createPlane('rightplane', Math.PI / 2 - 145 * 2 * Math.PI / 360, this.camChannels[3].position[0] - this.positionLidarNuscenes[0] + this.camChannels[3].fieldOfView / 2 * Math.cos(145 * 2 * Math.PI / 360), -this.camChannels[3].position[1] + this.camChannels[3].fieldOfView / 2 * Math.sin(145 * 2 * Math.PI / 360), "CAM_BACK_RIGHT");
+                this.createPlane('leftplane', Math.PI / 2 - 75 * 2 * Math.PI / 360, this.camChannels[3].position[0] - this.positionLidarNuscenes[0] + this.camChannels[3].fieldOfView / 2 * Math.cos(75 * 2 * Math.PI / 360), -this.camChannels[3].position[1] + this.camChannels[3].fieldOfView / 2 * Math.sin(75 * 2 * Math.PI / 360), "CAM_BACK_RIGHT");
+                this.createPrism(-110 * 2 * Math.PI / 360, this.camChannels[3].position[0] - this.positionLidarNuscenes[0], this.camChannels[3].position[1], 0.3, 1.0, 0.073);
                 break;
             case 4:
                 // back
-                this.createPlane('rightplane', Math.PI / 2 - 245 * 2 * Math.PI / 360, this.camChannels[4].position[0] - this.positionLidar[0] + this.camChannels[4].fieldOfView / 2 * Math.cos(245 * 2 * Math.PI / 360), -this.camChannels[4].position[1] + this.camChannels[4].fieldOfView / 2 * Math.sin(245 * 2 * Math.PI / 360), "CAM_BACK");
-                this.createPlane('leftplane', Math.PI / 2 - 115 * 2 * Math.PI / 360, this.camChannels[4].position[0] - this.positionLidar[0] + this.camChannels[4].fieldOfView / 2 * Math.cos(115 * 2 * Math.PI / 360), -this.camChannels[4].position[1] + this.camChannels[4].fieldOfView / 2 * Math.sin(115 * 2 * Math.PI / 360), "CAM_BACK");
-                this.createPrism(-180 * 2 * Math.PI / 360, this.camChannels[4].position[0] - this.positionLidar[0], this.camChannels[4].position[1], 0.97, 1.0, 0.046);
+                this.createPlane('rightplane', Math.PI / 2 - 245 * 2 * Math.PI / 360, this.camChannels[4].position[0] - this.positionLidarNuscenes[0] + this.camChannels[4].fieldOfView / 2 * Math.cos(245 * 2 * Math.PI / 360), -this.camChannels[4].position[1] + this.camChannels[4].fieldOfView / 2 * Math.sin(245 * 2 * Math.PI / 360), "CAM_BACK");
+                this.createPlane('leftplane', Math.PI / 2 - 115 * 2 * Math.PI / 360, this.camChannels[4].position[0] - this.positionLidarNuscenes[0] + this.camChannels[4].fieldOfView / 2 * Math.cos(115 * 2 * Math.PI / 360), -this.camChannels[4].position[1] + this.camChannels[4].fieldOfView / 2 * Math.sin(115 * 2 * Math.PI / 360), "CAM_BACK");
+                this.createPrism(-180 * 2 * Math.PI / 360, this.camChannels[4].position[0] - this.positionLidarNuscenes[0], this.camChannels[4].position[1], 0.97, 1.0, 0.046);
                 break;
             case 5:
                 // back left
-                this.createPlane('rightplane', Math.PI / 2 - 285 * 2 * Math.PI / 360, this.camChannels[5].position[0] - this.positionLidar[0] + this.camChannels[5].fieldOfView / 2 * Math.cos(285 * 2 * Math.PI / 360), -this.camChannels[5].position[1] + this.camChannels[5].fieldOfView / 2 * Math.sin(285 * 2 * Math.PI / 360), "CAM_BACK_LEFT");
-                this.createPlane('leftplane', Math.PI / 2 - 215 * 2 * Math.PI / 360, this.camChannels[5].position[0] - this.positionLidar[0] + this.camChannels[5].fieldOfView / 2 * Math.cos(215 * 2 * Math.PI / 360), -this.camChannels[5].position[1] + this.camChannels[5].fieldOfView / 2 * Math.sin(215 * 2 * Math.PI / 360), "CAM_BACK_LEFT");
-                this.createPrism(-250 * 2 * Math.PI / 360, this.camChannels[5].position[0] - this.positionLidar[0], this.camChannels[5].position[1], 0.3, 1.0, 0.073);
+                this.createPlane('rightplane', Math.PI / 2 - 285 * 2 * Math.PI / 360, this.camChannels[5].position[0] - this.positionLidarNuscenes[0] + this.camChannels[5].fieldOfView / 2 * Math.cos(285 * 2 * Math.PI / 360), -this.camChannels[5].position[1] + this.camChannels[5].fieldOfView / 2 * Math.sin(285 * 2 * Math.PI / 360), "CAM_BACK_LEFT");
+                this.createPlane('leftplane', Math.PI / 2 - 215 * 2 * Math.PI / 360, this.camChannels[5].position[0] - this.positionLidarNuscenes[0] + this.camChannels[5].fieldOfView / 2 * Math.cos(215 * 2 * Math.PI / 360), -this.camChannels[5].position[1] + this.camChannels[5].fieldOfView / 2 * Math.sin(215 * 2 * Math.PI / 360), "CAM_BACK_LEFT");
+                this.createPrism(-250 * 2 * Math.PI / 360, this.camChannels[5].position[0] - this.positionLidarNuscenes[0], this.camChannels[5].position[1], 0.3, 1.0, 0.073);
                 break;
         }
     },
