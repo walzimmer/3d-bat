@@ -37,9 +37,9 @@ let classesBoundingBox = {
         }
     },
     target: function () {
-        if (labelTool.loadNuScenesLabels===true){
+        if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
             return this.content[this.__target];
-        }else{
+        } else {
             return this[this.__target];
         }
 
