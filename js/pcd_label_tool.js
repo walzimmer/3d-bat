@@ -29,7 +29,7 @@ let clickedObjectIndex = -1;
 let mouseDown = {x: 0, y: 0};
 let mouseUp = {x: 0, y: 0};
 let clickedPoint = THREE.Vector3();
-let groundClickedPoint;
+let groundPointMouseDown;
 let groundPlaneArray = [];
 let clickedPlaneArray = [];
 let birdsEyeViewFlag = true;
@@ -84,7 +84,7 @@ let parameters = {
     },
     datasets: 'LISA_T',
     show_projected_points: false,
-    show_nuscenes_labels: false,
+    show_nuscenes_labels: labelTool.showOriginalNuScenesLabels,
     show_field_of_view: false
 };
 
@@ -176,6 +176,116 @@ labelTool.onLoadData("PCD", function () {
     if (labelTool.showFieldOfView === true) {
         labelTool.drawFieldOfView();
     }
+
+    // draw positions of cameras
+    let posCamFront = [0, 0, 0, 1];
+    let translation_vector_lidar_to_cam_front = [-7.151, 13.4829, 59.7093];//lat/vert/long
+    let rotation_matrix_lidar_to_cam_front = [[0.9972, -0.0734, -0.0130],
+        [-0.0094, 0.0500, -0.9987],
+        [0.0740, 0.9960, 0.0492]];
+    let transformation_matrix_lidar_to_cam_front = [[0.9972, -0.0734, -0.013, -7.7151],
+        [-0.0094, 0.05, -0.9987, 13.4829],
+        [0.074, 0.996, 0.0492, 59.7093],
+        [0, 0, 0, 1]];
+    posCamFront = matrixProduct4x4(transformation_matrix_lidar_to_cam_front, posCamFront);
+    // long/vert/lat to lat,long,vert
+    let camFrontGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+    //camFrontGeometry.translate(translation_vector_lidar_to_cam_front[0]/100, translation_vector_lidar_to_cam_front[1]/100, translation_vector_lidar_to_cam_front[2]/100);//long,lat,vert
+    camFrontGeometry.translate(-posCamFront[0] / 100, posCamFront[2] / 100, -posCamFront[1] / 100);//long,lat,vert
+    rotation_x = Math.atan2(rotation_matrix_lidar_to_cam_front[1][2], rotation_matrix_lidar_to_cam_front[2][2]);
+    rotation_y = Math.atan2(-rotation_matrix_lidar_to_cam_front[1][0], Math.sqrt(Math.pow(rotation_matrix_lidar_to_cam_front[1][2], 2) + Math.pow(rotation_matrix_lidar_to_cam_front[2][2], 2)));
+    rotation_z = Math.atan2(rotation_matrix_lidar_to_cam_front[0][1], rotation_matrix_lidar_to_cam_front[0][0]);
+    // camFrontGeometry.rotateX(rotation_x);
+    // camFrontGeometry.rotateY(rotation_y);
+    // camFrontGeometry.rotateZ(rotation_z);
+    let material = new THREE.MeshBasicMaterial({
+        color: 0xff0000,
+        side: THREE.DoubleSide,
+        transparent: false
+    });
+    let camFrontMesh = new THREE.Mesh(camFrontGeometry, material);
+    scene.add(camFrontMesh);
+
+    let posCamFrontRight = [0, 0, 0, 1];
+    let camFrontRightGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+    let transformation_matrix_lidar_to_cam_front_right = [[0.4899, -0.8708, 0.0407, 9.8561],
+        [-0.0484, -0.0739, -0.9961, -2.676],
+        [0.8704, 0.4861, -0.0785, -68.6021],
+        [0, 0, 0, 1]];
+    material = new THREE.MeshBasicMaterial({
+        color: 0x00ff00,
+        side: THREE.DoubleSide,
+        transparent: false
+    });
+    posCamFrontRight = matrixProduct4x4(transformation_matrix_lidar_to_cam_front_right, posCamFrontRight);
+    camFrontRightGeometry.translate(-posCamFrontRight[0] / 100, posCamFrontRight[2] / 100, -posCamFrontRight[1] / 100);//long,lat,vert
+    // camFrontRightGeometry.translate(posCamFront[0]/100, posCamFront[1]/100, posCamFront[2]/100);//long,lat,vert
+    let camFrontRightMesh = new THREE.Mesh(camFrontRightGeometry, material);
+    scene.add(camFrontRightMesh);
+
+    let posCamBackRight = [0, 0, 0, 1];
+    let camBackRightGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+    let transformation_matrix_lidar_to_cam_back_right = [[-0.1932, -0.9775, -0.0856, -81.1507],
+        [-0.09, 0.1046, -0.9904, -2.2588],
+        [0.977, -0.1837, -0.1082, -60.6184],
+        [0, 0, 0, 1]];
+    material = new THREE.MeshBasicMaterial({
+        color: 0x0000ff,
+        side: THREE.DoubleSide,
+        transparent: false
+    });
+    posCamBackRight = matrixProduct4x4(transformation_matrix_lidar_to_cam_back_right, posCamBackRight);
+    camBackRightGeometry.translate(-posCamBackRight[0] / 100, posCamBackRight[2] / 100, -posCamBackRight[1] / 100);//long,lat,vert
+    let camBackRightMesh = new THREE.Mesh(camBackRightGeometry, material);
+    scene.add(camBackRightMesh);
+
+    let posCamBack = [0, 0, 0, 1];
+    let camBackGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+    let transformation_matrix_lidar_to_cam_back = [[-0.9988, 0.0439, 0.0189, -4.2963],
+        [-0.0149, 0.0895, -0.9959, -2.0743],
+        [-0.0455, -0.995, -0.0888, -95.8045],
+        [0, 0, 0, 1]];
+    material = new THREE.MeshBasicMaterial({
+        color: 0xffff00,
+        side: THREE.DoubleSide,
+        transparent: false
+    });
+    posCamBack = matrixProduct4x4(transformation_matrix_lidar_to_cam_back, posCamBack);
+    camBackGeometry.translate(-posCamBack[0] / 100, posCamBack[2] / 100, -posCamBack[1] / 100);//long,lat,vert
+    let camBackMesh = new THREE.Mesh(camBackGeometry, material);
+    scene.add(camBackMesh);
+
+    let posCamBackLeft = [0, 0, 0, 1];
+    let camBackLeftGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+    let transformation_matrix_lidar_to_cam_back_left = [[-0.0664, 0.995, 0.0742, 71.5185],
+        [0.0397, 0.0769, -0.9962, 1.0001],
+        [-0.997, -0.0632, -0.0446, -84.9344],
+        [0, 0, 0, 1]];
+    material = new THREE.MeshBasicMaterial({
+        color: 0x00ffff,
+        side: THREE.DoubleSide,
+        transparent: false
+    });
+    posCamBackLeft = matrixProduct4x4(transformation_matrix_lidar_to_cam_back_left, posCamBackLeft);
+    camBackLeftGeometry.translate(-posCamBackLeft[0] / 100, posCamBackLeft[2] / 100, -posCamBackLeft[1] / 100);//long,lat,vert
+    let camBackLeftMesh = new THREE.Mesh(camBackLeftGeometry, material);
+    scene.add(camBackLeftMesh);
+
+    let posCamFrontLeft = [0, 0, 0, 1];
+    let camFrontLeftGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+    let transformation_matrix_lidar_to_cam_front_left = [[0.6119, 0.791, -0.0001, -0.9675],
+        [0.0757, -0.0587, -0.9954, -1.8214],
+        [-0.7873, 0.6091, -0.0958, -82.9684],
+        [0, 0, 0, 1]];
+    material = new THREE.MeshBasicMaterial({
+        color: 0xff00ff,
+        side: THREE.DoubleSide,
+        transparent: false
+    });
+    posCamFrontLeft = matrixProduct4x4(transformation_matrix_lidar_to_cam_front_left, posCamFrontLeft);
+    camFrontLeftGeometry.translate(-posCamFrontLeft[0] / 100, posCamFrontLeft[2] / 100, -posCamFrontLeft[1] / 100);//long,lat,vert
+    let camFrontLeftMesh = new THREE.Mesh(camFrontLeftGeometry, material);
+    scene.add(camFrontLeftMesh);
 
 
 });
@@ -346,7 +456,7 @@ function update2DBoundingBox(idx) {
                 // working, but back of camera
                 //channelObj.projectedPoints = calculateProjectedBoundingBox(x, -y, -z, width, height, depth, channel);
                 // lisaT and old projection matrix: -x
-                channelObj.projectedPoints = calculateProjectedBoundingBox(-x, -y, z, width, height, depth, channel);
+                channelObj.projectedPoints = calculateProjectedBoundingBox(-x, -y, -z, width, height, depth, channel);
                 // remove previous drawn lines
                 for (let lineObj in channelObj.lines) {
                     if (channelObj.lines.hasOwnProperty(lineObj)) {
@@ -363,6 +473,18 @@ function update2DBoundingBox(idx) {
 
             }
         }
+    }
+}
+
+function updateChannels(insertIndex) {
+    let annotationObj = annotationObjects.contents[insertIndex];
+    let posX = annotationObj.x;
+    let posY = annotationObj.y;
+    let posZ = annotationObj.z;
+    let channels = getChannelsByPosition(posX, posY, posZ);
+    annotationObj.channels[0].channel = channels[0];
+    if (channels[1] !== undefined) {
+        annotationObj.channels[1].channel = channels[1];
     }
 }
 
@@ -404,22 +526,34 @@ function addBoundingBoxGui(bbox) {
     cubeX.onChange(function (value) {
         labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].position.x = value;
         annotationObjects.contents[insertIndex]["x"] = value;
+        // update current camera channel
+        // updateChannels(insertIndex);
+        // update bounding box
         update2DBoundingBox(insertIndex);
     });
     cubeY.onChange(function (value) {
         labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].position.y = value;
         annotationObjects.contents[insertIndex]["y"] = value;
+        // update current camera channel
+        // updateChannels(insertIndex);
+        // update bounding box
         update2DBoundingBox(insertIndex);
     });
     cubeZ.onChange(function (value) {
         labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].position.z = value;
         annotationObjects.contents[insertIndex]["z"] = value;
+        // update current camera channel
+        // updateChannels(insertIndex);
+        // update bounding box
         update2DBoundingBox(insertIndex);
     });
     cubeYaw.onChange(function (value) {
         labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].rotation.z = value;
         // let rotatedObject = labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].rotateZ(value);
         annotationObjects.contents[insertIndex]["yaw"] = value;
+        // update current camera channel
+        // updateChannels(insertIndex);
+        // update bounding box
         update2DBoundingBox(insertIndex);
     });
     cubeW.onChange(function (value) {
@@ -434,6 +568,8 @@ function addBoundingBoxGui(bbox) {
 
         labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].scale.x = value;
         annotationObjects.contents[insertIndex]["width"] = value;
+        // update current camera channel
+        // updateChannels(insertIndex);
         update2DBoundingBox(insertIndex);
     });
     cubeH.onChange(function (value) {
@@ -447,6 +583,8 @@ function addBoundingBoxGui(bbox) {
         annotationObjects.contents[insertIndex]["y"] = newYPos;
         labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].scale.y = value;
         annotationObjects.contents[insertIndex]["height"] = value;
+        // update current camera channel
+        // updateChannels(insertIndex);
         update2DBoundingBox(insertIndex);
     });
     cubeD.onChange(function (value) {
@@ -455,11 +593,13 @@ function addBoundingBoxGui(bbox) {
         bbox.z = newZPos;
         labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].scale.z = value;
         annotationObjects.contents[insertIndex]["depth"] = value;
+        // update current camera channel
+        // updateChannels(insertIndex);
         update2DBoundingBox(insertIndex);
     });
     let resetParameters = {
         reset: function () {
-            resetCube(insertIndex, insertIndex);
+            resetCube(insertIndex);
         },
         delete: function () {
             guiOptions.removeFolder(bbox.class + ' ' + bbox.trackId);
@@ -471,8 +611,8 @@ function addBoundingBoxGui(bbox) {
     folderBoundingBox3DArray[folderBoundingBox3DArray.length - 1].add(resetParameters, 'delete').name("Delete");
 }
 
-//reset cube patameter and position
-function resetCube(index, num) {
+//reset cube parameter and position
+function resetCube(index) {
     let reset_bbox = annotationObjects.contents[index];
     reset_bbox.x = reset_bbox.org.x;
     reset_bbox.y = reset_bbox.org.y;
@@ -481,13 +621,14 @@ function resetCube(index, num) {
     reset_bbox.width = reset_bbox.org.width;
     reset_bbox.height = reset_bbox.org.height;
     reset_bbox.depth = reset_bbox.org.depth;
-    labelTool.cubeArray[labelTool.currentFileIndex][num].position.x = reset_bbox.x;
-    labelTool.cubeArray[labelTool.currentFileIndex][num].position.y = -reset_bbox.y;
-    labelTool.cubeArray[labelTool.currentFileIndex][num].position.z = reset_bbox.z;
-    labelTool.cubeArray[labelTool.currentFileIndex][num].rotation.z = reset_bbox.yaw;
-    labelTool.cubeArray[labelTool.currentFileIndex][num].scale.x = reset_bbox.width;
-    labelTool.cubeArray[labelTool.currentFileIndex][num].scale.y = reset_bbox.height;
-    labelTool.cubeArray[labelTool.currentFileIndex][num].scale.z = reset_bbox.depth;
+    labelTool.cubeArray[labelTool.currentFileIndex][index].position.x = reset_bbox.x;
+    labelTool.cubeArray[labelTool.currentFileIndex][index].position.y = -reset_bbox.y;
+    labelTool.cubeArray[labelTool.currentFileIndex][index].position.z = reset_bbox.z;
+    labelTool.cubeArray[labelTool.currentFileIndex][index].rotation.z = reset_bbox.yaw;
+    labelTool.cubeArray[labelTool.currentFileIndex][index].scale.x = reset_bbox.width;
+    labelTool.cubeArray[labelTool.currentFileIndex][index].scale.y = reset_bbox.height;
+    labelTool.cubeArray[labelTool.currentFileIndex][index].scale.z = reset_bbox.depth;
+    updateChannels(index);
 }
 
 //change window size
@@ -750,7 +891,6 @@ function getChannelsByPosition(x, y) {
 }
 
 
-//function calculateProjectedBoundingBox(pos_lat, pos_long, pos_vert, width, height, depth, channel) {
 function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, channel) {
     let idx = getChannelIndexByName(channel);
     // LIDAR uses long, lat, vert
@@ -833,14 +973,14 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
     // cornerPoints.push(new THREE.Vector3(pos_long + height / 2, pos_lat + width / 2, pos_vert + depth / 2));
     // cornerPoints.push(new THREE.Vector3(pos_long + height / 2, pos_lat - width / 2, pos_vert + depth / 2));
 
-    cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos - height / 2, zPos - depth / 2));
-    cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos - height / 2, zPos - depth / 2));
-    cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos + height / 2, zPos - depth / 2));
-    cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos + height / 2, zPos - depth / 2));
     cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos - height / 2, zPos + depth / 2));
     cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos - height / 2, zPos + depth / 2));
     cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos + height / 2, zPos + depth / 2));
     cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos + height / 2, zPos + depth / 2));
+    cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos - height / 2, zPos - depth / 2));
+    cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos - height / 2, zPos - depth / 2));
+    cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos + height / 2, zPos - depth / 2));
+    cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos + height / 2, zPos - depth / 2));
     // // let projector = new THREE.Projector();
     let projectedPoints = [];
     for (let cornerPoint in cornerPoints) {
@@ -864,7 +1004,7 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
         let point = cornerPoints[cornerPoint];
         // working, but user sees back of camera
         // let point3D = [point.y, point.x, point.z, 1];
-        let point3D = [point.x * dimensionScalingFactor, point.y * dimensionScalingFactor, -point.z * dimensionScalingFactor, 1];
+        let point3D = [point.x * dimensionScalingFactor, point.y * dimensionScalingFactor, (point.z - 1.5) * dimensionScalingFactor, 1];
         let projectionMatrix;
         if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
             projectionMatrix = labelTool.camChannels[idx].projectionMatrixLISAT;
@@ -1306,7 +1446,7 @@ function init() {
                     groundPlane.position.z = -1;
                     groundPlaneArray.push(groundPlane);
                     let groundObject = ray.intersectObjects(groundPlaneArray);
-                    groundClickedPoint = groundObject[0].point;
+                    groundPointMouseDown = groundObject[0].point;
                 }
             }
         }
@@ -1418,7 +1558,7 @@ function init() {
                     clickFlag = false;
                 } else if (groundPlaneArray.length === 1) {
                     let groundUpObject = ray.intersectObjects(groundPlaneArray);
-                    let groundUpPoint = groundUpObject[0].point;
+                    let groundPointMouseUp = groundUpObject[0].point;
 
                     let trackId = -1;
                     let insertIndex;
@@ -1443,25 +1583,25 @@ function init() {
                     }
 
                     // set channel based on 3d position of new bonding box
-                    if (Math.abs(groundUpPoint.x - groundClickedPoint.x) > 0.1) {
-                        let xPos = (groundUpPoint.x + groundClickedPoint.x) / 2;
-                        let yPos = (groundUpPoint.y + groundClickedPoint.y) / 2;
-                        let zPos = -1;
+                    if (Math.abs(groundPointMouseUp.x - groundPointMouseDown.x) > 0.1) {
+                        let xPos = (groundPointMouseUp.x + groundPointMouseDown.x) / 2;
+                        let yPos = (groundPointMouseUp.y + groundPointMouseDown.y) / 2;
+                        let zPos = -1.5; // height of lidar sensor. Use -1.5 to put object on street
                         let addBboxParameters = {
                             class: classesBoundingBox.targetName(),
                             x: xPos,
                             y: yPos,
                             z: zPos,
-                            width: Math.abs(groundUpPoint.x - groundClickedPoint.x),
-                            height: Math.abs(groundUpPoint.y - groundClickedPoint.y),
+                            width: Math.abs(groundPointMouseUp.x - groundPointMouseDown.x),
+                            height: Math.abs(groundPointMouseUp.y - groundPointMouseDown.y),
                             depth: 1.0,
                             yaw: 0,
                             org: {
-                                x: (groundUpPoint.x + groundClickedPoint.x) / 2,
-                                y: (groundUpPoint.y + groundClickedPoint.y) / 2,
+                                x: (groundPointMouseUp.x + groundPointMouseDown.x) / 2,
+                                y: (groundPointMouseUp.y + groundPointMouseDown.y) / 2,
                                 z: zPos,
-                                width: Math.abs(groundUpPoint.x - groundClickedPoint.x),
-                                height: Math.abs(groundUpPoint.y - groundClickedPoint.y),
+                                width: Math.abs(groundPointMouseUp.x - groundPointMouseDown.x),
+                                height: Math.abs(groundPointMouseUp.y - groundPointMouseDown.y),
                                 depth: 1.0,
                                 yaw: 0,
                             },
@@ -1487,7 +1627,7 @@ function init() {
                             // working, but user sees back of camera
                             //let projectedBoundingBox = calculateProjectedBoundingBox(xPos, yPos, -zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth, channel);
                             // lisaT: xPos
-                            let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -yPos, zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth, channel);
+                            let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -yPos, -zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth, channel);
                             addBboxParameters.channels[i].projectedPoints = projectedBoundingBox;
                         }
                         // calculate line segments
@@ -1521,16 +1661,16 @@ function init() {
                     //         y_img: -1,
                     //         width_img: -1,
                     //         height_img: -1,
-                    //         x: (groundUpPoint.x + groundClickedPoint.x) / 2,
-                    //         y: -(groundUpPoint.y + groundClickedPoint.y) / 2,
+                    //         x: (groundUpPoint.x + groundPointMouseDown.x) / 2,
+                    //         y: -(groundUpPoint.y + groundPointMouseDown.y) / 2,
                     //         z: copyBbox.z,
                     //         width: copyBbox.width,
                     //         height: copyBbox.height,
                     //         depth: copyBbox.depth,
                     //         yaw: copyBbox.yaw,
                     //         org: {
-                    //             x: (groundUpPoint.x + groundClickedPoint.x) / 2,
-                    //             y: -(groundUpPoint.y + groundClickedPoint.y) / 2,
+                    //             x: (groundUpPoint.x + groundPointMouseDown.x) / 2,
+                    //             y: -(groundUpPoint.y + groundPointMouseDown.y) / 2,
                     //             z: copyBbox.z,
                     //             width: copyBbox.width,
                     //             height: copyBbox.height,
@@ -1603,17 +1743,25 @@ function init() {
     guiOptions.add(parameters, 'datasets', ['NuScenes', 'LISA_T']).name("Choose dataset")
         .onChange(function (value) {
             changeDataset(value);
+            let checkboxClassItem = $("#bounding-box-3d-menu ul li .c");
+            let childNodes = checkboxClassItem.childNodes();
+            let thirdChild = $(childNodes).get(3);
+            let checkbox = $(thirdChild).get(0);
+
             if (value === labelTool.datasets.LISA_T) {
                 // disable checkbox to show original nuscenes labels
-                $("#show-nuscenes-labels").disabled = true;
+
+                $(checkbox).attr("disabled", true);
+                // $("#show-nuscenes-labels").disabled = true;
             } else {
-                $("#show-nuscenes-labels").disabled = false;
+                $(checkbox).attr("disabled", false);
+                // $("#show-nuscenes-labels").disabled = false;
             }
         });
 
     let showOriginalNuScenesLabelsCheckbox = guiOptions.add(parameters, 'show_nuscenes_labels').name('NuScenes Labels').listen();
-    showOriginalNuScenesLabelsCheckbox.domElement.id = "show-nuscenes-labels";
-    showOriginalNuScenesLabelsCheckbox.domElement.previousSibling.disabled = true;
+    // showOriginalNuScenesLabelsCheckbox.domElement.id = "show-nuscenes-labels";
+    // showOriginalNuScenesLabelsCheckbox.domElement.previousSibling.disabled = true;
     showOriginalNuScenesLabelsCheckbox.onChange(function (value) {
         labelTool.showOriginalNuScenesLabels = value;
         if (labelTool.showOriginalNuScenesLabels === true) {
