@@ -16,3 +16,11 @@ function matrixProduct3x4(inMax1, inMax2) {
     return outMax;
 }
 
+function matrixProduct3x3(matrixOne, matrixTwo) {
+    let matrixOut = [0, 0, 0];
+    matrixOut[0] = matrixOne[0][0] * matrixTwo[0] + matrixOne[0][1] * matrixTwo[1] + matrixOne[0][2] * matrixTwo[2];
+    matrixOut[1] = matrixOne[1][0] * matrixTwo[0] + matrixOne[1][1] * matrixTwo[1] + matrixOne[1][2] * matrixTwo[2];
+    matrixOut[2] = matrixOne[2][0] * matrixTwo[0] + matrixOne[2][1] * matrixTwo[1] + matrixOne[2][2] * matrixTwo[2];
+    return matrixOut;
+}
+
