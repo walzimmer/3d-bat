@@ -47,7 +47,9 @@ intrinsic_matrix_all_cams = np.array([[851.809297551590, 0, 0],
 # front
 # NOTE: transformation given from cam_front to lidar that is why is must be inverted
 # vert, lat, long
-translation_vector_lidar_to_cam_front = np.array([7.7151, -13.4829, -59.7093]).T
+# translation_vector_lidar_to_cam_front = np.array([7.7151, -13.4829, -59.7093]).T
+translation_vector_lidar_to_cam_front = -np.array([3.40200000000000, -60.7137000000000, 10.4301000000000]).T
+
 rotation_matrix_lidar_to_cam_front = np.array([[0.9972, -0.0734, -0.0130],
                                                [-0.0094, 0.0500, -0.9987],
                                                [0.0740, 0.9960, 0.0492]])
@@ -70,8 +72,7 @@ print_matrix(projection_matrix)
 
 # front right
 # transformation values given from car front to each specific cam
-
-translation_vector_lidar_to_cam_front_right = np.array([9.8561, -2.6760, -68.6021]).T
+translation_vector_lidar_to_cam_front_right = -np.array([9.8561, -2.6760, -68.6021]).T
 rotation_matrix_lidar_to_cam_front_right = np.array([[0.4899, -0.8708, 0.0407],
                                                      [-0.0484, -0.0739, -0.9961],
                                                      [0.8704, 0.4861, -0.0785]])
@@ -88,6 +89,23 @@ print('transformation matrix')
 print_matrix(extrinsic_matrix_cam_front_right)
 print('projection matrix')
 print_matrix(projection_matrix)
+# ------------------------------------------
+# translation_vector_lidar_to_cam_front = np.array([3.40200000000000, -60.7137000000000, 10.4301000000000]).T
+# pos_cam_front_right = np.array([0, 0, 0]).T
+# rotation_matrix_cam_front_to_cam_front_right = np.array([[0.5520, -0.0888, -0.8291],
+#                                                          [-0.0299, 0.9916, -0.1262],
+#                                                          [0.8333, 0.0945, 0.5447]])
+# translation_vector_cam_front_to_cam_front_right = np.array([-45.1049, 3.3890, -41.2333]).T
+# pos_cam_front_right = pos_cam_front_right + translation_vector_lidar_to_cam_front
+# pos_cam_front_right = np.dot(rotation_matrix_lidar_to_cam_front, pos_cam_front_right)
+# pos_cam_front_right = np.dot(rotation_matrix_cam_front_to_cam_front_right, pos_cam_front_right)
+# pos_cam_front_right = pos_cam_front_right + translation_vector_cam_front_to_cam_front_right
+# print('pos cam front right:')
+# print(pos_cam_front_right)
+# pos_cam_front_right = np.array([0, 0, 0, 1]).T
+# pos_cam_front_right = np.dot(extrinsic_matrix_cam_front_right, pos_cam_front_right)
+# print(pos_cam_front_right)
+# ------------------------------------------
 
 # back right
 translation_vector_lidar_to_cam_back_right = np.array([-81.1507, -2.2588, -60.6184]).T

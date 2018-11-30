@@ -178,20 +178,26 @@ labelTool.onLoadData("PCD", function () {
     }
 
     // draw positions of cameras
+    // front (red)
     let posCamFront = [0, 0, 0, 1];
     let translation_vector_lidar_to_cam_front = [-7.151, 13.4829, 59.7093];//lat/vert/long
     let rotation_matrix_lidar_to_cam_front = [[0.9972, -0.0734, -0.0130],
         [-0.0094, 0.0500, -0.9987],
         [0.0740, 0.9960, 0.0492]];
-    let transformation_matrix_lidar_to_cam_front = [[0.9972, -0.0734, -0.013, -7.7151],
-        [-0.0094, 0.05, -0.9987, 13.4829],
-        [0.074, 0.996, 0.0492, 59.7093],
+    // let transformation_matrix_lidar_to_cam_front = [[0.9972, -0.0734, -0.013, -7.7151],
+    //     [-0.0094, 0.05, -0.9987, 13.4829],
+    //     [0.074, 0.996, 0.0492, 59.7093],
+    //     [0, 0, 0, 1]];
+    let transformation_matrix_lidar_to_cam_front = [[0.9972, -0.0734, -0.013, -3.402],
+        [-0.0094, 0.05, -0.9987, 60.7137],
+        [0.074, 0.996, 0.0492, -10.4301],
         [0, 0, 0, 1]];
     posCamFront = matrixProduct4x4(transformation_matrix_lidar_to_cam_front, posCamFront);
     // long/vert/lat to lat,long,vert
     let camFrontGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
     //camFrontGeometry.translate(translation_vector_lidar_to_cam_front[0]/100, translation_vector_lidar_to_cam_front[1]/100, translation_vector_lidar_to_cam_front[2]/100);//long,lat,vert
-    camFrontGeometry.translate(-posCamFront[0] / 100, posCamFront[2] / 100, -posCamFront[1] / 100);//long,lat,vert
+    //camFrontGeometry.translate(-posCamFront[0] / 100, posCamFront[2] / 100, -posCamFront[1] / 100);//long,lat,vert
+    camFrontGeometry.translate(posCamFront[0] / 100, posCamFront[1] / 100, posCamFront[2] / 100);//long,lat,vert
     rotation_x = Math.atan2(rotation_matrix_lidar_to_cam_front[1][2], rotation_matrix_lidar_to_cam_front[2][2]);
     rotation_y = Math.atan2(-rotation_matrix_lidar_to_cam_front[1][0], Math.sqrt(Math.pow(rotation_matrix_lidar_to_cam_front[1][2], 2) + Math.pow(rotation_matrix_lidar_to_cam_front[2][2], 2)));
     rotation_z = Math.atan2(rotation_matrix_lidar_to_cam_front[0][1], rotation_matrix_lidar_to_cam_front[0][0]);
@@ -206,11 +212,16 @@ labelTool.onLoadData("PCD", function () {
     let camFrontMesh = new THREE.Mesh(camFrontGeometry, material);
     scene.add(camFrontMesh);
 
+    // front right (green)
     let posCamFrontRight = [0, 0, 0, 1];
     let camFrontRightGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
-    let transformation_matrix_lidar_to_cam_front_right = [[0.4899, -0.8708, 0.0407, 9.8561],
-        [-0.0484, -0.0739, -0.9961, -2.676],
-        [0.8704, 0.4861, -0.0785, -68.6021],
+    // let transformation_matrix_lidar_to_cam_front_right = [[0.4899, -0.8708, 0.0407, 9.8561],
+    //     [-0.0484, -0.0739, -0.9961, -2.676],
+    //     [0.8704, 0.4861, -0.0785, -68.6021],
+    //     [0, 0, 0, 1]];
+    let transformation_matrix_lidar_to_cam_front_right = [[0.4899, -0.8708, 0.0407, 3.402],
+        [-0.0484, -0.0739, -0.9961, -60.7137],
+        [0.8704, 0.4861, -0.0785, 10.4301],
         [0, 0, 0, 1]];
     material = new THREE.MeshBasicMaterial({
         color: 0x00ff00,
@@ -218,11 +229,14 @@ labelTool.onLoadData("PCD", function () {
         transparent: false
     });
     posCamFrontRight = matrixProduct4x4(transformation_matrix_lidar_to_cam_front_right, posCamFrontRight);
-    camFrontRightGeometry.translate(-posCamFrontRight[0] / 100, posCamFrontRight[2] / 100, -posCamFrontRight[1] / 100);//long,lat,vert
-    // camFrontRightGeometry.translate(posCamFront[0]/100, posCamFront[1]/100, posCamFront[2]/100);//long,lat,vert
+    //camFrontRightGeometry.translate(-posCamFrontRight[0] / 100, posCamFrontRight[2] / 100, -posCamFrontRight[1] / 100);//long,lat,vert
+    //camFrontRightGeometry.translate(posCamFrontRight[0] / 100, posCamFrontRight[1] / 100, posCamFrontRight[2] / 100);//long,lat,vert
+    // lat, vert, -long-> lat, long, vert
+    camFrontRightGeometry.translate(9.85241346 / 100, 68.60191404 / 100, -2.67767493 / 100);
     let camFrontRightMesh = new THREE.Mesh(camFrontRightGeometry, material);
     scene.add(camFrontRightMesh);
 
+    // back right (blue)
     let posCamBackRight = [0, 0, 0, 1];
     let camBackRightGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
     let transformation_matrix_lidar_to_cam_back_right = [[-0.1932, -0.9775, -0.0856, -81.1507],
@@ -239,6 +253,7 @@ labelTool.onLoadData("PCD", function () {
     let camBackRightMesh = new THREE.Mesh(camBackRightGeometry, material);
     scene.add(camBackRightMesh);
 
+    // back (yellow)
     let posCamBack = [0, 0, 0, 1];
     let camBackGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
     let transformation_matrix_lidar_to_cam_back = [[-0.9988, 0.0439, 0.0189, -4.2963],
@@ -255,6 +270,7 @@ labelTool.onLoadData("PCD", function () {
     let camBackMesh = new THREE.Mesh(camBackGeometry, material);
     scene.add(camBackMesh);
 
+    // back left (light blue)
     let posCamBackLeft = [0, 0, 0, 1];
     let camBackLeftGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
     let transformation_matrix_lidar_to_cam_back_left = [[-0.0664, 0.995, 0.0742, 71.5185],
@@ -271,6 +287,7 @@ labelTool.onLoadData("PCD", function () {
     let camBackLeftMesh = new THREE.Mesh(camBackLeftGeometry, material);
     scene.add(camBackLeftMesh);
 
+    // front left (pink)
     let posCamFrontLeft = [0, 0, 0, 1];
     let camFrontLeftGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
     let transformation_matrix_lidar_to_cam_front_left = [[0.6119, 0.791, -0.0001, -0.9675],
@@ -730,7 +747,7 @@ function setCamera() {
         // controls.object.position.set(-pos[1], pos[0] - labelTool.positionLidarNuscenes[0], labelTool.positionLidarNuscenes[2] - pos[2]);
         // controls.target = new THREE.Vector3(-pos[1] - 0.0000001, pos[0] - labelTool.positionLidarNuscenes[0] + 0.0000001, labelTool.positionLidarNuscenes[2] - pos[2]);// look backward
     } else {
-        camera = new THREE.OrthographicCamera(-40, 40, 20, -20, 0, 2000);
+        camera = new THREE.OrthographicCamera(-40, 40, 20, -20, 0.0001, 2000);
         camera.position.set(0, 0, 100);
         camera.up.set(0, 0, 1);
         camera.lookAt(new THREE.Vector3(0, 0, 0));
@@ -748,9 +765,12 @@ function setCamera() {
         // controls.minDistance = 0.3;
         // controls.maxDistance = 0.3 * 100;
         // controls.noKey = true;
-        // controls.enabled = false;
-        // // controls.target.set(0, 0, 0);
-        // controls.autoRotate = false;
+        // controls.autoForward = true;
+        // controls.movementSpeed = 1000;
+        // controls.rollSpeed = Math.PI / 24;
+        // controls.enabled = true;
+        // controls.target.set(0, 0, 0);
+        // controls.autoRotate = true;
         controls.update();
     }
     scene.add(camera);
@@ -904,9 +924,13 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
     // zPos = zPos - labelTool.positionLidarNuscenes[0];
     let imageScalingFactor;
     let dimensionScalingFactor;
+    let streetVerticalOffset;
+    let longitudeOffset = 0;
     if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
+        streetVerticalOffset = 0;
         imageScalingFactor = 5;
         dimensionScalingFactor = 1;
+        longitudeOffset = 0;
         // xPos = xPos - labelTool.positionLidarNuscenes[1];//lateral
         // yPos = yPos - labelTool.positionLidarNuscenes[0];//longitudinal
         // zPos = zPos - labelTool.positionLidarNuscenes[2];//vertical
@@ -914,6 +938,21 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
         // yPos = yPos - labelTool.positionLidarNuscenes[0];//longitudinal
         // zPos = zPos - labelTool.translationVectorLidarToCamFront[2];//vertical
     } else {
+        if (channel === "CAM_FRONT") {
+            streetVerticalOffset = 60.7137000000000 / 100;//height of lidar
+        } else if (channel === "CAM_BACK") {
+            streetVerticalOffset = -100 / 100;
+        } else {
+            streetVerticalOffset = 0;
+        }
+
+        if (channel === "CAM_BACK_LEFT" || channel === "CAM_BACK_RIGHT") {
+            longitudeOffset = -100 / 100;
+        } else {
+            longitudeOffset = 0;
+        }
+
+
         imageScalingFactor = 6;
         dimensionScalingFactor = 100;// multiply by 100 to transform from cm to m
     }
@@ -1004,7 +1043,7 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
         let point = cornerPoints[cornerPoint];
         // working, but user sees back of camera
         // let point3D = [point.y, point.x, point.z, 1];
-        let point3D = [point.x * dimensionScalingFactor, point.y * dimensionScalingFactor, (point.z - 1.5) * dimensionScalingFactor, 1];
+        let point3D = [point.x * dimensionScalingFactor, (point.y + longitudeOffset) * dimensionScalingFactor, (point.z + streetVerticalOffset) * dimensionScalingFactor, 1];
         let projectionMatrix;
         if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
             projectionMatrix = labelTool.camChannels[idx].projectionMatrixLISAT;
@@ -1586,7 +1625,7 @@ function init() {
                     if (Math.abs(groundPointMouseUp.x - groundPointMouseDown.x) > 0.1) {
                         let xPos = (groundPointMouseUp.x + groundPointMouseDown.x) / 2;
                         let yPos = (groundPointMouseUp.y + groundPointMouseDown.y) / 2;
-                        let zPos = -1.5; // height of lidar sensor. Use -1.5 to put object on street
+                        let zPos = -100 / 100; // height of lidar sensor. Use it to put object on street
                         let addBboxParameters = {
                             class: classesBoundingBox.targetName(),
                             x: xPos,
@@ -1594,7 +1633,7 @@ function init() {
                             z: zPos,
                             width: Math.abs(groundPointMouseUp.x - groundPointMouseDown.x),
                             height: Math.abs(groundPointMouseUp.y - groundPointMouseDown.y),
-                            depth: 1.0,
+                            depth: 2.0,
                             yaw: 0,
                             org: {
                                 x: (groundPointMouseUp.x + groundPointMouseDown.x) / 2,
@@ -1602,7 +1641,7 @@ function init() {
                                 z: zPos,
                                 width: Math.abs(groundPointMouseUp.x - groundPointMouseDown.x),
                                 height: Math.abs(groundPointMouseUp.y - groundPointMouseDown.y),
-                                depth: 1.0,
+                                depth: 2.0,
                                 yaw: 0,
                             },
                             trackId: trackId,
