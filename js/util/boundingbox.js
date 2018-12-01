@@ -1,7 +1,8 @@
 function getLine(channelIdx, pointStart, pointEnd, color) {
     if (pointStart !== undefined && pointEnd !== undefined && isFinite(pointStart.x) && isFinite(pointStart.y) && isFinite(pointEnd.x) && isFinite(pointEnd.y)) {
         let line = paperArray[channelIdx].path(["M", pointStart.x, pointStart.y, "L", pointEnd.x, pointEnd.y]);
-        // let color = classesBoundingBox[classesBoundingBox.__target].color;
+        // uncomment line to use yellow to color bottom 4 lines
+        let color = classesBoundingBox[classesBoundingBox.__target].color;
         line.attr("stroke", color);
         line.attr("stroke-width", 3);
         return line;
@@ -14,6 +15,7 @@ function calculateLineSegments(channelObj) {
     let channel = channelObj.channel;
     let lineArray = [];
     let channelIdx = getChannelIndexByName(channel);
+    // temporary color bottom 4 lines in yellow to check if projection matrix is correct
     let color = '#ffff00';
     // bottom four lines
     if ((channelObj.projectedPoints[0].x < 0 || channelObj.projectedPoints[0].x > 320) && (channelObj.projectedPoints[0].y < 0 || channelObj.projectedPoints[0].y > 240)
@@ -40,7 +42,6 @@ function calculateLineSegments(channelObj) {
     } else {
         lineArray.push(getLine(channelIdx, channelObj.projectedPoints[3], channelObj.projectedPoints[0], color));
     }
-
     color = '#00ff00';
     // top four lines
     if ((channelObj.projectedPoints[4].x < 0 || channelObj.projectedPoints[4].x > 320) && (channelObj.projectedPoints[4].y < 0 || channelObj.projectedPoints[4].y > 240)
