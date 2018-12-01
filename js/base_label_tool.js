@@ -1095,8 +1095,20 @@ let labelTool = {
     //
     // }
     // ,
-    changeFrame: function (fileNumber) {
-        this.currentFileIndex = fileNumber;
+    changeFrame: function (newFileIndex) {
+        // remove all 3D BB objects from scene
+        for (let i = scene.children.length; i >= 0; i--) {
+            let obj = scene.children[i];
+            scene.remove(obj);
+        }
+        // move all 3d objects to new frame
+        for (let i = 0; i < this.cubeArray[this.currentFileIndex].length; i++) {
+            let mesh = this.cubeArray[this.currentFileIndex][i];
+            let clonedMesh = mesh.clone();
+            this.cubeArray[newFileIndex].push(clonedMesh);
+            scene.add(clonedMesh);
+        }
+        this.currentFileIndex = newFileIndex;
         this.pageBox.placeholder = (this.currentFileIndex + 1) + "/" + this.fileNames.length;
         this.pageBox.value = "";
         // for (var k = 0; k < this.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex].length; k++) {

@@ -151,10 +151,23 @@ PrismGeometry = function (vertices, height) {
 };
 PrismGeometry.prototype = Object.create(THREE.ExtrudeGeometry.prototype);
 
+function addObject(sceneObject, name) {
+    sceneObject.name = name;
+    // search whether object already exist
+    for (let i = scene.children.length - 1; i >= 0; i--) {
+        let obj = scene.children[i];
+        if (obj.name === name) {
+            return;
+        }
+    }
+    scene.add(sceneObject);
+}
+
 // Visualize 2d and 3d data
 labelTool.onLoadData("PCD", function () {
     // remove previous loaded point clouds
     labelTool.removeObject("pointcloud");
+    // remove all bounding boxes
 
     // ASCII pcd files
     let pcd_loader = new THREE.PCDLoader();
@@ -210,7 +223,8 @@ labelTool.onLoadData("PCD", function () {
         transparent: false
     });
     let camFrontMesh = new THREE.Mesh(camFrontGeometry, material);
-    scene.add(camFrontMesh);
+    addObject(camFrontMesh, 'cam-front-object');
+
 
     // front right (green)
     let posCamFrontRight = [0, 0, 0, 1];
@@ -234,7 +248,7 @@ labelTool.onLoadData("PCD", function () {
     // lat, vert, -long-> lat, long, vert
     camFrontRightGeometry.translate(9.85241346 / 100, 68.60191404 / 100, -2.67767493 / 100);
     let camFrontRightMesh = new THREE.Mesh(camFrontRightGeometry, material);
-    scene.add(camFrontRightMesh);
+    addObject(camFrontRightMesh, 'cam-front-right-object');
 
     // back right (blue)
     let posCamBackRight = [0, 0, 0, 1];
@@ -251,7 +265,7 @@ labelTool.onLoadData("PCD", function () {
     posCamBackRight = matrixProduct4x4(transformation_matrix_lidar_to_cam_back_right, posCamBackRight);
     camBackRightGeometry.translate(-posCamBackRight[0] / 100, posCamBackRight[2] / 100, -posCamBackRight[1] / 100);//long,lat,vert
     let camBackRightMesh = new THREE.Mesh(camBackRightGeometry, material);
-    scene.add(camBackRightMesh);
+    addObject(camBackRightMesh, 'cam-back-right-object');
 
     // back (yellow)
     let posCamBack = [0, 0, 0, 1];
@@ -268,7 +282,7 @@ labelTool.onLoadData("PCD", function () {
     posCamBack = matrixProduct4x4(transformation_matrix_lidar_to_cam_back, posCamBack);
     camBackGeometry.translate(-posCamBack[0] / 100, posCamBack[2] / 100, -posCamBack[1] / 100);//long,lat,vert
     let camBackMesh = new THREE.Mesh(camBackGeometry, material);
-    scene.add(camBackMesh);
+    addObject(camBackMesh, 'cam-back-object');
 
     // back left (light blue)
     let posCamBackLeft = [0, 0, 0, 1];
@@ -285,7 +299,7 @@ labelTool.onLoadData("PCD", function () {
     posCamBackLeft = matrixProduct4x4(transformation_matrix_lidar_to_cam_back_left, posCamBackLeft);
     camBackLeftGeometry.translate(-posCamBackLeft[0] / 100, posCamBackLeft[2] / 100, -posCamBackLeft[1] / 100);//long,lat,vert
     let camBackLeftMesh = new THREE.Mesh(camBackLeftGeometry, material);
-    scene.add(camBackLeftMesh);
+    addObject(camBackLeftMesh, 'cam-back-left-object');
 
     // front left (pink)
     let posCamFrontLeft = [0, 0, 0, 1];
@@ -302,7 +316,7 @@ labelTool.onLoadData("PCD", function () {
     posCamFrontLeft = matrixProduct4x4(transformation_matrix_lidar_to_cam_front_left, posCamFrontLeft);
     camFrontLeftGeometry.translate(-posCamFrontLeft[0] / 100, posCamFrontLeft[2] / 100, -posCamFrontLeft[1] / 100);//long,lat,vert
     let camFrontLeftMesh = new THREE.Mesh(camFrontLeftGeometry, material);
-    scene.add(camFrontLeftMesh);
+    addObject(camFrontLeftMesh, 'cam-front-left-object');
 
 
 });
