@@ -620,8 +620,36 @@ function addBoundingBoxGui(bbox) {
         },
         delete: function () {
             guiOptions.removeFolder(bbox.class + ' ' + bbox.trackId);
+            // hide 3D bounding box instead of removing it (in case redo button will be pressed)
             labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].visible = false;
+            let label = annotationObjects.contents[insertIndex].class;
+            let channels = annotationObjects.contents[insertIndex].channels;
+            // iterate all channels and remove projection
+            for (let channelIdx in channels) {
+                if (channels.hasOwnProperty(channelIdx)) {
+                    let channelObj = channels[channelIdx];
+                    for (let lineObj in channelObj.lines) {
+                        if (channelObj.lines.hasOwnProperty(lineObj)) {
+                            let line = channelObj.lines[lineObj];
+                            if (line !== undefined) {
+                                line.remove();
+                            }
+
+                        }
+                    }
+                }
+            }
+            // reduce track id by 1 for this class
+            if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+                classesBoundingBox[label].nextTrackId--;
+            } else {
+                classesBoundingBox.content[label].nextTrackId--;
+            }
             annotationObjects.remove(insertIndex);
+            folderBoundingBox3DArray.splice(insertIndex, 1);
+            folderPositionArray.splice(insertIndex, 1);
+            folderSizeArray.splice(insertIndex, 1);
+            annotationObjects.selectEmpty();
         }
     };
     folderBoundingBox3DArray[folderBoundingBox3DArray.length - 1].add(resetParameters, 'reset').name("Reset");
@@ -1460,14 +1488,41 @@ function init() {
                         let label = annotationObjects.contents[clickedObjectIndex]["class"];
                         let trackId = annotationObjects.contents[clickedObjectIndex]["trackId"];
                         guiOptions.removeFolder(label + ' ' + trackId);
+                        let channels = annotationObjects.contents[clickedObjectIndex].channels;
+                        // iterate all channels and remove projection
+                        for (let channelIdx in channels) {
+                            if (channels.hasOwnProperty(channelIdx)) {
+                                let channelObj = channels[channelIdx];
+                                for (let lineObj in channelObj.lines) {
+                                    if (channelObj.lines.hasOwnProperty(lineObj)) {
+                                        let line = channelObj.lines[lineObj];
+                                        if (line !== undefined) {
+                                            line.remove();
+                                        }
+
+                                    }
+                                }
+                            }
+
+                        }
                         annotationObjects.remove(clickedObjectIndex);
+                        folderBoundingBox3DArray.splice(clickedObjectIndex, 1);
+                        folderPositionArray.splice(clickedObjectIndex, 1);
+                        folderSizeArray.splice(clickedObjectIndex, 1);
                         annotationObjects.selectEmpty();
                         // close folder
-                        for (let i = 0; i < folderBoundingBox3DArray.length; i++) {
-                            if (folderBoundingBox3DArray[i] !== undefined) {
-                                folderBoundingBox3DArray[i].close();
-                            }
+                        // for (let i = 0; i < folderBoundingBox3DArray.length; i++) {
+                        //     if (folderBoundingBox3DArray[i] !== undefined) {
+                        //         folderBoundingBox3DArray[i].close();
+                        //     }
+                        // }
+                        // reduce track id by 1 for this class
+                        if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+                            classesBoundingBox[label].nextTrackId--;
+                        } else {
+                            classesBoundingBox.content[label].nextTrackId--;
                         }
+
                     }
                 } else if (birdsEyeViewFlag === true) {
                     clickedObjectIndex = -1;
@@ -1556,6 +1611,8 @@ function init() {
                         meshObject.material.opacity = 0.4;
                     }
                     labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].material.opacity = 0.8;
+                    // open folder of selected object
+                    annotationObjects.localOnSelect["PCD"](clickedObjectIndex);
                 } else {
                     // remove selection in camera view if 2d label exist
                     for (let i = 0; i < annotationObjects.contents.length; i++) {
