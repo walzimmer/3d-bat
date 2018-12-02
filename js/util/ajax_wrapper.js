@@ -65,30 +65,7 @@ function request(options) {
             case "/label/annotations/":
                 let fileName = options.data["file_name"];
                 res = [];
-                if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
-                    res = parseAnnotationFile(fileName, undefined);
-                    // for (let channelObj in labelTool.camChannels) {
-                    //     if (labelTool.camChannels.hasOwnProperty(channelObj)) {
-                    //         let channelObject = labelTool.camChannels[channelObj];
-                    //         let channel = channelObject.channel;
-                    //         // if (fileName in __labelData) {
-                    //         //     res = JSON.parse(__labelData[fileName]);
-                    //         // } else {
-                    //         let resChannel = parseAnnotationFile(fileName, channel);
-                    //         let loadedChannelObj = {channel: channel, content: resChannel};
-                    //         res.push(loadedChannelObj);
-                    //         // }
-                    //     }
-                    // }
-
-                } else {
-                    // if (fileName in __labelData) {
-                    //     res = JSON.parse(__labelData[fileName]);
-                    // } else {
-                    res = parseAnnotationFile(fileName, undefined);
-                    // }
-                }
-
+                res = parseAnnotationFile(fileName);
                 options.success(res);
                 break;
         }
@@ -127,12 +104,12 @@ function annotationFileExist(fileIndex, channel) {
     return http.status !== 404;
 }
 
-function parseAnnotationFile(fileName, channel) {
+function parseAnnotationFile(fileName) {
     let rawFile = new XMLHttpRequest();
     let res = [];
     try {
         if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-            rawFile.open("GET", labelTool.workBlob + '/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/annotations/' + channel + '/' + fileName, false);
+            rawFile.open("GET", labelTool.workBlob + '/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/annotations/' + fileName, false);
         } else {
             if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
                 rawFile.open("GET", labelTool.workBlob + '/' + labelTool.currentDataset + '/Annotations/LIDAR_TOP/' + fileName, false);
@@ -173,7 +150,7 @@ function parseAnnotationFile(fileName, channel) {
                             rotation_y: str[14],
                             score: str[15]
                         });
-                    } else if (labelTool.showOriginalNuScenesLabels === false && labelTool.currentDataset === labelTool.datasets.NuScenes && str.length === 18) {
+                    } else if (labelTool.showOriginalNuScenesLabels === false && labelTool.currentDataset === labelTool.datasets.NuScenes && str.length === 17) {
                         res.push({
                             class: str[0],
                             truncated: str[1],
@@ -191,8 +168,7 @@ function parseAnnotationFile(fileName, channel) {
                             z: str[13],
                             rotation_y: str[14],
                             score: str[15],
-                            trackId: str[16],
-                            channel: str[17]
+                            trackId: str[16]
                         });
                     }
                 }
