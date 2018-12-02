@@ -11,7 +11,9 @@ function getIndexByDimension(width, height, depth) {
 function draw2DProjections(params) {
     for (let i = 0; i < params.channels.length; i++) {
         if (params.channels[i].channel !== undefined && params.channels[i].channel !== "") {
+            // working for LISA_T
             params.channels[i].projectedPoints = calculateProjectedBoundingBox(-params.x, -params.y, -params.z, params.width, params.height, params.depth, params.channels[i].channel);
+            // params.channels[i].projectedPoints = calculateProjectedBoundingBox(params.x, params.y, -params.z, params.width, params.height, params.depth, params.channels[i].channel);
             // calculate line segments
             let channelObj = params.channels[i];
             if (params.channels[i].projectedPoints !== undefined && params.channels[i].projectedPoints.length === 8) {
@@ -56,7 +58,7 @@ let labelTool = {
         "THIRD": "2018-05-23-001-frame-00080020-00080919"
     }),
     sequencesNuScenes: [],
-    currentDataset: 'LISA_T',
+    currentDataset: 'NuScenes',
     currentSequence: '',
     numFrames: 0,
     dataTypes: [],
@@ -229,9 +231,9 @@ let labelTool = {
     currentChannelLabel: document.getElementById('cam_channel'),
     // position of the lidar sensor in ego vehicle space
     positionLidarNuscenes: [0.891067, 0.0, 1.84292],//(long, lat, vert)
-    // translationVectorLidarToCamFront: [0.77, -0.02, -0.3],
+    translationVectorLidarToCamFront: [0.77, -0.02, -0.3],
     // positionLidarNuscenes: [1.84, 0.0, 1.84292],//(long, lat, vert)
-    showOriginalNuScenesLabels: false,
+    showOriginalNuScenesLabels: true,
     imageAspectRatioNuScenes: 1.777777778,
     imageAspectRatioLISAT: 1.333333333,
     showFieldOfView: false,
@@ -440,7 +442,9 @@ let labelTool = {
                 let params = {
                     class: annotationObj["class"],
                     x: annotationObj["x"],
+                    // working for LISA_T
                     y: annotationObj["y"],
+                    //y: -annotationObj["y"],
                     z: annotationObj["z"],
                     width: annotationObj["width"],
                     height: annotationObj["height"],
@@ -631,7 +635,8 @@ let labelTool = {
                 // TODO:
                 // Nuscenes labels are stored in global frame
                 // Nuscenes: transform 3d positions from point cloud to global frame (point cloud-> ego, ego -> global)
-                transformedPosition = matrixProduct4x4(inverseMatrix(this.camChannels[channelIndexByName].transformationMatrixEgoToCamNuScenes), objectPosition);
+                transformedPosition = objectPosition;
+                // transformedPosition = matrixProduct4x4(inverseMatrix(this.camChannels[channelIndexByName].transformationMatrixEgoToCamNuScenes), objectPosition);
             }
             let annotation = {
                 class: annotationObj["class"],

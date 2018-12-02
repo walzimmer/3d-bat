@@ -17,7 +17,7 @@ let cube;
 let guiAnnotationClasses = new dat.GUI();
 let guiBoundingBoxAnnotationMap;
 let guiOptions = new dat.GUI();
-let showProjectedPointsFlag = true;
+let showProjectedPointsFlag = false;
 let folderBoundingBox3DArray = [];
 let folderPositionArray = [];
 let folderSizeArray = [];
@@ -477,10 +477,9 @@ function update2DBoundingBox(idx) {
                 let height = annotationObjects.contents[labelTool.currentFileIndex][idx]["height"];
                 let depth = annotationObjects.contents[labelTool.currentFileIndex][idx]["depth"];
                 let channel = channelObj.channel;
-                // working, but back of camera
-                //channelObj.projectedPoints = calculateProjectedBoundingBox(x, -y, -z, width, height, depth, channel);
-                // lisaT and old projection matrix: -x
+                // working for LISA_T
                 channelObj.projectedPoints = calculateProjectedBoundingBox(-x, -y, -z, width, height, depth, channel);
+                // channelObj.projectedPoints = calculateProjectedBoundingBox(-x, -y, z, width, height, depth, channel);
                 // remove previous drawn lines
                 for (let lineObj in channelObj.lines) {
                     if (channelObj.lines.hasOwnProperty(lineObj)) {
@@ -964,12 +963,9 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
         imageScalingFactor = 5;
         dimensionScalingFactor = 1;
         longitudeOffset = 0;
-        // xPos = xPos - labelTool.positionLidarNuscenes[1];//lateral
-        // yPos = yPos - labelTool.positionLidarNuscenes[0];//longitudinal
-        // zPos = zPos - labelTool.positionLidarNuscenes[2];//vertical
-        // xPos = xPos - labelTool.positionLidarNuscenes[1];//lateral
-        // yPos = yPos - labelTool.positionLidarNuscenes[0];//longitudinal
-        // zPos = zPos - labelTool.translationVectorLidarToCamFront[2];//vertical
+        xPos = xPos + labelTool.translationVectorLidarToCamFront[1];//lat
+        yPos = yPos + labelTool.translationVectorLidarToCamFront[0];//long
+        zPos = zPos + labelTool.translationVectorLidarToCamFront[2];//vertical
     } else {
         if (channel === "CAM_FRONT") {
             streetVerticalOffset = 60.7137000000000 / 100;//height of lidar
@@ -984,67 +980,11 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
         } else {
             longitudeOffset = 0;
         }
-
-
         imageScalingFactor = 6;
         dimensionScalingFactor = 100;// multiply by 100 to transform from cm to m
     }
-
-
-    // let projectedPoints = [];
-    // let object3D = new THREE.Object3D();
-    // let obj = scene.getObjectByName('prism');
-    // object3D.position.x = obj.geometry.vertices[3].x;
-    // object3D.position.y = obj.geometry.vertices[3].y;
-    // object3D.position.z = obj.geometry.vertices[3].z;
-    // object3D.position.x = -1.05;
-    // object3D.position.y = 0.7;
-    // object3D.position.z = 0.3;
-    // object3D.updateWorldMatrix();
-    // let point2D = new THREE.Vector3();
-    // point2D.setFromMatrixPosition(object3D.matrixWorld);
-    // // map to normalized device coordinate (NDC) space
-    // point2D.project(camera);
-    // let widthHalf = 0.5 * renderer.context.canvas.width;
-    // let heightHalf = 0.5 * renderer.context.canvas.height;
-    // // point2D.x = (point2D.x * widthHalf) + widthHalf;
-    // // point2D.y = -(point2D.y * heightHalf) + heightHalf;
-    // point2D.x = Math.round((point2D.x + 1) * widthHalf);
-    // point2D.y = -Math.round((point2D.y - 1) * heightHalf);
-    // projectedPoints.push({x: point2D.x, y: point2D.y});
-    // test points
-    // projectedPoints.push({x:50,y:50});
-    // projectedPoints.push({x:60,y:40});
-    // projectedPoints.push({x:70,y:40});
-    // projectedPoints.push({x:60,y:50});
-    // projectedPoints.push({x:50,y:30});
-    // projectedPoints.push({x:60,y:20});
-    // projectedPoints.push({x:70,y:20});
-    // projectedPoints.push({x:60,y:30});
-    // projectedPoints.push({x: 307, y: 434});
-    // projectedPoints.push({x: 700, y: 448});
-    // projectedPoints.push({x: -10, y: 440});
-    // projectedPoints.push({x: -86, y: 428});
-    // projectedPoints.push({x:50,y:50});
-    // projectedPoints.push({x:60,y:40});
-    // projectedPoints.push({x:70,y:40});
-    // projectedPoints.push({x:60,y:50});
-    // projectedPoints.push({x: 305, y: 534});
-    // projectedPoints.push({x: 305, y: 534});
-    // projectedPoints.push({x: 305, y: 534});
-    // projectedPoints.push({x: 305, y: 534});
-    // return projectedPoints;
-    //------------------------------
     let cornerPoints = [];
-    // cornerPoints.push(new THREE.Vector3(pos_long - height / 2, pos_lat - width / 2, pos_vert - depth / 2));
-    // cornerPoints.push(new THREE.Vector3(pos_long - height / 2, pos_lat + width / 2, pos_vert - depth / 2));
-    // cornerPoints.push(new THREE.Vector3(pos_long + height / 2, pos_lat + width / 2, pos_vert - depth / 2));
-    // cornerPoints.push(new THREE.Vector3(pos_long + height / 2, pos_lat - width / 2, pos_vert - depth / 2));
-    // cornerPoints.push(new THREE.Vector3(pos_long - height / 2, pos_lat - width / 2, pos_vert + depth / 2));
-    // cornerPoints.push(new THREE.Vector3(pos_long - height / 2, pos_lat + width / 2, pos_vert + depth / 2));
-    // cornerPoints.push(new THREE.Vector3(pos_long + height / 2, pos_lat + width / 2, pos_vert + depth / 2));
-    // cornerPoints.push(new THREE.Vector3(pos_long + height / 2, pos_lat - width / 2, pos_vert + depth / 2));
-
+    // working LISA_T
     cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos - height / 2, zPos + depth / 2));
     cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos - height / 2, zPos + depth / 2));
     cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos + height / 2, zPos + depth / 2));
@@ -1053,30 +993,20 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
     cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos - height / 2, zPos - depth / 2));
     cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos + height / 2, zPos - depth / 2));
     cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos + height / 2, zPos - depth / 2));
-    // // let projector = new THREE.Projector();
+    // cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos - height / 2, zPos - depth / 2));
+    // cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos - height / 2, zPos - depth / 2));
+    // cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos + height / 2, zPos - depth / 2));
+    // cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos + height / 2, zPos - depth / 2));
+    // cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos - height / 2, zPos + depth / 2));
+    // cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos - height / 2, zPos + depth / 2));
+    // cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos + height / 2, zPos + depth / 2));
+    // cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos + height / 2, zPos + depth / 2));
     let projectedPoints = [];
     for (let cornerPoint in cornerPoints) {
-        // let object3D = new THREE.Object3D();
-        // let cornerPointVector = cornerPoints[cornerPoint];
-        // object3D.position.x = cornerPointVector.x;
-        // object3D.position.y = cornerPointVector.y;
-        // object3D.position.z = cornerPointVector.z;
-        // object3D.updateWorldMatrix();
-        // let point2D = new THREE.Vector3();
-        // point2D.setFromMatrixPosition(object3D.matrixWorld);
-        // point2D.project(camera);
-        // let widthHalf = 0.5 * renderer.context.canvas.width;
-        // let heightHalf = 0.5 * renderer.context.canvas.height;
-        // point2D.x = (point2D.x * widthHalf) + widthHalf;
-        // point2D.y = -(point2D.y * heightHalf) + heightHalf;
-        //-------------
-        // let point = cornerPoints[cornerPoint];
-        // projectedPoints.push(projector.projectVector(point, camera));
-        //-------------
         let point = cornerPoints[cornerPoint];
-        // working, but user sees back of camera
-        // let point3D = [point.y, point.x, point.z, 1];
+        // working for LISA_T
         let point3D = [point.x * dimensionScalingFactor, (point.y + longitudeOffset) * dimensionScalingFactor, (point.z + streetVerticalOffset) * dimensionScalingFactor, 1];
+        // let point3D = [point.x * dimensionScalingFactor, (point.y + longitudeOffset) * dimensionScalingFactor, (-point.z + streetVerticalOffset) * dimensionScalingFactor, 1];
         let projectionMatrix;
         if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
             projectionMatrix = labelTool.camChannels[idx].projectionMatrixLISAT;
@@ -1090,8 +1020,6 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
             // add only points that are in front of camera
             let windowX = point2D[0] / point2D[2];
             let windowY = point2D[1] / point2D[2];
-            // windowX = Math.round(windowX / 2.5);
-            // windowY = Math.round(windowY / 2.5);
             projectedPoints.push({x: windowX / imageScalingFactor, y: windowY / imageScalingFactor});
         } else {
             // do not draw bounding box if it is too close too camera or behind
@@ -1727,10 +1655,9 @@ function init() {
                         for (let i = 0; i < channels.length; i++) {
                             let channel = channels[i];
                             addBboxParameters.channels[i].channel = channel;
-                            // working, but user sees back of camera
-                            //let projectedBoundingBox = calculateProjectedBoundingBox(xPos, yPos, -zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth, channel);
-                            // lisaT: xPos
+                            // working for LISA_T
                             let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -yPos, -zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth, channel);
+                            // let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -yPos, zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth, channel);
                             addBboxParameters.channels[i].projectedPoints = projectedBoundingBox;
                         }
                         // calculate line segments
@@ -1900,6 +1827,11 @@ function init() {
         let downloadAnnotationsDivItem = downloadAnnotationsItem.children().first();
         downloadAnnotationsDivItem.wrap("<a href=\"\"></a>");
         loadColorMap();
+        if (showProjectedPointsFlag === true) {
+            showProjectedPoints();
+        } else {
+            hideProjectedPoints();
+        }
     }
     let classPickerElem = $('#class-picker ul li');
     classPickerElem.css('background-color', '#353535');
