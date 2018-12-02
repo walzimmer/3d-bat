@@ -39,26 +39,26 @@ annotationObjects.onRemove("CAMERA", function (index) {
 
 function select(newIndex, channel) {
 
-    for (let i = 0; i < annotationObjects.contents.length; i++) {
+    for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
         // if (annotationObjects.contents[i]["rect"] !== undefined) {
         //     removeBoundingBoxHighlight(i);
         // }
-        if (annotationObjects.contents[i]["text"] !== undefined) {
+        if (annotationObjects.contents[labelTool.currentFileIndex][i]["text"] !== undefined) {
             removeTextBox(i);
         }
 
     }
-    if (annotationObjects.contents[newIndex]["channels"][0].channel === channel) {
-        if (annotationObjects.contents[newIndex]["channels"][0]["lines"] !== undefined && annotationObjects.contents[newIndex]["channels"][0]["lines"][0] !== undefined
-            && !isNaN(annotationObjects.contents[newIndex]["channels"][0]["lines"][0]) && isFinite(annotationObjects.contents[newIndex]["channels"][0]["lines"][0])) {
+    if (annotationObjects.contents[labelTool.currentFileIndex][newIndex]["channels"][0].channel === channel) {
+        if (annotationObjects.contents[labelTool.currentFileIndex][newIndex]["channels"][0]["lines"] !== undefined && annotationObjects.contents[labelTool.currentFileIndex][newIndex]["channels"][0]["lines"][0] !== undefined
+            && !isNaN(annotationObjects.contents[labelTool.currentFileIndex][newIndex]["channels"][0]["lines"][0]) && isFinite(annotationObjects.contents[labelTool.currentFileIndex][newIndex]["channels"][0]["lines"][0])) {
             // if (annotationObjects.contents[newIndex]["rect"] !== undefined) {
             // emphasize only possible if 2D bb exists
             addTextBox(newIndex, channel);
             // emphasizeBBox(newIndex, channel);
         }
     } else {
-        if (annotationObjects.contents[newIndex]["channels"][1]["lines"] !== undefined && annotationObjects.contents[newIndex]["channels"][1]["lines"][0] !== undefined
-            && !isNaN(annotationObjects.contents[newIndex]["channels"][1]["lines"][0]) && isFinite(annotationObjects.contents[newIndex]["channels"][1]["lines"][0])) {
+        if (annotationObjects.contents[labelTool.currentFileIndex][newIndex]["channels"][1]["lines"] !== undefined && annotationObjects.contents[labelTool.currentFileIndex][newIndex]["channels"][1]["lines"][0] !== undefined
+            && !isNaN(annotationObjects.contents[labelTool.currentFileIndex][newIndex]["channels"][1]["lines"][0]) && isFinite(annotationObjects.contents[labelTool.currentFileIndex][newIndex]["channels"][1]["lines"][0])) {
             addTextBox(newIndex, channel);
         }
     }
@@ -197,7 +197,7 @@ function changeClass(bbIndex, newClass) {
     let notificationElem = $("#label-tool-log");
     notificationElem.val("5. Repeat steps 1-5, download annotations and continue with next frame");
     notificationElem.css("color", "#969696");
-    let annotation = annotationObjects.contents[bbIndex];
+    let annotation = annotationObjects.contents[labelTool.currentFileIndex][bbIndex];
     let color = classesBoundingBox[newClass].color;
     if (annotation["channels"][0]["lines"] !== undefined && annotation["channels"][0]["lines"][0] !== undefined) {
         for (let lineObj in annotation["channels"][0]["lines"]) {
@@ -644,9 +644,9 @@ function getClickedIndex(e) {
     let mouseXPos = e.offsetX;
     let mouseYPos = e.offsetY;
     let targetIndex = -1;
-    for (let i = 0; i < annotationObjects.contents.length; i++) {
-        for (let j = 0; j < annotationObjects.contents[i]["channels"].length; j++) {
-            let points2D = annotationObjects.contents[i]["channels"][j]["points2D"];
+    for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
+        for (let j = 0; j < annotationObjects.contents[labelTool.currentFileIndex][i]["channels"].length; j++) {
+            let points2D = annotationObjects.contents[labelTool.currentFileIndex][i]["channels"][j]["points2D"];
             let xPosArray = [];
             let yPosArray = [];
             for (let k = 0; k < points2D.length; k++) {
@@ -718,23 +718,6 @@ function convertPositionToCanvas(x, y, camChannel) {
         Math.round(y * canvasParams.height / labelTool.originalSize[1])];
 }
 
-// function keepAspectRatio() {
-//     $(function () {
-//         var windowWidth = $("#label-tool-wrapper").width() - 170;
-//         var width = Math.max(windowWidth, 500);
-//         var height = width * 5 / 8;
-//         var windowHeight = $("#label-tool-wrapper").height();
-//         if (height > windowHeight) {
-//             height = Math.max(windowHeight - 10, 300);
-//             width = height * 8 / 5;
-//             width = windowWidth < width ? windowWidth - 5 : width;
-//             width = width < 500 ? 500 : width;
-//         }
-//         // changeCanvasSize(width / 2, height / 2);
-//         changeCanvasLeftSize(640, 360);
-//     });
-// }
-
 function getChannelIndexByName(camChannel) {
     for (let channelObj in labelTool.camChannels) {
         if (labelTool.camChannels.hasOwnProperty(channelObj)) {
@@ -763,7 +746,10 @@ function changeCanvasSize(width, height, camChannel) {
         fontSize = 15;
     }
     // TODO:
-    adjustAllBBoxes(camChannel);
+    if (annotationObjects.contents[labelTool.currentFileIndex] !== undefined && annotationObjects.contents[labelTool.currentFileIndex].length > 0) {
+        adjustAllBBoxes(camChannel);
+    }
+
     // TODO: adjust also all projected point clouds
     canvasParamsArray[channelIdx] = {
         x: canvas.offsetLeft,
@@ -779,11 +765,11 @@ function changeCanvasSize(width, height, camChannel) {
 
 // TODO: adjust all projected bounding boxes if images size changes
 function adjustAllBBoxes(camChannel) {
-    for (let i = 0; i < annotationObjects.contents.length; ++i) {
+    for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; ++i) {
         let canvas = canvasArray[getChannelIndexByName(camChannel)];
         let canvasParams = canvasParamsArray[getChannelIndexByName(camChannel)];
-        let linesChannelOne = annotationObjects.contents[i]["channels"][0]["lines"];
-        let linesChannelTwo = annotationObjects.contents[i]["channels"][1]["lines"];
+        let linesChannelOne = annotationObjects.contents[labelTool.currentFileIndex][i]["channels"][0]["lines"];
+        let linesChannelTwo = annotationObjects.contents[labelTool.currentFileIndex][i]["channels"][1]["lines"];
         // var rect = annotationObjects.contents[i]["rect"];
         // rect.attr({
         //     width: rect.attr("width") * canvas.offsetWidth / canvasParams.width,
@@ -862,7 +848,7 @@ function adjustAllBBoxes(camChannel) {
 
 // TODO:
 function addTextBox(bbIndex, camChannel) {
-    let bbox = annotationObjects.contents[bbIndex];
+    let bbox = annotationObjects.contents[labelTool.currentFileIndex][bbIndex];
     let trackId = bbox["trackId"];
     let channelIdx = getChannelIndexByName(camChannel);
     let posX = bbox["channels"][channelIdx]["lines"][5].attr("x");
@@ -891,7 +877,7 @@ function addTextBox(bbIndex, camChannel) {
 }
 
 function removeTextBox(index) {
-    let bbox = annotationObjects.contents[index];
+    let bbox = annotationObjects.contents[labelTool.currentFileIndex][index];
     if (bbox["textBox"] === undefined) {
         return;
     }
@@ -910,8 +896,8 @@ function bboxString(index, label) {
 }
 
 function adjustTextBox(index) {
-    let rect = annotationObjects.contents[index]["rect"];
-    let textBox = annotationObjects.contents[index]["textBox"];
+    let rect = annotationObjects.contents[labelTool.currentFileIndex][index]["rect"];
+    let textBox = annotationObjects.contents[labelTool.currentFileIndex][index]["textBox"];
     textBox["text"].attr({x: rect.attr("x"), y: rect.attr("y") - fontSize / 2});
     textBox["box"].attr({x: rect.attr("x"), y: rect.attr("y") - fontSize - 1});
 }
