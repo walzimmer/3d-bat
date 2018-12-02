@@ -1,8 +1,6 @@
 function getLine(channelIdx, pointStart, pointEnd, color) {
     if (pointStart !== undefined && pointEnd !== undefined && isFinite(pointStart.x) && isFinite(pointStart.y) && isFinite(pointEnd.x) && isFinite(pointEnd.y)) {
         let line = paperArray[channelIdx].path(["M", pointStart.x, pointStart.y, "L", pointEnd.x, pointEnd.y]);
-        // uncomment line to use yellow to color bottom 4 lines
-        let color = classesBoundingBox[classesBoundingBox.__target].color;
         line.attr("stroke", color);
         line.attr("stroke-width", 3);
         return line;
@@ -11,12 +9,22 @@ function getLine(channelIdx, pointStart, pointEnd, color) {
     }
 }
 
-function calculateLineSegments(channelObj) {
+function calculateLineSegments(channelObj, className) {
     let channel = channelObj.channel;
     let lineArray = [];
     let channelIdx = getChannelIndexByName(channel);
     // temporary color bottom 4 lines in yellow to check if projection matrix is correct
-    let color = '#ffff00';
+    // let color = '#ffff00';
+    // uncomment line to use yellow to color bottom 4 lines
+    let color;
+    if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+        color = classesBoundingBox[className].color;
+    } else {
+        let classIdx = classesBoundingBox.classNameArray.indexOf(className);
+        color = classesBoundingBox.colorArray[classIdx];
+    }
+
+    // let color = classesBoundingBox[classesBoundingBox.__target].color;
     // bottom four lines
     if ((channelObj.projectedPoints[0].x < 0 || channelObj.projectedPoints[0].x > 320) && (channelObj.projectedPoints[0].y < 0 || channelObj.projectedPoints[0].y > 240)
         && (channelObj.projectedPoints[1].x < 0 || channelObj.projectedPoints[1].x > 320) && (channelObj.projectedPoints[1].y < 0 || channelObj.projectedPoints[1].y > 240)) {
@@ -42,7 +50,7 @@ function calculateLineSegments(channelObj) {
     } else {
         lineArray.push(getLine(channelIdx, channelObj.projectedPoints[3], channelObj.projectedPoints[0], color));
     }
-    color = '#00ff00';
+    // color = '#00ff00';
     // top four lines
     if ((channelObj.projectedPoints[4].x < 0 || channelObj.projectedPoints[4].x > 320) && (channelObj.projectedPoints[4].y < 0 || channelObj.projectedPoints[4].y > 240)
         && (channelObj.projectedPoints[5].x < 0 || channelObj.projectedPoints[5].x > 320) && (channelObj.projectedPoints[5].y < 0 || channelObj.projectedPoints[5].y > 240)) {
@@ -151,37 +159,32 @@ let annotationObjects = {
         return this.contents[index][channel];
     },
     add2DBoundingBox: function (indexByDimension, channelObj) {
-        annotationObjects.contents[indexByDimension].channels.push(channelObj);
+        annotationObjects.contents[labelTool.currentFileIndex][indexByDimension].channels.push(channelObj);
     },
     set: function (insertIndex, params) {
-        // if (params.x !== -1 && params.y !== -1 && params.z !== -1 && params.width !== -1 && params.height !== -1 && params.depth !== -1) {
         let obj = get3DLabel(params);
-        if (this.contents[insertIndex] === undefined) {
-            this.contents.push(obj);
+        if (this.contents[labelTool.currentFileIndex][insertIndex] === undefined) {
+            this.contents[labelTool.currentFileIndex].push(obj);
         } else {
-            this.contents[insertIndex] = obj;
+            this.contents[labelTool.currentFileIndex][insertIndex] = obj;
         }
-        // }
-        this.contents[insertIndex]["class"] = params.class;
+        this.contents[labelTool.currentFileIndex][insertIndex]["class"] = params.class;
         if (params.fromFile === false && this.__selectionIndex === -1) {
             if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
-                this.contents[insertIndex]["trackId"] = classesBoundingBox.content[params.class].nextTrackId;
+                this.contents[labelTool.currentFileIndex][insertIndex]["trackId"] = classesBoundingBox.content[params.class].nextTrackId;
             } else {
-                this.contents[insertIndex]["trackId"] = classesBoundingBox[params.class].nextTrackId;
+                this.contents[labelTool.currentFileIndex][insertIndex]["trackId"] = classesBoundingBox[params.class].nextTrackId;
             }
-
         } else {
-            this.contents[insertIndex]["trackId"] = params.trackId;
+            this.contents[labelTool.currentFileIndex][insertIndex]["trackId"] = params.trackId;
         }
-        this.contents[insertIndex]["channels"] = params.channels;
-
-        labelTool.bboxIndexArray[labelTool.currentFileIndex].push(insertIndex.toString());
+        this.contents[labelTool.currentFileIndex][insertIndex]["channels"] = params.channels;
     },
     changeClass: function (index, label) {
-        if (this.contents[index] === undefined) {
+        if (this.contents[labelTool.currentFileIndex][index] === undefined) {
             return false;
         }
-        this.contents[index]["class"] = label;
+        this.contents[labelTool.currentFileIndex][index]["class"] = label;
         for (let channelObj in labelTool.camChannels) {
             if (labelTool.camChannels.hasOwnProperty(channelObj)) {
                 let channelObject = labelTool.camChannels[channelObj];
@@ -198,17 +201,17 @@ let annotationObjects = {
         if (fromFile === false && this.__selectionIndex === -1) {
             trackId = classesBoundingBox[label].nextTrackId;
         }
-        this.contents[this.__insertIndex] = {
+        this.contents[labelTool.currentFileIndex][this.__insertIndex] = {
             "class": label,
             "trackId": trackId
         };
         this.__insertIndex++;
     },
     getSelectedBoundingBox: function () {
-        if (this.__selectionIndex === -1 || this.contents[this.__selectionIndex] === undefined) {
+        if (this.__selectionIndex === -1 || this.contents[labelTool.currentFileIndex][this.__selectionIndex] === undefined) {
             return undefined;
         } else {
-            return this.contents[this.__selectionIndex];
+            return this.contents[labelTool.currentFileIndex][this.__selectionIndex];
         }
     },
     setSelectionIndex: function (selectionIndex, channel) {
@@ -234,13 +237,13 @@ let annotationObjects = {
     },
     remove: function (index) {
         // remove 3d object
-        labelTool.removeObject("cube-" + this.contents[index]["class"].charAt(0) + this.contents[index]["trackId"]);
+        labelTool.removeObject("cube-" + this.contents[labelTool.currentFileIndex][index]["class"].charAt(0) + this.contents[labelTool.currentFileIndex][index]["trackId"]);
         // remove 2d object
         remove(index);
-        delete this.contents[index];
-        this.contents.splice(index, 1);
-        delete labelTool.bboxIndexArray[labelTool.currentFileIndex][index];
-        labelTool.bboxIndexArray[labelTool.currentFileIndex].splice(index, 1);
+        delete this.contents[labelTool.currentFileIndex][index];
+        this.contents[labelTool.currentFileIndex].splice(index, 1);
+        // delete labelTool.bboxIndexArray[labelTool.currentFileIndex][index];
+        // labelTool.bboxIndexArray[labelTool.currentFileIndex].splice(index, 1);
         delete labelTool.cubeArray[labelTool.currentFileIndex][index];
         labelTool.cubeArray[labelTool.currentFileIndex].splice(index, 1);
         this.__insertIndex--;
@@ -250,12 +253,12 @@ let annotationObjects = {
         this.remove(this.__selectionIndex);
     },
     clear: function () {
-        for (let i = 0; i < this.contents.length; i++) {
-            labelTool.removeObject("cube-" + this.contents[i]["class"].charAt(0) + this.contents[i]["trackId"]);
+        for (let i = 0; i < this.contents[labelTool.currentFileIndex].length; i++) {
+            labelTool.removeObject("cube-" + this.contents[labelTool.currentFileIndex][i]["class"].charAt(0) + this.contents[labelTool.currentFileIndex][i]["trackId"]);
         }
         this.__selectionIndex = -1;
         this.__insertIndex = 0;
-        this.contents = [];
+        this.contents[labelTool.currentFileIndex] = [];
     },
     __selectionIndex: -1,
     __insertIndex: 0

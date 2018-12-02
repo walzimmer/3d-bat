@@ -25,12 +25,37 @@ let classesBoundingBox = {
         index: 4,
         nextTrackId: 1
     },
+    // nuscenes
+    classNameArray: ["human.pedestrian.adult",
+        "human.pedestrian.child",
+        "human.pedestrian.wheelchair",
+        "human.pedestrian.stroller",
+        "human.pedestrian.personal_mobility",
+        "human.pedestrian.police_officer",
+        "human.pedestrian.construction_worker",
+        "animal",
+        "vehicle.car",
+        "vehicle.motorcycle",
+        "vehicle.bicycle",
+        "vehicle.bus.bendy",
+        "vehicle.bus.rigid",
+        "vehicle.truck",
+        "vehicle.construction",
+        "vehicle.emergency.ambulance",
+        "vehicle.emergency.police",
+        "vehicle.trailer",
+        "movable_object.barrier",
+        "movable_object.trafficcone",
+        "movable_object.pushable_pullable",
+        "movable_object.debris",
+        "static_object.bicycle_rack"],
+    // nuscenes
     colorArray: ['#3ABB9D', '#4DA664', '#2F6CAD', '#4590B6', '#5CADCF', '#3585C5', '#2CA786', '#6ABB72', '#E66B5B', '#A28F85',
         '#F79E3D', '#75706B', '#EE7841', '#D1D5D8', '#CC4846', '#DC5047', '#28324E', '#EFEFEF', '#485675', '#F2D46F', '#533D7F',
         '#9069B5', '#F7C23E'],
     colorIdx: 0,
     content: [],
-    add: function (label) {
+    addNuSceneLabel: function (label) {
         if (this.content[label] === undefined) {
             this.content[label] = {color: this.colorArray[this.colorIdx], index: this.colorIdx, nextTrackId: 1};
             this.colorIdx++;
