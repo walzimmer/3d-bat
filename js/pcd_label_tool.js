@@ -14,10 +14,11 @@ let cube;
 
 // let keyboard = new KeyboardState();
 
-let guiAnnotationClasses = new dat.GUI();
+let guiAnnotationClasses = new dat.GUI({autoPlace: true, width: 90, resizable: false});
 let guiBoundingBoxAnnotationMap;
-let guiOptions = new dat.GUI();
+let guiOptions = new dat.GUI({autoPlace: true, width: 300, resizable: false});
 let showProjectedPointsFlag = false;
+let showGridFlag = false;
 let folderBoundingBox3DArray = [];
 let folderPositionArray = [];
 let folderSizeArray = [];
@@ -30,7 +31,7 @@ let clickedPoint = THREE.Vector3();
 let groundPointMouseDown;
 let groundPlaneArray = [];
 let clickedPlaneArray = [];
-let birdsEyeViewFlag = true;
+let birdsEyeViewFlag = false;
 let cls = 0;
 let cFlag = false;
 let rFlag = false;
@@ -83,7 +84,8 @@ let parameters = {
     datasets: 'LISA_T',
     show_projected_points: false,
     show_nuscenes_labels: labelTool.showOriginalNuScenesLabels,
-    show_field_of_view: false
+    show_field_of_view: false,
+    show_grid: false
 };
 
 /*********** Event handlers **************/
@@ -340,6 +342,8 @@ annotationObjects.onSelect("PCD", function (selectionIndex) {
 
 annotationObjects.onChangeClass("PCD", function (index, label) {
     labelTool.cubeArray[labelTool.currentFileIndex][index].material.color.setHex(classesBoundingBox[label].color.replace("#", "0x"));
+    // change also color of the bounding box
+    labelTool.cubeArray[labelTool.currentFileIndex][index].children[0].material.color.setHex(classesBoundingBox[label].color.replace("#", "0x"));
 });
 
 //add remove function in dat.GUI
@@ -438,6 +442,26 @@ function switchView() {
     setCamera();
 }
 
+function increaseBrightness(hex, percent) {
+    // strip the leading # if it's there
+    hex = hex.replace(/^\s*#|\s*$/g, '');
+
+    // convert 3 char codes --> 6, e.g. `E0F` --> `EE00FF`
+    if (hex.length == 3) {
+        hex = hex.replace(/(.)/g, '$1$1');
+    }
+
+    var r = parseInt(hex.substr(0, 2), 16),
+        g = parseInt(hex.substr(2, 2), 16),
+        b = parseInt(hex.substr(4, 2), 16);
+
+    return '#' +
+        ((0 | (1 << 8) + r + (256 - r) * percent / 100).toString(16)).substr(1) +
+        ((0 | (1 << 8) + g + (256 - g) * percent / 100).toString(16)).substr(1) +
+        ((0 | (1 << 8) + b + (256 - b) * percent / 100).toString(16)).substr(1);
+}
+
+
 function get3DLabel(parameters) {
     let bbox = parameters;
     let cubeGeometry = new THREE.CubeGeometry(1.0, 1.0, 1.0);//width, height, depth
@@ -458,6 +482,14 @@ function get3DLabel(parameters) {
     cubeMesh.scale.set(bbox.width, bbox.height, bbox.depth);
     cubeMesh.rotation.z = bbox.yaw;
     cubeMesh.name = "cube-" + parameters.class.charAt(0) + parameters.trackId;
+
+    // get bounding box from object
+    let boundingBoxColor = increaseBrightness(color, 50);
+    let edgesGeometry = new THREE.EdgesGeometry(cubeMesh.geometry);
+    let edgesMaterial = new THREE.LineBasicMaterial({color: boundingBoxColor, linewidth: 4});
+    let edges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
+    cubeMesh.add(edges);
+
     scene.add(cubeMesh);
     labelTool.cubeArray[labelTool.currentFileIndex].push(cubeMesh);
     addBoundingBoxGui(bbox);
@@ -697,11 +729,10 @@ function setCamera() {
     if (birdsEyeViewFlag === false) {
         // container = document.createElement('div');
         // document.body.appendChild(container);
-        camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 100000);
-        // camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
-        camera.position.set(0, 0, 10);
-        // camera.up = new THREE.Vector3(0, 0, 1);
-        camera.up.set(0, 0, 1);
+        camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
+        let posCam = labelTool.camChannels[0].position[2];
+        camera.position.set(0, 0, posCam);
+        camera.lookAt(0, 100, 0);
 
         // controls = new THREE.FlyControls(camera);
         // controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -1344,6 +1375,17 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     setCamera();
+    let grid = new THREE.GridHelper(100, 100);
+    let posXLidar = labelTool.positionLidarNuscenes[2];
+    grid.translateZ(-posXLidar);
+    grid.rotateX(Math.PI / 2);
+    grid.name = "grid";
+    if (showGridFlag === true) {
+        grid.visible = true;
+    } else {
+        grid.visible = false;
+    }
+    scene.add(grid);
 
     if ($("#canvas3d").children().size() > 0) {
         $($("#canvas3d").children()[0]).remove();
@@ -1450,10 +1492,10 @@ function init() {
                         //     }
                         // }
                         // reduce track id by 1 for this class
-                        if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-                            classesBoundingBox[label].nextTrackId--;
-                        } else {
+                        if (labelTool.showOriginalNuScenesLabels === true) {
                             classesBoundingBox.content[label].nextTrackId--;
+                        } else {
+                            classesBoundingBox[label].nextTrackId--;
                         }
 
                     }
@@ -1819,6 +1861,16 @@ function init() {
                 showProjectedPoints();
             } else {
                 hideProjectedPoints();
+            }
+        });
+        let showGridCheckbox = guiOptions.add(parameters, 'show_grid').name('Show grid').listen();
+        showGridCheckbox.onChange(function (value) {
+            showGridFlag = value;
+            let grid = scene.getObjectByName("grid");
+            if (showGridFlag === true) {
+                grid.visible = true;
+            } else {
+                grid.visible = false;
             }
         });
         guiOptions.domElement.id = 'bounding-box-3d-menu';

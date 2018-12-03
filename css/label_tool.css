@@ -499,7 +499,7 @@ text {
 }
 
 #class-picker {
-    right: 0px;
+    left: 10px;
     bottom: 0px;
     padding-bottom: 30px;
     float: none;
@@ -507,7 +507,7 @@ text {
 }
 
 #bounding-box-3d-menu {
-    left: 10px;
+    right: 0px;
     bottom: 0px;
     padding-bottom: 30px;
     float: none;
