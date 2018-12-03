@@ -14,15 +14,15 @@ function calculateLineSegments(channelObj, className) {
     let lineArray = [];
     let channelIdx = getChannelIndexByName(channel);
     // temporary color bottom 4 lines in yellow to check if projection matrix is correct
-    let color = '#ffff00';
+    // let color = '#ffff00';
     // uncomment line to use yellow to color bottom 4 lines
-    // let color;
-    // if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-    //     color = classesBoundingBox[className].color;
-    // } else {
-    //     let classIdx = classesBoundingBox.classNameArray.indexOf(className);
-    //     color = classesBoundingBox.colorArray[classIdx];
-    // }
+    let color;
+    if (labelTool.showOriginalNuScenesLabels === true) {
+        let classIdx = classesBoundingBox.classNameArray.indexOf(className);
+        color = classesBoundingBox.colorArray[classIdx];
+    } else {
+        color = classesBoundingBox[className].color;
+    }
     // bottom four lines
     if ((channelObj.projectedPoints[0].x < 0 || channelObj.projectedPoints[0].x > 320) && (channelObj.projectedPoints[0].y < 0 || channelObj.projectedPoints[0].y > 240)
         && (channelObj.projectedPoints[1].x < 0 || channelObj.projectedPoints[1].x > 320) && (channelObj.projectedPoints[1].y < 0 || channelObj.projectedPoints[1].y > 240)) {
@@ -48,7 +48,7 @@ function calculateLineSegments(channelObj, className) {
     } else {
         lineArray.push(getLine(channelIdx, channelObj.projectedPoints[3], channelObj.projectedPoints[0], color));
     }
-    color = '#00ff00';
+    // color = '#00ff00';
     // top four lines
     if ((channelObj.projectedPoints[4].x < 0 || channelObj.projectedPoints[4].x > 320) && (channelObj.projectedPoints[4].y < 0 || channelObj.projectedPoints[4].y > 240)
         && (channelObj.projectedPoints[5].x < 0 || channelObj.projectedPoints[5].x > 320) && (channelObj.projectedPoints[5].y < 0 || channelObj.projectedPoints[5].y > 240)) {
