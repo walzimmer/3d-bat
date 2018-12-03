@@ -233,7 +233,7 @@ let labelTool = {
     positionLidarNuscenes: [0.891067, 0.0, 1.84292],//(long, lat, vert)
     translationVectorLidarToCamFront: [0.77, -0.02, -0.3],
     // positionLidarNuscenes: [1.84, 0.0, 1.84292],//(long, lat, vert)
-    showOriginalNuScenesLabels: true,
+    showOriginalNuScenesLabels: false,
     imageAspectRatioNuScenes: 1.777777778,
     imageAspectRatioLISAT: 1.333333333,
     showFieldOfView: false,
@@ -774,21 +774,15 @@ let labelTool = {
         if (this.currentDataset === this.datasets.LISA_T) {
             w2ui['layout'].panels[0].maxSize = 480;
             w2ui['layout'].panels[0].minSize = 240;
-            w2ui['layout'].panels[0].size = 480;
-            // let resizerElem = $("#layout_layout_resizer_top")[0];
-            // resizerElem.offsetTop = 480;
-            // console.log(resizerElem.offsetTop);
+            // w2ui['layout'].panels[0].size = 480;
+            w2ui['layout'].panels[0].size = 240;
         } else {
             w2ui['layout'].panels[0].maxSize = 360;
             w2ui['layout'].panels[0].minSize = 180;
-            w2ui['layout'].panels[0].size = 360;
-            // let resizerElem = $("#layout_layout_resizer_top")[0];
-            // resizerElem.offsetTop = 360;
-            // console.log(resizerElem.offsetTop);
+            //w2ui['layout'].panels[0].size = 360;
+            w2ui['layout'].panels[0].size = 180;
         }
-        // w2ui['layout'].refresh();
         w2ui['layout'].resize();
-
     },
 
     start() {
@@ -815,8 +809,10 @@ let labelTool = {
             data: {},
             complete: function (res) {
                 let dict = JSON.parse(res.responseText);
-                this.originalSize[0] = dict.maxWidth;
-                this.originalSize[1] = dict.maxHeight;
+                // this.originalSize[0] = dict.maxWidth;
+                // this.originalSize[1] = dict.maxHeight;
+                this.originalSize[0] = dict.minWidth;
+                this.originalSize[1] = dict.minHeight;
                 this.getFileNames();
             }.bind(this)
         })
@@ -1289,7 +1285,8 @@ function initPanes() {
     $('#label-tool-wrapper').w2layout({
         name: 'layout',
         panels: [
-            {type: 'top', size: maxHeight, resizable: true, style: topStyle, minSize: minHeight, maxSize: maxHeight}
+            //{type: 'top', size: maxHeight, resizable: true, style: topStyle, minSize: minHeight, maxSize: maxHeight}
+            {type: 'top', size: minHeight, resizable: true, style: topStyle, minSize: minHeight, maxSize: maxHeight}
         ],
         onResizing: function (event) {
             let topElem = $("#layout_layout_panel_top")[0];

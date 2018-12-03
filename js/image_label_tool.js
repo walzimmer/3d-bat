@@ -7,8 +7,10 @@ if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
     imageWidth = 320;
     imageHeight = 240;
 } else {
-    imageWidth = 640;
-    imageHeight = 360;
+    // imageWidth = 640;
+    // imageHeight = 360;
+    imageWidth = 320;
+    imageHeight = 180;
 }
 //var paperArray = [Raphael(canvasArray[0], width, height), Raphael(canvasArray[1], width, height), Raphael(canvasArray[2], width, height), Raphael(canvasArray[3], width, height), Raphael(canvasArray[4], width, height), Raphael(canvasArray[5], width, height)];
 let paperArray = [];
@@ -118,8 +120,10 @@ function initialize(camChannel) {
         width = height * 1.333333333;
         // height = 240;
     } else {
-        width = 640;
-        height = 360;
+        // width = 640;
+        // height = 360;
+        width = 320;
+        height = 180;
     }
     changeCanvasSize(width, height, camChannel);
     labelTool.addResizeEventForImage();
