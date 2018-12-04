@@ -1,4 +1,10 @@
-let camera, controls, scene, renderer;
+let orthographicCamera;
+let perspectiveCamera;
+let currentCamera;
+let orbitControls;
+let transformControls;
+let scene;
+let renderer;
 let clock;
 let container;
 let keyboard;
@@ -6,11 +12,13 @@ let moveForward = false;
 let moveBackward = false;
 let moveLeft = false;
 let moveRight = false;
+let selectedMesh = undefined;
 // let velocity = new THREE.Vector3();
 // let direction = new THREE.Vector3();
 
 // let stats;
 let cube;
+let scaleRotateTranslate = false;
 
 // let keyboard = new KeyboardState();
 
@@ -31,7 +39,7 @@ let clickedPoint = THREE.Vector3();
 let groundPointMouseDown;
 let groundPlaneArray = [];
 let clickedPlaneArray = [];
-let birdsEyeViewFlag = false;
+let birdsEyeViewFlag = true;
 let cls = 0;
 let cFlag = false;
 let rFlag = false;
@@ -223,7 +231,7 @@ labelTool.onLoadData("PCD", function () {
         transparent: false
     });
     let camFrontMesh = new THREE.Mesh(camFrontGeometry, material);
-    addObject(camFrontMesh, 'cam-front-object');
+    // addObject(camFrontMesh, 'cam-front-object');
 
 
     // front right (green)
@@ -248,7 +256,7 @@ labelTool.onLoadData("PCD", function () {
     // lat, vert, -long-> lat, long, vert
     camFrontRightGeometry.translate(9.85241346 / 100, 68.60191404 / 100, -2.67767493 / 100);
     let camFrontRightMesh = new THREE.Mesh(camFrontRightGeometry, material);
-    addObject(camFrontRightMesh, 'cam-front-right-object');
+    // addObject(camFrontRightMesh, 'cam-front-right-object');
 
     // back right (blue)
     let posCamBackRight = [0, 0, 0, 1];
@@ -265,7 +273,7 @@ labelTool.onLoadData("PCD", function () {
     posCamBackRight = matrixProduct4x4(transformation_matrix_lidar_to_cam_back_right, posCamBackRight);
     camBackRightGeometry.translate(-posCamBackRight[0] / 100, posCamBackRight[2] / 100, -posCamBackRight[1] / 100);//long,lat,vert
     let camBackRightMesh = new THREE.Mesh(camBackRightGeometry, material);
-    addObject(camBackRightMesh, 'cam-back-right-object');
+    // addObject(camBackRightMesh, 'cam-back-right-object');
 
     // back (yellow)
     let posCamBack = [0, 0, 0, 1];
@@ -282,7 +290,7 @@ labelTool.onLoadData("PCD", function () {
     posCamBack = matrixProduct4x4(transformation_matrix_lidar_to_cam_back, posCamBack);
     camBackGeometry.translate(-posCamBack[0] / 100, posCamBack[2] / 100, -posCamBack[1] / 100);//long,lat,vert
     let camBackMesh = new THREE.Mesh(camBackGeometry, material);
-    addObject(camBackMesh, 'cam-back-object');
+    // addObject(camBackMesh, 'cam-back-object');
 
     // back left (light blue)
     let posCamBackLeft = [0, 0, 0, 1];
@@ -299,7 +307,7 @@ labelTool.onLoadData("PCD", function () {
     posCamBackLeft = matrixProduct4x4(transformation_matrix_lidar_to_cam_back_left, posCamBackLeft);
     camBackLeftGeometry.translate(-posCamBackLeft[0] / 100, posCamBackLeft[2] / 100, -posCamBackLeft[1] / 100);//long,lat,vert
     let camBackLeftMesh = new THREE.Mesh(camBackLeftGeometry, material);
-    addObject(camBackLeftMesh, 'cam-back-left-object');
+    // addObject(camBackLeftMesh, 'cam-back-left-object');
 
     // front left (pink)
     let posCamFrontLeft = [0, 0, 0, 1];
@@ -316,7 +324,7 @@ labelTool.onLoadData("PCD", function () {
     posCamFrontLeft = matrixProduct4x4(transformation_matrix_lidar_to_cam_front_left, posCamFrontLeft);
     camFrontLeftGeometry.translate(-posCamFrontLeft[0] / 100, posCamFrontLeft[2] / 100, -posCamFrontLeft[1] / 100);//long,lat,vert
     let camFrontLeftMesh = new THREE.Mesh(camFrontLeftGeometry, material);
-    addObject(camFrontLeftMesh, 'cam-front-left-object');
+    // addObject(camFrontLeftMesh, 'cam-front-left-object');
 
 
 });
@@ -464,7 +472,8 @@ function increaseBrightness(hex, percent) {
 
 function get3DLabel(parameters) {
     let bbox = parameters;
-    let cubeGeometry = new THREE.CubeGeometry(1.0, 1.0, 1.0);//width, height, depth
+    //let cubeGeometry = new THREE.CubeGeometry(1.0, 1.0, 1.0);//width, height, depth
+    let cubeGeometry = new THREE.BoxBufferGeometry(1.0, 1.0, 1.0);//width, height, depth
     let color;
     if (parameters.fromFile === true) {
         if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
@@ -476,7 +485,12 @@ function get3DLabel(parameters) {
         color = classesBoundingBox.target().color;
     }
 
-    let cubeMaterial = new THREE.MeshBasicMaterial({color: color, transparent: true, opacity: 0.4});
+    let cubeMaterial = new THREE.MeshBasicMaterial({
+        color: color,
+        transparent: true,
+        opacity: 0.4,
+        side: THREE.DoubleSide
+    });
     let cubeMesh = new THREE.Mesh(cubeGeometry, cubeMaterial);
     cubeMesh.position.set(bbox.x, bbox.y, bbox.z);
     cubeMesh.scale.set(bbox.width, bbox.height, bbox.depth);
@@ -718,24 +732,129 @@ function onWindowResize() {
     // camera.aspect = canvas3D.getAttribute("width") / canvas3D.getAttribute("height");
     // camera.updateProjectionMatrix();
     // renderer.setSize(canvas3D.getAttribute("width"), canvas3D.getAttribute("height"));
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
+    currentCamera.aspect = window.innerWidth / window.innerHeight;
+    currentCamera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    animate();
+}
+
+function addTransformControls() {
+    labelTool.removeObject("transformControls");
+
+    // transformControls.detach();
+    // transformControls.position = [0, 0, 0];
+    // TODO: try detaching object instead of creating new transformcontrols object
+    transformControls = new THREE.TransformControls(currentCamera, renderer.domElement);
+    transformControls.addEventListener('change', function (event) {
+        // change type (e.g. from translate to scale)
+        // or a new bounding box object is created
+        // or hover over an arrow
+        // or dragging starts or draggin ends
+        // or mousedown or mouseup
+        // scaleRotateTranslate = true;
+        render();
+        console.log("change");
+        scaleRotateTranslate = !scaleRotateTranslate;
+    });
+    transformControls.addEventListener('dragging-changed', function (event) {
+        console.log("dragging-changed");
+        // executed after drag finished
+        if (transformControls.getMode() === "scale") {
+            selectedMesh.translateY(selectedMesh.geometry.parameters.height / 2)
+        }
+        orbitControls.enabled = !event.value;
+        // scaleRotateTranslate = false;
+    });
+    transformControls.name = "transformControls";
+    transformControls.size = 0.1;
+    transformControls.attach(selectedMesh);
+    scene.add(transformControls);
+    window.removeEventListener('keydown', keyDownHandler);
+    window.addEventListener('keydown', keyDownHandler);
+    window.removeEventListener('keyup', keyUpHandler);
+    window.addEventListener('keyup', keyUpHandler);
+}
+
+function keyUpHandler(event) {
+    switch (event.keyCode) {
+        case 17: // Ctrl
+            transformControls.setTranslationSnap(null);
+            transformControls.setRotationSnap(null);
+            break;
+    }
+}
+
+function keyDownHandler(event) {
+    switch (event.keyCode) {
+        case 17: // Ctrl
+            transformControls.setTranslationSnap(0.5);
+            if (transformControls.getMode() === "rotate") {
+                let newRotation = Math.ceil(selectedMesh.rotation.z / THREE.Math.degToRad(15));
+                let lowerBound = newRotation * 15;
+                if (selectedMesh.rotation.z - lowerBound < THREE.Math.degToRad(15) / 2) {
+                    // rotate to lower bound
+                    selectedMesh.rotation.z = lowerBound;
+                } else {
+                    // rotate to upper bound
+                    selectedMesh.rotation.z = lowerBound + THREE.Math.degToRad(15);
+                }
+            }
+
+            transformControls.setRotationSnap(THREE.Math.degToRad(15));
+            break;
+        case 84: // T
+            transformControls.setMode("translate");
+            transformControls.showX = true;
+            transformControls.showY = true;
+            break;
+        case 82: // R
+            transformControls.setMode("rotate");
+            transformControls.showX = false;
+            transformControls.showY = false;
+            break;
+        case 83: // S
+            transformControls.setMode("scale");
+            transformControls.showX = true;
+            transformControls.showY = true;
+            break;
+        case 187:
+        case 107: // +, =, num+
+            transformControls.setSize(transformControls.size + 0.1);
+            break;
+        case 189:
+        case 109: // -, _, num-
+            transformControls.setSize(Math.max(transformControls.size - 0.1, 0.1));
+            break;
+        case 88: // X
+            transformControls.showX = !transformControls.showX;
+            break;
+        case 89: // Y
+            transformControls.showY = !transformControls.showY;
+            break;
+        case 90: // Z
+            transformControls.showZ = !transformControls.showZ;
+            break;
+        case 32: // Spacebar
+            transformControls.enabled = !transformControls.enabled;
+            break;
+    }
 }
 
 //set camera type
 function setCamera() {
-    scene.remove(camera);
+    // scene.remove(camera);
     if (birdsEyeViewFlag === false) {
         // container = document.createElement('div');
         // document.body.appendChild(container);
-        camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
-        let posCam = labelTool.camChannels[0].position[2];
-        camera.position.set(0, 0, posCam);
-        camera.lookAt(0, 100, 0);
+        //camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
+        currentCamera = perspectiveCamera;
+        // let posCam = labelTool.camChannels[0].position[2];
+        currentCamera.position.set(0, 0, 5);
+        // camera.lookAt(0, 0, 100);
+        currentCamera.up.set(0, 0, 1);
 
         // controls = new THREE.FlyControls(camera);
-        // controls = new THREE.OrbitControls(camera, renderer.domElement);
+        orbitControls = new THREE.OrbitControls(currentCamera, renderer.domElement);
         // controls.enablePan = false;
         // controls.enableRotate = false;
         // controls.movementSpeed = 2500;
@@ -795,7 +914,6 @@ function setCamera() {
         document.addEventListener('keydown', onKeyDown, false);
         document.addEventListener('keyup', onKeyUp, false);
 
-
         // controls = new THREE.FlyControls(camera);
         // controls.movementSpeed = 1000;
         // //controls.domElement = renderer.domElement;
@@ -809,19 +927,43 @@ function setCamera() {
         // let pos = labelTool.camChannels[0].position;
         // controls.object.position.set(-pos[1], pos[0] - labelTool.positionLidarNuscenes[0], labelTool.positionLidarNuscenes[2] - pos[2]);
         // controls.target = new THREE.Vector3(-pos[1] - 0.0000001, pos[0] - labelTool.positionLidarNuscenes[0] + 0.0000001, labelTool.positionLidarNuscenes[2] - pos[2]);// look backward
-    } else {
-        camera = new THREE.OrthographicCamera(-40, 40, 20, -20, 0.0001, 2000);
-        camera.position.set(0, 0, 100);
-        camera.up.set(0, 0, 1);
-        camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        orbitControls.update();
+        orbitControls.addEventListener('change', render);
+
+        // create temporary mesh
+        // let geometry = new THREE.BoxBufferGeometry(1, 1, 1);
+        // let material = new THREE.MeshBasicMaterial({
+        //     color: 0x51C38C,
+        //     wireframe: false,
+        //     transparent: true,
+        //     opacity: 0.5
+        // });
+        // let mesh = new THREE.Mesh(geometry, material);
+        // mesh.position.set(0, 0, -labelTool.positionLidarNuscenes[2] + 1 / 2);
+        //
+        // // get bounding box from object
+        // let color = "#51C38C";
+        // let boundingBoxColor = increaseBrightness(color, 50);
+        // let edgesGeometry = new THREE.EdgesGeometry(mesh.geometry);
+        // let edgesMaterial = new THREE.LineBasicMaterial({color: boundingBoxColor, linewidth: 4});
+        // let edges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
+        // mesh.add(edges);
+        // addTransformControls();
+
+    } else {
+        currentCamera = orthographicCamera;
+        currentCamera.position.set(0, 0, 100);
+        currentCamera.up.set(0, 0, 1);
+        currentCamera.lookAt(new THREE.Vector3(0, 0, 0));
+
+        orbitControls = new THREE.OrbitControls(currentCamera, renderer.domElement);
         // controls.rotateSpeed = 2.0;
         // controls.zoomSpeed = 0.3;
         // controls.panSpeed = 0.2;
         // controls.enableZoom = true;
         // controls.enablePan = true;
-        controls.enableRotate = false;
+        orbitControls.enableRotate = false;
 
         // controls.enableDamping = false;
         // controls.dampingFactor = 0.3;
@@ -834,10 +976,14 @@ function setCamera() {
         // controls.enabled = true;
         // controls.target.set(0, 0, 0);
         // controls.autoRotate = true;
-        controls.update();
+        orbitControls.update();
     }
-    scene.add(camera);
+    // scene.add(camera);
 
+}
+
+function render() {
+    renderer.render(scene, currentCamera);
 }
 
 //draw animation
@@ -926,8 +1072,8 @@ function animate() {
     //         labelTool.cubeArray[labelTool.currentFileIndex][i].material.color.setHex(0x008866);
     //     }
     // }
-    cameraControls.update(camera, keyboard, clock);
-    renderer.render(scene, camera);
+    // cameraControls.update(camera, keyboard, clock);
+    render();
 }
 
 
@@ -1293,66 +1439,66 @@ function init() {
     /**
      * CameraControls
      */
-    function CameraControls() {
-        //constructor
-    }
+    // function CameraControls() {
+    //     //constructor
+    // }
 
-    CameraControls.prototype = {
-        constructor: CameraControls,
-        update: function (camera, keyboard, clock) {
-            //functionality to go here
-            let delta = clock.getDelta(); // seconds.
-            let moveDistance = 10 * delta; // 200 pixels per second
-            let rotateAngle = delta;   // pi/2 radians (90 degrees) per second
-            if (keyboard.pressed("w")) {
-                // camera.translateZ(-moveDistance);
-                let angle = Math.abs(camera.rotation.y + Math.PI / 2);
-                let posX = camera.position.x + Math.cos(angle) * moveDistance;
-                let posY = camera.position.y + Math.sin(angle) * moveDistance;
-                camera.position.set(posX, posY, camera.position.z);
-            }
-            if (keyboard.pressed("s")) {
-                let angle = Math.abs(camera.rotation.y + Math.PI / 2);
-                moveDistance = -moveDistance;
-                let posX = camera.position.x + Math.cos(angle) * moveDistance;
-                let posY = camera.position.y + Math.sin(angle) * moveDistance;
-                camera.position.set(posX, posY, camera.position.z);
-                // camera.position.set(0, 0, camera.position.z + moveDistance);
-                // camera.translateZ(moveDistance);
-            }
-            if (keyboard.pressed("a")) {
-                camera.translateX(-moveDistance);//great!
-            }
-            if (keyboard.pressed("d")) {
-                camera.translateX(moveDistance);//great!
-            }
-            if (keyboard.pressed("q")) {
-                camera.position.z = camera.position.z - moveDistance;
-            }
-            if (keyboard.pressed("e")) {
-                camera.position.z = camera.position.z + moveDistance;
-            }
-
-            if (keyboard.pressed("left")) {
-                camera.rotateOnAxis(new THREE.Vector3(0, 1, 0), rotateAngle);
-            }
-            if (keyboard.pressed("right")) {
-                camera.rotateOnAxis(new THREE.Vector3(0, 1, 0), -rotateAngle);
-            }
-            if (keyboard.pressed("up")) {
-                camera.rotateOnAxis(new THREE.Vector3(1, 0, 0), rotateAngle);
-            }
-            if (keyboard.pressed("down")) {
-                camera.rotateOnAxis(new THREE.Vector3(1, 0, 0), -rotateAngle);
-            }
-
-
-        }
-    };
-
-    cameraControls = new CameraControls();
-    keyboard = new THREEx.KeyboardState();
-    clock = new THREE.Clock();
+    // CameraControls.prototype = {
+    //     constructor: CameraControls,
+    //     update: function (camera, keyboard, clock) {
+    //         //functionality to go here
+    //         let delta = clock.getDelta(); // seconds.
+    //         let moveDistance = 10 * delta; // 200 pixels per second
+    //         let rotateAngle = delta;   // pi/2 radians (90 degrees) per second
+    //         if (keyboard.pressed("w")) {
+    //             // camera.translateZ(-moveDistance);
+    //             let angle = Math.abs(camera.rotation.y + Math.PI / 2);
+    //             let posX = camera.position.x + Math.cos(angle) * moveDistance;
+    //             let posY = camera.position.y + Math.sin(angle) * moveDistance;
+    //             camera.position.set(posX, posY, camera.position.z);
+    //         }
+    //         if (keyboard.pressed("s")) {
+    //             let angle = Math.abs(camera.rotation.y + Math.PI / 2);
+    //             moveDistance = -moveDistance;
+    //             let posX = camera.position.x + Math.cos(angle) * moveDistance;
+    //             let posY = camera.position.y + Math.sin(angle) * moveDistance;
+    //             camera.position.set(posX, posY, camera.position.z);
+    //             // camera.position.set(0, 0, camera.position.z + moveDistance);
+    //             // camera.translateZ(moveDistance);
+    //         }
+    //         if (keyboard.pressed("a")) {
+    //             camera.translateX(-moveDistance);//great!
+    //         }
+    //         if (keyboard.pressed("d")) {
+    //             camera.translateX(moveDistance);//great!
+    //         }
+    //         if (keyboard.pressed("q")) {
+    //             camera.position.z = camera.position.z - moveDistance;
+    //         }
+    //         if (keyboard.pressed("e")) {
+    //             camera.position.z = camera.position.z + moveDistance;
+    //         }
+    //
+    //         if (keyboard.pressed("left")) {
+    //             camera.rotateOnAxis(new THREE.Vector3(0, 1, 0), rotateAngle);
+    //         }
+    //         if (keyboard.pressed("right")) {
+    //             camera.rotateOnAxis(new THREE.Vector3(0, 1, 0), -rotateAngle);
+    //         }
+    //         // if (keyboard.pressed("up")) {
+    //         //     camera.rotateOnAxis(new THREE.Vector3(1, 0, 0), rotateAngle);
+    //         // }
+    //         // if (keyboard.pressed("down")) {
+    //         //     camera.rotateOnAxis(new THREE.Vector3(1, 0, 0), -rotateAngle);
+    //         // }
+    //
+    //
+    //     }
+    // };
+    //
+    // cameraControls = new CameraControls();
+    // keyboard = new THREEx.KeyboardState();
+    // clock = new THREE.Clock();
     // container = document.createElement('div');
     // document.body.appendChild(container);
 
@@ -1366,6 +1512,10 @@ function init() {
     axisHelper.position.set(0, 0, 0);
     scene.add(axisHelper);
 
+    let light = new THREE.DirectionalLight(0xffffff, 20);
+    light.position.set(0, 0, 0);
+    scene.add(light);
+
     let canvas3D = document.getElementById('canvas3d');
     // controls.domElement = container;
 
@@ -1374,6 +1524,8 @@ function init() {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
+    perspectiveCamera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
+    orthographicCamera = new THREE.OrthographicCamera(-40, 40, 20, -20, 0.0001, 2000);
     setCamera();
     let grid = new THREE.GridHelper(100, 100);
     let posXLidar = labelTool.positionLidarNuscenes[2];
@@ -1400,7 +1552,7 @@ function init() {
     }, false);
 
     canvas3D.onmousedown = function (ev) {
-        if (bboxFlag === true) {
+        if (bboxFlag === true && scaleRotateTranslate === false) {
             if (ev.target === renderer.domElement) {
                 let rect = ev.target.getBoundingClientRect();
                 mouseDown.x = ((ev.clientX - rect.left) / window.innerWidth) * 2 - 1;
@@ -1408,14 +1560,14 @@ function init() {
                 let ray;
                 if (birdsEyeViewFlag === false) {
                     let vector = new THREE.Vector3(mouseDown.x, mouseDown.y, 1);
-                    vector.unproject(camera);
-                    ray = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+                    vector.unproject(currentCamera);
+                    ray = new THREE.Raycaster(currentCamera.position, vector.sub(currentCamera.position).normalize());
                 } else {
                     ray = new THREE.Raycaster();
                     let mouse = new THREE.Vector2();
                     mouse.x = mouseDown.x;
                     mouse.y = mouseDown.y;
-                    ray.setFromCamera(mouse, camera);
+                    ray.setFromCamera(mouse, currentCamera);
                 }
                 let clickedObjects = ray.intersectObjects(labelTool.cubeArray[labelTool.currentFileIndex]);
                 if (clickedObjects.length > 0) {
@@ -1522,7 +1674,7 @@ function init() {
     };
 
     canvas3D.onmouseup = function (ev) {
-        if (ev.button == 0) {
+        if (ev.button == 0 && scaleRotateTranslate === false) {
             if (bboxFlag == true) {
                 let rect = ev.target.getBoundingClientRect();
                 mouseUp.x = ((ev.clientX - rect.left) / $("#canvas3d canvas").attr("width")) * 2 - 1;
@@ -1530,14 +1682,14 @@ function init() {
                 let ray = undefined;
                 if (birdsEyeViewFlag === false) {
                     let vector = new THREE.Vector3(mouseUp.x, mouseUp.y, 1);
-                    vector.unproject(camera);
-                    ray = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+                    vector.unproject(currentCamera);
+                    ray = new THREE.Raycaster(currentCamera.position, vector.sub(currentCamera.position).normalize());
                 } else {
                     ray = new THREE.Raycaster();
                     let mouse = new THREE.Vector2();
                     mouse.x = mouseUp.x;
                     mouse.y = mouseUp.y;
-                    ray.setFromCamera(mouse, camera);
+                    ray.setFromCamera(mouse, currentCamera);
                 }
                 let clickedObjects = ray.intersectObjects(clickedPlaneArray);
                 // if (clickedObjects.length > 0 && folderBoundingBox3DArray[clickedObjectIndex].closed == false) {
@@ -1712,6 +1864,14 @@ function init() {
                             }
                         }
                         annotationObjects.set(insertIndex, addBboxParameters);
+                        selectedMesh = labelTool.cubeArray[labelTool.currentFileIndex][insertIndex];
+                        // console.log(mesh.position.x + ' ' + mesh.position.y + ' ' + mesh.position.z + ' ');
+
+                        // let transformControlsScene = scene.getObjectByName("transformControls");
+                        // labelTool.removeObject("transformControls");
+                        addTransformControls();
+
+
                         annotationObjects.__insertIndex++;
                         classesBoundingBox.target().nextTrackId++;
                         for (let channel in channels) {
