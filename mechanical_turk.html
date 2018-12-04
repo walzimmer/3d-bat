@@ -1,0 +1,177 @@
+<!-- HIT template: Categorization-v3.0 --><!-- The following snippet enables the 'responsive' behavior on smaller screens -->
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<section class="container" id="Categorization"><!-- Instructions (collapsible) -->
+    <div class="row">
+        <div class="col-xs-12 col-md-12">
+            <div class="panel panel-primary">
+                <!-- WARNING: the ids "collapseTrigger" and "instructionBody" are being used to enable expand/collapse feature --><a
+                    class="panel-heading" href="javascript:void(0);" id="collapseTrigger"><strong>Categorization
+                Instructions</strong> <span class="collapse-text">(Click to expand)</span> </a>
+                <div class="panel-body" id="instructionBody">
+                    <p>Pick the correct category for the image. See the <strong>Selection Criteria</strong> below for
+                        more details.</p>
+                    <!-- Detailed instructions for the Worker-->
+
+                    <table class="table table-condensed table-striped table-responsive">
+                        <tbody>
+                        </tbody>
+                        <colgroup>
+                            <col class="col-xs-2 col-md-2"/>
+                            <col class="col-xs-5 col-md-5"/>
+                            <col class="col-xs-5 col-md-5"/>
+                        </colgroup>
+                        <!-- By explaining what is or is not included in a category, the accuracy of the answers may increase. -->
+                        <tbody>
+                        <tr>
+                            <th>Category</th>
+                            <th>Includes</th>
+                            <th>Excludes</th>
+                        </tr>
+                        <!-- Add instructions for each category below. Don't forget to rename the categories. -->
+                        <tr>
+                            <td>Kitchen</td>
+                            <td>Has stove, refrigerator and cooking appliances</td>
+                            <td>Any other room is not a kitchen</td>
+                        </tr>
+                        <tr>
+                            <td>Living room</td>
+                            <td>Room with fireplace, sofas, TV, coffee table is a Living room</td>
+                            <td>Dens, Offices or Foyers are not Living rooms</td>
+                        </tr>
+                        <tr>
+                            <td>Bathroom</td>
+                            <td>Has a shower, wc, sink</td>
+                            <td>Any other room is not a Bath</td>
+                        </tr>
+                        <tr>
+                            <td>Bedroom</td>
+                            <td>If room has a bed, it&#39;s a Bedroom</td>
+                            <td>Den, Living or Outside is not a Bedroom</td>
+                        </tr>
+                        <tr>
+                            <td>Outside area</td>
+                            <td>Seating areas that are outside</td>
+                            <td>Living or Dens are not Outside spaces</td>
+                        </tr>
+                        <tr>
+                            <td>Room not listed</td>
+                            <td>Any rooms/areas not listed above</td>
+                            <td>Kitchen, Living room, Bedroom, Bathroom, Outside area</td>
+                        </tr>
+                        <tr>
+                            <td>Not a room/area</td>
+                            <td>An image that does not depict a room/area as described above</td>
+                            <td>A room/area as described above</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End instructions --><!-- Categorization Layout -->
+    <div class="row" id="workContent">
+        <div class="col-xs-12 col-sm-8 content">
+            <!-- Place the content (in this case an image) below as an image html element with "src" attribute pointing to the image url. If content is not an image then replace with the relevant html element (url, text or video) below. --><img
+                alt="image_url" class="img-responsive center-block" src="${image_url}"/></div>
+
+        <div class="col-xs-12 col-sm-4 fields">
+            <div class="form-group"><!-- Question for the Worker --><label class="group-label">Choose a
+                category:</label> <!-- Input from the Worker -->
+
+                <div class="btn-group-vertical" data-toggle="buttons" id="CategoryInputs"><label
+                        class="btn btn-default"><input id="category1" name="categories" required="" type="radio"
+                                                       value="category 1"/>Kitchen </label> <label
+                        class="btn btn-default"> <input id="category2" name="categories" required="" type="radio"
+                                                        value="category 2"/>Living room </label> <label
+                        class="btn btn-default"> <input id="category3" name="categories" required="" type="radio"
+                                                        value="category 3"/>Bathroom </label> <label
+                        class="btn btn-default"> <input id="category4" name="categories" required="" type="radio"
+                                                        value="category 4"/>Bedroom </label> <label
+                        class="btn btn-default"> <input id="category5" name="categories" required="" type="radio"
+                                                        value="category 5"/>Outside area </label> <label
+                        class="btn btn-default"> <input id="category6" name="categories" required="" type="radio"
+                                                        value="category 6"/>Room not listed </label> <label
+                        class="btn btn-default"> <input id="category7" name="categories" required="" type="radio"
+                                                        value="category 7"/>Not a room/area </label>
+                    <!-- Add more inputs by copy pasting the "label" container and incrementing/changing the "id" attribute on the "input" field to always be unique. Make sure the "value" attribute has the correct value that you want recorded as a response. -->
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End Categorization Layout --><!-- Please note that Bootstrap CSS/JS and JQuery are 3rd party libraries that may update their url/code at any time. Amazon Mechanical Turk (MTurk) is including these libraries as a default option for you, but is not responsible for any changes to the external libraries --><!-- External CSS references -->
+<link crossorigin="anonymous" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+      rel="stylesheet"/><!-- Open internal style sheet -->
+<style type="text/css">#collapseTrigger {
+    color: #fff;
+    display: block;
+    text-decoration: none;
+}
+
+#submitButton {
+    white-space: normal;
+}
+
+#instructionBody table {
+    font-size: 14px;
+}
+
+#instructionBody table caption {
+    text-align: left;
+    padding: 0 0 5px 0;
+}
+
+#CategoryInputs {
+    display: block;
+    margin-top: 10px;
+}
+
+.content {
+    margin-bottom: 15px;
+}
+
+.radio:first-of-type {
+    margin-top: -5px;
+}
+</style>
+<!-- Close internal style sheet --><!-- External JS references -->
+<script src="https://code.jquery.com/jquery-3.1.0.min.js"
+        integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script><!-- Open internal javascript -->
+<script>
+    $(document).ready(function () {
+        // Instructions expand/collapse
+        var content = $('#instructionBody');
+        var trigger = $('#collapseTrigger');
+        content.hide();
+        $('.collapse-text').text('(Click to expand)');
+        trigger.click(function () {
+            content.toggle();
+            var isVisible = content.is(':visible');
+            if (isVisible) {
+                $('.collapse-text').text('(Click to collapse)');
+            } else {
+                $('.collapse-text').text('(Click to expand)');
+            }
+        });
+        // end expand/collapse
+
+        // highlight selected category
+        $("#CategoryInputs input:radio").change(function () {
+            $("#CategoryInputs input:radio").parent().removeClass("btn-success");
+            $("#CategoryInputs input:radio").parent().addClass("btn-default");
+            if ($(this).is(":checked")) {
+                $(this).parent().removeClass("btn-default");
+                $(this).parent().addClass("btn-success");
+            } else {
+                $(this).parent().removeClass("btn-success");
+                $(this).parent().addClass("btn-default");
+            }
+        });
+        // end highlight
+    });
+</script><!-- Close internal javascript -->

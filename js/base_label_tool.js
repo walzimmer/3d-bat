@@ -1192,10 +1192,12 @@ let labelTool = {
         }
         // open folder of selected object
         let selectionIndex = annotationObjects.getSelectionIndex();
-        let channels = annotationObjects.contents[this.currentFileIndex][selectionIndex]["channels"];
-        for (let channelIdx in channels) {
-            if (channels.hasOwnProperty(channelIdx)) {
-                annotationObjects.select(selectionIndex, channels[channelIdx].channel);
+        if (selectionIndex !== -1) {
+            let channels = annotationObjects.contents[this.currentFileIndex][selectionIndex]["channels"];
+            for (let channelIdx in channels) {
+                if (channels.hasOwnProperty(channelIdx)) {
+                    annotationObjects.select(selectionIndex, channels[channelIdx].channel);
+                }
             }
         }
 
