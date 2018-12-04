@@ -751,10 +751,14 @@ function addTransformControls() {
         // or hover over an arrow
         // or dragging starts or draggin ends
         // or mousedown or mouseup
-        // scaleRotateTranslate = true;
+
         render();
         console.log("change");
+        // translating works (no object is created), problem: selection randomly works
+        // scaleRotateTranslate = true;
+        // selection works (clicking on background, current object will be unselected), problem: after translation an object is created
         scaleRotateTranslate = !scaleRotateTranslate;
+        console.log('scaleRotateTranslate: ' + scaleRotateTranslate);
     });
     transformControls.addEventListener('dragging-changed', function (event) {
         console.log("dragging-changed");
@@ -763,10 +767,12 @@ function addTransformControls() {
             selectedMesh.translateY(selectedMesh.geometry.parameters.height / 2)
         }
         orbitControls.enabled = !event.value;
+        // translating works (no object is created)
         // scaleRotateTranslate = false;
     });
     transformControls.name = "transformControls";
-    transformControls.size = 0.1;
+    let smallestSide = Math.min(selectedMesh.scale.x/10, selectedMesh.scale.y/10, selectedMesh.scale.z/10)/3;
+    transformControls.size = smallestSide;
     transformControls.attach(selectedMesh);
     scene.add(transformControls);
     window.removeEventListener('keydown', keyDownHandler);
@@ -848,6 +854,10 @@ function setCamera() {
         // document.body.appendChild(container);
         //camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
         currentCamera = perspectiveCamera;
+        if (transformControls !== undefined) {
+            transformControls.showZ = true;
+        }
+
         // let posCam = labelTool.camChannels[0].position[2];
         currentCamera.position.set(0, 0, 5);
         // camera.lookAt(0, 0, 100);
@@ -953,6 +963,10 @@ function setCamera() {
 
     } else {
         currentCamera = orthographicCamera;
+        if (transformControls !== undefined) {
+            transformControls.showZ = false;
+        }
+
         currentCamera.position.set(0, 0, 100);
         currentCamera.up.set(0, 0, 1);
         currentCamera.lookAt(new THREE.Vector3(0, 0, 0));
@@ -1580,7 +1594,8 @@ function init() {
                             color: 0x000000,
                             wireframe: false,
                             transparent: true,
-                            opacity: 0.0
+                            opacity: 0.0,
+                            side: THREE.DoubleSide
                         });
                         let geometry = new THREE.PlaneGeometry(200, 200);
                         let clickedPlane = new THREE.Mesh(geometry, material);
@@ -1658,7 +1673,8 @@ function init() {
                         color: 0x000000,
                         wireframe: false,
                         transparent: true,//default: true
-                        opacity: 0.0//oefault 0.0
+                        opacity: 0.0,//oefault 0.0
+                        side: THREE.DoubleSide
                     });
                     let geometry = new THREE.PlaneGeometry(200, 200);
                     let groundPlane = new THREE.Mesh(geometry, material);
@@ -1733,6 +1749,7 @@ function init() {
                 // }
 
                 if (clickedObjects.length > 0) {
+                    // one object was selected
                     for (let mesh in labelTool.cubeArray[labelTool.currentFileIndex]) {
                         let meshObject = labelTool.cubeArray[labelTool.currentFileIndex][mesh];
                         meshObject.material.opacity = 0.4;
@@ -1740,6 +1757,13 @@ function init() {
                     labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].material.opacity = 0.8;
                     // open folder of selected object
                     annotationObjects.localOnSelect["PCD"](clickedObjectIndex);
+                    // set selected object
+                    selectedMesh = labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex];
+                    transformControls.detach();
+                    transformControls.attach(selectedMesh);
+                    // add transform controls to scene
+                    scene.add(transformControls);
+
                 } else {
                     // remove selection in camera view if 2d label exist
                     for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
@@ -1754,6 +1778,9 @@ function init() {
                         let meshObject = labelTool.cubeArray[labelTool.currentFileIndex][mesh];
                         meshObject.material.opacity = 0.4;
                     }
+
+                    // remove arrows (transform controls)
+                    labelTool.removeObject("transformControls");
 
                 }
 

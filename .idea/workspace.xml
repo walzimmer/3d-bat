@@ -2,11 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="428d2e24-9b74-4b18-97ad-d2e286a506fa" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/mechanical_turk.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/base_label_tool.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/base_label_tool.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/lib/controls/TransformControls.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/lib/controls/TransformControls.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/pcd_label_tool.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/pcd_label_tool.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -71,7 +66,7 @@
           <entry key="gitignore" value="118" />
           <entry key="html" value="2527" />
           <entry key="ipynb" value="1" />
-          <entry key="js" value="73571" />
+          <entry key="js" value="74632" />
           <entry key="json" value="2" />
           <entry key="md" value="995" />
           <entry key="tmp" value="5" />
@@ -84,7 +79,7 @@
           <entry key="CSS" value="1136" />
           <entry key="HTML" value="2527" />
           <entry key="JSON" value="2" />
-          <entry key="JavaScript" value="73571" />
+          <entry key="JavaScript" value="74632" />
           <entry key="Markdown" value="995" />
           <entry key="PLAIN_TEXT" value="537" />
           <entry key="YAML" value="70" />
@@ -147,8 +142,8 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/index.html">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="88">
-                  <caret line="14" column="51" selection-start-line="14" selection-start-column="51" selection-end-line="14" selection-end-column="51" />
+                <state relative-caret-position="276">
+                  <caret line="12" column="68" selection-start-line="12" selection-start-column="68" selection-end-line="12" selection-end-column="68" />
                   <folding>
                     <element signature="n#li#1;n#ul#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" />
                   </folding>
@@ -187,8 +182,8 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/js/pcd_label_tool.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="382">
-                  <caret line="756" column="53" selection-start-line="756" selection-start-column="53" selection-end-line="756" selection-end-column="53" />
+                <state relative-caret-position="456">
+                  <caret line="773" column="108" selection-start-line="773" selection-start-column="108" selection-end-line="773" selection-end-column="108" />
                 </state>
               </provider>
             </entry>
@@ -196,8 +191,8 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/js/lib/controls/TransformControls.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="451">
-                  <caret line="586" column="4" selection-start-line="586" selection-start-column="4" selection-end-line="586" selection-end-column="4" />
+                <state relative-caret-position="23">
+                  <caret line="4" column="40" lean-forward="true" selection-start-line="4" selection-start-column="40" selection-end-line="4" selection-end-column="40" />
                 </state>
               </provider>
             </entry>
@@ -226,36 +221,36 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>transformcontr</find>
-      <find>setca</find>
-      <find>resize</find>
-      <find>renderer.ren</find>
-      <find>animate</find>
-      <find>transformation</find>
-      <find>edge</find>
-      <find>rotate</find>
-      <find>attach</find>
       <find>buffe</find>
-      <find>size</find>
       <find>name</find>
       <find>detach</find>
-      <find>setcamera</find>
       <find>camera</find>
       <find>Camera</find>
       <find>addevent</find>
       <find>birds</find>
       <find>window.add</find>
-      <find>mouseup</find>
       <find>window</find>
       <find>15</find>
       <find>(15)</find>
       <find>keyup</find>
       <find>lambert</find>
       <find>lamb</find>
-      <find>material</find>
       <find>sca</find>
       <find>transform</find>
       <find>eventlistener</find>
+      <find>mouseup</find>
+      <find>material</find>
+      <find>setcamera</find>
+      <find>setca</find>
+      <find>sh</find>
+      <find>showx</find>
+      <find>new transformcon</find>
+      <find>transformcont</find>
+      <find>setcam</find>
+      <find>dragg</find>
+      <find>mousedown</find>
+      <find>scalerotat</find>
+      <find>size</find>
     </findStrings>
     <replaceStrings>
       <replace>#</replace>
@@ -505,12 +500,12 @@
       <workItem from="1542652461473" duration="232542000" />
       <workItem from="1543782013959" duration="28432000" />
       <workItem from="1543883194503" duration="814000" />
-      <workItem from="1543890027051" duration="7354000" />
+      <workItem from="1543890027051" duration="17199000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="875364000" />
+    <option name="totallyTimeSpent" value="885209000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -795,15 +790,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/js/lib/controls/TransformControls.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="451">
-          <caret line="586" column="4" selection-start-line="586" selection-start-column="4" selection-end-line="586" selection-end-column="4" />
+        <state relative-caret-position="23">
+          <caret line="4" column="40" lean-forward="true" selection-start-line="4" selection-start-column="40" selection-end-line="4" selection-end-column="40" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="88">
-          <caret line="14" column="51" selection-start-line="14" selection-start-column="51" selection-end-line="14" selection-end-column="51" />
+        <state relative-caret-position="276">
+          <caret line="12" column="68" selection-start-line="12" selection-start-column="68" selection-end-line="12" selection-end-column="68" />
           <folding>
             <element signature="n#li#1;n#ul#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" />
           </folding>
@@ -812,8 +807,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/js/pcd_label_tool.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="382">
-          <caret line="756" column="53" selection-start-line="756" selection-start-column="53" selection-end-line="756" selection-end-column="53" />
+        <state relative-caret-position="456">
+          <caret line="773" column="108" selection-start-line="773" selection-start-column="108" selection-end-line="773" selection-end-column="108" />
         </state>
       </provider>
     </entry>
