@@ -58,7 +58,7 @@ let labelTool = {
         "THIRD": "2018-05-23-001-frame-00080020-00080919"
     }),
     sequencesNuScenes: [],
-    currentDataset: 'NuScenes',
+    currentDataset: 'LISA_T',
     currentSequence: '',
     numFrames: 0,
     dataTypes: [],
@@ -233,9 +233,10 @@ let labelTool = {
     positionLidarNuscenes: [0.891067, 0.0, 1.84292],//(long, lat, vert)
     translationVectorLidarToCamFront: [0.77, -0.02, -0.3],
     // positionLidarNuscenes: [1.84, 0.0, 1.84292],//(long, lat, vert)
-    showOriginalNuScenesLabels: false,
+    showOriginalNuScenesLabels: true,
     imageAspectRatioNuScenes: 1.777777778,
     imageAspectRatioLISAT: 1.333333333,
+    imageAspectRatioFrontBackLISAT: 2.0,
     showFieldOfView: false,
 
 
@@ -675,7 +676,13 @@ let labelTool = {
                 imageContainer.append("<div id='" + id + "'></div>");
                 let canvasElem = imageContainer["0"].children[channelIdx];
                 canvasArray.push(canvasElem);
-                let height = $("#layout_layout_resizer_top").attr("top");
+                let height = parseInt($("#layout_layout_resizer_top").css("top"), 10);
+                if (labelTool.currentDataset === labelTool.datasets.LISA_T && (channel === "CAM_BACK" || channel === "CAM_FRONT")) {
+                    console.log("width");
+                    imageWidth = imageWidthBackFront;
+                } else {
+                    imageWidth = this.originalSize[0];
+                }
                 paperArray.push(Raphael(canvasElem, imageWidth, height));
             }
         }
@@ -732,25 +739,28 @@ let labelTool = {
     reset() {
         // base label tool
         this.currentFileIndex = 0;
-        // this.bboxIndexArray = [];
         this.fileNames = [];
         this.originalAnnotations = [];
         this.targetClass = "Vehicle";
         this.savedFrames = [];
         this.cubeArray = [];
         this.currentCameraChannelIndex = 0;
+        for (let i = 0; i < annotationObjects.contents[this.currentFileIndex].length; i++) {
+            let annotationObj = annotationObjects.contents[this.currentFileIndex][i];
+            guiOptions.removeFolder(annotationObj["class"] + ' ' + annotationObj["trackId"]);
+        }
+        annotationObjects.contents = [];
 
-        // $("#label-tool-wrapper").remove();
-        // $("#label-tool-wrapper").attr("name", "");
-        // $("#label-tool-wrapper").attr("class", "");
+        // classesBoundingBox
+        classesBoundingBox.colorIdx = 0;
+        classesBoundingBox.__target = Object.keys(classesBoundingBox)[0];
+
         // image label tool
         canvasArray = [];
         canvasParamsArray = [];
         paperArray = [];
         imageArray = [];
         // pcd label tool
-        // guiAnnotationClasses = new dat.GUI();
-        // guiOptions = new dat.GUI();
         folderBoundingBox3DArray = [];
         folderPositionArray = [];
         folderSizeArray = [];
@@ -783,6 +793,8 @@ let labelTool = {
             w2ui['layout'].panels[0].size = 180;
         }
         w2ui['layout'].resize();
+
+        classesBoundingBox.content = [];
     },
 
     start() {
@@ -1294,8 +1306,11 @@ function initPanes() {
             let topElem = $("#layout_layout_panel_top")[0];
             let newHeight = topElem.offsetHeight;
             let newWidth;
+            let newWidthBackFront;
             if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
                 newWidth = newHeight * labelTool.imageAspectRatioLISAT;
+                newWidthBackFront = newHeight * labelTool.imageAspectRatioFrontBackLISAT;
+
             } else {
                 newWidth = newHeight * labelTool.imageAspectRatioNuScenes;
             }
@@ -1306,7 +1321,12 @@ function initPanes() {
                 if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
                     let channelObj = labelTool.camChannels[channelIdx];
                     let channel = channelObj.channel;
-                    changeCanvasSize(newWidth, newHeight, channel);
+                    if (channel === "CAM_FRONT" || channel === "CAM_BACK") {
+                        changeCanvasSize(newWidthBackFront, newHeight, channel);
+                    } else {
+                        changeCanvasSize(newWidth, newHeight, channel);
+                    }
+
                 }
             }
             w2ui['layout'].set('top', {size: newHeight});

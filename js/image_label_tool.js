@@ -3,8 +3,10 @@ let canvasArray = [];
 let canvasParamsArray = [{}, {}, {}, {}, {}, {}];
 let imageHeight;
 let imageWidth;
+let imageWidthBackFront;
 if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
     imageWidth = 320;
+    imageWidthBackFront = 480;
     imageHeight = 240;
 } else {
     // imageWidth = 640;
@@ -117,11 +119,12 @@ function initialize(camChannel) {
     let height;
     if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
         height = $("#layout_layout_resizer_top").position().top;
-        width = height * 1.333333333;
-        // height = 240;
+        if (camChannel === "CAM_FRONT" || camChannel === "CAM_BACK") {
+            width = height * labelTool.imageAspectRatioFrontBackLISAT;
+        } else {
+            width = height * labelTool.imageAspectRatioLISAT;
+        }
     } else {
-        // width = 640;
-        // height = 360;
         width = 320;
         height = 180;
     }
@@ -737,12 +740,12 @@ function changeCanvasSize(width, height, camChannel) {
     let channelIdx = getChannelIndexByName(camChannel);
     let paper = paperArray[channelIdx];
     let canvas = canvasArray[channelIdx];
-    for (let canvasElem in canvasArray) {
-        let canvasElement = canvasArray[canvasElem];
-        let element = $("#" + canvasElement.id);
-        element.css('width', width + 'px');
-        element.css('height', height + 'px');
-    }
+    // for (let canvasElem in canvasArray) {
+    // let canvasElement = canvasArray[canvasElem];
+    let element = $("#" + canvas.id);
+    element.css('width', width + 'px');
+    element.css('height', height + 'px');
+    // }
     paper.setViewBox(0, 0, width, height, true);
     paper.setSize("100%", "100%");
     fontSize = canvas.offsetWidth / 50;
