@@ -17,7 +17,7 @@ function calculateLineSegments(channelObj, className) {
     // let color = '#ffff00';
     // uncomment line to use yellow to color bottom 4 lines
     let color;
-    if (labelTool.showOriginalNuScenesLabels === true) {
+    if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
         let classIdx = classesBoundingBox.classNameArray.indexOf(className);
         color = classesBoundingBox.colorArray[classIdx];
     } else {
