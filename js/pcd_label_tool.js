@@ -569,6 +569,8 @@ function update2DBoundingBox(idx) {
                 let width = annotationObjects.contents[labelTool.currentFileIndex][idx]["width"];
                 let height = annotationObjects.contents[labelTool.currentFileIndex][idx]["height"];
                 let depth = annotationObjects.contents[labelTool.currentFileIndex][idx]["depth"];
+                // TODO: rotation
+                let rotationYaw = annotationObjects.contents[labelTool.currentFileIndex][idx]["rotation_yaw"];
                 let channel = channelObj.channel;
                 // working for LISA_T
                 channelObj.projectedPoints = calculateProjectedBoundingBox(-x, -y, -z, width, height, depth, channel);
@@ -590,17 +592,17 @@ function update2DBoundingBox(idx) {
     }
 }
 
-function updateChannels(insertIndex) {
-    let annotationObj = annotationObjects.contents[labelTool.currentFileIndex][insertIndex];
-    let posX = annotationObj.x;
-    let posY = annotationObj.y;
-    let posZ = annotationObj.z;
-    let channels = getChannelsByPosition(posX, posY, posZ);
-    annotationObj.channels[0].channel = channels[0];
-    if (channels[1] !== undefined) {
-        annotationObj.channels[1].channel = channels[1];
-    }
-}
+// function updateChannels(insertIndex) {
+// let annotationObj = annotationObjects.contents[labelTool.currentFileIndex][insertIndex];
+// let posX = annotationObj.x;
+// let posY = annotationObj.y;
+// let posZ = annotationObj.z;
+// let channels = getChannelsByPosition(posX, posY, posZ);
+// annotationObj.channels[0].channel = channels[0];
+// if (channels[1] !== undefined) {
+//     annotationObj.channels[1].channel = channels[1];
+// }
+// }
 
 //register new bounding box
 function addBoundingBoxGui(bbox) {
@@ -772,7 +774,7 @@ function resetCube(index) {
     labelTool.cubeArray[labelTool.currentFileIndex][index].scale.x = reset_bbox.width;
     labelTool.cubeArray[labelTool.currentFileIndex][index].scale.y = reset_bbox.height;
     labelTool.cubeArray[labelTool.currentFileIndex][index].scale.z = reset_bbox.depth;
-    updateChannels(index);
+    // updateChannels(index);
 }
 
 //change window size
@@ -787,6 +789,16 @@ function onWindowResize() {
     animate();
 }
 
+function getObjectIndexByName(objectName) {
+    let trackIdFind = objectName.split("-")[1];
+    for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
+        let trackId = annotationObjects.contents[labelTool.currentFileIndex][i]["class"].toUpperCase().charAt(0) + annotationObjects.contents[labelTool.currentFileIndex][i]["trackId"];
+        if (trackId === trackIdFind) {
+            return i;
+        }
+    }
+}
+
 function addTransformControls() {
     labelTool.removeObject("transformControls");
 
@@ -795,6 +807,20 @@ function addTransformControls() {
     // TODO: try detaching object instead of creating new transformcontrols object
     transformControls = new THREE.TransformControls(currentCamera, renderer.domElement);
     transformControls.addEventListener('change', function (event) {
+        let objectIndexByTrackId = getObjectIndexByName(selectedMesh.name);
+        // update 2d bounding box
+        if (selectedMesh !== undefined) {
+            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["x"] = selectedMesh.position.x;
+            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["y"] = selectedMesh.position.y;
+            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["z"] = selectedMesh.position.z;
+            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["width"] = selectedMesh.scale.x;
+            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["length"] = selectedMesh.scale.y;
+            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["depth"] = selectedMesh.scale.z;
+            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["rotation_yaw"] = selectedMesh.rotation.z;
+        }
+        update2DBoundingBox(objectIndexByTrackId);
+
+        // dragObject = true;
         // change type (e.g. from translate to scale)
         // or a new bounding box object is created
         // or hover over an arrow
@@ -803,6 +829,7 @@ function addTransformControls() {
 
         render();
         // console.log("change");
+        // console.log("mode: "+event.target.getMode());
         // translating works (no object is created), problem: selection randomly works
         // scaleRotateTranslate = true;
         // selection works (clicking on background, current object will be unselected), problem: after translation an object is created
@@ -811,7 +838,8 @@ function addTransformControls() {
         // console.log(event);
     });
     transformControls.addEventListener('dragging-changed', function (event) {
-        // console.log("dragging-changed");
+        // dragObject = false;
+        console.log("dragging-changed");
         // executed after drag finished
         // TODO: scale only on one side
         if (transformControls.getMode() === "scale") {
@@ -831,7 +859,7 @@ function addTransformControls() {
         smallestSide = Math.min(Math.min(selectedMesh.scale.x, selectedMesh.scale.y), selectedMesh.scale.z);
     }
 
-    let size = smallestSide / 2.0;
+    let size = smallestSide / 10.0;
     console.log("size controls addtransformcontrols: " + size);
     transformControls.size = size;
     transformControls.attach(selectedMesh);
@@ -924,7 +952,7 @@ function setCamera() {
                 } else {
                     smallestSide = Math.min(Math.min(selectedMesh.scale.x, selectedMesh.scale.y), selectedMesh.scale.z);
                 }
-                transformControls.size = smallestSide / 2.0;
+                transformControls.size = smallestSide / 10.0;
                 transformControls.showZ = true;
             }
         }
@@ -1054,6 +1082,18 @@ function render() {
 }
 
 function update() {
+    // disable rotation of orbitcontrols if object selected
+    if (birdsEyeViewFlag === false) {
+        if (selectedMesh !== undefined) {
+            console.log("disabled");
+            currentOrbitControls.enableRotate = false;
+        } else {
+            console.log("enabled");
+            currentOrbitControls.enableRotate = true;
+        }
+    }
+
+
     // rescale transform controls
     // if (selectedMesh !== undefined && birdsEyeViewFlag === true) {
     //     let newSize = selectedMesh.position.distanceTo(currentCamera.position) / 6;
@@ -1231,24 +1271,48 @@ function getChannelsByPosition(x, y) {
         alphaRadian = Math.atan(Math.abs(x) / Math.abs(y));
     }
     let alphaDegrees = 360 * alphaRadian / (2 * Math.PI);
-    if ((alphaDegrees >= 325 && alphaDegrees < 360) || (alphaDegrees >= 0 && alphaDegrees < 35)) {
-        channels.push(labelTool.camChannels[1].channel);
+
+    if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
+        if ((alphaDegrees >= 325 && alphaDegrees < 360) || (alphaDegrees >= 0 && alphaDegrees < 35)) {
+            channels.push(labelTool.camChannels[1].channel);
+        }
+        if (alphaDegrees >= 20 && alphaDegrees < 90) {
+            channels.push(labelTool.camChannels[2].channel);
+        }
+        if (alphaDegrees >= 75 && alphaDegrees < 145) {
+            channels.push(labelTool.camChannels[3].channel);
+        }
+        if (alphaDegrees >= 115 && alphaDegrees < 245) {
+            channels.push(labelTool.camChannels[4].channel);
+        }
+        if (alphaDegrees >= 215 && alphaDegrees < 285) {
+            channels.push(labelTool.camChannels[5].channel);
+        }
+        if (alphaDegrees >= 270 && alphaDegrees < 340) {
+            channels.push(labelTool.camChannels[0].channel);
+        }
+    } else {
+        // GoPro Hero 4 Black, 4:3, wide angle, 122.6 degree
+        if ((alphaDegrees >= 312.8 && alphaDegrees < 360) || (alphaDegrees >= 0 && alphaDegrees < 47.2)) {
+            channels.push(labelTool.camChannels[1].channel);
+        }
+        if (alphaDegrees >= 20 && alphaDegrees < 90) {
+            channels.push(labelTool.camChannels[2].channel);
+        }
+        if (alphaDegrees >= 75 && alphaDegrees < 145) {
+            channels.push(labelTool.camChannels[3].channel);
+        }
+        if (alphaDegrees >= 115 && alphaDegrees < 245) {
+            channels.push(labelTool.camChannels[4].channel);
+        }
+        if (alphaDegrees >= 215 && alphaDegrees < 285) {
+            channels.push(labelTool.camChannels[5].channel);
+        }
+        if (alphaDegrees >= 270 && alphaDegrees < 340) {
+            channels.push(labelTool.camChannels[0].channel);
+        }
     }
-    if (alphaDegrees >= 20 && alphaDegrees < 90) {
-        channels.push(labelTool.camChannels[2].channel);
-    }
-    if (alphaDegrees >= 75 && alphaDegrees < 145) {
-        channels.push(labelTool.camChannels[3].channel);
-    }
-    if (alphaDegrees >= 115 && alphaDegrees < 245) {
-        channels.push(labelTool.camChannels[4].channel);
-    }
-    if (alphaDegrees >= 215 && alphaDegrees < 285) {
-        channels.push(labelTool.camChannels[5].channel);
-    }
-    if (alphaDegrees >= 270 && alphaDegrees < 340) {
-        channels.push(labelTool.camChannels[0].channel);
-    }
+
     return channels;
 }
 
@@ -1676,13 +1740,13 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     // 3d
-    perspectiveCamera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
+    // perspectiveCamera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
     // perspectiveOrbitControls = new THREE.OrbitControls(perspectiveCamera, renderer.domElement);
     // perspectiveOrbitControls.enablePan = true;
     // perspectiveOrbitControls.enableRotate = true;
 
     // BEV
-    orthographicCamera = new THREE.OrthographicCamera(-40, 40, 20, -20, 0.0001, 2000);
+    // orthographicCamera = new THREE.OrthographicCamera(-40, 40, 20, -20, 0.0001, 2000);
     // orthographicOrbitControls = new THREE.OrbitControls(orthographicCamera, renderer.domElement);
     // orthographicOrbitControls.enablePan = true;
     // orthographicOrbitControls.enableRotate = false;
@@ -1807,38 +1871,35 @@ function init() {
                         folderPositionArray.splice(clickedObjectIndex, 1);
                         folderSizeArray.splice(clickedObjectIndex, 1);
                         annotationObjects.selectEmpty();
-                        // close folder
-                        // for (let i = 0; i < folderBoundingBox3DArray.length; i++) {
-                        //     if (folderBoundingBox3DArray[i] !== undefined) {
-                        //         folderBoundingBox3DArray[i].close();
-                        //     }
-                        // }
                         // reduce track id by 1 for this class
-                        if (labelTool.showOriginalNuScenesLabels === true) {
+                        if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
                             classesBoundingBox.content[label].nextTrackId--;
                         } else {
                             classesBoundingBox[label].nextTrackId--;
                         }
 
                     }
-                } else if (birdsEyeViewFlag === true) {
-                    clickedObjectIndex = -1;
-                    groundPlaneArray = [];
-                    let material = new THREE.MeshBasicMaterial({
-                        color: 0x000000,
-                        wireframe: false,
-                        transparent: true,//default: true
-                        opacity: 0.0,//oefault 0.0
-                        side: THREE.DoubleSide
-                    });
-                    let geometry = new THREE.PlaneGeometry(200, 200);
-                    let groundPlane = new THREE.Mesh(geometry, material);
-                    groundPlane.position.x = 0;
-                    groundPlane.position.y = 0;
-                    groundPlane.position.z = -1;
-                    groundPlaneArray.push(groundPlane);
-                    let groundObject = ray.intersectObjects(groundPlaneArray);
-                    groundPointMouseDown = groundObject[0].point;
+                } else {
+                    selectedMesh = undefined;
+                    if (birdsEyeViewFlag === true) {
+                        clickedObjectIndex = -1;
+                        groundPlaneArray = [];
+                        let material = new THREE.MeshBasicMaterial({
+                            color: 0x000000,
+                            wireframe: false,
+                            transparent: true,//default: true
+                            opacity: 0.0,//oefault 0.0
+                            side: THREE.DoubleSide
+                        });
+                        let geometry = new THREE.PlaneGeometry(200, 200);
+                        let groundPlane = new THREE.Mesh(geometry, material);
+                        groundPlane.position.x = 0;
+                        groundPlane.position.y = 0;
+                        groundPlane.position.z = -1;
+                        groundPlaneArray.push(groundPlane);
+                        let groundObject = ray.intersectObjects(groundPlaneArray);
+                        groundPointMouseDown = groundObject[0].point;
+                    }
                 }
             }
         }
@@ -1903,7 +1964,7 @@ function init() {
                 //     labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].scale.z = clickedBBox.depth;
                 // }
 
-                if (clickedObjects.length > 0) {
+                if (clickedObjects.length > 0 && clickedObjectIndex !== -1) {
                     // one object was selected
                     for (let mesh in labelTool.cubeArray[labelTool.currentFileIndex]) {
                         let meshObject = labelTool.cubeArray[labelTool.currentFileIndex][mesh];
@@ -1924,7 +1985,7 @@ function init() {
                     } else {
                         smallestSide = Math.min(Math.min(selectedMesh.scale.x, selectedMesh.scale.y), selectedMesh.scale.z);
                     }
-                    let size = smallestSide / 2.0;
+                    let size = smallestSide / 10.0;
                     console.log("size controls mouseup: " + size);
                     transformControls.size = size;
                     // add transform controls to scene
@@ -1947,7 +2008,7 @@ function init() {
 
                     // remove arrows (transform controls)
                     labelTool.removeObject("transformControls");
-
+                    selectedMesh = undefined;
                 }
 
                 if (clickedObjectIndex === -1) {
@@ -1961,14 +2022,12 @@ function init() {
                 }
                 if (clickFlag === true) {
                     clickedPlaneArray = [];
-                    // let selectionIndex = labelTool.bboxIndexArray[labelTool.currentFileIndex][clickedObjectIndex];
-                    // find out in which camera view the 3d object lies -> calculate angle
-                    //let channels = getChannelsByPosition(annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["x"], annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["y"]);
-                    let channels = getChannelsByPosition(annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex]["x"], annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex]["y"]);
-                    for (let channel in channels) {
-                        if (channels.hasOwnProperty(channel)) {
-                            let camChannel = channels[channel];
-                            //annotationObjects.select(selectionIndex, camChannel);
+                    // find out in which camera view the 3d object lies -> calculate angle from 3D position
+                    // let channels = getChannelsByPosition(annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex]["x"], annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex]["y"]);
+                    // for (let channel in channels) {
+                    for (let channelIdx in labelTool.camChannels) {
+                        if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
+                            let camChannel = labelTool.camChannels[channelIdx].channel;
                             annotationObjects.select(clickedObjectIndex, camChannel);
                         }
                     }
@@ -2034,13 +2093,34 @@ function init() {
                                 projectedPoints: [],
                                 lines: [],
                                 channel: ''
+                            }, {
+                                rect: [],
+                                projectedPoints: [],
+                                lines: [],
+                                channel: ''
+                            }, {
+                                rect: [],
+                                projectedPoints: [],
+                                lines: [],
+                                channel: ''
+                            }, {
+                                rect: [],
+                                projectedPoints: [],
+                                lines: [],
+                                channel: ''
+                            }, {
+                                rect: [],
+                                projectedPoints: [],
+                                lines: [],
+                                channel: ''
                             }],
                             fromFile: false
                         };
                         // set channel
-                        let channels = getChannelsByPosition(xPos, -yPos);
-                        for (let i = 0; i < channels.length; i++) {
-                            let channel = channels[i];
+                        // let channels = getChannelsByPosition(xPos, -yPos);
+                        // for (let i = 0; i < channels.length; i++) {
+                        for (let i = 0; i < labelTool.camChannels.length; i++) {
+                            let channel = labelTool.camChannels[i].channel;
                             addBboxParameters.channels[i].channel = channel;
                             // working for LISA_T
                             let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -yPos, -zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth, channel);
@@ -2067,9 +2147,9 @@ function init() {
 
                         annotationObjects.__insertIndex++;
                         classesBoundingBox.target().nextTrackId++;
-                        for (let channel in channels) {
-                            if (channels.hasOwnProperty(channel)) {
-                                let camChannel = channels[channel];
+                        for (let channelIdx in labelTool.camChannels) {
+                            if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
+                                let camChannel = labelTool.camChannels[channelIdx].channel;
                                 annotationObjects.select(insertIndex, camChannel);
                             }
                         }
