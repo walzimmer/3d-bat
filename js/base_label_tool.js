@@ -525,12 +525,32 @@ let labelTool = {
                         projectedPoints: [],
                         lines: [],
                         channel: ''
+                    }, {
+                        rect: [],
+                        projectedPoints: [],
+                        lines: [],
+                        channel: ''
+                    }, {
+                        rect: [],
+                        projectedPoints: [],
+                        lines: [],
+                        channel: ''
+                    }, {
+                        rect: [],
+                        projectedPoints: [],
+                        lines: [],
+                        channel: ''
+                    }, {
+                        rect: [],
+                        projectedPoints: [],
+                        lines: [],
+                        channel: ''
                     }],
                     fromFile: true
                 };
-                let channels = getChannelsByPosition(parseFloat(annotation.x), parseFloat(annotation.y));
-                for (let i = 0; i < channels.length; i++) {
-                    params.channels[i].channel = channels[i];
+                // let channels = getChannelsByPosition(parseFloat(annotation.x), parseFloat(annotation.y));
+                for (let i = 0; i < labelTool.camChannels.length; i++) {
+                    params.channels[i].channel = labelTool.camChannels[i].channel;
                 }
                 if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
                     classesBoundingBox.addNuSceneLabel(annotation.class);
