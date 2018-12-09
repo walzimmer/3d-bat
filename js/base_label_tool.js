@@ -76,6 +76,7 @@ let labelTool = {
     pageBox: document.getElementById('page_num'),
     savedFrames: [],
     cubeArray: [],
+    spriteArray: [],
     bboxIndexArray: [],
     currentCameraChannelIndex: 0,
     camChannels: [{

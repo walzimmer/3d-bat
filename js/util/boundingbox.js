@@ -251,9 +251,12 @@ let annotationObjects = {
         this.remove(this.__selectionIndex);
     },
     clear: function () {
-        for (let i = 0; i < this.contents[labelTool.currentFileIndex].length; i++) {
-            labelTool.removeObject("cube-" + this.contents[labelTool.currentFileIndex][i]["class"].charAt(0) + this.contents[labelTool.currentFileIndex][i]["trackId"]);
+        for (let j = 0; j < this.contents.length; j++) {
+            for (let i = 0; i < this.contents[j].length; i++) {
+                labelTool.removeObject("cube-" + this.contents[j][i]["class"].charAt(0) + this.contents[j][i]["trackId"]);
+            }
         }
+
         this.__selectionIndex = -1;
         this.__insertIndex = 0;
         this.contents[labelTool.currentFileIndex] = [];
