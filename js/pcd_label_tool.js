@@ -54,6 +54,7 @@ let colorMap = [];
 let activeColorMap = 'colorMapJet.js';
 let currentPoints3D = [];
 let currentDistances = [];
+let spriteBehindObject;
 let parametersBoundingBox = {
     "Vehicle": function () {
         classesBoundingBox.select("Vehicle");
@@ -538,6 +539,7 @@ function get3DLabel(parameters) {
         opacity: 0.4,
         side: THREE.DoubleSide
     });
+
     let cubeMesh = new THREE.Mesh(cubeGeometry, cubeMaterial);
     cubeMesh.position.set(bbox.x, bbox.y, bbox.z);
     cubeMesh.scale.set(bbox.width, bbox.height, bbox.depth);
@@ -552,6 +554,51 @@ function get3DLabel(parameters) {
     cubeMesh.add(edges);
 
     scene.add(cubeMesh);
+
+    // TrackId tooltip
+    $("body").append("<canvas id='trackid-" + parameters.class.charAt(0) + parameters.trackId + "' width=64 height=64></canvas>");
+    let trackIdTooltip = $("#trackid-" + parameters.class.charAt(0) + parameters.trackId)[0];
+    const ctx = trackIdTooltip.getContext("2d");
+    //const ctx = trackIdTooltip.context;
+    const x = 32;
+    const y = 32;
+    const radius = 30;
+    const startAngle = 0;
+    const endAngle = Math.PI * 2;
+    ctx.fillStyle = "rgb(0, 0, 0)";
+    ctx.beginPath();
+    ctx.arc(x, y, radius, startAngle, endAngle);
+    ctx.fill();
+    ctx.strokeStyle = "rgb(255, 255, 255)";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, startAngle, endAngle);
+    ctx.stroke();
+    ctx.fillStyle = "rgb(255, 255, 255)";
+    ctx.font = "32px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(parameters.class.charAt(0) + parameters.trackId, x, y);
+
+    // class tooltip
+    $("body").append("<div id='class-" + parameters.class.charAt(0) + parameters.trackId + "'><p><strong>" + parameters.class + "</strong></p></div>");
+
+    // Sprite
+    const trackIdTexture = new THREE.CanvasTexture(document.querySelector("#trackid-" + parameters.class.charAt(0) + parameters.trackId));
+    const spriteMaterial = new THREE.SpriteMaterial({
+        map: trackIdTexture,
+        alphaTest: 0.5,
+        transparent: true,
+        depthTest: false,
+        depthWrite: false
+    });
+    let sprite = new THREE.Sprite(spriteMaterial);
+    sprite.position.set(bbox.x, bbox.y, bbox.z + bbox.depth / 2);
+    sprite.scale.set(1, 1, 1);
+    scene.add(sprite);
+    labelTool.spriteArray[labelTool.currentFileIndex].push(sprite);
+
+
     labelTool.cubeArray[labelTool.currentFileIndex].push(cubeMesh);
     addBoundingBoxGui(bbox);
     return bbox;
@@ -807,9 +854,10 @@ function addTransformControls() {
     // TODO: try detaching object instead of creating new transformcontrols object
     transformControls = new THREE.TransformControls(currentCamera, renderer.domElement);
     transformControls.addEventListener('change', function (event) {
-        let objectIndexByTrackId = getObjectIndexByName(selectedMesh.name);
+
         // update 2d bounding box
         if (selectedMesh !== undefined) {
+            let objectIndexByTrackId = getObjectIndexByName(selectedMesh.name);
             annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["x"] = selectedMesh.position.x;
             annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["y"] = selectedMesh.position.y;
             annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["z"] = selectedMesh.position.z;
@@ -817,8 +865,9 @@ function addTransformControls() {
             annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["length"] = selectedMesh.scale.y;
             annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["depth"] = selectedMesh.scale.z;
             annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["rotation_yaw"] = selectedMesh.rotation.z;
+            update2DBoundingBox(objectIndexByTrackId);
         }
-        update2DBoundingBox(objectIndexByTrackId);
+
 
         // dragObject = true;
         // change type (e.g. from translate to scale)
@@ -1079,6 +1128,40 @@ function setCamera() {
 
 function render() {
     renderer.render(scene, currentCamera);
+    updateAnnotationOpacity();
+    updateScreenPosition();
+}
+
+function updateAnnotationOpacity() {
+    for (let i = 0; i < labelTool.cubeArray[labelTool.currentFileIndex].length; i++) {
+        let obj = labelTool.cubeArray[labelTool.currentFileIndex][i];
+        let sprite = labelTool.spriteArray[labelTool.currentFileIndex][i];
+        const meshDistance = currentCamera.position.distanceTo(obj.position);
+        const spriteDistance = currentCamera.position.distanceTo(sprite.position);
+        spriteBehindObject = spriteDistance > meshDistance;
+        sprite.material.opacity = spriteBehindObject ? 0.25 : 1;
+
+        // if number should change size according to its position
+        // then comment out the following line and the ::before pseudo-element
+        sprite.material.opacity = 0;
+    }
+
+}
+
+function updateScreenPosition() {
+    for (let i = 0; i < labelTool.cubeArray[labelTool.currentFileIndex].length; i++) {
+        let cubeObj = labelTool.cubeArray[labelTool.currentFileIndex][i];
+        let annotationObj = annotationObjects.contents[labelTool.currentFileIndex][i];
+        const vector = new THREE.Vector3(cubeObj.position.x, cubeObj.position.y, cubeObj.position.z + cubeObj.scale.z / 2);
+        const canvas = renderer.domElement;
+        vector.project(currentCamera);
+        vector.x = Math.round((0.5 + vector.x / 2) * (canvas.width / window.devicePixelRatio));
+        vector.y = Math.round((0.5 - vector.y / 2) * (canvas.height / window.devicePixelRatio));
+        let classTooltip = $("#class-" + annotationObj.class.charAt(0) + annotationObj.trackId)[0];
+        classTooltip.style.top = `${vector.y}px`;
+        classTooltip.style.left = `${vector.x}px`;
+        classTooltip.style.opacity = spriteBehindObject ? 0.25 : 1;
+    }
 }
 
 function update() {
@@ -1245,8 +1328,9 @@ function animate() {
     //     }
     // }
     // cameraControls.update(camera, keyboard, clock);
-    render();
     update();
+    render();
+
 }
 
 
@@ -2217,10 +2301,12 @@ function init() {
         }
     };
     labelTool.cubeArray = [];
+    labelTool.spriteArray = [];
     labelTool.savedFrames = [];
     annotationObjects.contents = [];
     for (let i = 0; i < labelTool.numFrames; i++) {
         labelTool.cubeArray.push([]);
+        labelTool.spriteArray.push([]);
         labelTool.savedFrames.push([]);
         annotationObjects.contents.push([]);
     }
