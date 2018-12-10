@@ -75,6 +75,7 @@ let classesBoundingBox = {
             annotationObjects.changeClass(annotationObjects.__selectionIndex, label);
         }
         this.__target = label;
+        this.currentClass = label;
     },
     onChange: function (label) {
         this.__target = label;
@@ -85,5 +86,9 @@ let classesBoundingBox = {
     targetName: function () {
         return this.__target;
     },
-    __target: "Vehicle"
+    getCurrentClass: function () {
+        return this.currentClass;
+    },
+    __target: "Vehicle",
+    currentClass: "Vehicle"
 };

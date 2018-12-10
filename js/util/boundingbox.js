@@ -178,19 +178,59 @@ let annotationObjects = {
         }
         this.contents[labelTool.currentFileIndex][insertIndex]["channels"] = params.channels;
     },
-    changeClass: function (index, label) {
-        if (this.contents[labelTool.currentFileIndex][index] === undefined) {
+    changeClass: function (newClassIndex, newClassLabel) {
+        if (this.contents[labelTool.currentFileIndex][newClassIndex] === undefined) {
             return false;
         }
-        this.contents[labelTool.currentFileIndex][index]["class"] = label;
+
+        // return if same class was chosen again
+        let currentClassLabel = classesBoundingBox.getCurrentClass();
+        if (currentClassLabel === newClassLabel) {
+            return false;
+        }
+
+
+        // update id of sprite
+        let trackId = this.contents[labelTool.currentFileIndex][newClassIndex]["trackId"];
+        let spriteElem = $("#class-" + this.contents[labelTool.currentFileIndex][newClassIndex]["class"].charAt(0) + trackId);
+        // use original track id if original class selected
+        let nextTrackId;
+        if (newClassLabel === this.contents[labelTool.currentFileIndex][newClassIndex]["original"]["class"]) {
+            nextTrackId = this.contents[labelTool.currentFileIndex][newClassIndex]["original"]["trackId"]
+        } else {
+            nextTrackId = classesBoundingBox[newClassLabel]["nextTrackId"];
+        }
+
+        $(spriteElem).attr("id", "class-" + newClassLabel.charAt(0) + nextTrackId).attr("background", "rgba(255, 255, 255, 0.8)");
+
+        // update background color of sprite
+        $($(spriteElem)[0]).css("background", classesBoundingBox[newClassLabel].color);
+
+        // update class label
+        this.contents[labelTool.currentFileIndex][newClassIndex]["class"] = newClassLabel;
+
+        // update track id
+        this.contents[labelTool.currentFileIndex][newClassIndex]["trackId"] = nextTrackId;
+        // decrease track id of current (previous) class
+        classesBoundingBox[currentClassLabel]["nextTrackId"] = classesBoundingBox[currentClassLabel]["nextTrackId"] - 1;
+        // increase track id of new class
+        classesBoundingBox[newClassLabel]["nextTrackId"] = classesBoundingBox[newClassLabel]["nextTrackId"] + 1;
+
+
+        // update text of sprite
+        $($(spriteElem)[0]).text(newClassLabel.charAt(0) + nextTrackId + " | " + newClassLabel);
+
+
         for (let channelObj in labelTool.camChannels) {
             if (labelTool.camChannels.hasOwnProperty(channelObj)) {
                 let channelObject = labelTool.camChannels[channelObj];
-                this.localOnChangeClass[channelObject.channel](index, label);
+                this.localOnChangeClass[channelObject.channel](newClassIndex, newClassLabel);
 
             }
         }
-        this.localOnChangeClass["PCD"](index, label);
+        this.localOnChangeClass["PCD"](newClassIndex, newClassLabel);
+
+
     },
     expand: function (label, trackId, fromFile) {
         if (label === undefined) {

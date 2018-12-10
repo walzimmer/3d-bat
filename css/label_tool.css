@@ -522,3 +522,18 @@ text {
 #layout_layout_panel_top .w2ui-panel-content {
     white-space: nowrap;
 }
+
+.class-tooltip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    margin-left: 0px;
+    margin-top: 0px;
+    padding: 3px;
+    width: 95px;
+    color: #fff;
+    font-size: 12px;
+    line-height: 1.2;
+    transition: opacity .5s;
+}
