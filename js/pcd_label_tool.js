@@ -16,6 +16,7 @@ let moveBackward = false;
 let moveLeft = false;
 let moveRight = false;
 let selectedMesh = undefined;
+let headerHeight = 50;
 // let velocity = new THREE.Vector3();
 // let direction = new THREE.Vector3();
 
@@ -555,38 +556,15 @@ function get3DLabel(parameters) {
 
     scene.add(cubeMesh);
 
-    // TrackId tooltip
-    $("body").append("<canvas id='trackid-" + parameters.class.charAt(0) + parameters.trackId + "' width=64 height=64></canvas>");
-    let trackIdTooltip = $("#trackid-" + parameters.class.charAt(0) + parameters.trackId)[0];
-    const ctx = trackIdTooltip.getContext("2d");
-    //const ctx = trackIdTooltip.context;
-    const x = 32;
-    const y = 32;
-    const radius = 30;
-    const startAngle = 0;
-    const endAngle = Math.PI * 2;
-    ctx.fillStyle = "rgb(0, 0, 0)";
-    ctx.beginPath();
-    ctx.arc(x, y, radius, startAngle, endAngle);
-    ctx.fill();
-    ctx.strokeStyle = "rgb(255, 255, 255)";
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.arc(x, y, radius, startAngle, endAngle);
-    ctx.stroke();
-    ctx.fillStyle = "rgb(255, 255, 255)";
-    ctx.font = "32px sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(parameters.class.charAt(0) + parameters.trackId, x, y);
-
     // class tooltip
-    $("body").append("<div id='class-" + parameters.class.charAt(0) + parameters.trackId + "'><p><strong>" + parameters.class + "</strong></p></div>");
+    let classTooltipElement = $("<div class='class-tooltip' id='class-" + parameters.class.charAt(0) + parameters.trackId + "'>" + parameters.class.charAt(0) + parameters.trackId + " | " + parameters.class + "</div>");
+    $("body").append(classTooltipElement);
+    // set background color
+    $(classTooltipElement[0]).css("background", color);
+    $(classTooltipElement[0]).css("opacity", 0.5);
 
     // Sprite
-    const trackIdTexture = new THREE.CanvasTexture(document.querySelector("#trackid-" + parameters.class.charAt(0) + parameters.trackId));
     const spriteMaterial = new THREE.SpriteMaterial({
-        map: trackIdTexture,
         alphaTest: 0.5,
         transparent: true,
         depthTest: false,
@@ -1139,7 +1117,7 @@ function updateAnnotationOpacity() {
         const meshDistance = currentCamera.position.distanceTo(obj.position);
         const spriteDistance = currentCamera.position.distanceTo(sprite.position);
         spriteBehindObject = spriteDistance > meshDistance;
-        sprite.material.opacity = spriteBehindObject ? 0.25 : 1;
+        sprite.material.opacity = spriteBehindObject ? 0.2 : 0.8;
 
         // if number should change size according to its position
         // then comment out the following line and the ::before pseudo-element
@@ -1152,15 +1130,19 @@ function updateScreenPosition() {
     for (let i = 0; i < labelTool.cubeArray[labelTool.currentFileIndex].length; i++) {
         let cubeObj = labelTool.cubeArray[labelTool.currentFileIndex][i];
         let annotationObj = annotationObjects.contents[labelTool.currentFileIndex][i];
-        const vector = new THREE.Vector3(cubeObj.position.x, cubeObj.position.y, cubeObj.position.z + cubeObj.scale.z / 2);
+        const vector = new THREE.Vector3(cubeObj.position.x - cubeObj.scale.x / 2, cubeObj.position.y + cubeObj.scale.y / 2, cubeObj.position.z + cubeObj.scale.z / 2);
         const canvas = renderer.domElement;
         vector.project(currentCamera);
         vector.x = Math.round((0.5 + vector.x / 2) * (canvas.width / window.devicePixelRatio));
         vector.y = Math.round((0.5 - vector.y / 2) * (canvas.height / window.devicePixelRatio));
-        let classTooltip = $("#class-" + annotationObj.class.charAt(0) + annotationObj.trackId)[0];
-        classTooltip.style.top = `${vector.y}px`;
-        classTooltip.style.left = `${vector.x}px`;
-        classTooltip.style.opacity = spriteBehindObject ? 0.25 : 1;
+        if (annotationObj.trackId !== undefined) {
+            let classTooltip = $("#class-" + annotationObj.class.charAt(0) + annotationObj.trackId)[0];
+            let imagePaneHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
+            classTooltip.style.top = `${vector.y + headerHeight + imagePaneHeight - 21}px`;
+            classTooltip.style.left = `${vector.x}px`;
+            classTooltip.style.opacity = spriteBehindObject ? 0.25 : 1;
+        }
+
     }
 }
 
@@ -2157,7 +2139,8 @@ function init() {
                             height: Math.abs(groundPointMouseUp.y - groundPointMouseDown.y),
                             depth: 2.0,
                             yaw: 0,
-                            org: {
+                            original: {
+                                class: classesBoundingBox.targetName(),
                                 x: (groundPointMouseUp.x + groundPointMouseDown.x) / 2,
                                 y: (groundPointMouseUp.y + groundPointMouseDown.y) / 2,
                                 z: zPos,
@@ -2165,6 +2148,7 @@ function init() {
                                 height: Math.abs(groundPointMouseUp.y - groundPointMouseDown.y),
                                 depth: 2.0,
                                 yaw: 0,
+                                trackId: trackId
                             },
                             trackId: trackId,
                             channels: [{
