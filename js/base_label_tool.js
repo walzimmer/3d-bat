@@ -239,6 +239,7 @@ let labelTool = {
     imageAspectRatioLISAT: 1.333333333,
     imageAspectRatioFrontBackLISAT: 2.0,
     showFieldOfView: false,
+    selectedMesh: undefined,
 
 
     /********** Externally defined functions **********
@@ -636,19 +637,19 @@ let labelTool = {
     // Create annotations from this.annotationObjects
     createAnnotations: function () {
         let annotations = [];
-        for (let i = 0; i < annotationObjects.length; i++) {
-            let annotationObj = this.annotationObjects[i];
-            let camChannel = annotationObj["channel"];
-            let rect = annotationObj["rect"];
-            let minPos = convertPositionToFile(rect.attr("x"), rect.attr("y"), camChannel);
-            let maxPos = convertPositionToFile(rect.attr("x") + rect.attr("width"),
-                rect.attr("y") + rect.attr("height"), annotationObj["channel"]);
+        for (let i = 0; i < annotationObjects.contents[this.currentFileIndex].length; i++) {
+            let annotationObj = annotationObjects.contents[this.currentFileIndex][i];
+            // let camChannel = annotationObj["channel"];
+            // let rect = annotationObj["rect"];
+            // let minPos = convertPositionToFile(rect.attr("x"), rect.attr("y"), camChannel);
+            // let maxPos = convertPositionToFile(rect.attr("x") + rect.attr("width"),
+            //     rect.attr("y") + rect.attr("height"), annotationObj["channel"]);
             let objectPosition = [this.cubeArray[this.currentFileIndex][i].position.x,
                 this.cubeArray[this.currentFileIndex][i].position.y,
                 this.cubeArray[this.currentFileIndex][i].position.z,
                 1];
             // LISAT: labels are stored in ego frame which is also the point cloud frame (no transformation needed)
-            let channelIndexByName = getChannelIndexByName(camChannel);
+            // let channelIndexByName = getChannelIndexByName(camChannel);
             let transformedPosition = [];
             if (this.currentDataset === this.datasets.LISA_T) {
                 // no transformation needed
@@ -662,13 +663,13 @@ let labelTool = {
             }
             let annotation = {
                 class: annotationObj["class"],
-                truncated: 0,
-                occluded: 3,
-                alpha: 0,
-                left: minPos[0],
-                top: minPos[1],
-                right: maxPos[0],
-                bottom: maxPos[1],
+                // truncated: 0,
+                // occluded: 3,
+                // alpha: 0,
+                // left: minPos[0],
+                // top: minPos[1],
+                // right: maxPos[0],
+                // bottom: maxPos[1],
                 // TODO: store information of 3D objects also in annotationObjects.contents instead of cubeArray
                 height: this.cubeArray[this.currentFileIndex][i].scale.y,
                 width: this.cubeArray[this.currentFileIndex][i].scale.x,
@@ -677,7 +678,7 @@ let labelTool = {
                 y: transformedPosition[1],
                 z: transformedPosition[2],
                 rotationYaw: this.cubeArray[this.currentFileIndex][i].rotation.z,
-                score: 1,
+                // score: 1,
                 trackId: annotationObj["trackId"]
             };
             annotations.push(annotation);
@@ -997,8 +998,10 @@ let labelTool = {
             let obj = scene.children[i];
             if (obj.name === objectName) {
                 scene.remove(obj);
+                return true;
             }
         }
+        return false;
     },
     createPlane: function (name, angle, xpos, ypos, channel) {
         let channelIdx = getChannelIndexByName(channel);
@@ -1166,6 +1169,11 @@ let labelTool = {
                 let clonedMesh = mesh.clone();
                 this.cubeArray[newFileIndex].push(clonedMesh);
                 scene.add(clonedMesh);
+
+                let sprite = this.spriteArray[this.currentFileIndex][i];
+                let clonedSprite = sprite.clone();
+                this.spriteArray[newFileIndex].push(clonedSprite);
+                scene.add(clonedSprite);
             }
             // Deep copy
             for (let i = 0; i < annotationObjects.contents[this.currentFileIndex].length; i++) {
@@ -1177,6 +1185,8 @@ let labelTool = {
             for (let i = 0; i < this.cubeArray[newFileIndex].length; i++) {
                 let mesh = this.cubeArray[newFileIndex][i];
                 scene.add(mesh);
+                let sprite = this.spriteArray[newFileIndex][i];
+                scene.add(sprite);
             }
         }
 

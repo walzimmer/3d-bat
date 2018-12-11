@@ -178,8 +178,8 @@ let annotationObjects = {
         }
         this.contents[labelTool.currentFileIndex][insertIndex]["channels"] = params.channels;
     },
-    changeClass: function (newClassIndex, newClassLabel) {
-        if (this.contents[labelTool.currentFileIndex][newClassIndex] === undefined) {
+    changeClass: function (selectedObjectIndex, newClassLabel) {
+        if (this.contents[labelTool.currentFileIndex][selectedObjectIndex] === undefined) {
             return false;
         }
 
@@ -191,44 +191,72 @@ let annotationObjects = {
 
 
         // update id of sprite
-        let trackId = this.contents[labelTool.currentFileIndex][newClassIndex]["trackId"];
-        let spriteElem = $("#class-" + this.contents[labelTool.currentFileIndex][newClassIndex]["class"].charAt(0) + trackId);
+        let currentTrackId = this.contents[labelTool.currentFileIndex][selectedObjectIndex]["trackId"];
+        let spriteElem = $("#class-" + this.contents[labelTool.currentFileIndex][selectedObjectIndex]["class"].charAt(0) + currentTrackId);
         // use original track id if original class selected
-        let nextTrackId;
-        if (newClassLabel === this.contents[labelTool.currentFileIndex][newClassIndex]["original"]["class"]) {
-            nextTrackId = this.contents[labelTool.currentFileIndex][newClassIndex]["original"]["trackId"]
+        let nextTrackIdNewClass;
+        if (newClassLabel === this.contents[labelTool.currentFileIndex][selectedObjectIndex]["original"]["class"]) {
+            nextTrackIdNewClass = this.contents[labelTool.currentFileIndex][selectedObjectIndex]["original"]["trackId"]
         } else {
-            nextTrackId = classesBoundingBox[newClassLabel]["nextTrackId"];
+            nextTrackIdNewClass = classesBoundingBox[newClassLabel]["nextTrackId"];
         }
 
-        $(spriteElem).attr("id", "class-" + newClassLabel.charAt(0) + nextTrackId).attr("background", "rgba(255, 255, 255, 0.8)");
+        $(spriteElem).attr("id", "class-" + newClassLabel.charAt(0) + nextTrackIdNewClass).attr("background", "rgba(255, 255, 255, 0.8)");
 
         // update background color of sprite
         $($(spriteElem)[0]).css("background", classesBoundingBox[newClassLabel].color);
 
         // update class label
-        this.contents[labelTool.currentFileIndex][newClassIndex]["class"] = newClassLabel;
+        this.contents[labelTool.currentFileIndex][selectedObjectIndex]["class"] = newClassLabel;
 
         // update track id
-        this.contents[labelTool.currentFileIndex][newClassIndex]["trackId"] = nextTrackId;
+        this.contents[labelTool.currentFileIndex][selectedObjectIndex]["trackId"] = nextTrackIdNewClass;
         // decrease track id of current (previous) class
         classesBoundingBox[currentClassLabel]["nextTrackId"] = classesBoundingBox[currentClassLabel]["nextTrackId"] - 1;
         // increase track id of new class
         classesBoundingBox[newClassLabel]["nextTrackId"] = classesBoundingBox[newClassLabel]["nextTrackId"] + 1;
 
-
         // update text of sprite
-        $($(spriteElem)[0]).text(newClassLabel.charAt(0) + nextTrackId + " | " + newClassLabel);
+        $($(spriteElem)[0]).text(newClassLabel.charAt(0) + nextTrackIdNewClass + " | " + newClassLabel);
+        // update name of sprite
+        labelTool.spriteArray[labelTool.currentFileIndex][selectedObjectIndex].name = "sprite-" + newClassLabel.charAt(0) + nextTrackIdNewClass;
+
+        // update folder name
+        // add folder at same position with new class label and track id
+        guiOptions.removeFolder(currentClassLabel + ' ' + currentTrackId);
+        folderBoundingBox3DArray.splice(selectedObjectIndex, 1);
+        folderPositionArray.splice(selectedObjectIndex, 1);
+        folderSizeArray.splice(selectedObjectIndex, 1);
+        let annotationObj = annotationObjects.contents[labelTool.currentFileIndex][selectedObjectIndex];
+        let bbox = {
+            class: annotationObj["class"],
+            x: annotationObj["x"],
+            y: annotationObj["y"],
+            z: annotationObj["z"],
+            width: annotationObj["width"],
+            height: annotationObj["height"],
+            depth: annotationObj["depth"],
+            yaw: parseFloat(annotationObj["yaw"]),
+            trackId: annotationObj["trackId"]
+        };
+        addBoundingBoxGui(bbox);
+        // open current folder
+        folderBoundingBox3DArray[selectedObjectIndex].open();
+        folderPositionArray[selectedObjectIndex].open();
+        folderSizeArray[selectedObjectIndex].open();
+
+        // update name of selected object
+        labelTool.selectedMesh.name = "cube-" + newClassLabel.charAt(0) + nextTrackIdNewClass;
 
 
         for (let channelObj in labelTool.camChannels) {
             if (labelTool.camChannels.hasOwnProperty(channelObj)) {
                 let channelObject = labelTool.camChannels[channelObj];
-                this.localOnChangeClass[channelObject.channel](newClassIndex, newClassLabel);
+                this.localOnChangeClass[channelObject.channel](selectedObjectIndex, newClassLabel);
 
             }
         }
-        this.localOnChangeClass["PCD"](newClassIndex, newClassLabel);
+        this.localOnChangeClass["PCD"](selectedObjectIndex, newClassLabel);
 
 
     },
