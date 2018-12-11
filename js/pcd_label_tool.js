@@ -15,7 +15,6 @@ let moveForward = false;
 let moveBackward = false;
 let moveLeft = false;
 let moveRight = false;
-let selectedMesh = undefined;
 let headerHeight = 50;
 // let velocity = new THREE.Vector3();
 // let direction = new THREE.Vector3();
@@ -28,6 +27,7 @@ let cube;
 let guiAnnotationClasses = new dat.GUI({autoPlace: true, width: 90, resizable: false});
 let guiBoundingBoxAnnotationMap;
 let guiOptions = new dat.GUI({autoPlace: true, width: 300, resizable: false});
+let numGUIOptions = 7;
 let showProjectedPointsFlag = false;
 let showGridFlag = false;
 let folderBoundingBox3DArray = [];
@@ -465,27 +465,41 @@ function b64EncodeUnicode(str) {
         }));
 }
 
+// right padding s with c to a total of n chars
+// print 0.12300
+// alert(padding_right('0.123', '0', 5));
+function paddingRight(s, c, n) {
+    if (!s || !c || s.length >= n) {
+        return s;
+    }
+    let max = (n - s.length) / c.length;
+    for (let i = 0; i < max; i++) {
+        s += c;
+    }
+    return s;
+}
+
 function download() {
     // download annotations
     let annotations = labelTool.createAnnotations();
-    let outputString = '';
+    let outputString = 'CLASS | HEIGHT | WIDTH | LENGTH | X (LAT) | Y (LONG) | Z (VERT) | ROT (YAW) | TRACK ID\n';
     for (let i = 0; i < annotations.length; i++) {
         outputString += annotations[i].class + " ";
-        outputString += annotations[i].alpha + " ";
-        outputString += annotations[i].occluded + " ";
-        outputString += annotations[i].truncated + " ";
-        outputString += annotations[i].left + " ";
-        outputString += annotations[i].top + " ";
-        outputString += annotations[i].right + " ";
-        outputString += annotations[i].bottom + " ";
-        outputString += annotations[i].height + " ";//length
-        outputString += annotations[i].width + " ";//height
-        outputString += annotations[i].length + " ";//width
-        outputString += annotations[i].x + " ";//lateral x
-        outputString += annotations[i].y + " ";
-        outputString += annotations[i].z + " ";
-        outputString += annotations[i].rotationYaw + " ";
-        outputString += annotations[i].score + " ";
+        // outputString += annotations[i].alpha + " ";
+        // outputString += annotations[i].occluded + " ";
+        // outputString += annotations[i].truncated + " ";
+        // outputString += annotations[i].left + " ";
+        // outputString += annotations[i].top + " ";
+        // outputString += annotations[i].right + " ";
+        // outputString += annotations[i].bottom + " ";
+        outputString += (annotations[i].height).toFixed(6) + " ";//length
+        outputString += (annotations[i].width).toFixed(6) + " ";//height
+        outputString += (annotations[i].length).toFixed(6) + " ";//width
+        outputString += (annotations[i].x).toFixed(6) + " ";//lateral x
+        outputString += (annotations[i].y).toFixed(6) + " ";
+        outputString += (annotations[i].z).toFixed(6) + " ";
+        outputString += (annotations[i].rotationYaw).toFixed(6) + " ";
+        // outputString += annotations[i].score + " ";
         outputString += annotations[i].trackId + "\n";
     }
     outputString = b64EncodeUnicode(outputString);
@@ -573,6 +587,7 @@ function get3DLabel(parameters) {
     let sprite = new THREE.Sprite(spriteMaterial);
     sprite.position.set(bbox.x, bbox.y, bbox.z + bbox.depth / 2);
     sprite.scale.set(1, 1, 1);
+    sprite.name = "sprite-" + parameters.class.charAt(0) + parameters.trackId;
     scene.add(sprite);
     labelTool.spriteArray[labelTool.currentFileIndex].push(sprite);
 
@@ -636,32 +651,27 @@ function addBoundingBoxGui(bbox) {
     folderBoundingBox3DArray.push(bb);
 
     let folderPosition = folderBoundingBox3DArray[insertIndex].addFolder('Position');
-    let cubeX = folderPosition.add(bbox, 'x').min(-100).max(100).step(0.01).listen();
-    let cubeY = folderPosition.add(bbox, 'y').min(-100).max(100).step(0.01).listen();
-    let cubeZ = folderPosition.add(bbox, 'z').min(-3).max(10).step(0.01).listen();
-    let cubeYaw = folderPosition.add(bbox, 'yaw').min(-Math.PI).max(Math.PI).step(0.05).listen();
+    let cubeX = folderPosition.add(bbox, 'x').name("x (lateral)").min(-100).max(100).step(0.01).listen();
+    let cubeY = folderPosition.add(bbox, 'y').name("y (longitudinal)").min(-100).max(100).step(0.01).listen();
+    let cubeZ = folderPosition.add(bbox, 'z').name("z (vertical)").min(-3).max(10).step(0.01).listen();
+    let cubeYaw = folderPosition.add(bbox, 'yaw').name("rotation (yaw)").min(-Math.PI).max(Math.PI).step(0.05).listen();
     folderPosition.close();
     folderPositionArray.push(folderPosition);
 
     let folderSize = folderBoundingBox3DArray[insertIndex].addFolder('Size');
-    let cubeW = folderSize.add(bbox, 'width').min(0).max(20).step(0.01).listen();
-    let cubeH = folderSize.add(bbox, 'height').min(0).max(20).step(0.01).listen();
-    let cubeD = folderSize.add(bbox, 'depth').min(0).max(20).step(0.01).listen();
+    let cubeW = folderSize.add(bbox, 'width').name("width (lateral)").min(0).max(20).step(0.01).listen();
+    let cubeH = folderSize.add(bbox, 'height').name("length (longitudinal)").min(0).max(20).step(0.01).listen();
+    let cubeD = folderSize.add(bbox, 'depth').name("height (vertical)").min(0).max(20).step(0.01).listen();
     folderSize.close();
     folderSizeArray.push(folderSize);
 
-    let textBoxTrackId = folderBoundingBox3DArray[insertIndex].add(bbox, 'trackId').min(0).step(1).name('Number');
-    // textBoxTrackId.name = "textbox-" + bbox.class.charAt(0) + ' ' + bbox.trackId;
+    let textBoxTrackId = folderBoundingBox3DArray[insertIndex].add(bbox, 'trackId').min(0).step(1).name('Track ID');
     textBoxTrackId.onChange(function (value) {
         if (value < 0) {
             value = 0;
         }
         annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["trackId"] = Math.round(value);
-        // alert("test");
-        // console.log($("#bounding-box-3d-menu ul").children().eq(insertIndex + 2));
-        $("#bounding-box-3d-menu ul").children().eq(insertIndex + 2).children().first().children().first().children().first().text(bbox.class + " " + Math.round(value));
-        // $("#bounding-box-3d-menu ul li div ul li").text(bbox.class + " " + value);
-        // $("#textbox-" + bbox.class.charAt(0) + ' ' + bbox.trackId);
+        $("#bounding-box-3d-menu ul").children().eq(insertIndex + numGUIOptions).children().first().children().first().children().first().text(bbox.class + " " + Math.round(value));
     });
 
     cubeX.onChange(function (value) {
@@ -776,6 +786,11 @@ function addBoundingBoxGui(bbox) {
             folderPositionArray.splice(insertIndex, 1);
             folderSizeArray.splice(insertIndex, 1);
             annotationObjects.selectEmpty();
+            labelTool.spriteArray[labelTool.currentFileIndex].splice(insertIndex, 1);
+            labelTool.removeObject("sprite-" + bbox.class.charAt(0) + bbox.trackId);
+            // remove sprite from DOM tree
+            $("#class-" + bbox.class.charAt(0) + bbox.trackId).remove();
+            labelTool.selectedMesh = undefined;
         }
     };
     folderBoundingBox3DArray[folderBoundingBox3DArray.length - 1].add(resetParameters, 'reset').name("Reset");
@@ -834,15 +849,15 @@ function addTransformControls() {
     transformControls.addEventListener('change', function (event) {
 
         // update 2d bounding box
-        if (selectedMesh !== undefined) {
-            let objectIndexByTrackId = getObjectIndexByName(selectedMesh.name);
-            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["x"] = selectedMesh.position.x;
-            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["y"] = selectedMesh.position.y;
-            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["z"] = selectedMesh.position.z;
-            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["width"] = selectedMesh.scale.x;
-            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["length"] = selectedMesh.scale.y;
-            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["depth"] = selectedMesh.scale.z;
-            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["rotation_yaw"] = selectedMesh.rotation.z;
+        if (labelTool.selectedMesh !== undefined) {
+            let objectIndexByTrackId = getObjectIndexByName(labelTool.selectedMesh.name);
+            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["x"] = labelTool.selectedMesh.position.x;
+            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["y"] = labelTool.selectedMesh.position.y;
+            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["z"] = labelTool.selectedMesh.position.z;
+            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["width"] = labelTool.selectedMesh.scale.x;
+            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["length"] = labelTool.selectedMesh.scale.y;
+            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["depth"] = labelTool.selectedMesh.scale.z;
+            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["rotation_yaw"] = labelTool.selectedMesh.rotation.z;
             update2DBoundingBox(objectIndexByTrackId);
         }
 
@@ -870,7 +885,7 @@ function addTransformControls() {
         // executed after drag finished
         // TODO: scale only on one side
         if (transformControls.getMode() === "scale") {
-            // selectedMesh.translateY(selectedMesh.geometry.parameters.height / 2)
+            // labelTool.selectedMesh.translateY(labelTool.selectedMesh.geometry.parameters.height / 2)
         }
         // orbitControls.enabled = !event.value;
         // translating works (no object is created)
@@ -881,15 +896,15 @@ function addTransformControls() {
     // otherwise find minimum of x, y and z
     let smallestSide;
     if (birdsEyeViewFlag === true) {
-        smallestSide = Math.min(selectedMesh.scale.x, selectedMesh.scale.y);
+        smallestSide = Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y);
     } else {
-        smallestSide = Math.min(Math.min(selectedMesh.scale.x, selectedMesh.scale.y), selectedMesh.scale.z);
+        smallestSide = Math.min(Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y), labelTool.selectedMesh.scale.z);
     }
 
     let size = smallestSide / 10.0;
     console.log("size controls addtransformcontrols: " + size);
     transformControls.size = size;
-    transformControls.attach(selectedMesh);
+    transformControls.attach(labelTool.selectedMesh);
     scene.add(transformControls);
     window.removeEventListener('keydown', keyDownHandler);
     window.addEventListener('keydown', keyDownHandler);
@@ -911,14 +926,14 @@ function keyDownHandler(event) {
         case 17: // Ctrl
             transformControls.setTranslationSnap(0.5);
             if (transformControls.getMode() === "rotate") {
-                let newRotation = Math.ceil(selectedMesh.rotation.z / THREE.Math.degToRad(15));
+                let newRotation = Math.ceil(labelTool.selectedMesh.rotation.z / THREE.Math.degToRad(15));
                 let lowerBound = newRotation * 15;
-                if (selectedMesh.rotation.z - lowerBound < THREE.Math.degToRad(15) / 2) {
+                if (labelTool.selectedMesh.rotation.z - lowerBound < THREE.Math.degToRad(15) / 2) {
                     // rotate to lower bound
-                    selectedMesh.rotation.z = lowerBound;
+                    labelTool.selectedMesh.rotation.z = lowerBound;
                 } else {
                     // rotate to upper bound
-                    selectedMesh.rotation.z = lowerBound + THREE.Math.degToRad(15);
+                    labelTool.selectedMesh.rotation.z = lowerBound + THREE.Math.degToRad(15);
                 }
             }
 
@@ -969,15 +984,15 @@ function setCamera() {
         currentCamera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
         // currentCamera = perspectiveCamera;
         if (transformControls !== undefined) {
-            if (selectedMesh !== undefined) {
+            if (labelTool.selectedMesh !== undefined) {
                 addTransformControls();
                 // if in birdseyeview then find minimum of longitude and latitude
                 // otherwise find minimum of x, y and z
                 let smallestSide;
                 if (birdsEyeViewFlag === true) {
-                    smallestSide = Math.min(selectedMesh.scale.x, selectedMesh.scale.y);
+                    smallestSide = Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y);
                 } else {
-                    smallestSide = Math.min(Math.min(selectedMesh.scale.x, selectedMesh.scale.y), selectedMesh.scale.z);
+                    smallestSide = Math.min(Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y), labelTool.selectedMesh.scale.z);
                 }
                 transformControls.size = smallestSide / 10.0;
                 transformControls.showZ = true;
@@ -1149,7 +1164,7 @@ function updateScreenPosition() {
 function update() {
     // disable rotation of orbitcontrols if object selected
     if (birdsEyeViewFlag === false) {
-        if (selectedMesh !== undefined) {
+        if (labelTool.selectedMesh !== undefined) {
             console.log("disabled");
             currentOrbitControls.enableRotate = false;
         } else {
@@ -1160,8 +1175,8 @@ function update() {
 
 
     // rescale transform controls
-    // if (selectedMesh !== undefined && birdsEyeViewFlag === true) {
-    //     let newSize = selectedMesh.position.distanceTo(currentCamera.position) / 6;
+    // if (labelTool.selectedMesh !== undefined && birdsEyeViewFlag === true) {
+    //     let newSize = labelTool.selectedMesh.position.distanceTo(currentCamera.position) / 6;
     //     console.log(newSize);
     //     transformControls.size = newSize;
     // } else {
@@ -1943,10 +1958,15 @@ function init() {
                         } else {
                             classesBoundingBox[label].nextTrackId--;
                         }
+                        labelTool.spriteArray[labelTool.currentFileIndex].splice(clickedObjectIndex, 1);
+                        labelTool.removeObject("sprite-" + label.charAt(0) + trackId);
+                        // remove sprite from DOM tree
+                        $("#class-" + label.charAt(0) + trackId).remove();
+                        labelTool.selectedMesh = undefined;
 
                     }
                 } else {
-                    selectedMesh = undefined;
+                    labelTool.selectedMesh = undefined;
                     if (birdsEyeViewFlag === true) {
                         clickedObjectIndex = -1;
                         groundPlaneArray = [];
@@ -1990,45 +2010,13 @@ function init() {
                     ray.setFromCamera(mouse, currentCamera);
                 }
                 let clickedObjects = ray.intersectObjects(clickedPlaneArray);
-                // if (clickedObjects.length > 0 && folderBoundingBox3DArray[clickedObjectIndex].closed == false) {
-                //     var clickedBBox = annotationObjects.contents[labelTool.currentFileIndex][labelTool.bboxIndexArray[labelTool.currentFileIndex][clickedObjectIndex]];
-                //     var dragVector = {
-                //         x: clickedObjects[0].point.x - clickedPoint.x,
-                //         y: clickedObjects[0].point.y - clickedPoint.y,
-                //         z: clickedObjects[0].point.z - clickedPoint.z
-                //     };
-                //     var yawDragVector = {
-                //         x: dragVector.x * Math.cos(-labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z) - dragVector.y * Math.sin(-labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z),
-                //         y: dragVector.x * Math.sin(-labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z) + dragVector.y * Math.cos(-labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z),
-                //         z: dragVector.z
-                //     };
-                //     var judgeClickPoint = {
-                //         x: (clickedPoint.x - labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].position.x) * Math.cos(-labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z) - (clickedPoint.y - labelTool.cubeArray[clickedObjectIndex].position.y) * Math.sin(-labelTool.cubeArray[clickedObjectIndex].rotation.z),
-                //         y: (clickedPoint.x - labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].position.x) * Math.sin(-labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z) + (clickedPoint.y - labelTool.cubeArray[clickedObjectIndex].position.y) * Math.cos(-labelTool.cubeArray[clickedObjectIndex].rotation.z)
-                //     };
-                //     if (moveFlag == true) {
-                //         clickedBBox.x = dragVector.x + clickedBBox.x;
-                //         clickedBBox.y = -dragVector.y + clickedBBox.y;
-                //         clickedBBox.z = dragVector.z + clickedBBox.z;
-                //     } else if (rFlag == true) {
-                //         clickedBBox.yaw = clickedBBox.yaw + Math.atan2(yawDragVector.y, yawDragVector.x) / (2 * Math.PI);
-                //     }
-                //     else {
-                //         clickedBBox.width = judgeClickPoint.x * yawDragVector.x / Math.abs(judgeClickPoint.x) + clickedBBox.width;
-                //         clickedBBox.x = dragVector.x / 2 + clickedBBox.x;
-                //         clickedBBox.height = judgeClickPoint.y * yawDragVector.y / Math.abs(judgeClickPoint.y) + clickedBBox.height;
-                //         clickedBBox.y = -dragVector.y / 2 + clickedBBox.y;
-                //         clickedBBox.depth = (clickedPoint.z - labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].position.z) * dragVector.z / Math.abs((clickedPoint.z - labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].position.z)) + clickedBBox.depth;
-                //         clickedBBox.z = dragVector.z / 2 + clickedBBox.z;
-                //     }
-                //     labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].position.x = clickedBBox.x;
-                //     labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].position.y = -clickedBBox.y;
-                //     labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].position.z = clickedBBox.z;
-                //     labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z = clickedBBox.yaw;
-                //     labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].scale.x = clickedBBox.width;
-                //     labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].scale.y = clickedBBox.height;
-                //     labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].scale.z = clickedBBox.depth;
-                // }
+
+                // close folders
+                for (let i = 0; i < folderBoundingBox3DArray.length; i++) {
+                    if (folderBoundingBox3DArray[i] !== undefined) {
+                        folderBoundingBox3DArray[i].close();
+                    }
+                }
 
                 if (clickedObjects.length > 0 && clickedObjectIndex !== -1) {
                     // one object was selected
@@ -2040,22 +2028,33 @@ function init() {
                     // open folder of selected object
                     annotationObjects.localOnSelect["PCD"](clickedObjectIndex);
                     // set selected object
-                    selectedMesh = labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex];
-                    transformControls.detach();
-                    transformControls.attach(selectedMesh);
+                    labelTool.selectedMesh = labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex];
+                    if (transformControls.position !== undefined) {
+                        transformControls.detach();
+                        transformControls.attach(labelTool.selectedMesh);
+                    }
+
                     // if in birdseyeview then find minimum of longitude and latitude
                     // otherwise find minimum of x, y and z
                     let smallestSide;
                     if (birdsEyeViewFlag === true) {
-                        smallestSide = Math.min(selectedMesh.scale.x, selectedMesh.scale.y);
+                        smallestSide = Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y);
                     } else {
-                        smallestSide = Math.min(Math.min(selectedMesh.scale.x, selectedMesh.scale.y), selectedMesh.scale.z);
+                        smallestSide = Math.min(Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y), labelTool.selectedMesh.scale.z);
                     }
                     let size = smallestSide / 10.0;
                     console.log("size controls mouseup: " + size);
                     transformControls.size = size;
                     // add transform controls to scene
                     scene.add(transformControls);
+
+                    // open folder of selected object
+                    for (let channelIdx in labelTool.camChannels) {
+                        if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
+                            let camChannel = labelTool.camChannels[channelIdx].channel;
+                            annotationObjects.select(clickedObjectIndex, camChannel);
+                        }
+                    }
 
                 } else {
                     // remove selection in camera view if 2d label exist
@@ -2074,18 +2073,10 @@ function init() {
 
                     // remove arrows (transform controls)
                     labelTool.removeObject("transformControls");
-                    selectedMesh = undefined;
+                    labelTool.selectedMesh = undefined;
+                    annotationObjects.selectEmpty();
                 }
 
-                if (clickedObjectIndex === -1) {
-                    annotationObjects.selectEmpty();
-                    // close folders
-                    for (let i = 0; i < folderBoundingBox3DArray.length; i++) {
-                        if (folderBoundingBox3DArray[i] !== undefined) {
-                            folderBoundingBox3DArray[i].close();
-                        }
-                    }
-                }
                 if (clickFlag === true) {
                     clickedPlaneArray = [];
                     // find out in which camera view the 3d object lies -> calculate angle from 3D position
@@ -2205,7 +2196,7 @@ function init() {
                             }
                         }
                         annotationObjects.set(insertIndex, addBboxParameters);
-                        selectedMesh = labelTool.cubeArray[labelTool.currentFileIndex][insertIndex];
+                        labelTool.selectedMesh = labelTool.cubeArray[labelTool.currentFileIndex][insertIndex];
                         // console.log(mesh.position.x + ' ' + mesh.position.y + ' ' + mesh.position.z + ' ');
 
                         // let transformControlsScene = scene.getObjectByName("transformControls");
