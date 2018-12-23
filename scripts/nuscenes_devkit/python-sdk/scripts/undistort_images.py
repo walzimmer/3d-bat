@@ -5,7 +5,7 @@ import numpy as np
 # FRONT
 image_path_in_front = '/media/cvrr/161d15ca-26dc-4d36-b085-945b15ce24b8/sandbox/datasets/lisat/data/sequences/2018-05-23-001-frame-00042917-00043816/distorted/CAM_FRONT/'
 image_path_out_front = '/media/cvrr/161d15ca-26dc-4d36-b085-945b15ce24b8/sandbox/datasets/lisat/data/sequences/2018-05-23-001-frame-00042917-00043816/undistorted/CAM_FRONT/'
-# k_1, k_2, p_1, p_2 (radial, tangential)
+# k_1, k_2, p_1, p_2 (k=radial, p=tangential)
 distortion_coeff_front = np.array([-0.243484617174364, 0.061191670493188, 0, 0])
 # intrinsic_matrix is same for all 6 cameras
 camera_intrinsic_matrix = np.array([[851.809297551590, 0, 981.172134933419],

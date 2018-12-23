@@ -30,6 +30,7 @@ let guiOptions = new dat.GUI({autoPlace: true, width: 300, resizable: false});
 let numGUIOptions = 7;
 let showProjectedPointsFlag = false;
 let showGridFlag = false;
+let filterGround = false;
 let folderBoundingBox3DArray = [];
 let folderPositionArray = [];
 let folderSizeArray = [];
@@ -56,6 +57,8 @@ let activeColorMap = 'colorMapJet.js';
 let currentPoints3D = [];
 let currentDistances = [];
 let spriteBehindObject;
+let pointCloudFull;
+let pointCloudWithoutGround;
 let parametersBoundingBox = {
     "Vehicle": function () {
         classesBoundingBox.select("Vehicle");
@@ -99,7 +102,8 @@ let parameters = {
     show_projected_points: false,
     show_nuscenes_labels: labelTool.showOriginalNuScenesLabels,
     show_field_of_view: false,
-    show_grid: false
+    show_grid: false,
+    filter_ground: false
 };
 
 /*********** Event handlers **************/
@@ -180,22 +184,33 @@ function addObject(sceneObject, name) {
 // Visualize 2d and 3d data
 labelTool.onLoadData("PCD", function () {
     // remove previous loaded point clouds
-    labelTool.removeObject("pointcloud");
+    labelTool.removeObject("pointcloud_full");
+    labelTool.removeObject("pointcloud_without_ground");
     // remove all bounding boxes
 
     // ASCII pcd files
-    let pcd_loader = new THREE.PCDLoader();
-    let pcd_url;
+    let pcdLoader = new THREE.PCDLoader();
+    let pointCloudFullURL;
+    let pointCloudWithoutGroundURL;
     if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-        pcd_url = labelTool.workBlob + '/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/' + 'pointclouds/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
+        pointCloudFullURL = labelTool.workBlob + '/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/' + 'pointclouds/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
+        pointCloudWithoutGroundURL = labelTool.workBlob + '/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/' + 'pointclouds_without_ground/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
     } else {
-        pcd_url = labelTool.workBlob + '/' + labelTool.currentDataset + '/pointclouds/all_scenes/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
+        pointCloudFullURL = labelTool.workBlob + '/' + labelTool.currentDataset + '/pointclouds/all_scenes/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
+        pointCloudWithoutGroundURL = labelTool.workBlob + '/' + labelTool.currentDataset + '/pointclouds_without_ground/all_scenes/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
     }
 
-    pcd_loader.load(pcd_url, function (mesh) {
-        mesh.name = 'pointcloud';
-        scene.add(mesh);
+    pcdLoader.load(pointCloudFullURL, function (mesh) {
+        mesh.name = 'pointcloud_full';
+        pointCloudFull = mesh.clone();
+        scene.add(pointCloudFull);
     });
+
+    pcdLoader.load(pointCloudWithoutGroundURL, function (mesh) {
+        mesh.name = 'pointcloud_without_ground';
+        pointCloudWithoutGround = mesh.clone();
+    });
+
     // show FOV of camera within 3D pointcloud
     labelTool.removeObject('rightplane');
     labelTool.removeObject('leftplane');
@@ -775,12 +790,6 @@ function addBoundingBoxGui(bbox) {
                     }
                 }
             }
-            // reduce track id by 1 for this class
-            if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-                classesBoundingBox[label].nextTrackId--;
-            } else {
-                classesBoundingBox.content[label].nextTrackId--;
-            }
             annotationObjects.remove(insertIndex);
             folderBoundingBox3DArray.splice(insertIndex, 1);
             folderPositionArray.splice(insertIndex, 1);
@@ -791,6 +800,31 @@ function addBoundingBoxGui(bbox) {
             // remove sprite from DOM tree
             $("#class-" + bbox.class.charAt(0) + bbox.trackId).remove();
             labelTool.selectedMesh = undefined;
+            // reduce track id by 1 for this class
+            if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+                if (insertIndex === annotationObjects.contents[labelTool.currentFileIndex].length) {
+                    // decrement track id if the last object in the list was deleted
+                    classesBoundingBox[label].nextTrackId--;
+                } else {
+                    // otherwise not last object was deleted -> find out the highest possible track id
+                    for (let newTrackId = 1; newTrackId <= annotationObjects.contents[labelTool.currentFileIndex].length; newTrackId++) {
+                        let exist = false;
+                        for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
+                            if (newTrackId === annotationObjects.contents[labelTool.currentFileIndex][i]["trackId"]) {
+                                exist = true;
+                                break;
+                            }
+                        }
+                        if (exist === false) {
+                            // track id was not used yet
+                            classesBoundingBox[label].nextTrackId = newTrackId;
+                            break;
+                        }
+                    }
+                }
+            } else {
+                classesBoundingBox.content[label].nextTrackId--;
+            }
         }
     };
     folderBoundingBox3DArray[folderBoundingBox3DArray.length - 1].add(resetParameters, 'reset').name("Reset");
@@ -1424,7 +1458,8 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
     } else {
         if (channel === "CAM_FRONT") {
             imageScalingFactor = 4;
-            streetVerticalOffset = 60.7137000000000 / 100;//height of lidar
+            //streetVerticalOffset = 60.7137000000000 / 100;//height of lidar
+            streetVerticalOffset = 1.4478; //height of lidar
         } else if (channel === "CAM_BACK") {
             imageScalingFactor = 4;
             streetVerticalOffset = -100 / 100;
@@ -1731,6 +1766,35 @@ function onDocumentMouseMove(event) {
     mousePos.y = -(event.clientY / window.innerHeight) * 2 + 1;
 }
 
+function increaseTrackId(label, dataset) {
+    let classesBB;
+    if (dataset === labelTool.datasets.LISA_T) {
+        classesBB = classesBoundingBox;
+    } else {
+        classesBB = classesBoundingBox.content;
+    }
+
+    // find out the lowest possible track id for a specific class
+
+    for (let newTrackId = 1; newTrackId <= annotationObjects.contents[labelTool.currentFileIndex].length; newTrackId++) {
+        let exist = false;
+        for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
+            if (label !== annotationObjects.contents[labelTool.currentFileIndex]["class"]) {
+                continue;
+            }
+            if (newTrackId === annotationObjects.contents[labelTool.currentFileIndex][i]["trackId"]) {
+                exist = true;
+                break;
+            }
+        }
+        if (exist === false) {
+            // track id was not used yet
+            return newTrackId;
+        }
+    }
+    return -1;
+}
+
 function init() {
     /**
      * CameraControls
@@ -1952,17 +2016,36 @@ function init() {
                         folderPositionArray.splice(clickedObjectIndex, 1);
                         folderSizeArray.splice(clickedObjectIndex, 1);
                         annotationObjects.selectEmpty();
-                        // reduce track id by 1 for this class
-                        if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
-                            classesBoundingBox.content[label].nextTrackId--;
-                        } else {
-                            classesBoundingBox[label].nextTrackId--;
-                        }
                         labelTool.spriteArray[labelTool.currentFileIndex].splice(clickedObjectIndex, 1);
                         labelTool.removeObject("sprite-" + label.charAt(0) + trackId);
                         // remove sprite from DOM tree
                         $("#class-" + label.charAt(0) + trackId).remove();
                         labelTool.selectedMesh = undefined;
+                        // reduce track id by 1 for this class
+                        if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+                            if (clickedObjectIndex === annotationObjects.contents[labelTool.currentFileIndex].length) {
+                                // decrement track id if the last object in the list was deleted
+                                classesBoundingBox[label].nextTrackId--;
+                            } else {
+                                // otherwise not last object was deleted -> find out the highest possible track id
+                                for (let newTrackId = 1; newTrackId <= annotationObjects.contents[labelTool.currentFileIndex].length; newTrackId++) {
+                                    let exist = false;
+                                    for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
+                                        if (newTrackId === annotationObjects.contents[labelTool.currentFileIndex][i]["trackId"]) {
+                                            exist = true;
+                                            break;
+                                        }
+                                    }
+                                    if (exist === false) {
+                                        // track id was not used yet
+                                        classesBoundingBox[label].nextTrackId = newTrackId;
+                                        break;
+                                    }
+                                }
+                            }
+                        } else {
+                            classesBoundingBox.content[label].nextTrackId--;
+                        }
 
                     }
                 } else {
@@ -2098,8 +2181,9 @@ function init() {
                     let insertIndex;
                     if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
                         if (annotationObjects.__selectionIndex === -1) {
-                            // no object selected in 3d scene -> use selected class from class menu
+                            // no object selected in 3d scene (new object was created)-> use selected class from class menu
                             trackId = classesBoundingBox.content[classesBoundingBox.targetName()].nextTrackId;
+                            //trackId = getNextTrackId(classesBoundingBox.targetName(), labelTool.datasets.NuScenes);
                             insertIndex = annotationObjects.__insertIndex;
                         } else {
                             // object was selected in 3d scene
@@ -2109,6 +2193,7 @@ function init() {
                     } else {
                         if (annotationObjects.__selectionIndex === -1) {
                             trackId = classesBoundingBox[classesBoundingBox.targetName()].nextTrackId;
+                            //trackId = getNextTrackId(classesBoundingBox.targetName(), labelTool.datasets.LISA_T);
                             insertIndex = annotationObjects.__insertIndex;
                         } else {
                             trackId = annotationObjects.contents[labelTool.currentFileIndex][annotationObjects.__selectionIndex]["trackId"];
@@ -2368,6 +2453,17 @@ function init() {
                 grid.visible = true;
             } else {
                 grid.visible = false;
+            }
+        });
+        let filterGroundCheckbox = guiOptions.add(parameters, 'filter_ground').name('Filter ground').listen();
+        filterGroundCheckbox.onChange(function (value) {
+            filterGround = value;
+            if (filterGround === true) {
+                labelTool.removeObject("pointcloud_full");
+                addObject(pointCloudWithoutGround, "pointcloud_without_ground");
+            } else {
+                labelTool.removeObject("pointcloud_without_ground");
+                addObject(pointCloudFull, "pointcloud_full");
             }
         });
         guiOptions.domElement.id = 'bounding-box-3d-menu';

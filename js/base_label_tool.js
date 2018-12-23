@@ -234,7 +234,7 @@ let labelTool = {
     positionLidarNuscenes: [0.891067, 0.0, 1.84292],//(long, lat, vert)
     translationVectorLidarToCamFront: [0.77, -0.02, -0.3],
     // positionLidarNuscenes: [1.84, 0.0, 1.84292],//(long, lat, vert)
-    showOriginalNuScenesLabels: true,
+    showOriginalNuScenesLabels: false,
     imageAspectRatioNuScenes: 1.777777778,
     imageAspectRatioLISAT: 1.333333333,
     imageAspectRatioFrontBackLISAT: 2.0,
