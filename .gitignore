@@ -22,9 +22,11 @@ doc
 _ext
 input/*
 input/NuScenes/pointclouds/all_scenes
+input/NuScenes/pointclouds_without_ground/all_scenes
 input/NuScenes/images
 input/LISA_T/2018-05-23-001-frame-00042917-00043816/annotations
 input/LISA_T/2018-05-23-001-frame-00042917-00043816/pointclouds
+input/LISA_T/2018-05-23-001-frame-00042917-00043816/pointclouds_without_ground
 input/LISA_T/2018-05-23-001-frame-00042917-00043816/images
 
 # Logs
