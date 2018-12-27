@@ -21,16 +21,18 @@ let headerHeight = 50;
 
 // let stats;
 let cube;
+let interpolationObjIndex;
 
 // let keyboard = new KeyboardState();
 
 let guiAnnotationClasses = new dat.GUI({autoPlace: true, width: 90, resizable: false});
 let guiBoundingBoxAnnotationMap;
 let guiOptions = new dat.GUI({autoPlace: true, width: 300, resizable: false});
-let numGUIOptions = 7;
+let numGUIOptions = 10;
 let showProjectedPointsFlag = false;
 let showGridFlag = false;
 let filterGround = false;
+let interpolationMode = false;
 let folderBoundingBox3DArray = [];
 let folderPositionArray = [];
 let folderSizeArray = [];
@@ -87,6 +89,90 @@ let parametersBoundingBox = {
     },
 };
 
+function getObjectIndexByTrackId(trackId, fileIdx) {
+    for (let i = 0; i < annotationObjects.contents[fileIdx].length; i++) {
+        let obj = annotationObjects.contents[fileIdx][i];
+        if (obj["trackId"] === trackId) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+function interpolate() {
+    interpolationObjIndex = annotationObjects.getSelectionIndex();
+    let interpolationStartFileIndex = Number(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["interpolationStartFileIndex"]);
+    let numFrames = labelTool.currentFileIndex - interpolationStartFileIndex;
+    let xDelta = (Number(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["x"]) - Number(annotationObjects.contents[interpolationStartFileIndex][interpolationObjIndex]["interpolationStart"]["position"]["x"])) / numFrames;
+    let yDelta = (Number(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["y"]) - Number(annotationObjects.contents[interpolationStartFileIndex][interpolationObjIndex]["interpolationStart"]["position"]["y"])) / numFrames;
+    let zDelta = (Number(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["z"]) - Number(annotationObjects.contents[interpolationStartFileIndex][interpolationObjIndex]["interpolationStart"]["position"]["z"])) / numFrames;
+    let rotationEnd = Number(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["rotationY"]);
+    let rotationStart = Number(annotationObjects.contents[interpolationStartFileIndex][interpolationObjIndex]["interpolationStart"]["position"]["rotationY"]);
+    let rotationDelta = (rotationEnd - rotationStart) / numFrames;
+    let widthDelta = (Number(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["interpolationEnd"]["size"]["width"]) - Number(annotationObjects.contents[interpolationStartFileIndex][interpolationObjIndex]["interpolationStart"]["size"]["width"])) / numFrames;
+    let heightDelta = (Number(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["interpolationEnd"]["size"]["height"]) - Number(annotationObjects.contents[interpolationStartFileIndex][interpolationObjIndex]["interpolationStart"]["size"]["height"])) / numFrames;
+    let depthDelta = (Number(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["interpolationEnd"]["size"]["depth"]) - Number(annotationObjects.contents[interpolationStartFileIndex][interpolationObjIndex]["interpolationStart"]["size"]["depth"])) / numFrames;
+
+
+    for (let i = 1; i < numFrames; i++) {
+        // cloning
+        let clonedObject = jQuery.extend(true, {}, annotationObjects.contents[interpolationStartFileIndex][interpolationObjIndex]);
+        let clonedCubeObject = labelTool.cubeArray[interpolationStartFileIndex][interpolationObjIndex].clone();
+        let clonedSprite = labelTool.spriteArray[interpolationStartFileIndex][interpolationObjIndex].clone();
+
+        if (annotationObjects.contents[interpolationStartFileIndex + i] !== undefined && annotationObjects.contents[interpolationStartFileIndex + i].length > 1) {
+            // if frame contains some objects, then find object with same trackId and overwrite it
+            let idx = getObjectIndexByTrackId(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["trackId"], labelTool.currentFileIndex);
+            if (idx !== -1) {
+                annotationObjects.contents[interpolationStartFileIndex + i][idx] = clonedObject;
+                labelTool.cubeArray[interpolationStartFileIndex + i][idx] = clonedCubeObject;
+                // scene.add(clonedCubeObject);
+                labelTool.spriteArray[interpolationStartFileIndex + i][idx] = clonedSprite;
+                // scene.add(clonedSprite);
+            } else {
+                alert("track id not found");
+                break;
+            }
+        } else {
+            // else clone object to new frame and adjusts interpolated position and size
+            annotationObjects.contents[interpolationStartFileIndex + i].push(clonedObject);
+            labelTool.cubeArray[interpolationStartFileIndex + i].push(clonedCubeObject);
+            labelTool.spriteArray[interpolationStartFileIndex + i].push(clonedSprite);
+        }
+
+
+        let idx = getObjectIndexByTrackId(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["trackId"], interpolationStartFileIndex + i);
+
+        let newX = Number(annotationObjects.contents[interpolationStartFileIndex][idx]["interpolationStart"]["position"]["x"]) + i * xDelta;
+        annotationObjects.contents[interpolationStartFileIndex + i][idx]["x"] = newX;
+        labelTool.cubeArray[interpolationStartFileIndex + i][idx]["position"]["x"] = newX;
+
+        let newY = Number(annotationObjects.contents[interpolationStartFileIndex][idx]["interpolationStart"]["position"]["y"]) + i * yDelta;
+        annotationObjects.contents[interpolationStartFileIndex + i][idx]["y"] = newY;
+        labelTool.cubeArray[interpolationStartFileIndex + i][idx]["position"]["y"] = newY;
+
+        let newZ = Number(annotationObjects.contents[interpolationStartFileIndex][idx]["interpolationStart"]["position"]["z"]) + i * zDelta;
+        annotationObjects.contents[interpolationStartFileIndex + i][idx]["z"] = newZ;
+        labelTool.cubeArray[interpolationStartFileIndex + i][idx]["position"]["z"] = newZ;
+
+        let newRotation = Number(annotationObjects.contents[interpolationStartFileIndex][idx]["interpolationStart"]["position"]["rotationY"]) + i * rotationDelta;
+        annotationObjects.contents[interpolationStartFileIndex + i][idx]["rotationY"] = newRotation;
+        labelTool.cubeArray[interpolationStartFileIndex + i][idx]["rotation"]["z"] = newRotation;
+
+        let newWidth = Number(annotationObjects.contents[interpolationStartFileIndex][idx]["interpolationStart"]["size"]["width"]) + i * widthDelta;
+        annotationObjects.contents[interpolationStartFileIndex + i][idx]["width"] = newWidth;
+        labelTool.cubeArray[interpolationStartFileIndex + i][idx]["scale"]["x"] = newWidth;
+
+        let newHeight = Number(annotationObjects.contents[interpolationStartFileIndex][idx]["interpolationStart"]["size"]["height"]) + i * heightDelta;
+        annotationObjects.contents[interpolationStartFileIndex + i][idx]["height"] = newHeight;
+        labelTool.cubeArray[interpolationStartFileIndex + i][idx]["scale"]["y"] = newHeight;
+
+        let newDepth = Number(annotationObjects.contents[interpolationStartFileIndex][idx]["interpolationStart"]["size"]["depth"]) + i * depthDelta;
+        annotationObjects.contents[interpolationStartFileIndex + i][idx]["depth"] = newDepth;
+        labelTool.cubeArray[interpolationStartFileIndex + i][idx]["scale"]["z"] = newDepth;
+    }
+}
+
 let parameters = {
     save: function () {
         save();
@@ -103,7 +189,11 @@ let parameters = {
     show_nuscenes_labels: labelTool.showOriginalNuScenesLabels,
     show_field_of_view: false,
     show_grid: false,
-    filter_ground: false
+    filter_ground: false,
+    interpolation_mode: false,
+    interpolate: function () {
+        interpolate();
+    },
 };
 
 /*********** Event handlers **************/
@@ -573,7 +663,7 @@ function get3DLabel(parameters) {
     let cubeMesh = new THREE.Mesh(cubeGeometry, cubeMaterial);
     cubeMesh.position.set(bbox.x, bbox.y, bbox.z);
     cubeMesh.scale.set(bbox.width, bbox.height, bbox.depth);
-    cubeMesh.rotation.z = bbox.yaw;
+    cubeMesh.rotation.z = bbox.rotationY;
     cubeMesh.name = "cube-" + parameters.class.charAt(0) + parameters.trackId;
 
     // get bounding box from object
@@ -625,7 +715,7 @@ function update2DBoundingBox(idx) {
                 let height = annotationObjects.contents[labelTool.currentFileIndex][idx]["height"];
                 let depth = annotationObjects.contents[labelTool.currentFileIndex][idx]["depth"];
                 // TODO: rotation
-                let rotationYaw = annotationObjects.contents[labelTool.currentFileIndex][idx]["rotation_yaw"];
+                let rotationYaw = annotationObjects.contents[labelTool.currentFileIndex][idx]["rotationY"];
                 let channel = channelObj.channel;
                 // working for LISA_T
                 channelObj.projectedPoints = calculateProjectedBoundingBox(-x, -y, -z, width, height, depth, channel);
@@ -669,7 +759,7 @@ function addBoundingBoxGui(bbox) {
     let cubeX = folderPosition.add(bbox, 'x').name("x (lateral)").min(-100).max(100).step(0.01).listen();
     let cubeY = folderPosition.add(bbox, 'y').name("y (longitudinal)").min(-100).max(100).step(0.01).listen();
     let cubeZ = folderPosition.add(bbox, 'z').name("z (vertical)").min(-3).max(10).step(0.01).listen();
-    let cubeYaw = folderPosition.add(bbox, 'yaw').name("rotation (yaw)").min(-Math.PI).max(Math.PI).step(0.05).listen();
+    let cubeYaw = folderPosition.add(bbox, 'rotationY').name("rotation (yaw)").min(-Math.PI).max(Math.PI).step(0.05).listen();
     folderPosition.close();
     folderPositionArray.push(folderPosition);
 
@@ -716,7 +806,7 @@ function addBoundingBoxGui(bbox) {
     cubeYaw.onChange(function (value) {
         labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].rotation.z = value;
         // let rotatedObject = labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].rotateZ(value);
-        annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["yaw"] = value;
+        annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["rotationY"] = value;
         // update current camera channel
         // updateChannels(insertIndex);
         // update bounding box
@@ -837,14 +927,14 @@ function resetCube(index) {
     reset_bbox.x = reset_bbox.org.x;
     reset_bbox.y = reset_bbox.org.y;
     reset_bbox.z = reset_bbox.org.z;
-    reset_bbox.yaw = reset_bbox.org.yaw;
+    reset_bbox.rotationY = reset_bbox.org.rotationY;
     reset_bbox.width = reset_bbox.org.width;
     reset_bbox.height = reset_bbox.org.height;
     reset_bbox.depth = reset_bbox.org.depth;
     labelTool.cubeArray[labelTool.currentFileIndex][index].position.x = reset_bbox.x;
     labelTool.cubeArray[labelTool.currentFileIndex][index].position.y = -reset_bbox.y;
     labelTool.cubeArray[labelTool.currentFileIndex][index].position.z = reset_bbox.z;
-    labelTool.cubeArray[labelTool.currentFileIndex][index].rotation.z = reset_bbox.yaw;
+    labelTool.cubeArray[labelTool.currentFileIndex][index].rotation.z = reset_bbox.rotationY;
     labelTool.cubeArray[labelTool.currentFileIndex][index].scale.x = reset_bbox.width;
     labelTool.cubeArray[labelTool.currentFileIndex][index].scale.y = reset_bbox.height;
     labelTool.cubeArray[labelTool.currentFileIndex][index].scale.z = reset_bbox.depth;
@@ -891,7 +981,7 @@ function addTransformControls() {
             annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["width"] = labelTool.selectedMesh.scale.x;
             annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["length"] = labelTool.selectedMesh.scale.y;
             annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["depth"] = labelTool.selectedMesh.scale.z;
-            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["rotation_yaw"] = labelTool.selectedMesh.rotation.z;
+            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["rotationY"] = labelTool.selectedMesh.rotation.z;
             update2DBoundingBox(objectIndexByTrackId);
         }
 
@@ -2214,7 +2304,7 @@ function init() {
                             width: Math.abs(groundPointMouseUp.x - groundPointMouseDown.x),
                             height: Math.abs(groundPointMouseUp.y - groundPointMouseDown.y),
                             depth: 2.0,
-                            yaw: 0,
+                            rotationY: 0,
                             original: {
                                 class: classesBoundingBox.targetName(),
                                 x: (groundPointMouseUp.x + groundPointMouseDown.x) / 2,
@@ -2223,8 +2313,35 @@ function init() {
                                 width: Math.abs(groundPointMouseUp.x - groundPointMouseDown.x),
                                 height: Math.abs(groundPointMouseUp.y - groundPointMouseDown.y),
                                 depth: 2.0,
-                                yaw: 0,
+                                rotationY: 0,
                                 trackId: trackId
+                            },
+                            interpolationStartFileIndex: -1,
+                            interpolationStart: {
+                                position: {
+                                    x: -1,
+                                    y: -1,
+                                    z: -1,
+                                    rotationY: -1
+                                },
+                                size: {
+                                    width: -1,
+                                    height: -1,
+                                    depth: -1
+                                }
+                            },
+                            interpolationEnd: {
+                                position: {
+                                    x: -1,
+                                    y: -1,
+                                    z: -1,
+                                    rotationY: -1
+                                },
+                                size: {
+                                    width: -1,
+                                    height: -1,
+                                    depth: -1
+                                }
                             },
                             trackId: trackId,
                             channels: [{
@@ -2466,6 +2583,36 @@ function init() {
                 addObject(pointCloudFull, "pointcloud_full");
             }
         });
+        let interpolationModeCheckbox = guiOptions.add(parameters, 'interpolation_mode').name('Interpolation Mode').listen();
+        interpolationModeCheckbox.disabled = true;
+        interpolationModeCheckbox.onChange(function (value) {
+            interpolationMode = value;
+            if (interpolationMode === true) {
+                // change text
+                interpolationObjIndex = annotationObjects.getSelectionIndex();
+                let positionElement = $("#bounding-box-3d-menu ul").children().eq(interpolationObjIndex + numGUIOptions).children().first().children().first().children()[1];
+                $(positionElement).children().first().children().first().children().first().text("Interpolation Start Position");
+                $($("#bounding-box-3d-menu ul").children().eq(interpolationObjIndex + numGUIOptions).children().first().children().first().children()[2]).children().first().children().first().children().first().text("Interpolation Start Size");
+                // set start index
+                annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["interpolationStartFileIndex"] = labelTool.currentFileIndex;
+                // enable button "interpolate"
+                interpolationModeCheckbox.disabled = false;
+                // set interpolation start position
+                let obj = annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex];
+                obj["interpolationStart"]["position"]["x"] = obj["x"];
+                obj["interpolationStart"]["position"]["y"] = obj["y"];
+                obj["interpolationStart"]["position"]["z"] = obj["z"];
+                obj["interpolationStart"]["position"]["rotationY"] = obj["rotationY"];
+                obj["interpolationStart"]["size"]["width"] = obj["width"];
+                obj["interpolationStart"]["size"]["height"] = obj["height"];
+                obj["interpolationStart"]["size"]["depth"] = obj["depth"];
+            } else {
+                interpolationModeCheckbox.disabled = true;
+                // remove start position
+                annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["interpolationStart"] = "";
+            }
+        });
+        guiOptions.add(parameters, 'interpolate').name("Interpolate");
         guiOptions.domElement.id = 'bounding-box-3d-menu';
         // add download Annotations button
         let downloadAnnotationsItem = $($('#bounding-box-3d-menu ul li')[0]);

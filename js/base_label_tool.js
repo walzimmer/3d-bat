@@ -50,6 +50,92 @@ function setSequences() {
     }
 }
 
+function getDefaultObject() {
+    let params = {
+        class: "",
+        x: -1,
+        y: -1,
+        z: -1,
+        delta_x: -1,
+        delta_y: -1,
+        delta_z: -1,
+        width: -1,
+        height: -1,
+        depth: -1,
+        rotationY: -1,
+        org: {
+            x: -1,
+            y: -1,
+            z: -1,
+            width: -1,
+            height: -1,
+            depth: -1,
+            rotationY: -1
+        },
+        interpolationStartFileIndex: -1,
+        interpolationStart: {
+            position: {
+                x: -1,
+                y: -1,
+                z: -1,
+                rotationY: -1
+            },
+            size: {
+                width: -1,
+                height: -1,
+                depth: -1
+            }
+        },
+        interpolationEnd: {
+            position: {
+                x: -1,
+                y: -1,
+                z: -1,
+                rotationY: -1
+            },
+            size: {
+                width: -1,
+                height: -1,
+                depth: -1
+            }
+        },
+        trackId: -1,
+        channels: [{
+            rect: [],
+            projectedPoints: [],
+            lines: [],
+            channel: ''
+        }, {
+            rect: [],
+            projectedPoints: [],
+            lines: [],
+            channel: ''
+        }, {
+            rect: [],
+            projectedPoints: [],
+            lines: [],
+            channel: ''
+        }, {
+            rect: [],
+            projectedPoints: [],
+            lines: [],
+            channel: ''
+        }, {
+            rect: [],
+            projectedPoints: [],
+            lines: [],
+            channel: ''
+        }, {
+            rect: [],
+            projectedPoints: [],
+            lines: [],
+            channel: ''
+        }],
+        fromFile: true
+    };
+    return params;
+}
+
 let labelTool = {
     datasets: Object.freeze({"NuScenes": "NuScenes", "LISA_T": "LISA_T"}),
     sequencesLISAT: Object.freeze({
@@ -438,37 +524,58 @@ let labelTool = {
         for (let annotationObjIndex in annotationObjects.contents[this.currentFileIndex]) {
             if (annotationObjects.contents[this.currentFileIndex].hasOwnProperty(annotationObjIndex)) {
                 let annotationObj = annotationObjects.contents[this.currentFileIndex][annotationObjIndex];
-                let channelTwo = "";
-                if (annotationObj["channels"][1].channel !== undefined) {
-                    channelTwo = annotationObj["channels"][1].channel;
-                }
                 let params = {
                     class: annotationObj["class"],
                     x: annotationObj["x"],
-                    // working for LISA_T
                     y: annotationObj["y"],
-                    //y: -annotationObj["y"],
                     z: annotationObj["z"],
                     width: annotationObj["width"],
                     height: annotationObj["height"],
                     depth: annotationObj["depth"],
-                    yaw: parseFloat(annotationObj["rotation_y"]),
+                    rotationY: parseFloat(annotationObj["rotationY"]),
                     channels: [{
                         rect: [],
                         projectedPoints: [],
                         lines: [],
-                        channel: annotationObj["channels"][0].channel
+                        channel: ""
                     }, {
                         rect: [],
                         projectedPoints: [],
                         lines: [],
-                        channel: channelTwo
+                        channel: ""
+                    }, {
+                        rect: [],
+                        projectedPoints: [],
+                        lines: [],
+                        channel: ""
+                    }, {
+                        rect: [],
+                        projectedPoints: [],
+                        lines: [],
+                        channel: ""
+                    }, {
+                        rect: [],
+                        projectedPoints: [],
+                        lines: [],
+                        channel: ""
+                    }, {
+                        rect: [],
+                        projectedPoints: [],
+                        lines: [],
+                        channel: ""
                     }]
                 };
+                for (let i = 0; i < annotationObj["channels"].length; i++) {
+                    let channelObj = annotationObj["channels"][i];
+                    if (channelObj.channel !== undefined) {
+                        params["channels"][i]["channel"] = channelObj.channel;
+                    }
+                }
                 draw2DProjections(params);
                 // set new params
-                annotationObjects.contents[this.currentFileIndex][annotationObjIndex]["channels"][0]["lines"] = params["channels"][0]["lines"];
-                annotationObjects.contents[this.currentFileIndex][annotationObjIndex]["channels"][1]["lines"] = params["channels"][1]["lines"];
+                for (let i = 0; i < annotationObj["channels"].length; i++) {
+                    annotationObjects.contents[this.currentFileIndex][annotationObjIndex]["channels"][i]["lines"] = params["channels"][i]["lines"];
+                }
             }
         }
 
@@ -495,61 +602,10 @@ let labelTool = {
                 });
                 let annotation = annotations[i];
                 // annotationObjects.selectEmpty();
-                let params = {
-                    class: annotation.class,
-                    x: -1,
-                    y: -1,
-                    z: -1,
-                    delta_x: -1,
-                    delta_y: -1,
-                    delta_z: -1,
-                    width: -1,
-                    height: -1,
-                    depth: -1,
-                    yaw: parseFloat(annotation.rotation_y),
-                    org: {
-                        x: -1,
-                        y: -1,
-                        z: -1,
-                        width: -1,
-                        height: -1,
-                        depth: -1,
-                        yaw: parseFloat(annotation.rotation_y)
-                    },
-                    trackId: -1,
-                    channels: [{
-                        rect: [],
-                        projectedPoints: [],
-                        lines: [],
-                        channel: ''
-                    }, {
-                        rect: [],
-                        projectedPoints: [],
-                        lines: [],
-                        channel: ''
-                    }, {
-                        rect: [],
-                        projectedPoints: [],
-                        lines: [],
-                        channel: ''
-                    }, {
-                        rect: [],
-                        projectedPoints: [],
-                        lines: [],
-                        channel: ''
-                    }, {
-                        rect: [],
-                        projectedPoints: [],
-                        lines: [],
-                        channel: ''
-                    }, {
-                        rect: [],
-                        projectedPoints: [],
-                        lines: [],
-                        channel: ''
-                    }],
-                    fromFile: true
-                };
+                let params = getDefaultObject();
+                params.class = annotation.class;
+                params.rotationY = parseFloat(annotation.rotationY);
+                params.org.rotationY = parseFloat(annotation.rotationY);
                 // let channels = getChannelsByPosition(parseFloat(annotation.x), parseFloat(annotation.y));
                 for (let i = 0; i < labelTool.camChannels.length; i++) {
                     params.channels[i].channel = labelTool.camChannels[i].channel;
@@ -1167,16 +1223,21 @@ let labelTool = {
             for (let i = 0; i < this.cubeArray[this.currentFileIndex].length; i++) {
                 let mesh = this.cubeArray[this.currentFileIndex][i];
                 let clonedMesh = mesh.clone();
+                // let clonedMesh = jQuery.extend(true, {}, mesh);
                 this.cubeArray[newFileIndex].push(clonedMesh);
                 scene.add(clonedMesh);
 
                 let sprite = this.spriteArray[this.currentFileIndex][i];
                 let clonedSprite = sprite.clone();
+                // let clonedSprite = jQuery.extend(true, {}, sprite);
                 this.spriteArray[newFileIndex].push(clonedSprite);
                 scene.add(clonedSprite);
             }
             // Deep copy
             for (let i = 0; i < annotationObjects.contents[this.currentFileIndex].length; i++) {
+                // set start index
+                annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["interpolationStartFileIndex"] = this.currentFileIndex;
+                annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["interpolationEndFileIndex"] = newFileIndex;
                 annotationObjects.contents[newFileIndex][i] = jQuery.extend(true, {}, annotationObjects.contents[this.currentFileIndex][i]);
                 // check
             }
@@ -1190,35 +1251,15 @@ let labelTool = {
             }
         }
 
-        this.currentFileIndex = newFileIndex;
-        this.pageBox.placeholder = (this.currentFileIndex + 1) + "/" + this.fileNames.length;
+        this.pageBox.placeholder = (newFileIndex + 1) + "/" + this.fileNames.length;
         this.pageBox.value = "";
-        // for (var k = 0; k < this.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex].length; k++) {
-        //     guiOptions.removeFolder('BoundingBox' + String(this.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][k]));
-        //     this.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][k].visible = false;
-        // }
         cFlag = false;
         rFlag = false;
-        // this.annotationObjects = [];
-        // this.cubeArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex] = [];
-        // numbertagList = [];
-        // folderBoundingBox3DArray = [];
-        // guiTag = [];
-        // numbertagList = [];
-        // folderPositionArray = [];
-        // folderSizeArray = [];
-        // this.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex] = [];
         this.hasLoadedImage = [false, false, false, false, false, false];
         this.hasLoadedPCD = false;
-        this.showData();
-        // render labels
-        // use annotations of current frame for next frame
-        // if (annotationFileExist(this.currentFileIndex, undefined)) {
-        //     this.getAnnotations(this.currentFileIndex);
-        // }
         // update folders with values of next/previous frame
-        for (let i = 0; i < annotationObjects.contents[this.currentFileIndex].length; i++) {
-            let annotationObj = annotationObjects.contents[this.currentFileIndex][i];
+        for (let i = 0; i < annotationObjects.contents[newFileIndex].length; i++) {
+            let annotationObj = annotationObjects.contents[newFileIndex][i];
             let bbox = {
                 class: annotationObj["class"],
                 x: annotationObj["x"],
@@ -1227,24 +1268,129 @@ let labelTool = {
                 width: annotationObj["width"],
                 height: annotationObj["height"],
                 depth: annotationObj["depth"],
-                yaw: parseFloat(annotationObj["yaw"]),
+                rotationY: parseFloat(annotationObj["rotationY"]),
                 trackId: annotationObj["trackId"]
             };
             guiOptions.removeFolder(bbox.class + ' ' + bbox.trackId);
             addBoundingBoxGui(bbox);
         }
+        if (interpolationMode === true) {
+            // add folders for end position and end size
+            let folderEndPosition = folderBoundingBox3DArray[interpolationObjIndex].addFolder('Interpolation End Position');
+            let bbox = {
+                x: annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["x"],
+                y: annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["y"],
+                z: annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["z"],
+                rotationY: annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["rotationY"],
+                width: annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["width"],
+                height: annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["height"],
+                depth: annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["depth"]
+            };
+            // clone current object position and scale and set it to end position and end scale
+            annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["x"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["x"];
+            annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["y"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["y"];
+            annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["z"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["z"];
+            annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["rotationY"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["rotationY"];
+            annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["interpolationEnd"]["size"]["width"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["width"];
+            annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["interpolationEnd"]["size"]["height"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["height"];
+            annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["interpolationEnd"]["size"]["depth"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["depth"];
+
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["x"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["x"];
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["y"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["y"];
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["z"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["z"];
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["rotationY"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["rotationY"];
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["size"]["width"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["width"];
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["size"]["height"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["height"];
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["size"]["depth"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["depth"];
+
+            let cubeEndX = folderEndPosition.add(bbox, 'x').name("x (lateral)").min(-100).max(100).step(0.01).listen();
+            let cubeEndY = folderEndPosition.add(bbox, 'y').name("y (longitudinal)").min(-100).max(100).step(0.01).listen();
+            let cubeEndZ = folderEndPosition.add(bbox, 'z').name("z (vertical)").min(-3).max(10).step(0.01).listen();
+            let cubeEndYaw = folderEndPosition.add(bbox, 'rotationY').name("rotation (yaw)").min(-Math.PI).max(Math.PI).step(0.05).listen();
+            let folderEndSize = folderBoundingBox3DArray[interpolationObjIndex].addFolder('Interpolation End Size');
+            let cubeEndW = folderEndSize.add(bbox, 'width').name("width (lateral)").min(0).max(20).step(0.01).listen();
+            let cubeEndH = folderEndSize.add(bbox, 'height').name("length (longitudinal)").min(0).max(20).step(0.01).listen();
+            let cubeEndD = folderEndSize.add(bbox, 'depth').name("height (vertical)").min(0).max(20).step(0.01).listen();
+            cubeEndX.onChange(function (value) {
+                labelTool.cubeArray[newFileIndex][interpolationObjIndex].position.x = value;
+                annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["x"] = value;
+                console.log("interpolation end x pos:" + value);
+                // update bounding box
+                update2DBoundingBox(interpolationObjIndex);
+            });
+            cubeEndY.onChange(function (value) {
+                labelTool.cubeArray[newFileIndex][interpolationObjIndex].position.y = value;
+                annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["y"] = value;
+                // update bounding box
+                update2DBoundingBox(interpolationObjIndex);
+            });
+            cubeEndZ.onChange(function (value) {
+                labelTool.cubeArray[newFileIndex][interpolationObjIndex].position.z = value;
+                annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["z"] = value;
+                // update bounding box
+                update2DBoundingBox(interpolationObjIndex);
+            });
+            cubeEndYaw.onChange(function (value) {
+                labelTool.cubeArray[newFileIndex][interpolationObjIndex].rotation.z = value;
+                annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["rotationY"] = value;
+                // update bounding box
+                update2DBoundingBox(interpolationObjIndex);
+            });
+            cubeEndW.onChange(function (value) {
+                let newXPos = labelTool.cubeArray[newFileIndex][interpolationObjIndex].position.x + (value - labelTool.cubeArray[newFileIndex][interpolationObjIndex].scale.x)
+                    * Math.cos(labelTool.cubeArray[newFileIndex][interpolationObjIndex].rotation.z) / 2;
+                labelTool.cubeArray[newFileIndex][interpolationObjIndex].position.x = newXPos;
+                annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["x"] = newXPos;
+                annotationObjects.contents[newFileIndex][interpolationObjIndex]["x"] = newXPos;
+                let newYPos = labelTool.cubeArray[newFileIndex][interpolationObjIndex].position.y + (value - labelTool.cubeArray[newFileIndex][interpolationObjIndex].scale.x)
+                    * Math.sin(labelTool.cubeArray[newFileIndex][interpolationObjIndex].rotation.z) / 2;
+                labelTool.cubeArray[newFileIndex][interpolationObjIndex].position.y = newYPos;
+                // test with -newYPos
+                annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["y"] = newYPos;
+                annotationObjects.contents[newFileIndex][interpolationObjIndex]["y"] = newYPos;
+
+                labelTool.cubeArray[newFileIndex][interpolationObjIndex].scale.x = value;
+                annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["scale"]["width"] = value;
+                annotationObjects.contents[newFileIndex][interpolationObjIndex]["width"] = value;
+                update2DBoundingBox(interpolationObjIndex);
+            });
+            cubeEndH.onChange(function (value) {
+                let newXPos = labelTool.cubeArray[newFileIndex][interpolationObjIndex].position.x + (value - labelTool.cubeArray[newFileIndex][interpolationObjIndex].scale.y) * Math.sin(labelTool.cubeArray[newFileIndex][interpolationObjIndex].rotation.z) / 2;
+                labelTool.cubeArray[newFileIndex][interpolationObjIndex].position.x = newXPos;
+                annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["x"] = newXPos;
+                annotationObjects.contents[newFileIndex][interpolationObjIndex]["x"] = newXPos;
+                let newYPos = labelTool.cubeArray[newFileIndex][interpolationObjIndex].position.y - (value - labelTool.cubeArray[newFileIndex][interpolationObjIndex].scale.y) * Math.cos(labelTool.cubeArray[newFileIndex][interpolationObjIndex].rotation.z) / 2;
+                labelTool.cubeArray[newFileIndex][interpolationObjIndex].position.y = newYPos;
+                // test with -newYPos
+                annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["y"] = newYPos;
+                annotationObjects.contents[newFileIndex][interpolationObjIndex]["y"] = newYPos;
+
+                labelTool.cubeArray[newFileIndex][interpolationObjIndex].scale.y = value;
+                annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["scale"]["height"] = value;
+                annotationObjects.contents[newFileIndex][interpolationObjIndex]["height"] = value;
+                update2DBoundingBox(interpolationObjIndex);
+            });
+            cubeEndD.onChange(function (value) {
+                let newZPos = labelTool.cubeArray[newFileIndex][interpolationObjIndex].position.z + (value - labelTool.cubeArray[newFileIndex][interpolationObjIndex].scale.z) / 2;
+                labelTool.cubeArray[newFileIndex][interpolationObjIndex].position.z = newZPos;
+                labelTool.cubeArray[newFileIndex][interpolationObjIndex].scale.z = value;
+                annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["scale"]["depth"] = value;
+                annotationObjects.contents[newFileIndex][interpolationObjIndex]["depth"] = value;
+                update2DBoundingBox(interpolationObjIndex);
+            });
+        }
         // open folder of selected object
         let selectionIndex = annotationObjects.getSelectionIndex();
         if (selectionIndex !== -1) {
-            let channels = annotationObjects.contents[this.currentFileIndex][selectionIndex]["channels"];
+            let channels = annotationObjects.contents[newFileIndex][selectionIndex]["channels"];
             for (let channelIdx in channels) {
                 if (channels.hasOwnProperty(channelIdx)) {
                     annotationObjects.select(selectionIndex, channels[channelIdx].channel);
                 }
             }
         }
-
-
+        this.currentFileIndex = newFileIndex;
+        this.showData();
     },
 
     addResizeEventForImage: function () {
