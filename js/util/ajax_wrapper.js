@@ -147,7 +147,7 @@ function parseAnnotationFile(fileName) {
                             x: str[11],
                             y: str[12],
                             z: str[13],
-                            rotation_y: str[14],
+                            rotationY: str[14],
                             score: str[15]
                         });
                     } else if (labelTool.showOriginalNuScenesLabels === false && labelTool.currentDataset === labelTool.datasets.NuScenes && str.length === 17) {
@@ -166,7 +166,7 @@ function parseAnnotationFile(fileName) {
                             x: str[11],
                             y: str[12],
                             z: str[13],
-                            rotation_y: str[14],
+                            rotationY: str[14],
                             score: str[15],
                             trackId: str[16]
                         });

@@ -236,7 +236,7 @@ let annotationObjects = {
             width: annotationObj["width"],
             height: annotationObj["height"],
             depth: annotationObj["depth"],
-            yaw: parseFloat(annotationObj["yaw"]),
+            rotationY: parseFloat(annotationObj["rotationY"]),
             trackId: annotationObj["trackId"]
         };
         addBoundingBoxGui(bbox);

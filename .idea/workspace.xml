@@ -2,45 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="428d2e24-9b74-4b18-97ad-d2e286a506fa" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/scripts/lisa_t_devkit/export_pointcloud_without_ground_lisat.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scripts/nuscenes_devkit/python-sdk/scripts/export_pointcloud_without_ground_nuscenes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/nuscenes_devkit/python-sdk/scripts/check_duplicates.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/base_label_tool.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/base_label_tool.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/pcd_label_tool.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/pcd_label_tool.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/3.10.2/CMakeCCompiler.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/3.10.2/CMakeCXXCompiler.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/3.10.2/CMakeDetermineCompilerABI_C.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/3.10.2/CMakeDetermineCompilerABI_CXX.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/3.10.2/CMakeSystem.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/3.10.2/CompilerIdC/CMakeCCompilerId.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/3.10.2/CompilerIdC/a.out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/3.10.2/CompilerIdCXX/CMakeCXXCompilerId.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/3.10.2/CompilerIdCXX/a.out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/CMakeDirectoryInformation.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/CMakeError.log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/CMakeOutput.log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/Makefile.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/Makefile2" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/TargetDirectories.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/cmake.check_cache" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/convert_binary_to_ascii.dir/CXX.includecache" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/convert_binary_to_ascii.dir/DependInfo.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/convert_binary_to_ascii.dir/build.make" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/convert_binary_to_ascii.dir/cmake_clean.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/convert_binary_to_ascii.dir/convert_binary_to_ascii.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/convert_binary_to_ascii.dir/depend.internal" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/convert_binary_to_ascii.dir/depend.make" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/convert_binary_to_ascii.dir/flags.make" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/convert_binary_to_ascii.dir/link.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/convert_binary_to_ascii.dir/progress.make" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/feature_tests.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/feature_tests.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/feature_tests.cxx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/CMakeFiles/progress.marks" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/docker/Dockerfile" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/nuscenes_devkit/python-sdk/scripts/extract_labels.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/nuscenes_devkit/python-sdk/scripts/extract_labels.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/nuscenes_devkit/python-sdk/scripts/undistort_images.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/nuscenes_devkit/python-sdk/scripts/undistort_images.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/util/ajax_wrapper.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/util/ajax_wrapper.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/util/boundingbox.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/util/boundingbox.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -89,14 +56,14 @@
           <entry key="html" value="41" />
           <entry key="ipynb" value="6" />
           <entry key="jpg" value="22" />
-          <entry key="js" value="212" />
+          <entry key="js" value="216" />
           <entry key="json" value="2" />
           <entry key="md" value="5" />
           <entry key="pcd" value="12" />
           <entry key="png" value="4" />
-          <entry key="py" value="3" />
+          <entry key="py" value="4" />
           <entry key="tmp" value="1" />
-          <entry key="ts" value="14" />
+          <entry key="ts" value="15" />
           <entry key="txt" value="116" />
           <entry key="yml" value="7" />
         </counts>
@@ -107,10 +74,10 @@
           <entry key="HTML" value="41" />
           <entry key="Image" value="26" />
           <entry key="JSON" value="2" />
-          <entry key="JavaScript" value="212" />
+          <entry key="JavaScript" value="216" />
           <entry key="Markdown" value="5" />
-          <entry key="PLAIN_TEXT" value="141" />
-          <entry key="TypeScript" value="14" />
+          <entry key="PLAIN_TEXT" value="142" />
+          <entry key="TypeScript" value="15" />
           <entry key="YAML" value="7" />
         </counts>
       </usages-collector>
@@ -120,7 +87,7 @@
           <entry key="gitignore" value="150" />
           <entry key="html" value="2642" />
           <entry key="ipynb" value="1" />
-          <entry key="js" value="84539" />
+          <entry key="js" value="88680" />
           <entry key="json" value="2" />
           <entry key="md" value="995" />
           <entry key="scss" value="26" />
@@ -134,7 +101,7 @@
           <entry key="CSS" value="1281" />
           <entry key="HTML" value="2642" />
           <entry key="JSON" value="2" />
-          <entry key="JavaScript" value="84539" />
+          <entry key="JavaScript" value="88680" />
           <entry key="Markdown" value="995" />
           <entry key="PLAIN_TEXT" value="569" />
           <entry key="SCSS" value="26" />
@@ -144,142 +111,110 @@
     </session>
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.47191012">
-      <split-first>
-        <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/js/image_label_tool.js">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="16445">
-                  <caret line="715" column="9" selection-start-line="715" selection-start-column="9" selection-end-line="715" selection-end-column="9" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/js/pcd_label_tool.js">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="15134">
-                  <caret line="662" column="9" selection-start-line="662" selection-start-column="9" selection-end-line="662" selection-end-column="9" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/js/util/classesBoundingBox.js">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="1702">
-                  <caret line="74" column="37" selection-start-line="74" selection-start-column="37" selection-end-line="74" selection-end-column="37" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/index.html">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="75">
-                  <caret line="77" column="32" lean-forward="true" selection-start-line="77" selection-start-column="32" selection-end-line="77" selection-end-column="32" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/js/base_label_tool.js">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="121">
-                  <caret line="231" column="64" selection-start-line="231" selection-start-column="64" selection-end-line="231" selection-end-column="64" />
-                  <folding>
-                    <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-        </leaf>
-      </split-first>
-      <split-second>
-        <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/js/pcd_label_tool.js">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="489">
-                  <caret line="2467" column="11" lean-forward="true" selection-start-line="2467" selection-start-column="11" selection-end-line="2467" selection-end-column="11" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/.gitignore">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="230">
-                  <caret line="24" column="41" selection-start-line="24" selection-start-column="41" selection-end-line="24" selection-end-column="41" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/css/label_tool.css">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="12305">
-                  <caret line="535" column="18" selection-start-line="535" selection-start-column="18" selection-end-line="535" selection-end-column="18" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/js/lib/three.js">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="904636">
-                  <caret line="39332" column="56" selection-start-line="39332" selection-start-column="56" selection-end-line="39332" selection-end-column="56" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/js/util/boundingbox.js">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="5842">
-                  <caret line="254" column="72" selection-start-line="254" selection-start-column="72" selection-end-line="254" selection-end-column="72" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-        </leaf>
-      </split-second>
-    </splitter>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/js/pcd_label_tool.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="276">
+              <caret line="2605" column="74" lean-forward="true" selection-start-line="2605" selection-start-column="74" selection-end-line="2605" selection-end-column="74" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/jsLanguageServicesImpl/external/lib.es5.d.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="296">
+              <caret line="502" column="4" selection-start-line="502" selection-start-column="4" selection-end-line="502" selection-end-column="4" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/js/util/boundingbox.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="342">
+              <caret line="240" column="10" lean-forward="true" selection-start-line="240" selection-start-column="10" selection-end-line="240" selection-end-column="10" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/js/util/classesBoundingBox.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1186">
+              <caret line="74" column="37" selection-start-line="74" selection-start-column="37" selection-end-line="74" selection-end-column="37" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/index.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="150">
+              <caret line="123" column="47" lean-forward="true" selection-start-line="123" selection-start-column="47" selection-end-line="123" selection-end-column="47" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/js/base_label_tool.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="175">
+              <caret line="1226" column="62" lean-forward="true" selection-start-line="1226" selection-start-column="62" selection-end-line="1226" selection-end-column="62" />
+              <folding>
+                <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/js/util/ajax_wrapper.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="299">
+              <caret line="151" column="27" lean-forward="true" selection-start-line="151" selection-start-column="27" selection-end-line="151" selection-end-column="27" />
+              <folding>
+                <element signature="n#!!doc" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>cubeArray.*push</find>
-      <find>download</find>
-      <find>change</find>
+      <find>[2]</find>
+      <find>interpolation</find>
+      <find>labelTool.currentFileIndex</find>
+      <find>bbox = {</find>
+      <find>interpolate</find>
+      <find>bbox =</find>
+      <find>params={</find>
+      <find>push</find>
+      <find>changech</find>
+      <find>changeChanne</find>
+      <find>changecha</find>
+      <find>nextch</find>
+      <find>nextcha</find>
+      <find>changecamch</find>
+      <find>changeCamCh</find>
+      <find>clone</find>
+      <find>changec</find>
+      <find>changeFrame</find>
+      <find>onchange</find>
+      <find>params = {</find>
+      <find>changef</find>
+      <find>cubearr</find>
       <find>changeframe</find>
-      <find>frame</find>
+      <find>update2d</find>
+      <find>interpolationend</find>
+      <find>changefra</find>
+      <find>startfileindex</find>
       <find>changefr</find>
-      <find>gui</find>
-      <find>addbound</find>
-      <find>mouseup</find>
-      <find>delete</find>
-      <find>rightcli</find>
-      <find>onmouseup</find>
-      <find>trackid</find>
-      <find>showgri</find>
-      <find>scene.add</find>
-      <find>pointcloud</find>
-      <find>filter_gro</find>
-      <find>&quot;pointcloud_full&quot;</find>
-      <find>&quot;pointcloud_</find>
-      <find>load</find>
-      <find>filtergro</find>
-      <find>pointcloud_without_ground</find>
-      <find>pointCloudFull</find>
-      <find>pointcloud_full</find>
-      <find>vertical</find>
-      <find>lidar</find>
-      <find>nuscenes</find>
-      <find>pcd</find>
-      <find>pcdload</find>
-      <find>filter</find>
+      <find>interpolate(</find>
+      <find>rotationY</find>
     </findStrings>
     <replaceStrings>
       <replace>#</replace>
@@ -305,6 +240,7 @@
       <replace>nextTrackIdNewClass</replace>
       <replace>selectedObjectIndex</replace>
       <replace>currentTrackId</replace>
+      <replace>newFileIndex</replace>
     </replaceStrings>
     <dirStrings>
       <dir>$PROJECT_DIR$/input/PCDPoints</dir>
@@ -351,7 +287,6 @@
         <option value="$PROJECT_DIR$/test.html" />
         <option value="$PROJECT_DIR$/js/util/math.js" />
         <option value="$PROJECT_DIR$/tmp" />
-        <option value="$PROJECT_DIR$/js/util/ajax_wrapper.js" />
         <option value="$PROJECT_DIR$/js/lib/controls/TransformControls.js" />
         <option value="$PROJECT_DIR$/mechanical_turk.html" />
         <option value="$PROJECT_DIR$/js/image_label_tool.js" />
@@ -364,10 +299,11 @@
         <option value="$PROJECT_DIR$/index.html" />
         <option value="$PROJECT_DIR$/css/label_tool.css" />
         <option value="$PROJECT_DIR$/js/util/classesBoundingBox.js" />
+        <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/js/util/boundingbox.js" />
+        <option value="$PROJECT_DIR$/js/util/ajax_wrapper.js" />
         <option value="$PROJECT_DIR$/js/base_label_tool.js" />
         <option value="$PROJECT_DIR$/js/pcd_label_tool.js" />
-        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -386,9 +322,9 @@
     </packageJsonPaths>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="132" />
-    <option name="width" value="1432" />
-    <option name="height" value="898" />
+    <option name="x" value="292" />
+    <option name="width" value="1424" />
+    <option name="height" value="896" />
   </component>
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="2" id="Add" />
@@ -422,6 +358,17 @@
               <item name="input" type="462c0819:PsiDirectoryNode" />
               <item name="LISA_T" type="462c0819:PsiDirectoryNode" />
               <item name="2018-05-23-001-frame-00042917-00043816" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="b2602c69:ProjectViewProjectNode" />
+              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="462c0819:PsiDirectoryNode" />
+              <item name="js" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="b2602c69:ProjectViewProjectNode" />
+              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="462c0819:PsiDirectoryNode" />
+              <item name="js" type="462c0819:PsiDirectoryNode" />
+              <item name="util" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="b2602c69:ProjectViewProjectNode" />
@@ -527,12 +474,12 @@
       <workItem from="1543890027051" duration="83899000" />
       <workItem from="1544245741148" duration="54310000" />
       <workItem from="1544567317494" duration="21257000" />
-      <workItem from="1545532566515" duration="4062000" />
+      <workItem from="1545532566515" duration="29685000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="1031538000" />
+    <option name="totallyTimeSpent" value="1057161000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -547,11 +494,11 @@
     <frame x="-1" y="0" width="1922" height="1081" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.14765458" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.14765458" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.4968017" weight="0.23640168" />
+      <window_info active="true" anchor="bottom" id="Find" order="1" sideWeight="0.4968017" visible="true" weight="0.23640168" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.3297414" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39958158" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
@@ -560,7 +507,7 @@
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Database Changes" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="9" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Terminal" order="10" sideWeight="0.49626866" visible="true" weight="0.3786611" />
+      <window_info anchor="bottom" id="Terminal" order="10" sideWeight="0.49626866" weight="0.3786611" />
       <window_info anchor="bottom" id="Event Log" order="11" sideWeight="0.50373137" side_tool="true" weight="0.3786611" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -579,17 +526,13 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/js/pcd_label_tool.js</url>
-          <line>1182</line>
+          <line>1272</line>
           <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/input/NuScenes/JPEGImages/CAM_FRONT_LEFT/000000.jpg" />
-    <entry file="file://$PROJECT_DIR$/output/000000.jpg">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/input/NuScenes/JPEGImages/CAM_BACK/000000.jpg" />
     <entry file="file://$PROJECT_DIR$/input/NuScenes/JPEGImages/CAM_FRONT/000000.jpg" />
     <entry file="file://$PROJECT_DIR$/input/NuScenes/Annotations/CAM_BACK/000000.txt" />
@@ -669,13 +612,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="231">
           <caret line="10292" column="4" selection-start-line="10292" selection-start-column="4" selection-end-line="10292" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/js/lib/raphael.min.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="14721" selection-start-column="14721" selection-end-column="14721" />
         </state>
       </provider>
     </entry>
@@ -761,16 +697,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/js/util/ajax_wrapper.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="253">
-          <caret line="13" column="9" selection-start-line="13" selection-start-column="9" selection-end-line="13" selection-end-column="9" />
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/slider_test.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="4761">
@@ -795,52 +721,90 @@
     <entry file="http://localhost:63343/3D_BoundingBox_Annotation_Tool_3D_BAT/js/pcd_label_tool.js?ver=1.0">
       <provider selected="true" editor-type-id="httpFileEditor" />
     </entry>
-    <entry file="file://$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/jsLanguageServicesImpl/external/lib.es5.d.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="188">
-          <caret line="637" column="4" selection-start-line="637" selection-start-column="4" selection-end-line="637" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/js/image_label_tool.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="16445">
-          <caret line="715" column="9" selection-start-line="715" selection-start-column="9" selection-end-line="715" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/js/util/classesBoundingBox.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1702">
+        <state relative-caret-position="1186">
           <caret line="74" column="37" selection-start-line="74" selection-start-column="37" selection-end-line="74" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/lib/dat.gui.min.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="299">
+          <caret line="13" column="11970" selection-start-line="13" selection-start-column="11970" selection-end-line="13" selection-end-column="11970" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="161">
+          <caret line="21" column="4" lean-forward="true" selection-start-line="21" selection-start-column="4" selection-end-line="21" selection-end-column="4" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/css/label_tool.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="12305">
+        <state relative-caret-position="617">
           <caret line="535" column="18" selection-start-line="535" selection-start-column="18" selection-end-line="535" selection-end-column="18" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/js/lib/three.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="904636">
+        <state relative-caret-position="617">
           <caret line="39332" column="56" selection-start-line="39332" selection-start-column="56" selection-end-line="39332" selection-end-column="56" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/lib/raphael.min.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" column="9325" selection-start-line="1" selection-start-column="9325" selection-end-line="1" selection-end-column="9325" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/jsLanguageServicesImpl/external/lib.es5.d.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="296">
+          <caret line="502" column="4" selection-start-line="502" selection-start-column="4" selection-end-line="502" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/nuscenes_devkit/python-sdk/scripts/extract_labels.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="42" column="27" lean-forward="true" selection-start-line="42" selection-start-column="27" selection-end-line="42" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/util/ajax_wrapper.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="299">
+          <caret line="151" column="27" lean-forward="true" selection-start-line="151" selection-start-column="27" selection-end-line="151" selection-end-column="27" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/js/util/boundingbox.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="5842">
-          <caret line="254" column="72" selection-start-line="254" selection-start-column="72" selection-end-line="254" selection-end-column="72" />
+        <state relative-caret-position="342">
+          <caret line="240" column="10" lean-forward="true" selection-start-line="240" selection-start-column="10" selection-end-line="240" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/image_label_tool.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="249">
+          <caret line="699" column="20" lean-forward="true" selection-start-line="699" selection-start-column="20" selection-end-line="699" selection-end-column="20" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/js/base_label_tool.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="121">
-          <caret line="231" column="64" selection-start-line="231" selection-start-column="64" selection-end-line="231" selection-end-column="64" />
+        <state relative-caret-position="175">
+          <caret line="1226" column="62" lean-forward="true" selection-start-line="1226" selection-start-column="62" selection-end-line="1226" selection-end-column="62" />
           <folding>
             <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
           </folding>
@@ -849,22 +813,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="77" column="32" lean-forward="true" selection-start-line="77" selection-start-column="32" selection-end-line="77" selection-end-column="32" />
+        <state relative-caret-position="150">
+          <caret line="123" column="47" lean-forward="true" selection-start-line="123" selection-start-column="47" selection-end-line="123" selection-end-column="47" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/js/pcd_label_tool.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="489">
-          <caret line="2467" column="11" lean-forward="true" selection-start-line="2467" selection-start-column="11" selection-end-line="2467" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/.gitignore">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="230">
-          <caret line="24" column="41" selection-start-line="24" selection-start-column="41" selection-end-line="24" selection-end-column="41" />
+        <state relative-caret-position="276">
+          <caret line="2605" column="74" lean-forward="true" selection-start-line="2605" selection-start-column="74" selection-end-line="2605" selection-end-column="74" />
         </state>
       </provider>
     </entry>
