@@ -22,6 +22,7 @@ let headerHeight = 50;
 // let stats;
 let cube;
 let interpolationObjIndex;
+let interpolateBtn;
 
 // let keyboard = new KeyboardState();
 
@@ -114,6 +115,7 @@ function interpolate() {
     let depthDelta = (Number(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["interpolationEnd"]["size"]["depth"]) - Number(annotationObjects.contents[interpolationStartFileIndex][interpolationObjIndex]["interpolationStart"]["size"]["depth"])) / numFrames;
 
 
+    let idx = getObjectIndexByTrackId(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["trackId"], labelTool.currentFileIndex);
     for (let i = 1; i < numFrames; i++) {
         // cloning
         let clonedObject = jQuery.extend(true, {}, annotationObjects.contents[interpolationStartFileIndex][interpolationObjIndex]);
@@ -122,7 +124,6 @@ function interpolate() {
 
         if (annotationObjects.contents[interpolationStartFileIndex + i] !== undefined && annotationObjects.contents[interpolationStartFileIndex + i].length > 1) {
             // if frame contains some objects, then find object with same trackId and overwrite it
-            let idx = getObjectIndexByTrackId(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["trackId"], labelTool.currentFileIndex);
             if (idx !== -1) {
                 annotationObjects.contents[interpolationStartFileIndex + i][idx] = clonedObject;
                 labelTool.cubeArray[interpolationStartFileIndex + i][idx] = clonedCubeObject;
@@ -171,6 +172,16 @@ function interpolate() {
         annotationObjects.contents[interpolationStartFileIndex + i][idx]["depth"] = newDepth;
         labelTool.cubeArray[interpolationStartFileIndex + i][idx]["scale"]["z"] = newDepth;
     }
+
+    // start position becomes current end position
+    annotationObjects.contents[labelTool.currentFileIndex][idx]["interpolationStart"]["position"]["x"] = annotationObjects.contents[labelTool.currentFileIndex][idx]["interpolationEnd"]["position"]["x"];
+    annotationObjects.contents[labelTool.currentFileIndex][idx]["interpolationStart"]["position"]["y"] = annotationObjects.contents[labelTool.currentFileIndex][idx]["interpolationEnd"]["position"]["y"];
+    annotationObjects.contents[labelTool.currentFileIndex][idx]["interpolationStart"]["position"]["z"] = annotationObjects.contents[labelTool.currentFileIndex][idx]["interpolationEnd"]["position"]["z"];
+    annotationObjects.contents[labelTool.currentFileIndex][idx]["interpolationStart"]["position"]["rotationY"] = annotationObjects.contents[labelTool.currentFileIndex][idx]["interpolationEnd"]["position"]["rotationY"];
+    annotationObjects.contents[labelTool.currentFileIndex][idx]["interpolationStart"]["size"]["x"] = annotationObjects.contents[labelTool.currentFileIndex][idx]["interpolationEnd"]["size"]["x"];
+    annotationObjects.contents[labelTool.currentFileIndex][idx]["interpolationStart"]["size"]["y"] = annotationObjects.contents[labelTool.currentFileIndex][idx]["interpolationEnd"]["size"]["y"];
+    annotationObjects.contents[labelTool.currentFileIndex][idx]["interpolationStart"]["size"]["z"] = annotationObjects.contents[labelTool.currentFileIndex][idx]["interpolationEnd"]["size"]["z"];
+    annotationObjects.contents[labelTool.currentFileIndex][idx]["interpolationStartFileIndex"] = labelTool.currentFileIndex;
 }
 
 let parameters = {
@@ -192,7 +203,9 @@ let parameters = {
     filter_ground: false,
     interpolation_mode: false,
     interpolate: function () {
-        interpolate();
+        if (interpolationMode === true) {
+            interpolate();
+        }
     },
 };
 
@@ -698,7 +711,7 @@ function get3DLabel(parameters) {
 
 
     labelTool.cubeArray[labelTool.currentFileIndex].push(cubeMesh);
-    addBoundingBoxGui(bbox);
+    addBoundingBoxGui(bbox, undefined);
     return bbox;
 }
 
@@ -750,7 +763,7 @@ function update2DBoundingBox(idx) {
 // }
 
 //register new bounding box
-function addBoundingBoxGui(bbox) {
+function addBoundingBoxGui(bbox, bboxEndParams) {
     let insertIndex = folderBoundingBox3DArray.length;
     let bb = guiOptions.addFolder(bbox.class + ' ' + bbox.trackId);
     folderBoundingBox3DArray.push(bb);
@@ -770,45 +783,27 @@ function addBoundingBoxGui(bbox) {
     folderSize.close();
     folderSizeArray.push(folderSize);
 
-    let textBoxTrackId = folderBoundingBox3DArray[insertIndex].add(bbox, 'trackId').min(0).step(1).name('Track ID');
-    textBoxTrackId.onChange(function (value) {
-        if (value < 0) {
-            value = 0;
-        }
-        annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["trackId"] = Math.round(value);
-        $("#bounding-box-3d-menu ul").children().eq(insertIndex + numGUIOptions).children().first().children().first().children().first().text(bbox.class + " " + Math.round(value));
-    });
-
     cubeX.onChange(function (value) {
         labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].position.x = value;
         annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["x"] = value;
-        // update current camera channel
-        // updateChannels(insertIndex);
         // update bounding box
         update2DBoundingBox(insertIndex);
     });
     cubeY.onChange(function (value) {
         labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].position.y = value;
         annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["y"] = value;
-        // update current camera channel
-        // updateChannels(insertIndex);
         // update bounding box
         update2DBoundingBox(insertIndex);
     });
     cubeZ.onChange(function (value) {
         labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].position.z = value;
         annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["z"] = value;
-        // update current camera channel
-        // updateChannels(insertIndex);
         // update bounding box
         update2DBoundingBox(insertIndex);
     });
     cubeYaw.onChange(function (value) {
         labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].rotation.z = value;
-        // let rotatedObject = labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].rotateZ(value);
         annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["rotationY"] = value;
-        // update current camera channel
-        // updateChannels(insertIndex);
         // update bounding box
         update2DBoundingBox(insertIndex);
     });
@@ -821,11 +816,8 @@ function addBoundingBoxGui(bbox) {
         labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].position.y = newYPos;
         bbox.y = -newYPos;
         annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["y"] = newYPos;
-
         labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].scale.x = value;
         annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["width"] = value;
-        // update current camera channel
-        // updateChannels(insertIndex);
         update2DBoundingBox(insertIndex);
     });
     cubeH.onChange(function (value) {
@@ -839,8 +831,6 @@ function addBoundingBoxGui(bbox) {
         annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["y"] = newYPos;
         labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].scale.y = value;
         annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["height"] = value;
-        // update current camera channel
-        // updateChannels(insertIndex);
         update2DBoundingBox(insertIndex);
     });
     cubeD.onChange(function (value) {
@@ -849,10 +839,109 @@ function addBoundingBoxGui(bbox) {
         bbox.z = newZPos;
         labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].scale.z = value;
         annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["depth"] = value;
-        // update current camera channel
-        // updateChannels(insertIndex);
         update2DBoundingBox(insertIndex);
     });
+
+    if (bboxEndParams !== undefined && interpolationMode === true) {
+        interpolationObjIndex = annotationObjects.getSelectionIndex();
+        disableStartPositionAndSize();
+        // change text
+        folderPositionArray[interpolationObjIndex].domElement.firstChild.firstChild.innerText = "Interpolation Start Position";
+        folderSizeArray[interpolationObjIndex].domElement.firstChild.firstChild.innerText = "Interpolation Start Size";
+        // add folders for end position and end size
+        this.folderEndPosition = folderBoundingBox3DArray[interpolationObjIndex].addFolder('Interpolation End Position');
+        let cubeEndX = this.folderEndPosition.add(bboxEndParams, 'x').name("x (lateral)").min(-100).max(100).step(0.01).listen();
+        let cubeEndY = this.folderEndPosition.add(bboxEndParams, 'y').name("y (longitudinal)").min(-100).max(100).step(0.01).listen();
+        let cubeEndZ = this.folderEndPosition.add(bboxEndParams, 'z').name("z (vertical)").min(-3).max(10).step(0.01).listen();
+        let cubeEndYaw = this.folderEndPosition.add(bboxEndParams, 'rotationY').name("rotation (yaw)").min(-Math.PI).max(Math.PI).step(0.01).listen();
+        this.folderEndPosition.open();
+        this.folderEndSize = folderBoundingBox3DArray[interpolationObjIndex].addFolder('Interpolation End Size');
+        let cubeEndW = this.folderEndSize.add(bboxEndParams, 'width').name("width (lateral)").min(0).max(20).step(0.01).listen();
+        let cubeEndH = this.folderEndSize.add(bboxEndParams, 'height').name("length (longitudinal)").min(0).max(20).step(0.01).listen();
+        let cubeEndD = this.folderEndSize.add(bboxEndParams, 'depth').name("height (vertical)").min(0).max(20).step(0.01).listen();
+        this.folderEndSize.open();
+        let newFileIndex = bboxEndParams.newFileIndex;
+        cubeEndX.onChange(function (value) {
+            labelTool.cubeArray[newFileIndex][interpolationObjIndex].position.x = value;
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["x"] = value;
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["x"] = value;
+            // update bounding box
+            update2DBoundingBox(interpolationObjIndex);
+        });
+        cubeEndY.onChange(function (value) {
+            labelTool.cubeArray[newFileIndex][interpolationObjIndex].position.y = value;
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["y"] = value;
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["y"] = value;
+            // update bounding box
+            update2DBoundingBox(interpolationObjIndex);
+        });
+        cubeEndZ.onChange(function (value) {
+            labelTool.cubeArray[newFileIndex][interpolationObjIndex].position.z = value;
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["z"] = value;
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["z"] = value;
+            // update bounding box
+            update2DBoundingBox(interpolationObjIndex);
+        });
+        cubeEndYaw.onChange(function (value) {
+            labelTool.cubeArray[newFileIndex][interpolationObjIndex].rotation.z = value;
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["rotationY"] = value;
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["rotationY"] = value;
+            // update bounding box
+            update2DBoundingBox(interpolationObjIndex);
+        });
+        cubeEndW.onChange(function (value) {
+            let newXPos = labelTool.cubeArray[newFileIndex][interpolationObjIndex].position.x + (value - labelTool.cubeArray[newFileIndex][interpolationObjIndex].scale.x)
+                * Math.cos(labelTool.cubeArray[newFileIndex][interpolationObjIndex].rotation.z) / 2;
+            labelTool.cubeArray[newFileIndex][interpolationObjIndex].position.x = newXPos;
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["x"] = newXPos;
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["x"] = newXPos;
+            let newYPos = labelTool.cubeArray[newFileIndex][interpolationObjIndex].position.y + (value - labelTool.cubeArray[newFileIndex][interpolationObjIndex].scale.x)
+                * Math.sin(labelTool.cubeArray[newFileIndex][interpolationObjIndex].rotation.z) / 2;
+            labelTool.cubeArray[newFileIndex][interpolationObjIndex].position.y = newYPos;
+            // test with -newYPos
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["y"] = newYPos;
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["y"] = newYPos;
+
+            labelTool.cubeArray[newFileIndex][interpolationObjIndex].scale.x = value;
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["scale"]["width"] = value;
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["width"] = value;
+            update2DBoundingBox(interpolationObjIndex);
+        });
+        cubeEndH.onChange(function (value) {
+            let newXPos = labelTool.cubeArray[newFileIndex][interpolationObjIndex].position.x + (value - labelTool.cubeArray[newFileIndex][interpolationObjIndex].scale.y) * Math.sin(labelTool.cubeArray[newFileIndex][interpolationObjIndex].rotation.z) / 2;
+            labelTool.cubeArray[newFileIndex][interpolationObjIndex].position.x = newXPos;
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["x"] = newXPos;
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["x"] = newXPos;
+            let newYPos = labelTool.cubeArray[newFileIndex][interpolationObjIndex].position.y - (value - labelTool.cubeArray[newFileIndex][interpolationObjIndex].scale.y) * Math.cos(labelTool.cubeArray[newFileIndex][interpolationObjIndex].rotation.z) / 2;
+            labelTool.cubeArray[newFileIndex][interpolationObjIndex].position.y = newYPos;
+            // test with -newYPos
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["y"] = newYPos;
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["y"] = newYPos;
+
+            labelTool.cubeArray[newFileIndex][interpolationObjIndex].scale.y = value;
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["scale"]["height"] = value;
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["height"] = value;
+            update2DBoundingBox(interpolationObjIndex);
+        });
+        cubeEndD.onChange(function (value) {
+            let newZPos = labelTool.cubeArray[newFileIndex][interpolationObjIndex].position.z + (value - labelTool.cubeArray[newFileIndex][interpolationObjIndex].scale.z) / 2;
+            labelTool.cubeArray[newFileIndex][interpolationObjIndex].position.z = newZPos;
+            labelTool.cubeArray[newFileIndex][interpolationObjIndex].scale.z = value;
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["scale"]["depth"] = value;
+            annotationObjects.contents[newFileIndex][interpolationObjIndex]["depth"] = value;
+            update2DBoundingBox(interpolationObjIndex);
+        });
+    }
+
+    let textBoxTrackId = folderBoundingBox3DArray[insertIndex].add(bbox, 'trackId').min(0).step(1).name('Track ID');
+    textBoxTrackId.onChange(function (value) {
+        if (value < 0) {
+            value = 0;
+        }
+        annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["trackId"] = Math.round(value);
+        $("#bounding-box-3d-menu ul").children().eq(insertIndex + numGUIOptions).children().first().children().first().children().first().text(bbox.class + " " + Math.round(value));
+    });
+
     let resetParameters = {
         reset: function () {
             resetCube(insertIndex);
@@ -1548,8 +1637,9 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
     } else {
         if (channel === "CAM_FRONT") {
             imageScalingFactor = 4;
-            //streetVerticalOffset = 60.7137000000000 / 100;//height of lidar
-            streetVerticalOffset = 1.4478; //height of lidar
+            // TODO: height should be 1.4478m but 0.6m is working
+            streetVerticalOffset = 60.7137000000000 / 100;//height of lidar
+            //streetVerticalOffset = 1.4478; //height of lidar
         } else if (channel === "CAM_BACK") {
             imageScalingFactor = 4;
             streetVerticalOffset = -100 / 100;
@@ -1883,6 +1973,22 @@ function increaseTrackId(label, dataset) {
         }
     }
     return -1;
+}
+
+function disableStartPositionAndSize() {
+    // disable slider
+    folderPositionArray[interpolationObjIndex].domElement.style.opacity = 0.2;
+    folderPositionArray[interpolationObjIndex].domElement.style.pointerEvents = "none";
+    folderSizeArray[interpolationObjIndex].domElement.style.opacity = 0.2;
+    folderSizeArray[interpolationObjIndex].domElement.style.pointerEvents = "none";
+}
+
+function enableStartPositionAndSize() {
+    // disable slider
+    folderPositionArray[interpolationObjIndex].domElement.style.opacity = 1.0;
+    folderPositionArray[interpolationObjIndex].domElement.style.pointerEvents = "all";
+    folderSizeArray[interpolationObjIndex].domElement.style.opacity = 1.0;
+    folderSizeArray[interpolationObjIndex].domElement.style.pointerEvents = "all";
 }
 
 function init() {
@@ -2248,6 +2354,12 @@ function init() {
                     labelTool.removeObject("transformControls");
                     labelTool.selectedMesh = undefined;
                     annotationObjects.selectEmpty();
+                    // disable interpolate button
+                    interpolateBtn.domElement.parentElement.parentElement.style.pointerEvents = "none";
+                    // interpolateBtn.domElement.parentElement.style.pointerEvents = "none";
+                    // interpolateBtn.domElement.parentElement.parentElement.style.pointerEvents = "none";
+                    interpolateBtn.domElement.parentElement.parentElement.style.opacity = 0.2;
+
                 }
 
                 if (clickFlag === true) {
@@ -2414,6 +2526,10 @@ function init() {
                                 annotationObjects.select(insertIndex, camChannel);
                             }
                         }
+                        let interpolationModeCheckbox = document.getElementById("interpolation-checkbox");
+                        interpolationModeCheckbox.parentElement.parentElement.style.opacity = 1.0;
+                        interpolationModeCheckbox.parentElement.parentElement.style.pointerEvents = "all";
+                        $(interpolationModeCheckbox.firstChild).removeAttr("tabIndex");
 
                     }
 
@@ -2535,8 +2651,10 @@ function init() {
         let showNuScenesLabelsCheckbox = allCheckboxes[0];
         if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
             showNuScenesLabelsCheckbox.disabled = true;
+            showNuScenesLabelsCheckbox.style.pointerEvents = "none";
         } else {
             showNuScenesLabelsCheckbox.disabled = false;
+            showNuScenesLabelsCheckbox.style.pointerEvents = "all";
         }
 
         let showFieldOfViewCheckbox = guiOptions.add(parameters, 'show_field_of_view').name('Field-Of-View').listen();
@@ -2584,35 +2702,53 @@ function init() {
             }
         });
         let interpolationModeCheckbox = guiOptions.add(parameters, 'interpolation_mode').name('Interpolation Mode').listen();
-        interpolationModeCheckbox.disabled = true;
+        interpolationModeCheckbox.domElement.id = 'interpolation-checkbox';
+        interpolationModeCheckbox.domElement.parentElement.parentElement.style.opacity = 0.2;
+        interpolationModeCheckbox.domElement.parentElement.parentElement.style.pointerEvents = "none";
+        interpolationModeCheckbox.domElement.firstChild.setAttribute("tabIndex", "-1");
         interpolationModeCheckbox.onChange(function (value) {
             interpolationMode = value;
             if (interpolationMode === true) {
-                // change text
+
                 interpolationObjIndex = annotationObjects.getSelectionIndex();
-                let positionElement = $("#bounding-box-3d-menu ul").children().eq(interpolationObjIndex + numGUIOptions).children().first().children().first().children()[1];
-                $(positionElement).children().first().children().first().children().first().text("Interpolation Start Position");
-                $($("#bounding-box-3d-menu ul").children().eq(interpolationObjIndex + numGUIOptions).children().first().children().first().children()[2]).children().first().children().first().children().first().text("Interpolation Start Size");
-                // set start index
-                annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["interpolationStartFileIndex"] = labelTool.currentFileIndex;
-                // enable button "interpolate"
-                interpolationModeCheckbox.disabled = false;
-                // set interpolation start position
-                let obj = annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex];
-                obj["interpolationStart"]["position"]["x"] = obj["x"];
-                obj["interpolationStart"]["position"]["y"] = obj["y"];
-                obj["interpolationStart"]["position"]["z"] = obj["z"];
-                obj["interpolationStart"]["position"]["rotationY"] = obj["rotationY"];
-                obj["interpolationStart"]["size"]["width"] = obj["width"];
-                obj["interpolationStart"]["size"]["height"] = obj["height"];
-                obj["interpolationStart"]["size"]["depth"] = obj["depth"];
+                if (interpolationObjIndex !== -1) {
+                    // change text
+                    folderPositionArray[interpolationObjIndex].domElement.firstChild.firstChild.innerText = "Interpolation Start Position";
+                    folderSizeArray[interpolationObjIndex].domElement.firstChild.firstChild.innerText = "Interpolation Start Size";
+                    // set start index
+                    annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["interpolationStartFileIndex"] = labelTool.currentFileIndex;
+                    // set interpolation start position
+                    let obj = annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex];
+                    obj["interpolationStart"]["position"]["x"] = obj["x"];
+                    obj["interpolationStart"]["position"]["y"] = obj["y"];
+                    obj["interpolationStart"]["position"]["z"] = obj["z"];
+                    obj["interpolationStart"]["position"]["rotationY"] = obj["rotationY"];
+                    obj["interpolationStart"]["size"]["width"] = obj["width"];
+                    obj["interpolationStart"]["size"]["height"] = obj["height"];
+                    obj["interpolationStart"]["size"]["depth"] = obj["depth"];
+                    interpolateBtn.domElement.parentElement.parentElement.style.pointerEvents = "all";
+                    interpolateBtn.domElement.parentElement.parentElement.style.opacity = 1.0;
+                    disableStartPositionAndSize();
+                }
+
             } else {
-                interpolationModeCheckbox.disabled = true;
-                // remove start position
-                annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["interpolationStart"] = "";
+
+                interpolateBtn.domElement.parentElement.parentElement.style.pointerEvents = "none";
+                interpolateBtn.domElement.parentElement.parentElement.style.opacity = 0.2;
+                if (interpolationObjIndex !== -1) {
+                    folderPositionArray[interpolationObjIndex].domElement.firstChild.firstChild.innerText = "Position";
+                    folderSizeArray[interpolationObjIndex].domElement.firstChild.firstChild.innerText = "Size";
+                    enableStartPositionAndSize();
+                    // remove end position and end size
+                    folderBoundingBox3DArray[interpolationObjIndex].removeFolder("Interpolation End Position");
+                    folderBoundingBox3DArray[interpolationObjIndex].removeFolder("Interpolation End Size");
+                }
             }
         });
-        guiOptions.add(parameters, 'interpolate').name("Interpolate");
+        interpolateBtn = guiOptions.add(parameters, 'interpolate').name("Interpolate");
+        interpolateBtn.domElement.id = 'interpolate-btn';
+        interpolateBtn.domElement.parentElement.parentElement.style.opacity = 0.2;
+        interpolateBtn.domElement.parentElement.parentElement.style.pointerEvents = "none";
         guiOptions.domElement.id = 'bounding-box-3d-menu';
         // add download Annotations button
         let downloadAnnotationsItem = $($('#bounding-box-3d-menu ul li')[0]);
