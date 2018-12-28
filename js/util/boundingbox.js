@@ -239,7 +239,7 @@ let annotationObjects = {
             rotationY: parseFloat(annotationObj["rotationY"]),
             trackId: annotationObj["trackId"]
         };
-        addBoundingBoxGui(bbox);
+        addBoundingBoxGui(bbox,undefined);
         // open current folder
         folderBoundingBox3DArray[selectedObjectIndex].open();
         folderPositionArray[selectedObjectIndex].open();
