@@ -330,6 +330,7 @@ let labelTool = {
     selectedMesh: undefined,
     folderEndPosition: undefined,
     folderEndSize: undefined,
+    logger: undefined,
 
 
     /********** Externally defined functions **********
@@ -794,6 +795,8 @@ let labelTool = {
             });
         });
 
+        let toasts = $(".toasts")[0];
+        this.logger = new Toast(toasts);
     },
 
     getAnnotations(currentFileIndex) {
