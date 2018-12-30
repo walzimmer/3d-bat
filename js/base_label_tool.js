@@ -146,6 +146,8 @@ let labelTool = {
     sequencesNuScenes: [],
     currentDataset: 'LISA_T',
     currentSequence: '',
+    numFramesLISAT: 900,
+    numFramesNuScenes: 3962,
     numFrames: 0,
     dataTypes: [],
     workBlob: '',
@@ -694,54 +696,41 @@ let labelTool = {
 
     // Create annotations from this.annotationObjects
     createAnnotations: function () {
-        let annotations = [];
-        for (let i = 0; i < annotationObjects.contents[this.currentFileIndex].length; i++) {
-            let annotationObj = annotationObjects.contents[this.currentFileIndex][i];
-            // let camChannel = annotationObj["channel"];
-            // let rect = annotationObj["rect"];
-            // let minPos = convertPositionToFile(rect.attr("x"), rect.attr("y"), camChannel);
-            // let maxPos = convertPositionToFile(rect.attr("x") + rect.attr("width"),
-            //     rect.attr("y") + rect.attr("height"), annotationObj["channel"]);
-            let objectPosition = [this.cubeArray[this.currentFileIndex][i].position.x,
-                this.cubeArray[this.currentFileIndex][i].position.y,
-                this.cubeArray[this.currentFileIndex][i].position.z,
-                1];
-            // LISAT: labels are stored in ego frame which is also the point cloud frame (no transformation needed)
-            // let channelIndexByName = getChannelIndexByName(camChannel);
-            let transformedPosition = [];
-            if (this.currentDataset === this.datasets.LISA_T) {
-                // no transformation needed
-                transformedPosition = objectPosition;
-            } else {
-                // TODO:
-                // Nuscenes labels are stored in global frame
-                // Nuscenes: transform 3d positions from point cloud to global frame (point cloud-> ego, ego -> global)
-                transformedPosition = objectPosition;
-                // transformedPosition = matrixProduct4x4(inverseMatrix(this.camChannels[channelIndexByName].transformationMatrixEgoToCamNuScenes), objectPosition);
+        let allAnnotations = [];
+        for (let j = 0; j < this.numFrames; j++) {
+            let annotationsInFrame = [];
+            for (let i = 0; i < annotationObjects.contents[j].length; i++) {
+                if (annotationObjects.contents[j][i] !== undefined && this.cubeArray[j][i] !== undefined) {
+                    let annotationObj = annotationObjects.contents[j][i];
+                    // LISAT: labels are stored in ego frame which is also the point cloud frame (no transformation needed)
+                    // Nuscenes labels are stored in global frame within database
+                    // [optional] Nuscenes: transform 3d positions from point cloud to global frame (point cloud-> ego, ego -> global)
+                    let annotation = {
+                        class: annotationObj["class"],
+                        // truncated: 0,
+                        // occluded: 3,
+                        // alpha: 0,
+                        // left: minPos[0],
+                        // top: minPos[1],
+                        // right: maxPos[0],
+                        // bottom: maxPos[1],
+                        // TODO: store information of 3D objects also in annotationObjects.contents instead of cubeArray
+                        height: this.cubeArray[j][i].scale.y,
+                        width: this.cubeArray[j][i].scale.x,
+                        length: this.cubeArray[j][i].scale.z, // depth
+                        x: this.cubeArray[j][i].position.x,
+                        y: this.cubeArray[j][i].position.y,
+                        z: this.cubeArray[j][i].position.z,
+                        rotationYaw: this.cubeArray[j][i].rotation.z,
+                        // score: 1,
+                        trackId: annotationObj["trackId"]
+                    };
+                    annotationsInFrame.push(annotation);
+                }
             }
-            let annotation = {
-                class: annotationObj["class"],
-                // truncated: 0,
-                // occluded: 3,
-                // alpha: 0,
-                // left: minPos[0],
-                // top: minPos[1],
-                // right: maxPos[0],
-                // bottom: maxPos[1],
-                // TODO: store information of 3D objects also in annotationObjects.contents instead of cubeArray
-                height: this.cubeArray[this.currentFileIndex][i].scale.y,
-                width: this.cubeArray[this.currentFileIndex][i].scale.x,
-                length: this.cubeArray[this.currentFileIndex][i].scale.z, // depth
-                x: transformedPosition[0],
-                y: transformedPosition[1],
-                z: transformedPosition[2],
-                rotationYaw: this.cubeArray[this.currentFileIndex][i].rotation.z,
-                // score: 1,
-                trackId: annotationObj["trackId"]
-            };
-            annotations.push(annotation);
+            allAnnotations.push(annotationsInFrame);
         }
-        return annotations;
+        return allAnnotations;
     },
 
     initialize: function () {
@@ -776,10 +765,10 @@ let labelTool = {
         pointCloudContainer.append('<div id="canvas3d" style="z-index: 0; background-color: #000000;"></div>');
 
         if (this.currentDataset === this.datasets.LISA_T) {
-            this.numFrames = 900;
+            this.numFrames = this.numFramesLISAT;
             this.currentSequence = this.sequencesLISAT.FIRST;
         } else {
-            this.numFrames = 3962;
+            this.numFrames = this.numFramesNuScenes;
             setSequences();
             this.currentSequence = this.sequencesNuScenes[0];
         }
