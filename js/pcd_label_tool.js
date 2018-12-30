@@ -62,6 +62,7 @@ let currentDistances = [];
 let spriteBehindObject;
 let pointCloudFull;
 let pointCloudWithoutGround;
+let useTransformControls;
 let parametersBoundingBox = {
     "Vehicle": function () {
         classesBoundingBox.select("Vehicle");
@@ -1060,7 +1061,7 @@ function addTransformControls() {
     // TODO: try detaching object instead of creating new transformcontrols object
     transformControls = new THREE.TransformControls(currentCamera, renderer.domElement);
     transformControls.addEventListener('change', function (event) {
-
+        useTransformControls = true;
         // update 2d bounding box
         if (labelTool.selectedMesh !== undefined) {
             let objectIndexByTrackId = getObjectIndexByName(labelTool.selectedMesh.name);
@@ -1093,6 +1094,7 @@ function addTransformControls() {
         // console.log(event);
     });
     transformControls.addEventListener('dragging-changed', function (event) {
+        useTransformControls = true;
         // dragObject = false;
         console.log("dragging-changed");
         // executed after drag finished
@@ -1114,7 +1116,7 @@ function addTransformControls() {
         smallestSide = Math.min(Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y), labelTool.selectedMesh.scale.z);
     }
 
-    let size = smallestSide / 10.0;
+    let size = smallestSide / 2;
     console.log("size controls addtransformcontrols: " + size);
     transformControls.size = size;
     transformControls.attach(labelTool.selectedMesh);
@@ -1207,7 +1209,7 @@ function setCamera() {
                 } else {
                     smallestSide = Math.min(Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y), labelTool.selectedMesh.scale.z);
                 }
-                transformControls.size = smallestSide / 10.0;
+                transformControls.size = smallestSide / 2.0;
                 transformControls.showZ = true;
             }
         }
@@ -2121,478 +2123,489 @@ function init() {
     canvas3D.addEventListener('mousemove', onDocumentMouseMove, false);
 
     canvas3D.onmousedown = function (ev) {
-        if (bboxFlag === true) {
-            if (ev.target === renderer.domElement) {
-                let rect = ev.target.getBoundingClientRect();
-                mouseDown.x = ((ev.clientX - rect.left) / window.innerWidth) * 2 - 1;
-                mouseDown.y = -((ev.clientY - rect.top) / window.innerHeight) * 2 + 1;
-                let ray;
-                if (birdsEyeViewFlag === false) {
-                    let vector = new THREE.Vector3(mouseDown.x, mouseDown.y, 1);
-                    vector.unproject(currentCamera);
-                    ray = new THREE.Raycaster(currentCamera.position, vector.sub(currentCamera.position).normalize());
-                } else {
-                    ray = new THREE.Raycaster();
-                    let mouse = new THREE.Vector2();
-                    mouse.x = mouseDown.x;
-                    mouse.y = mouseDown.y;
-                    ray.setFromCamera(mouse, currentCamera);
-                }
-                let clickedObjects = ray.intersectObjects(labelTool.cubeArray[labelTool.currentFileIndex]);
-                if (clickedObjects.length > 0) {
-                    clickedObjectIndex = labelTool.cubeArray[labelTool.currentFileIndex].indexOf(clickedObjects[0].object);
-                    if (ev.button === 0) {
-                        clickFlag = true;
-                        clickedPoint = clickedObjects[0].point;
-                        clickedCube = labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex];
-                        let material = new THREE.MeshBasicMaterial({
-                            color: 0x000000,
-                            wireframe: false,
-                            transparent: true,
-                            opacity: 0.0,
-                            side: THREE.DoubleSide
-                        });
-                        let geometry = new THREE.PlaneGeometry(200, 200);
-                        let clickedPlane = new THREE.Mesh(geometry, material);
-                        clickedPlane.position.x = clickedPoint.x;
-                        clickedPlane.position.y = clickedPoint.y;
-                        clickedPlane.position.z = clickedPoint.z;
-                        let normal = clickedObjects[0].face;
-                        if ([normal.a, normal.b, normal.c].toString() == [6, 3, 2].toString() || [normal.a, normal.b, normal.c].toString() == [7, 6, 2].toString()) {
-                            clickedPlane.rotation.x = Math.PI / 2;
-                            clickedPlane.rotation.y = labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z;
-                        }
-                        else if ([normal.a, normal.b, normal.c].toString() == [6, 7, 5].toString() || [normal.a, normal.b, normal.c].toString() == [4, 6, 5].toString()) {
-                            clickedPlane.rotation.x = -Math.PI / 2;
-                            clickedPlane.rotation.y = -Math.PI / 2 - labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z;
-                        }
-                        else if ([normal.a, normal.b, normal.c].toString() == [0, 2, 1].toString() || [normal.a, normal.b, normal.c].toString() == [2, 3, 1].toString()) {
-                            clickedPlane.rotation.x = Math.PI / 2;
-                            clickedPlane.rotation.y = Math.PI / 2 + labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z;
-                        }
-                        else if ([normal.a, normal.b, normal.c].toString() == [5, 0, 1].toString() || [normal.a, normal.b, normal.c].toString() == [4, 5, 1].toString()) {
-                            clickedPlane.rotation.x = -Math.PI / 2;
-                            clickedPlane.rotation.y = -labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z;
-                        }
-                        else if ([normal.a, normal.b, normal.c].toString() == [3, 6, 4].toString() || [normal.a, normal.b, normal.c].toString() == [1, 3, 4].toString()) {
-                            clickedPlane.rotation.y = -Math.PI
-                        }
-                        scene.add(clickedPlane);
-                        clickedPlaneArray.push(clickedPlane);
+
+        if (ev.target === renderer.domElement) {
+            let rect = ev.target.getBoundingClientRect();
+            mouseDown.x = ((ev.clientX - rect.left) / window.innerWidth) * 2 - 1;
+            mouseDown.y = -((ev.clientY - rect.top) / window.innerHeight) * 2 + 1;
+            let ray;
+            if (birdsEyeViewFlag === false) {
+                let vector = new THREE.Vector3(mouseDown.x, mouseDown.y, 1);
+                vector.unproject(currentCamera);
+                ray = new THREE.Raycaster(currentCamera.position, vector.sub(currentCamera.position).normalize());
+            } else {
+                ray = new THREE.Raycaster();
+                let mouse = new THREE.Vector2();
+                mouse.x = mouseDown.x;
+                mouse.y = mouseDown.y;
+                ray.setFromCamera(mouse, currentCamera);
+            }
+            let clickedObjects = ray.intersectObjects(labelTool.cubeArray[labelTool.currentFileIndex]);
+
+            if (clickedObjects.length > 0) {
+                clickedObjectIndex = labelTool.cubeArray[labelTool.currentFileIndex].indexOf(clickedObjects[0].object);
+                if (ev.button === 0) {
+                    clickFlag = true;
+                    clickedPoint = clickedObjects[0].point;
+                    clickedCube = labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex];
+                    let material = new THREE.MeshBasicMaterial({
+                        color: 0x000000,
+                        wireframe: false,
+                        transparent: true,
+                        opacity: 0.0,
+                        side: THREE.DoubleSide
+                    });
+                    let geometry = new THREE.PlaneGeometry(200, 200);
+                    let clickedPlane = new THREE.Mesh(geometry, material);
+                    clickedPlane.position.x = clickedPoint.x;
+                    clickedPlane.position.y = clickedPoint.y;
+                    clickedPlane.position.z = clickedPoint.z;
+                    let normal = clickedObjects[0].face;
+                    if ([normal.a, normal.b, normal.c].toString() == [6, 3, 2].toString() || [normal.a, normal.b, normal.c].toString() == [7, 6, 2].toString()) {
+                        clickedPlane.rotation.x = Math.PI / 2;
+                        clickedPlane.rotation.y = labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z;
                     }
-                    else if (ev.button === 2) {
-                        // rightclick
-                        let label = annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex]["class"];
-                        let trackId = annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex]["trackId"];
-                        guiOptions.removeFolder(label + ' ' + trackId);
-                        if (transformControls !== undefined) {
-                            transformControls.detach();
-                        }
+                    else if ([normal.a, normal.b, normal.c].toString() == [6, 7, 5].toString() || [normal.a, normal.b, normal.c].toString() == [4, 6, 5].toString()) {
+                        clickedPlane.rotation.x = -Math.PI / 2;
+                        clickedPlane.rotation.y = -Math.PI / 2 - labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z;
+                    }
+                    else if ([normal.a, normal.b, normal.c].toString() == [0, 2, 1].toString() || [normal.a, normal.b, normal.c].toString() == [2, 3, 1].toString()) {
+                        clickedPlane.rotation.x = Math.PI / 2;
+                        clickedPlane.rotation.y = Math.PI / 2 + labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z;
+                    }
+                    else if ([normal.a, normal.b, normal.c].toString() == [5, 0, 1].toString() || [normal.a, normal.b, normal.c].toString() == [4, 5, 1].toString()) {
+                        clickedPlane.rotation.x = -Math.PI / 2;
+                        clickedPlane.rotation.y = -labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z;
+                    }
+                    else if ([normal.a, normal.b, normal.c].toString() == [3, 6, 4].toString() || [normal.a, normal.b, normal.c].toString() == [1, 3, 4].toString()) {
+                        clickedPlane.rotation.y = -Math.PI
+                    }
+                    scene.add(clickedPlane);
+                    clickedPlaneArray.push(clickedPlane);
+                }
+                else if (ev.button === 2) {
+                    // rightclick
+                    let label = annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex]["class"];
+                    let trackId = annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex]["trackId"];
+                    guiOptions.removeFolder(label + ' ' + trackId);
+                    if (transformControls !== undefined) {
+                        transformControls.detach();
+                    }
 
-                        labelTool.removeObject("transformControls");
-                        let channels = annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex].channels;
-                        // iterate all channels and remove projection
-                        for (let channelIdx in channels) {
-                            if (channels.hasOwnProperty(channelIdx)) {
-                                let channelObj = channels[channelIdx];
-                                for (let lineObj in channelObj.lines) {
-                                    if (channelObj.lines.hasOwnProperty(lineObj)) {
-                                        let line = channelObj.lines[lineObj];
-                                        if (line !== undefined) {
-                                            line.remove();
-                                        }
-
+                    labelTool.removeObject("transformControls");
+                    let channels = annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex].channels;
+                    // iterate all channels and remove projection
+                    for (let channelIdx in channels) {
+                        if (channels.hasOwnProperty(channelIdx)) {
+                            let channelObj = channels[channelIdx];
+                            for (let lineObj in channelObj.lines) {
+                                if (channelObj.lines.hasOwnProperty(lineObj)) {
+                                    let line = channelObj.lines[lineObj];
+                                    if (line !== undefined) {
+                                        line.remove();
                                     }
+
                                 }
                             }
-
                         }
-                        annotationObjects.remove(clickedObjectIndex);
-                        folderBoundingBox3DArray.splice(clickedObjectIndex, 1);
-                        folderPositionArray.splice(clickedObjectIndex, 1);
-                        folderSizeArray.splice(clickedObjectIndex, 1);
-                        annotationObjects.selectEmpty();
-                        labelTool.spriteArray[labelTool.currentFileIndex].splice(clickedObjectIndex, 1);
-                        labelTool.removeObject("sprite-" + label.charAt(0) + trackId);
-                        // remove sprite from DOM tree
-                        $("#class-" + label.charAt(0) + trackId).remove();
-                        labelTool.selectedMesh = undefined;
-                        // reduce track id by 1 for this class
-                        if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-                            if (clickedObjectIndex === annotationObjects.contents[labelTool.currentFileIndex].length) {
-                                // decrement track id if the last object in the list was deleted
-                                classesBoundingBox[label].nextTrackId--;
-                            } else {
-                                // otherwise not last object was deleted -> find out the highest possible track id
-                                for (let newTrackId = 1; newTrackId <= annotationObjects.contents[labelTool.currentFileIndex].length; newTrackId++) {
-                                    let exist = false;
-                                    for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
-                                        if (newTrackId === annotationObjects.contents[labelTool.currentFileIndex][i]["trackId"]) {
-                                            exist = true;
-                                            break;
-                                        }
-                                    }
-                                    if (exist === false) {
-                                        // track id was not used yet
-                                        classesBoundingBox[label].nextTrackId = newTrackId;
+
+                    }
+                    annotationObjects.remove(clickedObjectIndex);
+                    folderBoundingBox3DArray.splice(clickedObjectIndex, 1);
+                    folderPositionArray.splice(clickedObjectIndex, 1);
+                    folderSizeArray.splice(clickedObjectIndex, 1);
+                    annotationObjects.selectEmpty();
+                    labelTool.spriteArray[labelTool.currentFileIndex].splice(clickedObjectIndex, 1);
+                    labelTool.removeObject("sprite-" + label.charAt(0) + trackId);
+                    // remove sprite from DOM tree
+                    $("#class-" + label.charAt(0) + trackId).remove();
+                    labelTool.selectedMesh = undefined;
+                    // reduce track id by 1 for this class
+                    if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+                        if (clickedObjectIndex === annotationObjects.contents[labelTool.currentFileIndex].length) {
+                            // decrement track id if the last object in the list was deleted
+                            classesBoundingBox[label].nextTrackId--;
+                        } else {
+                            // otherwise not last object was deleted -> find out the highest possible track id
+                            for (let newTrackId = 1; newTrackId <= annotationObjects.contents[labelTool.currentFileIndex].length; newTrackId++) {
+                                let exist = false;
+                                for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
+                                    if (newTrackId === annotationObjects.contents[labelTool.currentFileIndex][i]["trackId"]) {
+                                        exist = true;
                                         break;
                                     }
                                 }
+                                if (exist === false) {
+                                    // track id was not used yet
+                                    classesBoundingBox[label].nextTrackId = newTrackId;
+                                    break;
+                                }
                             }
-                        } else {
-                            classesBoundingBox.content[label].nextTrackId--;
                         }
+                    } else {
+                        classesBoundingBox.content[label].nextTrackId--;
+                    }
 
-                    }
-                } else {
-                    labelTool.selectedMesh = undefined;
-                    if (birdsEyeViewFlag === true) {
-                        clickedObjectIndex = -1;
-                        groundPlaneArray = [];
-                        let material = new THREE.MeshBasicMaterial({
-                            color: 0x000000,
-                            wireframe: false,
-                            transparent: true,//default: true
-                            opacity: 0.0,//oefault 0.0
-                            side: THREE.DoubleSide
-                        });
-                        let geometry = new THREE.PlaneGeometry(200, 200);
-                        let groundPlane = new THREE.Mesh(geometry, material);
-                        groundPlane.position.x = 0;
-                        groundPlane.position.y = 0;
-                        groundPlane.position.z = -1;
-                        groundPlaneArray.push(groundPlane);
-                        let groundObject = ray.intersectObjects(groundPlaneArray);
-                        groundPointMouseDown = groundObject[0].point;
-                    }
+                }
+            } else {
+                labelTool.selectedMesh = undefined;
+                if (birdsEyeViewFlag === true) {
+                    clickedObjectIndex = -1;
+                    groundPlaneArray = [];
+                    let material = new THREE.MeshBasicMaterial({
+                        color: 0x000000,
+                        wireframe: false,
+                        transparent: true,//default: true
+                        opacity: 0.0,//oefault 0.0
+                        side: THREE.DoubleSide
+                    });
+                    let geometry = new THREE.PlaneGeometry(200, 200);
+                    let groundPlane = new THREE.Mesh(geometry, material);
+                    groundPlane.position.x = 0;
+                    groundPlane.position.y = 0;
+                    groundPlane.position.z = -1;
+                    groundPlaneArray.push(groundPlane);
+                    let groundObject = ray.intersectObjects(groundPlaneArray);
+                    groundPointMouseDown = groundObject[0].point;
                 }
             }
         }
     };
 
+
     canvas3D.onmouseup = function (ev) {
-        if (ev.button == 0) {
-            if (bboxFlag == true) {
-                let rect = ev.target.getBoundingClientRect();
-                mouseUp.x = ((ev.clientX - rect.left) / $("#canvas3d canvas").attr("width")) * 2 - 1;
-                mouseUp.y = -((ev.clientY - rect.top) / $("#canvas3d canvas").attr("height")) * 2 + 1;
-                let ray = undefined;
-                if (birdsEyeViewFlag === false) {
-                    let vector = new THREE.Vector3(mouseUp.x, mouseUp.y, 1);
-                    vector.unproject(currentCamera);
-                    ray = new THREE.Raycaster(currentCamera.position, vector.sub(currentCamera.position).normalize());
+        // check if scene contains transform controls
+        useTransformControls = false;
+        for (let i = 0; i < scene.children.length; i++) {
+            if (scene.children[i].name === "transformControls") {
+                useTransformControls = true;
+            }
+        }
+        if (ev.button === 0) {
+            let rect = ev.target.getBoundingClientRect();
+            mouseUp.x = ((ev.clientX - rect.left) / $("#canvas3d canvas").attr("width")) * 2 - 1;
+            mouseUp.y = -((ev.clientY - rect.top) / $("#canvas3d canvas").attr("height")) * 2 + 1;
+            let ray = undefined;
+            if (birdsEyeViewFlag === false) {
+                let vector = new THREE.Vector3(mouseUp.x, mouseUp.y, 1);
+                vector.unproject(currentCamera);
+                ray = new THREE.Raycaster(currentCamera.position, vector.sub(currentCamera.position).normalize());
+            } else {
+                ray = new THREE.Raycaster();
+                let mouse = new THREE.Vector2();
+                mouse.x = mouseUp.x;
+                mouse.y = mouseUp.y;
+                ray.setFromCamera(mouse, currentCamera);
+            }
+            let clickedObjects = ray.intersectObjects(clickedPlaneArray);
+
+            // close folders
+            for (let i = 0; i < folderBoundingBox3DArray.length; i++) {
+                if (folderBoundingBox3DArray[i] !== undefined) {
+                    folderBoundingBox3DArray[i].close();
+                }
+            }
+
+            if (clickedObjects.length > 0 && clickedObjectIndex !== -1) {
+                // one object was selected
+                for (let mesh in labelTool.cubeArray[labelTool.currentFileIndex]) {
+                    let meshObject = labelTool.cubeArray[labelTool.currentFileIndex][mesh];
+                    meshObject.material.opacity = 0.4;
+                }
+                labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].material.opacity = 0.8;
+                // open folder of selected object
+                annotationObjects.localOnSelect["PCD"](clickedObjectIndex);
+                // set selected object
+                labelTool.selectedMesh = labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex];
+                if (transformControls.position !== undefined) {
+                    transformControls.detach();
+                    transformControls.attach(labelTool.selectedMesh);
+                }
+
+                // if in birdseyeview then find minimum of longitude and latitude
+                // otherwise find minimum of x, y and z
+                let smallestSide;
+                if (birdsEyeViewFlag === true) {
+                    smallestSide = Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y);
                 } else {
-                    ray = new THREE.Raycaster();
-                    let mouse = new THREE.Vector2();
-                    mouse.x = mouseUp.x;
-                    mouse.y = mouseUp.y;
-                    ray.setFromCamera(mouse, currentCamera);
+                    smallestSide = Math.min(Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y), labelTool.selectedMesh.scale.z);
                 }
-                let clickedObjects = ray.intersectObjects(clickedPlaneArray);
+                let size = smallestSide / 2.0;
+                console.log("size controls mouseup: " + size);
+                transformControls.size = size;
+                // add transform controls to scene
+                scene.add(transformControls);
 
-                // close folders
-                for (let i = 0; i < folderBoundingBox3DArray.length; i++) {
-                    if (folderBoundingBox3DArray[i] !== undefined) {
-                        folderBoundingBox3DArray[i].close();
+                // open folder of selected object
+                for (let channelIdx in labelTool.camChannels) {
+                    if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
+                        let camChannel = labelTool.camChannels[channelIdx].channel;
+                        annotationObjects.select(clickedObjectIndex, camChannel);
                     }
                 }
 
-                if (clickedObjects.length > 0 && clickedObjectIndex !== -1) {
-                    // one object was selected
-                    for (let mesh in labelTool.cubeArray[labelTool.currentFileIndex]) {
-                        let meshObject = labelTool.cubeArray[labelTool.currentFileIndex][mesh];
-                        meshObject.material.opacity = 0.4;
+            } else {
+                // remove selection in camera view if 2d label exist
+                for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
+                    if (annotationObjects.contents[labelTool.currentFileIndex][i]["rect"] !== undefined) {
+                        // removeBoundingBoxHighlight(i);
+                        removeTextBox(i);
                     }
-                    labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].material.opacity = 0.8;
-                    // open folder of selected object
-                    annotationObjects.localOnSelect["PCD"](clickedObjectIndex);
-                    // set selected object
-                    labelTool.selectedMesh = labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex];
-                    if (transformControls.position !== undefined) {
-                        transformControls.detach();
-                        transformControls.attach(labelTool.selectedMesh);
-                    }
+                }
 
-                    // if in birdseyeview then find minimum of longitude and latitude
-                    // otherwise find minimum of x, y and z
-                    let smallestSide;
-                    if (birdsEyeViewFlag === true) {
-                        smallestSide = Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y);
+                // remove selection in birds eye view (lower opacity)
+                for (let mesh in labelTool.cubeArray[labelTool.currentFileIndex]) {
+                    let meshObject = labelTool.cubeArray[labelTool.currentFileIndex][mesh];
+                    meshObject.material.opacity = 0.4;
+                }
+
+                // remove arrows (transform controls)
+                if (transformControls !== undefined) {
+                    transformControls.detach();
+                }
+                labelTool.removeObject("transformControls");
+                labelTool.selectedMesh = undefined;
+                annotationObjects.selectEmpty();
+                // disable interpolate button
+                interpolateBtn.domElement.parentElement.parentElement.style.pointerEvents = "none";
+                // interpolateBtn.domElement.parentElement.style.pointerEvents = "none";
+                // interpolateBtn.domElement.parentElement.parentElement.style.pointerEvents = "none";
+                interpolateBtn.domElement.parentElement.parentElement.style.opacity = 0.2;
+
+            }
+
+            if (clickFlag === true) {
+                clickedPlaneArray = [];
+                // find out in which camera view the 3d object lies -> calculate angle from 3D position
+                // let channels = getChannelsByPosition(annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex]["x"], annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex]["y"]);
+                // for (let channel in channels) {
+                for (let channelIdx in labelTool.camChannels) {
+                    if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
+                        let camChannel = labelTool.camChannels[channelIdx].channel;
+                        annotationObjects.select(clickedObjectIndex, camChannel);
+                    }
+                }
+
+                clickFlag = false;
+            } else if (groundPlaneArray.length === 1 && birdsEyeViewFlag === true && useTransformControls === false) {
+                let groundUpObject = ray.intersectObjects(groundPlaneArray);
+                let groundPointMouseUp = groundUpObject[0].point;
+
+                let trackId = -1;
+                let insertIndex;
+                if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
+                    if (annotationObjects.__selectionIndex === -1) {
+                        // no object selected in 3d scene (new object was created)-> use selected class from class menu
+                        trackId = classesBoundingBox.content[classesBoundingBox.targetName()].nextTrackId;
+                        //trackId = getNextTrackId(classesBoundingBox.targetName(), labelTool.datasets.NuScenes);
+                        insertIndex = annotationObjects.__insertIndex;
                     } else {
-                        smallestSide = Math.min(Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y), labelTool.selectedMesh.scale.z);
+                        // object was selected in 3d scene
+                        trackId = annotationObjects.contents[labelTool.currentFileIndex][annotationObjects.__selectionIndex]["trackId"];
+                        insertIndex = annotationObjects.__selectionIndex;
                     }
-                    let size = smallestSide / 10.0;
-                    console.log("size controls mouseup: " + size);
-                    transformControls.size = size;
-                    // add transform controls to scene
-                    scene.add(transformControls);
-
-                    // open folder of selected object
-                    for (let channelIdx in labelTool.camChannels) {
-                        if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
-                            let camChannel = labelTool.camChannels[channelIdx].channel;
-                            annotationObjects.select(clickedObjectIndex, camChannel);
-                        }
-                    }
-
                 } else {
-                    // remove selection in camera view if 2d label exist
-                    for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
-                        if (annotationObjects.contents[labelTool.currentFileIndex][i]["rect"] !== undefined) {
-                            // removeBoundingBoxHighlight(i);
-                            removeTextBox(i);
-                        }
+                    if (annotationObjects.__selectionIndex === -1) {
+                        trackId = classesBoundingBox[classesBoundingBox.targetName()].nextTrackId;
+                        //trackId = getNextTrackId(classesBoundingBox.targetName(), labelTool.datasets.LISA_T);
+                        insertIndex = annotationObjects.__insertIndex;
+                    } else {
+                        trackId = annotationObjects.contents[labelTool.currentFileIndex][annotationObjects.__selectionIndex]["trackId"];
+                        insertIndex = annotationObjects.__selectionIndex;
                     }
-
-                    // remove selection in birds eye view (lower opacity)
-                    for (let mesh in labelTool.cubeArray[labelTool.currentFileIndex]) {
-                        let meshObject = labelTool.cubeArray[labelTool.currentFileIndex][mesh];
-                        meshObject.material.opacity = 0.4;
-                    }
-
-                    // remove arrows (transform controls)
-                    labelTool.removeObject("transformControls");
-                    labelTool.selectedMesh = undefined;
-                    annotationObjects.selectEmpty();
-                    // disable interpolate button
-                    interpolateBtn.domElement.parentElement.parentElement.style.pointerEvents = "none";
-                    // interpolateBtn.domElement.parentElement.style.pointerEvents = "none";
-                    // interpolateBtn.domElement.parentElement.parentElement.style.pointerEvents = "none";
-                    interpolateBtn.domElement.parentElement.parentElement.style.opacity = 0.2;
-
                 }
 
-                if (clickFlag === true) {
-                    clickedPlaneArray = [];
-                    // find out in which camera view the 3d object lies -> calculate angle from 3D position
-                    // let channels = getChannelsByPosition(annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex]["x"], annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex]["y"]);
-                    // for (let channel in channels) {
-                    for (let channelIdx in labelTool.camChannels) {
-                        if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
-                            let camChannel = labelTool.camChannels[channelIdx].channel;
-                            annotationObjects.select(clickedObjectIndex, camChannel);
-                        }
-                    }
-
-                    clickFlag = false;
-                } else if (groundPlaneArray.length === 1 && birdsEyeViewFlag === true) {
-                    let groundUpObject = ray.intersectObjects(groundPlaneArray);
-                    let groundPointMouseUp = groundUpObject[0].point;
-
-                    let trackId = -1;
-                    let insertIndex;
-                    if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
-                        if (annotationObjects.__selectionIndex === -1) {
-                            // no object selected in 3d scene (new object was created)-> use selected class from class menu
-                            trackId = classesBoundingBox.content[classesBoundingBox.targetName()].nextTrackId;
-                            //trackId = getNextTrackId(classesBoundingBox.targetName(), labelTool.datasets.NuScenes);
-                            insertIndex = annotationObjects.__insertIndex;
-                        } else {
-                            // object was selected in 3d scene
-                            trackId = annotationObjects.contents[labelTool.currentFileIndex][annotationObjects.__selectionIndex]["trackId"];
-                            insertIndex = annotationObjects.__selectionIndex;
-                        }
-                    } else {
-                        if (annotationObjects.__selectionIndex === -1) {
-                            trackId = classesBoundingBox[classesBoundingBox.targetName()].nextTrackId;
-                            //trackId = getNextTrackId(classesBoundingBox.targetName(), labelTool.datasets.LISA_T);
-                            insertIndex = annotationObjects.__insertIndex;
-                        } else {
-                            trackId = annotationObjects.contents[labelTool.currentFileIndex][annotationObjects.__selectionIndex]["trackId"];
-                            insertIndex = annotationObjects.__selectionIndex;
-                        }
-                    }
-
-                    // set channel based on 3d position of new bonding box
-                    if (Math.abs(groundPointMouseUp.x - groundPointMouseDown.x) > 0.1) {
-                        let xPos = (groundPointMouseUp.x + groundPointMouseDown.x) / 2;
-                        let yPos = (groundPointMouseUp.y + groundPointMouseDown.y) / 2;
-                        let zPos = -100 / 100; // height of lidar sensor. Use it to put object on street
-                        let addBboxParameters = {
+                // set channel based on 3d position of new bonding box
+                if (Math.abs(groundPointMouseUp.x - groundPointMouseDown.x) > 0.1) {
+                    let xPos = (groundPointMouseUp.x + groundPointMouseDown.x) / 2;
+                    let yPos = (groundPointMouseUp.y + groundPointMouseDown.y) / 2;
+                    //let zPos = -100 / 100; // height of lidar sensor. Use it to put object on street
+                    let zPos = -60.7137000000000 / 100;
+                    let addBboxParameters = {
+                        class: classesBoundingBox.targetName(),
+                        x: xPos,
+                        y: yPos,
+                        z: zPos,
+                        width: Math.abs(groundPointMouseUp.x - groundPointMouseDown.x),
+                        height: Math.abs(groundPointMouseUp.y - groundPointMouseDown.y),
+                        depth: 2.0,
+                        rotationY: 0,
+                        original: {
                             class: classesBoundingBox.targetName(),
-                            x: xPos,
-                            y: yPos,
+                            x: (groundPointMouseUp.x + groundPointMouseDown.x) / 2,
+                            y: (groundPointMouseUp.y + groundPointMouseDown.y) / 2,
                             z: zPos,
                             width: Math.abs(groundPointMouseUp.x - groundPointMouseDown.x),
                             height: Math.abs(groundPointMouseUp.y - groundPointMouseDown.y),
                             depth: 2.0,
                             rotationY: 0,
-                            original: {
-                                class: classesBoundingBox.targetName(),
-                                x: (groundPointMouseUp.x + groundPointMouseDown.x) / 2,
-                                y: (groundPointMouseUp.y + groundPointMouseDown.y) / 2,
-                                z: zPos,
-                                width: Math.abs(groundPointMouseUp.x - groundPointMouseDown.x),
-                                height: Math.abs(groundPointMouseUp.y - groundPointMouseDown.y),
-                                depth: 2.0,
-                                rotationY: 0,
-                                trackId: trackId
+                            trackId: trackId
+                        },
+                        interpolationStartFileIndex: -1,
+                        interpolationStart: {
+                            position: {
+                                x: -1,
+                                y: -1,
+                                z: -1,
+                                rotationY: -1
                             },
-                            interpolationStartFileIndex: -1,
-                            interpolationStart: {
-                                position: {
-                                    x: -1,
-                                    y: -1,
-                                    z: -1,
-                                    rotationY: -1
-                                },
-                                size: {
-                                    width: -1,
-                                    height: -1,
-                                    depth: -1
-                                }
-                            },
-                            interpolationEnd: {
-                                position: {
-                                    x: -1,
-                                    y: -1,
-                                    z: -1,
-                                    rotationY: -1
-                                },
-                                size: {
-                                    width: -1,
-                                    height: -1,
-                                    depth: -1
-                                }
-                            },
-                            trackId: trackId,
-                            channels: [{
-                                rect: [],
-                                projectedPoints: [],
-                                lines: [],
-                                channel: ''
-                            }, {
-                                rect: [],
-                                projectedPoints: [],
-                                lines: [],
-                                channel: ''
-                            }, {
-                                rect: [],
-                                projectedPoints: [],
-                                lines: [],
-                                channel: ''
-                            }, {
-                                rect: [],
-                                projectedPoints: [],
-                                lines: [],
-                                channel: ''
-                            }, {
-                                rect: [],
-                                projectedPoints: [],
-                                lines: [],
-                                channel: ''
-                            }, {
-                                rect: [],
-                                projectedPoints: [],
-                                lines: [],
-                                channel: ''
-                            }],
-                            fromFile: false
-                        };
-                        // set channel
-                        // let channels = getChannelsByPosition(xPos, -yPos);
-                        // for (let i = 0; i < channels.length; i++) {
-                        for (let i = 0; i < labelTool.camChannels.length; i++) {
-                            let channel = labelTool.camChannels[i].channel;
-                            addBboxParameters.channels[i].channel = channel;
-                            // working for LISA_T
-                            let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -yPos, -zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth, channel);
-                            // let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -yPos, zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth, channel);
-                            addBboxParameters.channels[i].projectedPoints = projectedBoundingBox;
-                        }
-                        // calculate line segments
-                        for (let i = 0; i < addBboxParameters.channels.length; i++) {
-                            let channelObj = addBboxParameters.channels[i];
-                            if (channelObj.channel !== undefined && channelObj.channel !== '') {
-                                if (addBboxParameters.channels[i].projectedPoints !== undefined && addBboxParameters.channels[i].projectedPoints.length === 8) {
-                                    addBboxParameters.channels[i]["lines"] = calculateLineSegments(channelObj, classesBoundingBox.targetName());
-                                }
+                            size: {
+                                width: -1,
+                                height: -1,
+                                depth: -1
                             }
-                        }
-                        annotationObjects.set(insertIndex, addBboxParameters);
-                        labelTool.selectedMesh = labelTool.cubeArray[labelTool.currentFileIndex][insertIndex];
-                        // console.log(mesh.position.x + ' ' + mesh.position.y + ' ' + mesh.position.z + ' ');
-
-                        // let transformControlsScene = scene.getObjectByName("transformControls");
-                        // labelTool.removeObject("transformControls");
-                        addTransformControls();
-
-
-                        annotationObjects.__insertIndex++;
-                        classesBoundingBox.target().nextTrackId++;
-                        for (let channelIdx in labelTool.camChannels) {
-                            if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
-                                let camChannel = labelTool.camChannels[channelIdx].channel;
-                                annotationObjects.select(insertIndex, camChannel);
+                        },
+                        interpolationEnd: {
+                            position: {
+                                x: -1,
+                                y: -1,
+                                z: -1,
+                                rotationY: -1
+                            },
+                            size: {
+                                width: -1,
+                                height: -1,
+                                depth: -1
                             }
-                        }
-                        let interpolationModeCheckbox = document.getElementById("interpolation-checkbox");
-                        interpolationModeCheckbox.parentElement.parentElement.style.opacity = 1.0;
-                        interpolationModeCheckbox.parentElement.parentElement.style.pointerEvents = "all";
-                        $(interpolationModeCheckbox.firstChild).removeAttr("tabIndex");
-
+                        },
+                        trackId: trackId,
+                        channels: [{
+                            rect: [],
+                            projectedPoints: [],
+                            lines: [],
+                            channel: ''
+                        }, {
+                            rect: [],
+                            projectedPoints: [],
+                            lines: [],
+                            channel: ''
+                        }, {
+                            rect: [],
+                            projectedPoints: [],
+                            lines: [],
+                            channel: ''
+                        }, {
+                            rect: [],
+                            projectedPoints: [],
+                            lines: [],
+                            channel: ''
+                        }, {
+                            rect: [],
+                            projectedPoints: [],
+                            lines: [],
+                            channel: ''
+                        }, {
+                            rect: [],
+                            projectedPoints: [],
+                            lines: [],
+                            channel: ''
+                        }],
+                        fromFile: false
+                    };
+                    // set channel
+                    // let channels = getChannelsByPosition(xPos, -yPos);
+                    // for (let i = 0; i < channels.length; i++) {
+                    for (let i = 0; i < labelTool.camChannels.length; i++) {
+                        let channel = labelTool.camChannels[i].channel;
+                        addBboxParameters.channels[i].channel = channel;
+                        // working for LISA_T
+                        let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -yPos, -zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth, channel);
+                        // let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -yPos, zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth, channel);
+                        addBboxParameters.channels[i].projectedPoints = projectedBoundingBox;
                     }
+                    // calculate line segments
+                    for (let i = 0; i < addBboxParameters.channels.length; i++) {
+                        let channelObj = addBboxParameters.channels[i];
+                        if (channelObj.channel !== undefined && channelObj.channel !== '') {
+                            if (addBboxParameters.channels[i].projectedPoints !== undefined && addBboxParameters.channels[i].projectedPoints.length === 8) {
+                                addBboxParameters.channels[i]["lines"] = calculateLineSegments(channelObj, classesBoundingBox.targetName());
+                            }
+                        }
+                    }
+                    annotationObjects.set(insertIndex, addBboxParameters);
+                    labelTool.selectedMesh = labelTool.cubeArray[labelTool.currentFileIndex][insertIndex];
+                    // console.log(mesh.position.x + ' ' + mesh.position.y + ' ' + mesh.position.z + ' ');
 
-                    // else if (cFlag == true) {
-                    //     var addBboxParameters = {
-                    //         class: classesBoundingBox.targetName(),
-                    //         x_img: -1,
-                    //         y_img: -1,
-                    //         width_img: -1,
-                    //         height_img: -1,
-                    //         x: (groundUpPoint.x + groundPointMouseDown.x) / 2,
-                    //         y: -(groundUpPoint.y + groundPointMouseDown.y) / 2,
-                    //         z: copyBbox.z,
-                    //         width: copyBbox.width,
-                    //         height: copyBbox.height,
-                    //         depth: copyBbox.depth,
-                    //         yaw: copyBbox.yaw,
-                    //         org: {
-                    //             x: (groundUpPoint.x + groundPointMouseDown.x) / 2,
-                    //             y: -(groundUpPoint.y + groundPointMouseDown.y) / 2,
-                    //             z: copyBbox.z,
-                    //             width: copyBbox.width,
-                    //             height: copyBbox.height,
-                    //             depth: copyBbox.depth,
-                    //             yaw: copyBbox.yaw,
-                    //         },
-                    //         trackId: trackId,
-                    //         fromFile: false
-                    //     };
-                    //     annotationObjects.selectEmpty();
-                    //     var selectionIndex = annotationObjects.getSelectionIndex();
-                    //     if (selectionIndex !== -1) {
-                    //         // a bounding box was already selected (either in camera or birds eye view)
-                    //         // replace the bounding box in birds eye view with the new one
-                    //         annotationObjects.set(selectionIndex, addBboxParameters);
-                    //         // select that new bounding box
-                    //         var channels = getChannelsByPosition(annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["x"], annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["y"]);
-                    //         for (var channel in channels) {
-                    //             var camChannel = channels[channel];
-                    //             annotationObjects.select(selectionIndex, camChannel);
-                    //         }
-                    //     } else {
-                    //         // no object was selected
-                    //         // add a new entry
-                    //         var insertIndex = annotationObjects.__insertIndex;
-                    //         annotationObjects.set(insertIndex, addBboxParameters);
-                    //         // select last placed bounding box
-                    //         var channels = getChannelsByPosition(annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["x"], annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["y"]);
-                    //         for (var channel in channels) {
-                    //             var camChannel = channels[channel];
-                    //             annotationObjects.select(insertIndex, camChannel);
-                    //         }
-                    //     }
-                    // }
+                    // let transformControlsScene = scene.getObjectByName("transformControls");
+                    // labelTool.removeObject("transformControls");
+                    addTransformControls();
 
-                    groundPlaneArray = [];
-                    $("#label-tool-log").val("4. Choose class from drop down list");
-                    $("#label-tool-log").css("color", "#969696");
+
+                    annotationObjects.__insertIndex++;
+                    classesBoundingBox.target().nextTrackId++;
+                    for (let channelIdx in labelTool.camChannels) {
+                        if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
+                            let camChannel = labelTool.camChannels[channelIdx].channel;
+                            annotationObjects.select(insertIndex, camChannel);
+                        }
+                    }
+                    let interpolationModeCheckbox = document.getElementById("interpolation-checkbox");
+                    interpolationModeCheckbox.parentElement.parentElement.style.opacity = 1.0;
+                    interpolationModeCheckbox.parentElement.parentElement.style.pointerEvents = "all";
+                    $(interpolationModeCheckbox.firstChild).removeAttr("tabIndex");
+
                 }
 
+                // else if (cFlag == true) {
+                //     var addBboxParameters = {
+                //         class: classesBoundingBox.targetName(),
+                //         x_img: -1,
+                //         y_img: -1,
+                //         width_img: -1,
+                //         height_img: -1,
+                //         x: (groundUpPoint.x + groundPointMouseDown.x) / 2,
+                //         y: -(groundUpPoint.y + groundPointMouseDown.y) / 2,
+                //         z: copyBbox.z,
+                //         width: copyBbox.width,
+                //         height: copyBbox.height,
+                //         depth: copyBbox.depth,
+                //         yaw: copyBbox.yaw,
+                //         org: {
+                //             x: (groundUpPoint.x + groundPointMouseDown.x) / 2,
+                //             y: -(groundUpPoint.y + groundPointMouseDown.y) / 2,
+                //             z: copyBbox.z,
+                //             width: copyBbox.width,
+                //             height: copyBbox.height,
+                //             depth: copyBbox.depth,
+                //             yaw: copyBbox.yaw,
+                //         },
+                //         trackId: trackId,
+                //         fromFile: false
+                //     };
+                //     annotationObjects.selectEmpty();
+                //     var selectionIndex = annotationObjects.getSelectionIndex();
+                //     if (selectionIndex !== -1) {
+                //         // a bounding box was already selected (either in camera or birds eye view)
+                //         // replace the bounding box in birds eye view with the new one
+                //         annotationObjects.set(selectionIndex, addBboxParameters);
+                //         // select that new bounding box
+                //         var channels = getChannelsByPosition(annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["x"], annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["y"]);
+                //         for (var channel in channels) {
+                //             var camChannel = channels[channel];
+                //             annotationObjects.select(selectionIndex, camChannel);
+                //         }
+                //     } else {
+                //         // no object was selected
+                //         // add a new entry
+                //         var insertIndex = annotationObjects.__insertIndex;
+                //         annotationObjects.set(insertIndex, addBboxParameters);
+                //         // select last placed bounding box
+                //         var channels = getChannelsByPosition(annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["x"], annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["y"]);
+                //         for (var channel in channels) {
+                //             var camChannel = channels[channel];
+                //             annotationObjects.select(insertIndex, camChannel);
+                //         }
+                //     }
+                // }
+
+                groundPlaneArray = [];
+                $("#label-tool-log").val("4. Choose class from drop down list");
+                $("#label-tool-log").css("color", "#969696");
             }
+
         }
     };
+
     labelTool.cubeArray = [];
     labelTool.spriteArray = [];
     labelTool.savedFrames = [];
