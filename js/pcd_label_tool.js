@@ -183,6 +183,8 @@ function interpolate() {
     annotationObjects.contents[labelTool.currentFileIndex][idx]["interpolationStart"]["size"]["y"] = annotationObjects.contents[labelTool.currentFileIndex][idx]["interpolationEnd"]["size"]["y"];
     annotationObjects.contents[labelTool.currentFileIndex][idx]["interpolationStart"]["size"]["z"] = annotationObjects.contents[labelTool.currentFileIndex][idx]["interpolationEnd"]["size"]["z"];
     annotationObjects.contents[labelTool.currentFileIndex][idx]["interpolationStartFileIndex"] = labelTool.currentFileIndex;
+
+    labelTool.logger.success("Interpolation successfully!");
 }
 
 let parameters = {
