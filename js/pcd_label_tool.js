@@ -599,28 +599,28 @@ function paddingRight(s, c, n) {
 }
 
 function download() {
-    // download annotations
+    // download annotations from all frames of current dataset
     let annotations = labelTool.createAnnotations();
-    let outputString = 'CLASS | HEIGHT | WIDTH | LENGTH | X (LAT) | Y (LONG) | Z (VERT) | ROT (YAW) | TRACK ID\n';
-    for (let i = 0; i < annotations.length; i++) {
-        outputString += annotations[i].class + " ";
-        // outputString += annotations[i].alpha + " ";
-        // outputString += annotations[i].occluded + " ";
-        // outputString += annotations[i].truncated + " ";
-        // outputString += annotations[i].left + " ";
-        // outputString += annotations[i].top + " ";
-        // outputString += annotations[i].right + " ";
-        // outputString += annotations[i].bottom + " ";
-        outputString += (annotations[i].height).toFixed(6) + " ";//length
-        outputString += (annotations[i].width).toFixed(6) + " ";//height
-        outputString += (annotations[i].length).toFixed(6) + " ";//width
-        outputString += (annotations[i].x).toFixed(6) + " ";//lateral x
-        outputString += (annotations[i].y).toFixed(6) + " ";
-        outputString += (annotations[i].z).toFixed(6) + " ";
-        outputString += (annotations[i].rotationYaw).toFixed(6) + " ";
-        // outputString += annotations[i].score + " ";
-        outputString += annotations[i].trackId + "\n";
-    }
+    let outputString = JSON.stringify(annotations);
+    // for (let i = 0; i < annotations.length; i++) {
+    //     outputString += annotations[i].class + " ";
+    //     // outputString += annotations[i].alpha + " ";
+    //     // outputString += annotations[i].occluded + " ";
+    //     // outputString += annotations[i].truncated + " ";
+    //     // outputString += annotations[i].left + " ";
+    //     // outputString += annotations[i].top + " ";
+    //     // outputString += annotations[i].right + " ";
+    //     // outputString += annotations[i].bottom + " ";
+    //     outputString += (annotations[i].height).toFixed(6) + " ";//length
+    //     outputString += (annotations[i].width).toFixed(6) + " ";//height
+    //     outputString += (annotations[i].length).toFixed(6) + " ";//width
+    //     outputString += (annotations[i].x).toFixed(6) + " ";//lateral x
+    //     outputString += (annotations[i].y).toFixed(6) + " ";
+    //     outputString += (annotations[i].z).toFixed(6) + " ";
+    //     outputString += (annotations[i].rotationYaw).toFixed(6) + " ";
+    //     // outputString += annotations[i].score + " ";
+    //     outputString += annotations[i].trackId + "\n";
+    // }
     outputString = b64EncodeUnicode(outputString);
     let fileName = labelTool.currentFileIndex.toString().padStart(6, '0');
     $($('#bounding-box-3d-menu ul li')[0]).children().first().attr('href', 'data:application/octet-stream;base64,' + outputString).attr('download', fileName + '.txt');
