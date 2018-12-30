@@ -779,6 +779,21 @@ let labelTool = {
             this.localOnInitialize[channelObj.channel]();
         }.bind(this));
         this.localOnInitialize["PCD"]();
+
+        $(function () {
+            $('#class-picker>ul>li').hover(function () {
+                $(this).css('background-color', "#535353");
+            }, function () {
+                // on mouseout, reset the background color if not selected
+                let currentClass = classesBoundingBox.getCurrentClass();
+                let currentClassIndex = classesBoundingBox[currentClass].index;
+                let currentHoverIndex = $("#class-picker>ul>li").index(this);
+                if (currentClassIndex !== currentHoverIndex) {
+                    $(this).css('background-color', "#353535");
+                }
+            });
+        });
+
     },
 
     getAnnotations(currentFileIndex) {
