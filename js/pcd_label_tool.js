@@ -1,6 +1,12 @@
+let canvasBEV;
+let canvasSideView;
+let canvasFrontView;
 let orthographicCamera;
 let perspectiveCamera;
 let currentCamera;
+let cameraBEV;
+let cameraSideView;
+let cameraFrontView;
 let currentOrbitControls;
 let orthographicOrbitControls;
 let perspectiveOrbitControls;
@@ -8,6 +14,9 @@ let transformControls;
 let scene;
 let projector;
 let renderer;
+let rendererBev;
+let rendererSideView;
+let rendererFrontView;
 let clock;
 let container;
 let keyboard;
@@ -1042,6 +1051,9 @@ function onWindowResize() {
     currentCamera.aspect = window.innerWidth / window.innerHeight;
     currentCamera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    rendererBev.setSize(window.innerWidth / 3, window.innerHeight / 3);
+    rendererFrontView.setSize(window.innerWidth / 3, window.innerHeight / 3);
+    rendererSideView.setSize(window.innerWidth / 3, window.innerHeight / 3);
     animate();
 }
 
@@ -1338,6 +1350,22 @@ function setCamera() {
 
 function render() {
     renderer.render(scene, currentCamera);
+    // labelRenderer.render(scene, cameraBEV);
+
+    if (rendererBev !== undefined) {
+        rendererBev.render(scene, cameraBEV);
+        let context = canvasBEV.getContext("2d");
+        context.drawImage(rendererBev.domElement, 0, 0);
+    } else if (rendererSideView !== undefined) {
+        rendererSideView.render(scene, cameraSideView);
+        let context = canvasSideView.getContext("2d");
+        context.drawImage(rendererSideView.domElement, 0, 0);
+    } else if (rendererFrontView !== undefined) {
+        rendererFrontView.render(scene, cameraFrontView);
+        let context = canvasFrontView.getContext("2d");
+        context.drawImage(rendererFrontView.domElement, 0, 0);
+    }
+
     updateAnnotationOpacity();
     updateScreenPosition();
 }
@@ -1995,6 +2023,197 @@ function enableStartPositionAndSize() {
     folderSizeArray[interpolationObjIndex].domElement.style.pointerEvents = "all";
 }
 
+function scatter(vertices, size, color, texture = "") {
+    let geometry = new THREE.BufferGeometry();
+    let settings = {
+        size: size,
+        sizeAttenuation: false,
+        alphaTest: 0.5,
+        transparent: true
+    };
+    if (texture !== "") {
+        console.log(texture);
+        settings["map"] = new THREE.TextureLoader().load(texture);
+    }
+    geometry.addAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+    material = new THREE.PointsMaterial(settings);
+    material.color.set(color);
+    return new THREE.Points(geometry, material);
+}
+
+function showBEV(xPos, yPos, width, height) {
+    canvasBEV = document.createElement("canvas");
+    //cameraBEV.up.set(0, 1, 0);// bev
+    const wBev = window.innerWidth / 3;
+    let imagePaneHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
+    const hBev = (window.innerHeight - imagePaneHeight - headerHeight - 3 * 34) / 3;
+    let aspectRatio = wBev / hBev;
+    // check which side is longer
+    if (height > width) {
+        let left = yPos + height / 2 + height / 100;
+        let right = yPos - height / 2 - height / 100;
+        let lateralSize = Math.abs(right - left);
+        let bottom = -xPos - lateralSize / (aspectRatio * 2);
+        let top = -xPos + lateralSize / (aspectRatio * 2);
+        cameraBEV = new THREE.OrthographicCamera(left, right, bottom, top, 0.0001, 2000);
+    } else {
+        let bottom = -xPos - height / 2 - height / 100;
+        let top = -xPos + height / 2 + height / 100;
+        let verticalSize = Math.abs(top - bottom);
+        let left = yPos + verticalSize * aspectRatio / 2;
+        let right = yPos - verticalSize * aspectRatio / 2;
+        cameraBEV = new THREE.OrthographicCamera(left, right, bottom, top, 0.0001, 2000);
+    }
+
+    cameraBEV.up.set(-1, 0, 1); //BEV view
+    let panelBev = jsPanel.create({
+        id: "panelBev",
+        theme: "primary",
+        contentSize: {
+            width: function () {
+                return Math.min(wBev, window.innerWidth / 3);
+            },
+            height: hBev
+        },
+        position: "left-bottom 0 0",
+        headerTitle: "Bird's Eye View",
+        content: function (panel) {
+            let container = $(this.content)[0];
+            canvasBEV.width = wBev;
+            canvasBEV.height = hBev;
+            cameraBEV.position.set(0, 0, 100); // bev
+            //cameraBEV.position.set(0, 0, 0);// front view
+            cameraBEV.lookAt(0, 0, 0);//bev
+            //cameraBEV.lookAt(0, 0, 10);//front view
+            container.appendChild(canvasBEV);
+        },
+        onwindowresize: true
+    });
+    rendererBev = new THREE.WebGLRenderer({
+        antialias: true
+    });
+    rendererBev.setPixelRatio(window.devicePixelRatio);
+    rendererBev.setSize(wBev, hBev);
+
+}
+
+function showFrontView(xPos, yPos, zPos, width, height, depth) {
+    canvasFrontView = document.createElement("canvas");
+    const widthFrontView = window.innerWidth / 3;
+    let imagePanelTopPos = parseInt($("#layout_layout_resizer_top").css("top"), 10);
+    const heightFrontView = (window.innerHeight - imagePanelTopPos - headerHeight - 3 * 34) / 3;
+    let aspectRatio = widthFrontView / heightFrontView;
+
+    if (width > depth) {
+        let left = -xPos + width;
+        let right = -xPos - width;
+        let lateralSize = Math.abs(right - left);
+        let bottom = zPos - lateralSize / (aspectRatio * 2);
+        let top = zPos + lateralSize / (aspectRatio * 2);
+        cameraFrontView = new THREE.OrthographicCamera(left, right, bottom, top, 0.0001, 2000);
+    } else {
+        let bottom = zPos - depth / 2 - depth / 100;
+        let top = zPos + depth / 2 + depth / 100;
+        let verticalSize = Math.abs(top - bottom);
+        let left = -xPos + verticalSize * aspectRatio / 2;
+        let right = -xPos - verticalSize * aspectRatio / 2;
+        cameraFrontView = new THREE.OrthographicCamera(left, right, bottom, top, 0.0001, 2000);
+    }
+
+    cameraFrontView.up.set(-1, 0, 1);
+    let panelFrontView = jsPanel.create({
+        id: "panelFrontView",
+        theme: "primary",
+        contentSize: {
+            width: function () {
+                return Math.min(widthFrontView, window.innerWidth / 3);
+            },
+            height: heightFrontView
+        },
+        position: "left-bottom 0 0",
+        headerTitle: "Front View",
+        content: function (panel) {
+            let container = $(this.content)[0];
+            canvasFrontView.width = widthFrontView;
+            canvasFrontView.height = heightFrontView;
+            cameraFrontView.position.set(0, 0, 0);
+            cameraFrontView.lookAt(0, 0, 10);//front view
+            container.appendChild(canvasFrontView);
+        },
+        onwindowresize: true
+    });
+    let panelTopPos = (window.innerHeight - imagePanelTopPos-34) * 2 / 3;
+    $("#panelFrontView").css("top", panelTopPos);
+    rendererFrontView = new THREE.WebGLRenderer({
+        antialias: true
+    });
+    rendererFrontView.setPixelRatio(window.devicePixelRatio);
+    rendererFrontView.setSize(widthFrontView, heightFrontView);
+
+}
+
+function showSideView(xPos, yPos, zPos, width, height, depth) {
+    canvasSideView = document.createElement("canvas");
+    const widthSideView = window.innerWidth / 3;
+    let imagePaneHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
+    const heightSideView = (window.innerHeight - imagePaneHeight - headerHeight - 3 * 34) / 3;
+    let aspectRatio = widthSideView / heightSideView;
+
+    if (height > depth) {
+        let left = xPos + width / 2 + width / 100;
+        let right = xPos - width / 2 - width / 100;
+        let lateralSize = Math.abs(right - left);
+        let bottom = zPos - lateralSize / (aspectRatio * 2);
+        let top = zPos + lateralSize / (aspectRatio * 2);
+        cameraSideView = new THREE.OrthographicCamera(left, right, bottom, top, 0.0001, 2000);
+    } else {
+        let bottom = zPos - depth / 2 - depth / 100;
+        let top = zPos + depth / 2 + depth / 100;
+        let verticalSize = Math.abs(top - bottom);
+        let left = xPos + verticalSize * aspectRatio / 2;
+        let right = xPos - verticalSize * aspectRatio / 2;
+        cameraSideView = new THREE.OrthographicCamera(left, right, bottom, top, 0.0001, 2000);
+    }
+
+    cameraSideView.up.set(-1, 0, 1);
+    let panelSideView = jsPanel.create({
+        id: "panelSideView",
+        theme: "primary",
+        contentSize: {
+            width: function () {
+                return Math.min(widthSideView, window.innerWidth / 3);
+            },
+            height: heightSideView
+        },
+        position: "left-bottom 0 0",
+        headerTitle: "Side View",
+        content: function (panel) {
+            let container = $(this.content)[0];
+            canvasSideView.width = widthSideView;
+            canvasSideView.height = heightSideView;
+            cameraSideView.position.set(0, 0, 0);
+            cameraSideView.lookAt(0, 0, 10);//front view
+            container.appendChild(canvasSideView);
+        },
+        onwindowresize: true
+    });
+    let panelTopPos = headerHeight + imagePaneHeight;
+    $("#panelSideView").css("top", panelTopPos);
+    rendererSideView = new THREE.WebGLRenderer({
+        antialias: true
+    });
+    rendererSideView.setPixelRatio(window.devicePixelRatio);
+    rendererSideView.setSize(widthSideView, heightSideView);
+}
+
+function showSideViews(xPos, yPos, zPos, width, height, depth) {
+    showBEV(xPos, yPos, width, height);//width along x axis (lateral), height along y axis (longitudinal)
+    // move class picker to right
+    showSideView(xPos, yPos, zPos, width, height, depth);
+    showFrontView(xPos, yPos, zPos, width, height, depth);
+    $("#class-picker").css("left", window.innerWidth / 3 + 10);
+}
+
 function init() {
     /**
      * CameraControls
@@ -2345,6 +2564,8 @@ function init() {
                         annotationObjects.select(clickedObjectIndex, camChannel);
                     }
                 }
+                let obj = annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex];
+                showSideViews(obj["x"], obj["y"], obj["z"], obj["width"], obj["height"], obj["depth"]);
 
             } else {
                 // remove selection in camera view if 2d label exist
@@ -2370,17 +2591,16 @@ function init() {
                 annotationObjects.selectEmpty();
                 // disable interpolate button
                 interpolateBtn.domElement.parentElement.parentElement.style.pointerEvents = "none";
-                // interpolateBtn.domElement.parentElement.style.pointerEvents = "none";
-                // interpolateBtn.domElement.parentElement.parentElement.style.pointerEvents = "none";
                 interpolateBtn.domElement.parentElement.parentElement.style.opacity = 0.2;
+
+                $("#panelBev").remove();
+                // move class picker to left
+                $("#class-picker").css("left", 10);
 
             }
 
             if (clickFlag === true) {
                 clickedPlaneArray = [];
-                // find out in which camera view the 3d object lies -> calculate angle from 3D position
-                // let channels = getChannelsByPosition(annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex]["x"], annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex]["y"]);
-                // for (let channel in channels) {
                 for (let channelIdx in labelTool.camChannels) {
                     if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
                         let camChannel = labelTool.camChannels[channelIdx].channel;
@@ -2526,11 +2746,8 @@ function init() {
                     }
                     annotationObjects.set(insertIndex, addBboxParameters);
                     labelTool.selectedMesh = labelTool.cubeArray[labelTool.currentFileIndex][insertIndex];
-                    // console.log(mesh.position.x + ' ' + mesh.position.y + ' ' + mesh.position.z + ' ');
-
-                    // let transformControlsScene = scene.getObjectByName("transformControls");
-                    // labelTool.removeObject("transformControls");
                     addTransformControls();
+                    showSideViews(xPos, yPos, zPos, addBboxParameters["width"], addBboxParameters["height"], addBboxParameters["depth"]);
 
 
                     annotationObjects.__insertIndex++;
@@ -2798,6 +3015,5 @@ function init() {
     let elem = $("#label-tool-log");
     elem.val("1. Draw bounding box ");
     elem.css("color", "#969696");
-
 
 }
