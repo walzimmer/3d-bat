@@ -2,13 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="428d2e24-9b74-4b18-97ad-d2e286a506fa" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/css/jspanel.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/js/lib/controls/MapControls.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/js/lib/renderer/CSS2DRenderer.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/img/logo.jpeg" beforeDir="false" afterPath="$PROJECT_DIR$/assets/textures/logo.jpeg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/lib/three.min.js" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/js/pcd_label_tool.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/pcd_label_tool.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -60,7 +53,7 @@
           <entry key="html" value="41" />
           <entry key="ipynb" value="6" />
           <entry key="jpg" value="22" />
-          <entry key="js" value="225" />
+          <entry key="js" value="226" />
           <entry key="json" value="4" />
           <entry key="md" value="5" />
           <entry key="pcd" value="12" />
@@ -78,7 +71,7 @@
           <entry key="HTML" value="41" />
           <entry key="Image" value="26" />
           <entry key="JSON" value="4" />
-          <entry key="JavaScript" value="225" />
+          <entry key="JavaScript" value="226" />
           <entry key="Markdown" value="5" />
           <entry key="PLAIN_TEXT" value="144" />
           <entry key="TypeScript" value="15" />
@@ -91,7 +84,7 @@
           <entry key="gitignore" value="150" />
           <entry key="html" value="2682" />
           <entry key="ipynb" value="1" />
-          <entry key="js" value="95146" />
+          <entry key="js" value="95847" />
           <entry key="json" value="2" />
           <entry key="md" value="995" />
           <entry key="scss" value="26" />
@@ -105,7 +98,7 @@
           <entry key="CSS" value="1366" />
           <entry key="HTML" value="2682" />
           <entry key="JSON" value="2" />
-          <entry key="JavaScript" value="95146" />
+          <entry key="JavaScript" value="95847" />
           <entry key="Markdown" value="995" />
           <entry key="PLAIN_TEXT" value="569" />
           <entry key="SCSS" value="26" />
@@ -119,17 +112,17 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/js/pcd_label_tool.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="166">
-              <caret line="2144" column="63" selection-start-line="2144" selection-start-column="63" selection-end-line="2144" selection-end-column="63" />
+            <state relative-caret-position="138">
+              <caret line="2053" column="17" selection-start-line="2053" selection-start-column="17" selection-end-line="2053" selection-end-column="17" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/js/lib/renderer/CSS2DRenderer.js">
+        <entry file="file://$PROJECT_DIR$/js/lib/jquery-1.10.2.min.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="348">
-              <caret line="28" column="3" selection-start-line="28" selection-start-column="3" selection-end-line="28" selection-end-column="3" />
+            <state relative-caret-position="26">
+              <caret line="3" column="3056" selection-start-line="3" selection-start-column="3056" selection-end-line="3" selection-end-column="3056" />
             </state>
           </provider>
         </entry>
@@ -137,8 +130,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="177">
-              <caret line="17" column="71" selection-start-line="17" selection-start-column="71" selection-end-line="17" selection-end-column="71" />
+            <state relative-caret-position="385">
+              <caret line="25" column="74" lean-forward="true" selection-start-line="25" selection-start-column="74" selection-end-line="25" selection-end-column="74" />
               <folding>
                 <element signature="n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" />
               </folding>
@@ -216,12 +209,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>img/</find>
-      <find>logo</find>
-      <find>top</find>
-      <find>css2renderer</find>
-      <find>three.</find>
-      <find>three</find>
       <find>cameraBEV</find>
       <find>render</find>
       <find>panelBEVCanvas</find>
@@ -232,7 +219,6 @@
       <find>initbev</find>
       <find>showbe</find>
       <find>panelbev</find>
-      <find>mouseup</find>
       <find>bev</find>
       <find>RENDERERbev</find>
       <find>let camera</find>
@@ -241,11 +227,18 @@
       <find>canvassideview</find>
       <find>canvasbev</find>
       <find>side</find>
-      <find>renderer</find>
-      <find>frontview</find>
       <find>canvas</find>
       <find>offsettop</find>
       <find>headerheig</find>
+      <find>renderer</find>
+      <find>/100</find>
+      <find>frontview</find>
+      <find>FrontView</find>
+      <find>perspectivec</find>
+      <find>orthogra</find>
+      <find>rendererbev</find>
+      <find>0.6</find>
+      <find>mouseup</find>
     </findStrings>
     <replaceStrings>
       <replace>#</replace>
@@ -505,12 +498,12 @@
       <workItem from="1544567317494" duration="21257000" />
       <workItem from="1545532566515" duration="55503000" />
       <workItem from="1546050920322" duration="605000" />
-      <workItem from="1546051549705" duration="46514000" />
+      <workItem from="1546051549705" duration="59385000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="1130098000" />
+    <option name="totallyTimeSpent" value="1142969000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -529,7 +522,7 @@
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info active="true" anchor="bottom" id="Find" order="1" sideWeight="0.4968017" visible="true" weight="0.32740587" />
+      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.4968017" weight="0.32740587" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.3297414" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39958158" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
@@ -557,20 +550,13 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/js/pcd_label_tool.js</url>
-          <line>1393</line>
+          <line>1395</line>
           <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/js/lib/controls/FlyControls.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6256">
-          <caret line="272" column="56" selection-start-line="272" selection-start-column="56" selection-end-line="272" selection-end-column="56" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/js/lib/controls/KeyboardState.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="177">
@@ -872,10 +858,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/js/lib/jquery-1.10.2.min.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="26">
+          <caret line="3" column="3056" selection-start-line="3" selection-start-column="3056" selection-end-line="3" selection-end-column="3056" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="177">
-          <caret line="17" column="71" selection-start-line="17" selection-start-column="71" selection-end-line="17" selection-end-column="71" />
+        <state relative-caret-position="385">
+          <caret line="25" column="74" lean-forward="true" selection-start-line="25" selection-start-column="74" selection-end-line="25" selection-end-column="74" />
           <folding>
             <element signature="n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" />
           </folding>
@@ -884,8 +877,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/js/pcd_label_tool.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="166">
-          <caret line="2144" column="63" selection-start-line="2144" selection-start-column="63" selection-end-line="2144" selection-end-column="63" />
+        <state relative-caret-position="138">
+          <caret line="2053" column="17" selection-start-line="2053" selection-start-column="17" selection-end-line="2053" selection-end-column="17" />
         </state>
       </provider>
     </entry>

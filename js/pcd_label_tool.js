@@ -1356,11 +1356,13 @@ function render() {
         rendererBev.render(scene, cameraBEV);
         let context = canvasBEV.getContext("2d");
         context.drawImage(rendererBev.domElement, 0, 0);
-    } else if (rendererSideView !== undefined) {
+    }
+    if (rendererSideView !== undefined) {
         rendererSideView.render(scene, cameraSideView);
         let context = canvasSideView.getContext("2d");
         context.drawImage(rendererSideView.domElement, 0, 0);
-    } else if (rendererFrontView !== undefined) {
+    }
+    if (rendererFrontView !== undefined) {
         rendererFrontView.render(scene, cameraFrontView);
         let context = canvasFrontView.getContext("2d");
         context.drawImage(rendererFrontView.domElement, 0, 0);
@@ -2050,19 +2052,21 @@ function showBEV(xPos, yPos, width, height) {
     let aspectRatio = wBev / hBev;
     // check which side is longer
     if (height > width) {
-        let left = yPos + height / 2 + height / 100;
-        let right = yPos - height / 2 - height / 100;
+        let left = yPos + height / 2 + height / 10;
+        let right = yPos - height / 2 - height / 10;
         let lateralSize = Math.abs(right - left);
         let bottom = -xPos - lateralSize / (aspectRatio * 2);
         let top = -xPos + lateralSize / (aspectRatio * 2);
         cameraBEV = new THREE.OrthographicCamera(left, right, bottom, top, 0.0001, 2000);
     } else {
-        let bottom = -xPos - height / 2 - height / 100;
-        let top = -xPos + height / 2 + height / 100;
+        let bottom = -xPos - height / 2 - 2 * height;
+        let top = -xPos + height / 2 + 2 * height;
         let verticalSize = Math.abs(top - bottom);
         let left = yPos + verticalSize * aspectRatio / 2;
         let right = yPos - verticalSize * aspectRatio / 2;
         cameraBEV = new THREE.OrthographicCamera(left, right, bottom, top, 0.0001, 2000);
+        // TODO:
+        // cameraBEV.rotation.y=90;
     }
 
     cameraBEV.up.set(-1, 0, 1); //BEV view
@@ -2082,6 +2086,7 @@ function showBEV(xPos, yPos, width, height) {
             canvasBEV.width = wBev;
             canvasBEV.height = hBev;
             cameraBEV.position.set(0, 0, 100); // bev
+            // cameraBEV.rotation.set(0, 0, 90);
             //cameraBEV.position.set(0, 0, 0);// front view
             cameraBEV.lookAt(0, 0, 0);//bev
             //cameraBEV.lookAt(0, 0, 10);//front view
@@ -2104,23 +2109,29 @@ function showFrontView(xPos, yPos, zPos, width, height, depth) {
     const heightFrontView = (window.innerHeight - imagePanelTopPos - headerHeight - 3 * 34) / 3;
     let aspectRatio = widthFrontView / heightFrontView;
 
-    if (width > depth) {
-        let left = -xPos + width;
-        let right = -xPos - width;
-        let lateralSize = Math.abs(right - left);
-        let bottom = zPos - lateralSize / (aspectRatio * 2);
-        let top = zPos + lateralSize / (aspectRatio * 2);
-        cameraFrontView = new THREE.OrthographicCamera(left, right, bottom, top, 0.0001, 2000);
+    let offset;
+    if (xPos > 0) {
+        offset = -2.5;
     } else {
-        let bottom = zPos - depth / 2 - depth / 100;
-        let top = zPos + depth / 2 + depth / 100;
+        offset = 2.5;
+    }
+    if (width / depth > aspectRatio) {
+        let left = xPos + width / 2 + width / 10;
+        let right = xPos - width / 2 - width / 10;
+        let lateralSize = Math.abs(right - left);
+        let bottom = zPos + 60.7137000000000 / 100 - lateralSize / (aspectRatio * 2);
+        let top = zPos + 60.7137000000000 / 100 + lateralSize / (aspectRatio * 2);
+        cameraFrontView = new THREE.OrthographicCamera(left + offset, right + offset, bottom, top, 0.0001, 2000);
+    } else {
+        let bottom = zPos + 60.7137000000000 / 100 - depth / 2 - depth / 10;
+        let top = zPos + 60.7137000000000 / 100 + depth / 2 + depth / 10;
         let verticalSize = Math.abs(top - bottom);
-        let left = -xPos + verticalSize * aspectRatio / 2;
-        let right = -xPos - verticalSize * aspectRatio / 2;
-        cameraFrontView = new THREE.OrthographicCamera(left, right, bottom, top, 0.0001, 2000);
+        let left = xPos + verticalSize * aspectRatio / 2;
+        let right = xPos - verticalSize * aspectRatio / 2;
+        cameraFrontView = new THREE.OrthographicCamera(left + offset, right + offset, bottom, top, 0.0001, 2000);
     }
 
-    cameraFrontView.up.set(-1, 0, 1);
+    cameraFrontView.up.set(0, 0, -1);
     let panelFrontView = jsPanel.create({
         id: "panelFrontView",
         theme: "primary",
@@ -2136,13 +2147,15 @@ function showFrontView(xPos, yPos, zPos, width, height, depth) {
             let container = $(this.content)[0];
             canvasFrontView.width = widthFrontView;
             canvasFrontView.height = heightFrontView;
-            cameraFrontView.position.set(0, 0, 0);
-            cameraFrontView.lookAt(0, 0, 10);//front view
+            cameraFrontView.position.set(xPos, yPos + 10, zPos);
+            //cameraFrontView.position.set(0,0,0);
+            //cameraFrontView.lookAt(0, -10, 0);//front view
+            cameraFrontView.lookAt(xPos, yPos, zPos);//front view
             container.appendChild(canvasFrontView);
         },
         onwindowresize: true
     });
-    let panelTopPos = (window.innerHeight - imagePanelTopPos-34) * 2 / 3;
+    let panelTopPos = (window.innerHeight - imagePanelTopPos - 34) * 2 / 3;
     $("#panelFrontView").css("top", panelTopPos);
     rendererFrontView = new THREE.WebGLRenderer({
         antialias: true
@@ -2159,23 +2172,29 @@ function showSideView(xPos, yPos, zPos, width, height, depth) {
     const heightSideView = (window.innerHeight - imagePaneHeight - headerHeight - 3 * 34) / 3;
     let aspectRatio = widthSideView / heightSideView;
 
-    if (height > depth) {
-        let left = xPos + width / 2 + width / 100;
-        let right = xPos - width / 2 - width / 100;
-        let lateralSize = Math.abs(right - left);
-        let bottom = zPos - lateralSize / (aspectRatio * 2);
-        let top = zPos + lateralSize / (aspectRatio * 2);
-        cameraSideView = new THREE.OrthographicCamera(left, right, bottom, top, 0.0001, 2000);
+    let offsetLongitudinal;
+    if (yPos > 0) {
+        offsetLongitudinal = -4.5;
     } else {
-        let bottom = zPos - depth / 2 - depth / 100;
-        let top = zPos + depth / 2 + depth / 100;
+        offsetLongitudinal = +3.5;
+    }
+    if (height / depth > aspectRatio) {
+        let left = xPos + height / 2 + height / 2;
+        let right = xPos - height / 2 - height / 2;
+        let lateralSize = Math.abs(right - left);
+        let bottom = zPos + 60.7137000000000 / 100 - lateralSize / (aspectRatio * 2);
+        let top = zPos + 60.7137000000000 / 100 + lateralSize / (aspectRatio * 2);
+        cameraSideView = new THREE.OrthographicCamera(left + offsetLongitudinal, right + offsetLongitudinal, bottom, top, 0.0001, 2000);
+    } else {
+        let bottom = zPos + 60.7137000000000 / 100 - depth / 2 - depth / 2;
+        let top = zPos + 60.7137000000000 / 100 + depth / 2 + depth / 2;
         let verticalSize = Math.abs(top - bottom);
         let left = xPos + verticalSize * aspectRatio / 2;
         let right = xPos - verticalSize * aspectRatio / 2;
-        cameraSideView = new THREE.OrthographicCamera(left, right, bottom, top, 0.0001, 2000);
+        cameraSideView = new THREE.OrthographicCamera(left + offsetLongitudinal, right + offsetLongitudinal, bottom, top, 0.0001, 2000);
     }
 
-    cameraSideView.up.set(-1, 0, 1);
+    cameraSideView.up.set(0, 0, -1);
     let panelSideView = jsPanel.create({
         id: "panelSideView",
         theme: "primary",
@@ -2191,8 +2210,8 @@ function showSideView(xPos, yPos, zPos, width, height, depth) {
             let container = $(this.content)[0];
             canvasSideView.width = widthSideView;
             canvasSideView.height = heightSideView;
-            cameraSideView.position.set(0, 0, 0);
-            cameraSideView.lookAt(0, 0, 10);//front view
+            cameraSideView.position.set(xPos - 500, yPos, zPos);
+            cameraSideView.lookAt(xPos, yPos, zPos);
             container.appendChild(canvasSideView);
         },
         onwindowresize: true
@@ -2206,11 +2225,17 @@ function showSideView(xPos, yPos, zPos, width, height, depth) {
     rendererSideView.setSize(widthSideView, heightSideView);
 }
 
-function showSideViews(xPos, yPos, zPos, width, height, depth) {
-    showBEV(xPos, yPos, width, height);//width along x axis (lateral), height along y axis (longitudinal)
+function showHelperViews(xPos, yPos, zPos, width, height, depth) {
+    if ($("#panelBev").length === 0) {
+        showBEV(xPos, yPos, width, height);//width along x axis (lateral), height along y axis (longitudinal)
+    }
+    if ($("#panelSideView").length === 0) {
+        showSideView(xPos, yPos, zPos, width, height, depth);
+    }
+    if ($("#panelFrontView").length === 0) {
+        showFrontView(xPos, yPos, zPos, width, height, depth);
+    }
     // move class picker to right
-    showSideView(xPos, yPos, zPos, width, height, depth);
-    showFrontView(xPos, yPos, zPos, width, height, depth);
     $("#class-picker").css("left", window.innerWidth / 3 + 10);
 }
 
@@ -2552,7 +2577,6 @@ function init() {
                     smallestSide = Math.min(Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y), labelTool.selectedMesh.scale.z);
                 }
                 let size = smallestSide / 2.0;
-                console.log("size controls mouseup: " + size);
                 transformControls.size = size;
                 // add transform controls to scene
                 scene.add(transformControls);
@@ -2565,7 +2589,7 @@ function init() {
                     }
                 }
                 let obj = annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex];
-                showSideViews(obj["x"], obj["y"], obj["z"], obj["width"], obj["height"], obj["depth"]);
+                showHelperViews(obj["x"], obj["y"], obj["z"], obj["width"], obj["height"], obj["depth"]);
 
             } else {
                 // remove selection in camera view if 2d label exist
@@ -2594,6 +2618,8 @@ function init() {
                 interpolateBtn.domElement.parentElement.parentElement.style.opacity = 0.2;
 
                 $("#panelBev").remove();
+                $("#panelSideView").remove();
+                $("#panelFrontView").remove();
                 // move class picker to left
                 $("#class-picker").css("left", 10);
 
@@ -2747,7 +2773,7 @@ function init() {
                     annotationObjects.set(insertIndex, addBboxParameters);
                     labelTool.selectedMesh = labelTool.cubeArray[labelTool.currentFileIndex][insertIndex];
                     addTransformControls();
-                    showSideViews(xPos, yPos, zPos, addBboxParameters["width"], addBboxParameters["height"], addBboxParameters["depth"]);
+                    showHelperViews(xPos, yPos, zPos, addBboxParameters["width"], addBboxParameters["height"], addBboxParameters["depth"]);
 
 
                     annotationObjects.__insertIndex++;
