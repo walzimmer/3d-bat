@@ -1,6 +1,9 @@
 let canvasBEV;
 let canvasSideView;
 let canvasFrontView;
+let panelSideView;
+let panelBev;
+let panelFrontView;
 let orthographicCamera;
 let perspectiveCamera;
 let currentCamera;
@@ -1409,7 +1412,7 @@ function updateScreenPosition() {
 }
 
 function update() {
-    // disable rotation of orbitcontrols if object selected
+    // disable rotation of orbit controls if object selected
     if (birdsEyeViewFlag === false) {
         if (labelTool.selectedMesh !== undefined) {
             console.log("disabled");
@@ -2045,196 +2048,183 @@ function scatter(vertices, size, color, texture = "") {
 
 function showBEV(xPos, yPos, width, height) {
     canvasBEV = document.createElement("canvas");
-    //cameraBEV.up.set(0, 1, 0);// bev
-    const wBev = window.innerWidth / 3;
+    canvasBEV.id = "panelBev";
+    let wBev = 640;
+    canvasBEV.width = wBev;
     let imagePaneHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
-    const hBev = (window.innerHeight - imagePaneHeight - headerHeight - 3 * 34) / 3;
+    const hBev = (window.innerHeight - imagePaneHeight - headerHeight) / 3;
+    canvasBEV.height = hBev;
     let aspectRatio = wBev / hBev;
     // check which side is longer
-    if (height > width) {
-        let left = yPos + height / 2 + height / 10;
-        let right = yPos - height / 2 - height / 10;
-        let lateralSize = Math.abs(right - left);
-        let bottom = -xPos - lateralSize / (aspectRatio * 2);
-        let top = -xPos + lateralSize / (aspectRatio * 2);
-        cameraBEV = new THREE.OrthographicCamera(left, right, bottom, top, 0.0001, 2000);
+    let left, right, lateralSize, bottom, top, verticalSize;
+    if (height > width && height / width > aspectRatio) {
+        left = yPos + height / 2 + height / 10;
+        right = yPos - height / 2 - height / 10;
+        lateralSize = Math.abs(right - left);
+        bottom = -xPos - lateralSize / (aspectRatio * 2);
+        top = -xPos + lateralSize / (aspectRatio * 2);
     } else {
-        let bottom = -xPos - height / 2 - 2 * height;
-        let top = -xPos + height / 2 + 2 * height;
-        let verticalSize = Math.abs(top - bottom);
-        let left = yPos + verticalSize * aspectRatio / 2;
-        let right = yPos - verticalSize * aspectRatio / 2;
-        cameraBEV = new THREE.OrthographicCamera(left, right, bottom, top, 0.0001, 2000);
-        // TODO:
-        // cameraBEV.rotation.y=90;
+        bottom = -xPos - height / 2 - 2 * height;
+        top = -xPos + height / 2 + 2 * height;
+        verticalSize = Math.abs(top - bottom);
+        left = yPos + verticalSize * aspectRatio / 2;
+        right = yPos - verticalSize * aspectRatio / 2;
+    }
+    if (cameraBEV === undefined) {
+        cameraBEV = new THREE.OrthographicCamera(left, right, bottom, top);
+    } else {
+        cameraBEV.left = left;
+        cameraBEV.right = right;
+        cameraBEV.top = top;
+        cameraBEV.bottom = bottom;
     }
 
+    cameraBEV.lookAt(0, 0, 0);//bev
     cameraBEV.up.set(-1, 0, 1); //BEV view
-    let panelBev = jsPanel.create({
-        id: "panelBev",
-        theme: "primary",
-        contentSize: {
-            width: function () {
-                return Math.min(wBev, window.innerWidth / 3);
-            },
-            height: hBev
-        },
-        position: "left-bottom 0 0",
-        headerTitle: "Bird's Eye View",
-        content: function (panel) {
-            let container = $(this.content)[0];
-            canvasBEV.width = wBev;
-            canvasBEV.height = hBev;
-            cameraBEV.position.set(0, 0, 100); // bev
-            // cameraBEV.rotation.set(0, 0, 90);
-            //cameraBEV.position.set(0, 0, 0);// front view
-            cameraBEV.lookAt(0, 0, 0);//bev
-            //cameraBEV.lookAt(0, 0, 10);//front view
-            container.appendChild(canvasBEV);
-        },
-        onwindowresize: true
-    });
+    cameraBEV.position.set(0, 0, 100); // bev
+    // create div and append canvas
+    $("body").append(canvasBEV);
     rendererBev = new THREE.WebGLRenderer({
         antialias: true
     });
-    rendererBev.setPixelRatio(window.devicePixelRatio);
+    // rendererBev.setPixelRatio(window.devicePixelRatio);
     rendererBev.setSize(wBev, hBev);
 
 }
 
 function showFrontView(xPos, yPos, zPos, width, height, depth) {
     canvasFrontView = document.createElement("canvas");
-    const widthFrontView = window.innerWidth / 3;
+    canvasFrontView.id = "panelFrontView";
+    let widthFrontView = 640;
+    canvasFrontView.width = widthFrontView;
     let imagePanelTopPos = parseInt($("#layout_layout_resizer_top").css("top"), 10);
-    const heightFrontView = (window.innerHeight - imagePanelTopPos - headerHeight - 3 * 34) / 3;
+    const heightFrontView = (window.innerHeight - imagePanelTopPos - headerHeight) / 3;
+    canvasFrontView.height = heightFrontView;
     let aspectRatio = widthFrontView / heightFrontView;
 
     let offset;
     if (xPos > 0) {
         offset = -2.5;
     } else {
-        offset = 2.5;
+        offset = 3.5;
     }
+    let left, right, lateralSize, bottom, top, verticalSize;
     if (width / depth > aspectRatio) {
-        let left = xPos + width / 2 + width / 10;
-        let right = xPos - width / 2 - width / 10;
-        let lateralSize = Math.abs(right - left);
-        let bottom = zPos + 60.7137000000000 / 100 - lateralSize / (aspectRatio * 2);
-        let top = zPos + 60.7137000000000 / 100 + lateralSize / (aspectRatio * 2);
-        cameraFrontView = new THREE.OrthographicCamera(left + offset, right + offset, bottom, top, 0.0001, 2000);
+        left = xPos + width / 2 + width / 10;
+        right = xPos - width / 2 - width / 10;
+        lateralSize = Math.abs(right - left);
+        bottom = zPos + 60.7137000000000 / 100 - lateralSize / (aspectRatio * 2);
+        top = zPos + 60.7137000000000 / 100 + lateralSize / (aspectRatio * 2);
     } else {
-        let bottom = zPos + 60.7137000000000 / 100 - depth / 2 - depth / 10;
-        let top = zPos + 60.7137000000000 / 100 + depth / 2 + depth / 10;
-        let verticalSize = Math.abs(top - bottom);
-        let left = xPos + verticalSize * aspectRatio / 2;
-        let right = xPos - verticalSize * aspectRatio / 2;
-        cameraFrontView = new THREE.OrthographicCamera(left + offset, right + offset, bottom, top, 0.0001, 2000);
+        bottom = zPos + 60.7137000000000 / 100 - depth / 2 - depth / 10;
+        top = zPos + 60.7137000000000 / 100 + depth / 2 + depth / 10;
+        verticalSize = Math.abs(top - bottom);
+        left = xPos + verticalSize * aspectRatio / 2;
+        right = xPos - verticalSize * aspectRatio / 2;
+    }
+    if (cameraFrontView === undefined) {
+        cameraFrontView = new THREE.OrthographicCamera(left + offset, right + offset, bottom, top);
+    } else {
+        cameraFrontView.left = left;
+        cameraFrontView.right = right;
+        cameraFrontView.bottom = bottom;
+        cameraFrontView.top = top;
     }
 
     cameraFrontView.up.set(0, 0, -1);
-    let panelFrontView = jsPanel.create({
-        id: "panelFrontView",
-        theme: "primary",
-        contentSize: {
-            width: function () {
-                return Math.min(widthFrontView, window.innerWidth / 3);
-            },
-            height: heightFrontView
-        },
-        position: "left-bottom 0 0",
-        headerTitle: "Front View",
-        content: function (panel) {
-            let container = $(this.content)[0];
-            canvasFrontView.width = widthFrontView;
-            canvasFrontView.height = heightFrontView;
-            cameraFrontView.position.set(xPos, yPos + 10, zPos);
-            //cameraFrontView.position.set(0,0,0);
-            //cameraFrontView.lookAt(0, -10, 0);//front view
-            cameraFrontView.lookAt(xPos, yPos, zPos);//front view
-            container.appendChild(canvasFrontView);
-        },
-        onwindowresize: true
-    });
-    let panelTopPos = (window.innerHeight - imagePanelTopPos - 34) * 2 / 3;
-    $("#panelFrontView").css("top", panelTopPos);
+    cameraFrontView.position.set(xPos, yPos + 10, zPos);
+    cameraFrontView.lookAt(xPos, yPos, zPos);
+    let panelTopPos = imagePanelTopPos + headerHeight + 270;
+    canvasFrontView.left = "0px";
+    canvasFrontView.top = panelTopPos;
+    // create div and append canvas
+    $("body").append(canvasFrontView);
     rendererFrontView = new THREE.WebGLRenderer({
         antialias: true
     });
-    rendererFrontView.setPixelRatio(window.devicePixelRatio);
+    // rendererFrontView.setPixelRatio(window.devicePixelRatio);
     rendererFrontView.setSize(widthFrontView, heightFrontView);
 
 }
 
 function showSideView(xPos, yPos, zPos, width, height, depth) {
     canvasSideView = document.createElement("canvas");
-    const widthSideView = window.innerWidth / 3;
+    canvasSideView.id = "panelSideView";
+    let widthSideView = 640;
     let imagePaneHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
-    const heightSideView = (window.innerHeight - imagePaneHeight - headerHeight - 3 * 34) / 3;
+    const heightSideView = (window.innerHeight - imagePaneHeight - headerHeight) / 3;
+    canvasSideView.width = widthSideView;
+    canvasSideView.height = heightSideView;
     let aspectRatio = widthSideView / heightSideView;
 
     let offsetLongitudinal;
     if (yPos > 0) {
-        offsetLongitudinal = -4.5;
+        offsetLongitudinal = 2;
     } else {
         offsetLongitudinal = +3.5;
     }
+    let left, right, lateralSize, verticalSize, bottom, top;
     if (height / depth > aspectRatio) {
-        let left = xPos + height / 2 + height / 2;
-        let right = xPos - height / 2 - height / 2;
-        let lateralSize = Math.abs(right - left);
-        let bottom = zPos + 60.7137000000000 / 100 - lateralSize / (aspectRatio * 2);
-        let top = zPos + 60.7137000000000 / 100 + lateralSize / (aspectRatio * 2);
-        cameraSideView = new THREE.OrthographicCamera(left + offsetLongitudinal, right + offsetLongitudinal, bottom, top, 0.0001, 2000);
+        left = xPos + height / 2 + height / 2;
+        right = xPos - height / 2 - height / 2;
+        lateralSize = Math.abs(right - left);
+        bottom = zPos + 60.7137000000000 / 100 - lateralSize / (aspectRatio * 2);
+        top = zPos + 60.7137000000000 / 100 + lateralSize / (aspectRatio * 2);
     } else {
-        let bottom = zPos + 60.7137000000000 / 100 - depth / 2 - depth / 2;
-        let top = zPos + 60.7137000000000 / 100 + depth / 2 + depth / 2;
-        let verticalSize = Math.abs(top - bottom);
-        let left = xPos + verticalSize * aspectRatio / 2;
-        let right = xPos - verticalSize * aspectRatio / 2;
-        cameraSideView = new THREE.OrthographicCamera(left + offsetLongitudinal, right + offsetLongitudinal, bottom, top, 0.0001, 2000);
+        bottom = zPos + 60.7137000000000 / 100 - depth / 2 - depth / 2;
+        top = zPos + 60.7137000000000 / 100 + depth / 2 + depth / 2;
+        verticalSize = Math.abs(top - bottom);
+        left = xPos + verticalSize * aspectRatio / 2;
+        right = xPos - verticalSize * aspectRatio / 2;
     }
-
+    if (cameraSideView === undefined) {
+        cameraSideView = new THREE.OrthographicCamera(left + offsetLongitudinal, right + offsetLongitudinal, bottom, top);
+    } else {
+        cameraSideView.left = left;
+        cameraSideView.right = right;
+        cameraSideView.bottom = bottom;
+        cameraSideView.top = top;
+    }
     cameraSideView.up.set(0, 0, -1);
-    let panelSideView = jsPanel.create({
-        id: "panelSideView",
-        theme: "primary",
-        contentSize: {
-            width: function () {
-                return Math.min(widthSideView, window.innerWidth / 3);
-            },
-            height: heightSideView
-        },
-        position: "left-bottom 0 0",
-        headerTitle: "Side View",
-        content: function (panel) {
-            let container = $(this.content)[0];
-            canvasSideView.width = widthSideView;
-            canvasSideView.height = heightSideView;
-            cameraSideView.position.set(xPos - 500, yPos, zPos);
-            cameraSideView.lookAt(xPos, yPos, zPos);
-            container.appendChild(canvasSideView);
-        },
-        onwindowresize: true
-    });
+    cameraSideView.position.set(xPos - 10, yPos, zPos);
+    cameraSideView.lookAt(xPos, yPos, zPos);
     let panelTopPos = headerHeight + imagePaneHeight;
-    $("#panelSideView").css("top", panelTopPos);
+    canvasSideView.left = "0px";
+    canvasSideView.top = panelTopPos;
+    // create div and append canvas
+    $("body").append(canvasSideView);
     rendererSideView = new THREE.WebGLRenderer({
         antialias: true
     });
-    rendererSideView.setPixelRatio(window.devicePixelRatio);
+    // rendererSideView.setPixelRatio(window.devicePixelRatio);
     rendererSideView.setSize(widthSideView, heightSideView);
 }
 
 function showHelperViews(xPos, yPos, zPos, width, height, depth) {
-    if ($("#panelBev").length === 0) {
-        showBEV(xPos, yPos, width, height);//width along x axis (lateral), height along y axis (longitudinal)
-    }
     if ($("#panelSideView").length === 0) {
+        // if (panelSideView !== undefined) {
+        //     jsPanel.emptyNode(panelSideView);
+        //     panelSideView.close();
+        // }
+        $("#panelSideView").remove();
+
         showSideView(xPos, yPos, zPos, width, height, depth);
     }
     if ($("#panelFrontView").length === 0) {
+        if (panelFrontView !== undefined) {
+            jsPanel.emptyNode(panelFrontView);
+            panelFrontView.close();
+        }
         showFrontView(xPos, yPos, zPos, width, height, depth);
     }
+    if ($("#panelBev").length === 0) {
+        if (panelBev !== undefined) {
+            jsPanel.emptyNode(panelBev);
+            panelBev.close();
+        }
+        showBEV(xPos, yPos, width, height);//width along x axis (lateral), height along y axis (longitudinal)
+    }
+
     // move class picker to right
     $("#class-picker").css("left", window.innerWidth / 3 + 10);
 }
@@ -2325,7 +2315,7 @@ function init() {
 
     renderer = new THREE.WebGLRenderer({antialias: true});
     renderer.setClearColor(0x161616);
-    renderer.setPixelRatio(window.devicePixelRatio);
+    // renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     // 3d
