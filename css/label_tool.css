@@ -577,3 +577,34 @@ text {
 .toasts li.success {
     background: seagreen;
 }
+
+#panelSideView {
+    position: fixed;
+    width: 640px;
+    z-index: 102;
+    left: 0px;
+    top: 290px;
+    border: 1px;
+    border-style: outset;
+}
+
+#panelFrontView {
+    position: fixed;
+    width: 640px;
+    z-index: 102;
+    left: 0px;
+    top: 600px;
+    border: 1px;
+    border-style: outset;
+}
+
+#panelBev {
+    position: fixed;
+    width: 640px;
+    z-index: 102;
+    left: 0px;
+    top: 910px;
+    border: 1px;
+    border-style: outset;
+}
+
