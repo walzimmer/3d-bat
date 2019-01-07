@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>three.js webgl - multiple views</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+        body {
+            color: #000;
+            font-family: Monospace;
+            font-size: 13px;
+            text-align: center;
+
+            background-color: #fff;
+            margin: 0px;
+            overflow: hidden;
+        }
+
+        #info {
+            position: absolute;
+            top: 0px;
+            width: 100%;
+            padding: 5px;
+        }
+
+        a {
+            color: #0080ff;
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="container"></div>
+<div id="info"><a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - multiple views - webgl</div>
+
+<script src="js/lib/three.js"></script>
+<script src="js/lib/WebGL.js"></script>
+<script src="js/lib/THREEx.KeyboardState.js"></script>
+
+<script>
+
+    if (WEBGL.isWebGLAvailable() === false) {
+        document.body.appendChild(WEBGL.getWebGLErrorMessage());
+    }
+
+    var container, stats;
+    var keyboard = new THREEx.KeyboardState();
+    var clock = new THREE.Clock();
+
+    var views, scene, renderer;
+
+    var mouseX = 0, mouseY = 0;
+
+    var windowWidth, windowHeight;
+
+    var views = [
+        // main view
+        {
+            left: 0.5,
+            top: 0,
+            width: 0.5,
+            height: 1.0,
+            background: new THREE.Color(0.5, 0.5, 0.7),
+            up: [0, 1, 0],
+            fov: 70,
+            updateCamera: function (camera, scene) {
+                camera.position.set(100, 100, 100);
+                camera.lookAt(scene.position);
+            }
+        },
+        //side view
+        {
+            left: 0,
+            top: 0,
+            width: 0.5,
+            height: 0.33,
+            background: new THREE.Color(0.5, 0.6, 0.5),
+            up: [0, 1, 0],
+            fov: 70,
+            updateCamera: function (camera, scene) {
+                camera.position.set(movingCube.position.x + 100, movingCube.position.y, movingCube.position.z);
+                camera.lookAt(movingCube.position);
+            }
+        },
+        // front view
+        {
+            left: 0,
+            top: 0.33,
+            width: 0.5,
+            height: 0.33,
+            background: new THREE.Color(0.7, 0.5, 0.5),
+            up: [0, 1, 0],
+            fov: 70,
+            updateCamera: function (camera, scene) {
+                camera.position.set(movingCube.position.x, movingCube.position.y, movingCube.position.z - 100);
+                camera.lookAt(movingCube.position);
+            }
+        },
+        // bird's eye view
+        {
+            left: 0,
+            top: 0.66,
+            width: 0.5,
+            height: 0.33,
+            background: new THREE.Color(0.5, 0.7, 0.7),
+            eye: [0, 0, 0],
+            up: [0, 1, 0],
+            fov: 70,
+            updateCamera: function (camera, scene) {
+                camera.position.set(movingCube.position.x, movingCube.position.y + 100, movingCube.position.z);
+                camera.lookAt(movingCube.position);
+
+            }
+        }
+    ];
+
+    init();
+    animate();
+
+    function init() {
+
+        container = document.getElementById('container');
+
+        var mainView = views[0];
+        var mainCamera = new THREE.PerspectiveCamera(mainView.fov, window.innerWidth / window.innerHeight, 1, 10000);
+        mainCamera.position.set(0, 0, 0);
+        mainCamera.up.fromArray(mainView.up);
+        mainView.camera = mainCamera;
+
+        for (var ii = 1; ii < views.length; ++ii) {
+
+            var view = views[ii];
+            // var camera = new THREE.PerspectiveCamera(view.fov, window.innerWidth / window.innerHeight, 1, 10000);
+            var top = 100;
+            var bottom = -100;
+            var aspectRatio = view.width * window.innerWidth / (view.height * window.innerHeight);//2
+            var left = bottom * aspectRatio;
+            var right = top * aspectRatio;
+            var camera = new THREE.OrthographicCamera(left, right, top, bottom, 0.001, 2000);
+            camera.position.set(0, 0, 0);
+            camera.up.fromArray(view.up);
+            view.camera = camera;
+
+        }
+
+        scene = new THREE.Scene();
+
+        // create an array with six textures for a cool cube
+        var materialArray = [];
+        materialArray.push(new THREE.MeshBasicMaterial({map: THREE.ImageUtils.loadTexture('assets/textures/cube/xpos.png')}));
+        materialArray.push(new THREE.MeshBasicMaterial({map: THREE.ImageUtils.loadTexture('assets/textures/cube/xneg.png')}));
+        materialArray.push(new THREE.MeshBasicMaterial({map: THREE.ImageUtils.loadTexture('assets/textures/cube/ypos.png')}));
+        materialArray.push(new THREE.MeshBasicMaterial({map: THREE.ImageUtils.loadTexture('assets/textures/cube/yneg.png')}));
+        materialArray.push(new THREE.MeshBasicMaterial({map: THREE.ImageUtils.loadTexture('assets/textures/cube/zpos.png')}));
+        materialArray.push(new THREE.MeshBasicMaterial({map: THREE.ImageUtils.loadTexture('assets/textures/cube/zneg.png')}));
+        var MovingCubeMat = new THREE.MeshFaceMaterial(materialArray);
+        var MovingCubeGeom = new THREE.CubeGeometry(50, 50, 50, 1, 1, 1, materialArray);
+        movingCube = new THREE.Mesh(MovingCubeGeom, MovingCubeMat);
+        movingCube.position.set(0, 25.1, 0);
+        scene.add(movingCube);
+
+        var light = new THREE.DirectionalLight(0xffffff);
+        light.position.set(0, 0, 1);
+        scene.add(light);
+
+        // shadow
+
+        var canvas = document.createElement('canvas');
+        canvas.width = 128;
+        canvas.height = 128;
+
+        var context = canvas.getContext('2d');
+        var gradient = context.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width / 2);
+        gradient.addColorStop(0.1, 'rgba(0,0,0,0.15)');
+        gradient.addColorStop(1, 'rgba(0,0,0,0)');
+
+        context.fillStyle = gradient;
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        renderer = new THREE.WebGLRenderer({antialias: true});
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        container.appendChild(renderer.domElement);
+    }
+
+    function updateSize() {
+
+        if (windowWidth != window.innerWidth || windowHeight != window.innerHeight) {
+
+            windowWidth = window.innerWidth;
+            windowHeight = window.innerHeight;
+
+            renderer.setSize(windowWidth, windowHeight);
+
+        }
+
+    }
+
+    function update() {
+        var delta = clock.getDelta(); // seconds.
+        var moveDistance = 200 * delta; // 200 pixels per second
+        var rotateAngle = Math.PI / 2 * delta;   // pi/2 radians (90 degrees) per second
+
+        // local transformations
+
+        // move forwards/backwards/left/right
+        if (keyboard.pressed("W"))
+            movingCube.translateZ(-moveDistance);
+        if (keyboard.pressed("S"))
+            movingCube.translateZ(moveDistance);
+        if (keyboard.pressed("Q"))
+            movingCube.translateX(-moveDistance);
+        if (keyboard.pressed("E"))
+            movingCube.translateX(moveDistance);
+
+        // rotate left/right/up/down
+        var rotation_matrix = new THREE.Matrix4().identity();
+        if (keyboard.pressed("A"))
+            movingCube.rotateOnAxis(new THREE.Vector3(0, 1, 0), rotateAngle);
+        if (keyboard.pressed("D"))
+            movingCube.rotateOnAxis(new THREE.Vector3(0, 1, 0), -rotateAngle);
+        if (keyboard.pressed("R"))
+            movingCube.rotateOnAxis(new THREE.Vector3(1, 0, 0), rotateAngle);
+        if (keyboard.pressed("F"))
+            movingCube.rotateOnAxis(new THREE.Vector3(1, 0, 0), -rotateAngle);
+
+        if (keyboard.pressed("Z")) {
+            movingCube.position.set(0, 25.1, 0);
+            movingCube.rotation.set(0, 0, 0);
+        }
+    }
+
+    function animate() {
+
+        requestAnimationFrame(animate);
+
+        render();
+
+        update();
+
+    }
+
+    function render() {
+
+        updateSize();
+
+        for (var ii = 0; ii < views.length; ++ii) {
+
+            var view = views[ii];
+            var camera = view.camera;
+
+            view.updateCamera(camera, scene, mouseX, mouseY);
+
+            var left = Math.floor(windowWidth * view.left);
+            var top = Math.floor(windowHeight * view.top);
+            var width = Math.floor(windowWidth * view.width);
+            var height = Math.floor(windowHeight * view.height);
+
+            renderer.setViewport(left, top, width, height);
+            renderer.setScissor(left, top, width, height);
+            renderer.setScissorTest(true);
+            renderer.setClearColor(view.background);
+
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+
+            renderer.render(scene, camera);
+
+        }
+
+    }
+
+</script>
+
+</body>
+</html>
