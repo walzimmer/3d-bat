@@ -1,3 +1,9 @@
+/*variables*/
+body {
+    --header-height: 50px;
+    --image-panel-height: 240px;
+}
+
 .label-header-brand {
     float: left;
     height: 50px;
@@ -578,9 +584,10 @@ text {
     background: seagreen;
 }
 
-#panelSideView {
+#canvasSideView {
     position: fixed;
-    width: 640px;
+    width: 33.33vw;
+    height: 311px;
     z-index: 102;
     left: 0px;
     top: 290px;
@@ -588,9 +595,10 @@ text {
     border-style: outset;
 }
 
-#panelFrontView {
+#canvasFrontView {
     position: fixed;
-    width: 640px;
+    width: 33.33vw;
+    height: 311px;
     z-index: 102;
     left: 0px;
     top: 600px;
@@ -598,9 +606,10 @@ text {
     border-style: outset;
 }
 
-#panelBev {
+#canvasBev {
     position: fixed;
-    width: 640px;
+    width: 33.33vw;
+    height: 311px;
     z-index: 102;
     left: 0px;
     top: 910px;
