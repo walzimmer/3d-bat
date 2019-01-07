@@ -54,7 +54,7 @@
     var clock = new THREE.Clock();
 
     // custom global variables
-    var MovingCube;
+    var movingCube;
     var chaseCamera, topCamera;
     var chaseCameraActive = false;
 
@@ -134,9 +134,9 @@
         materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( 'images/zneg.png' ) }));
         var MovingCubeMat = new THREE.MeshFaceMaterial(materialArray);
         var MovingCubeGeom = new THREE.CubeGeometry( 50, 50, 50, 1, 1, 1, materialArray );
-        MovingCube = new THREE.Mesh( MovingCubeGeom, MovingCubeMat );
-        MovingCube.position.set(0, 25.1, 0);
-        scene.add( MovingCube );
+        movingCube = new THREE.Mesh( MovingCubeGeom, MovingCubeMat );
+        movingCube.position.set(0, 25.1, 0);
+        scene.add( movingCube );
 
         // a little bit of scenery...
 
@@ -190,39 +190,39 @@
 
         // move forwards/backwards/left/right
         if ( keyboard.pressed("W") )
-            MovingCube.translateZ( -moveDistance );
+            movingCube.translateZ( -moveDistance );
         if ( keyboard.pressed("S") )
-            MovingCube.translateZ(  moveDistance );
+            movingCube.translateZ(  moveDistance );
         if ( keyboard.pressed("Q") )
-            MovingCube.translateX( -moveDistance );
+            movingCube.translateX( -moveDistance );
         if ( keyboard.pressed("E") )
-            MovingCube.translateX(  moveDistance );
+            movingCube.translateX(  moveDistance );
 
         // rotate left/right/up/down
         var rotation_matrix = new THREE.Matrix4().identity();
         if ( keyboard.pressed("A") )
-            MovingCube.rotateOnAxis( new THREE.Vector3(0,1,0), rotateAngle);
+            movingCube.rotateOnAxis( new THREE.Vector3(0,1,0), rotateAngle);
         if ( keyboard.pressed("D") )
-            MovingCube.rotateOnAxis( new THREE.Vector3(0,1,0), -rotateAngle);
+            movingCube.rotateOnAxis( new THREE.Vector3(0,1,0), -rotateAngle);
         if ( keyboard.pressed("R") )
-            MovingCube.rotateOnAxis( new THREE.Vector3(1,0,0), rotateAngle);
+            movingCube.rotateOnAxis( new THREE.Vector3(1,0,0), rotateAngle);
         if ( keyboard.pressed("F") )
-            MovingCube.rotateOnAxis( new THREE.Vector3(1,0,0), -rotateAngle);
+            movingCube.rotateOnAxis( new THREE.Vector3(1,0,0), -rotateAngle);
 
         if ( keyboard.pressed("Z") )
         {
-            MovingCube.position.set(0,25.1,0);
-            MovingCube.rotation.set(0,0,0);
+            movingCube.position.set(0,25.1,0);
+            movingCube.rotation.set(0,0,0);
         }
 
         var relativeCameraOffset = new THREE.Vector3(0,50,200);
 
-        var cameraOffset = relativeCameraOffset.applyMatrix4( MovingCube.matrixWorld );
+        var cameraOffset = relativeCameraOffset.applyMatrix4( movingCube.matrixWorld );
 
         chaseCamera.position.x = cameraOffset.x;
         chaseCamera.position.y = cameraOffset.y;
         chaseCamera.position.z = cameraOffset.z;
-        chaseCamera.lookAt( MovingCube.position );
+        chaseCamera.lookAt( movingCube.position );
 
         //camera.updateMatrix();
         //camera.updateProjectionMatrix();
