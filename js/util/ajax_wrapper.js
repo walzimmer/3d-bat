@@ -34,8 +34,8 @@ function request(options) {
                     };
                 } else {
                     responseDict = {
-                        minWidth: 320,
-                        minHeight: 180,
+                        minWidth: Math.floor(window.innerWidth / 6),
+                        minHeight: Math.floor(window.innerWidth / (6 * 1.77778)),
                         maxWidth: 640,
                         maxHeight: 360
                     };
