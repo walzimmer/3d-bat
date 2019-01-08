@@ -743,17 +743,22 @@ let labelTool = {
             if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
                 let channel = labelTool.camChannels[channelIdx].channel;
                 let id = "image-" + channel.toLowerCase().replace(/_/g, '-');
+                let minWidth = window.innerWidth / 6;
+                let minHeight = minWidth * 1.7778;
                 imageContainer.append("<div id='" + id + "'></div>");
+                $("#" + id).css("width", minWidth);
+                $("#" + id).css("height", minHeight);
                 let canvasElem = imageContainer["0"].children[channelIdx];
+
                 canvasArray.push(canvasElem);
-                let height = parseInt($("#layout_layout_resizer_top").css("top"), 10);
+                let imagePanelTopPos = parseInt($("#layout_layout_resizer_top").css("top"), 10);
                 if (labelTool.currentDataset === labelTool.datasets.LISA_T && (channel === "CAM_BACK" || channel === "CAM_FRONT")) {
                     console.log("width");
                     imageWidth = imageWidthBackFront;
                 } else {
                     imageWidth = this.originalSize[0];
                 }
-                paperArray.push(Raphael(canvasElem, imageWidth, height));
+                paperArray.push(Raphael(canvasElem, imageWidth, imagePanelTopPos));
             }
         }
 
@@ -797,6 +802,19 @@ let labelTool = {
 
         let toasts = $(".toasts")[0];
         this.logger = new Toast(toasts);
+
+        if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
+            for (let channelIdx in labelTool.camChannels) {
+                if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
+                    let channel = labelTool.camChannels[channelIdx].channel;
+                    let id = "image-" + channel.toLowerCase().replace(/_/g, '-');
+                    let minWidth = window.innerWidth / 6;
+                    let minHeight = minWidth / 1.7778;
+                    $("#" + id).css("width", minWidth);
+                    $("#" + id).css("height", minHeight);
+                }
+            }
+        }
     },
 
     getAnnotations(currentFileIndex) {
@@ -874,10 +892,12 @@ let labelTool = {
             // w2ui['layout'].panels[0].size = 480;
             w2ui['layout'].panels[0].size = 240;
         } else {
+            w2ui['layout'].panels[0].minSize = Math.ceil(window.innerWidth) / (6 * 1.7778);
             w2ui['layout'].panels[0].maxSize = 360;
-            w2ui['layout'].panels[0].minSize = 180;
+
+            w2ui['layout'].panels[0].size = Math.ceil(window.innerWidth) / (6 * 1.7778);
             //w2ui['layout'].panels[0].size = 360;
-            w2ui['layout'].panels[0].size = 180;
+
         }
         w2ui['layout'].resize();
 
@@ -908,8 +928,6 @@ let labelTool = {
             data: {},
             complete: function (res) {
                 let dict = JSON.parse(res.responseText);
-                // this.originalSize[0] = dict.maxWidth;
-                // this.originalSize[1] = dict.maxHeight;
                 this.originalSize[0] = dict.minWidth;
                 this.originalSize[1] = dict.minHeight;
                 this.getFileNames();
@@ -1406,51 +1424,74 @@ function initPanes() {
     let maxHeight;
     let minHeight;
     if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-        maxHeight = 480;
         minHeight = 240;
+        maxHeight = 480;
     } else {
+        minHeight = Math.ceil(window.innerWidth / (6 * 1.7778));
         maxHeight = 360;
-        minHeight = 180;
     }
     let topStyle = 'background-color: #F5F6F7; border: 1px solid #dfdfdf; padding: 0px;';
-
-    // let wrapperElem = $("#wrapper").append("<div id=\"label-tool-wrapper\"></div>")[0];
-    // let numChildren = wrapperElem.children.length;
-    // $(wrapperElem.children[numChildren - 1]).w2layout({
     $('#label-tool-wrapper').w2layout({
         name: 'layout',
         panels: [
-            //{type: 'top', size: maxHeight, resizable: true, style: topStyle, minSize: minHeight, maxSize: maxHeight}
             {type: 'top', size: minHeight, resizable: true, style: topStyle, minSize: minHeight, maxSize: maxHeight}
         ],
         onResizing: function (event) {
             let topElem = $("#layout_layout_panel_top")[0];
-            let newHeight = topElem.offsetHeight;
+            let newImagePanelHeight = topElem.offsetHeight;
             let newWidth;
             let newWidthBackFront;
             if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-                newWidth = newHeight * labelTool.imageAspectRatioLISAT;
-                newWidthBackFront = newHeight * labelTool.imageAspectRatioFrontBackLISAT;
+                newWidth = newImagePanelHeight * labelTool.imageAspectRatioLISAT;
+                newWidthBackFront = newImagePanelHeight * labelTool.imageAspectRatioFrontBackLISAT;
 
             } else {
-                newWidth = newHeight * labelTool.imageAspectRatioNuScenes;
+                newWidth = newImagePanelHeight * labelTool.imageAspectRatioNuScenes;
             }
-            if (newHeight === 0 || newWidth === 0) {
+            if (newImagePanelHeight === 0 || newWidth === 0) {
                 return;
             }
             for (let channelIdx in labelTool.camChannels) {
                 if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
                     let channelObj = labelTool.camChannels[channelIdx];
                     let channel = channelObj.channel;
-                    if (channel === "CAM_FRONT" || channel === "CAM_BACK") {
-                        changeCanvasSize(newWidthBackFront, newHeight, channel);
+                    if (labelTool.currentDataset === labelTool.datasets.LISA_T && (channel === "CAM_FRONT" || channel === "CAM_BACK")) {
+                        changeCanvasSize(newWidthBackFront, newImagePanelHeight, channel);
                     } else {
-                        changeCanvasSize(newWidth, newHeight, channel);
+                        changeCanvasSize(newWidth, newImagePanelHeight, channel);
                     }
 
                 }
             }
-            w2ui['layout'].set('top', {size: newHeight});
+            w2ui['layout'].set('top', {size: newImagePanelHeight});
+            // adjust height of helper views
+            let newCanvasHeight = (window.innerHeight - headerHeight - newImagePanelHeight) / 3;
+            console.log(headerHeight + newImagePanelHeight);
+            $("#canvasSideView").css("height", newCanvasHeight);
+            $("#canvasSideView").css("top", headerHeight + newImagePanelHeight);
+            views[1].top = 0;
+            $("#canvasFrontView").css("height", newCanvasHeight);
+            $("#canvasFrontView").css("top", headerHeight + newImagePanelHeight + newCanvasHeight);
+            views[2].top = newCanvasHeight;
+            $("#canvasBev").css("height", newCanvasHeight);
+            $("#canvasBev").css("top", headerHeight + newImagePanelHeight + 2 * newCanvasHeight);
+            views[3].top = 2 * newCanvasHeight;
+            // update camera of helper views
+            for (let i = 1; i < views.length; i++) {
+                let view = views[i];
+                view.height = newCanvasHeight;
+                var top = 4;
+                var bottom = -4;
+                var aspectRatio = view.width / view.height;
+                var left = bottom * aspectRatio;
+                var right = top * aspectRatio;
+                var camera = view.camera;
+                camera.left = left;
+                camera.right = right;
+                camera.top = top;
+                camera.bottom = bottom;
+                camera.updateProjectionMatrix();
+            }
 
 
         },
