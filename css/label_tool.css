@@ -170,7 +170,7 @@ body {
     /*left: 0px;*/
     /*float: left;*/
     display: inline-block;
-    height: 100%;
+    /*height: 100%;*/
     z-index: 100;
     background-color: white;
     margin: 0px;
@@ -183,7 +183,7 @@ body {
     /*left: 320px;*/
     /*float: left;*/
     display: inline-block;
-    height: 100%;
+    /*height: 100%;*/
     z-index: 100;
     background-color: white;
     margin: 0px;
@@ -193,7 +193,7 @@ body {
 #image-cam-front-right {
     /*float: left;*/
     display: inline-block;
-    height: 100%;
+    /*height: 100%;*/
     /*position: absolute;*/
     /*left: 639px;*/
 }
@@ -201,7 +201,7 @@ body {
 #image-cam-back-right {
     /*float: left;*/
     display: inline-block;
-    height: 100%;
+    /*height: 100%;*/
     /*position: absolute;*/
     /*left: 959px;*/
 }
@@ -209,7 +209,7 @@ body {
 #image-cam-back {
     /*float: left;*/
     display: inline-block;
-    height: 100%;
+    /*height: 100%;*/
     /*position: absolute;*/
     /*left: 1279px;*/
 }
@@ -217,7 +217,7 @@ body {
 #image-cam-back-left {
     /*float: left;*/
     display: inline-block;
-    height: 100%;
+    /*height: 100%;*/
     width: 318px;
 
     /*position: absolute;*/
