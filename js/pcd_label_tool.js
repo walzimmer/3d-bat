@@ -1465,8 +1465,8 @@ function updateScreenPosition() {
         const vector = new THREE.Vector3(cubeObj.position.x - cubeObj.scale.x / 2, cubeObj.position.y + cubeObj.scale.y / 2, cubeObj.position.z + cubeObj.scale.z / 2);
         const canvas = renderer.domElement;
         vector.project(currentCamera);
-        vector.x = Math.round((0.5 + vector.x / 2) * (canvas.width / window.devicePixelRatio));
-        vector.y = Math.round((0.5 - vector.y / 2) * (canvas.height / window.devicePixelRatio));
+        vector.x = Math.round((0.5 + vector.x / 2) * (canvas.width));
+        vector.y = Math.round((0.5 - vector.y / 2) * (canvas.height));
         if (annotationObj.trackId !== undefined) {
             let classTooltip = $("#class-" + annotationObj.class.charAt(0) + annotationObj.trackId)[0];
             let imagePaneHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
