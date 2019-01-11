@@ -1,138 +1,51 @@
-function getIndexByDimension(width, height, depth) {
-    for (let obj in annotationObjects.contents[labelTool.currentFileIndex]) {
-        let annotation = annotationObjects.contents[labelTool.currentFileIndex][obj];
-        if (annotation.width === width && annotation.height === height && annotation.depth === depth) {
-            return annotationObjects.contents[labelTool.currentFileIndex].indexOf(annotation);
-        }
-    }
-    return -1;
-}
-
-function draw2DProjections(params) {
-    for (let i = 0; i < params.channels.length; i++) {
-        if (params.channels[i].channel !== undefined && params.channels[i].channel !== "") {
-            // working for LISA_T
-            params.channels[i].projectedPoints = calculateProjectedBoundingBox(-params.x, -params.y, -params.z, params.width, params.height, params.depth, params.channels[i].channel);
-            // params.channels[i].projectedPoints = calculateProjectedBoundingBox(params.x, params.y, -params.z, params.width, params.height, params.depth, params.channels[i].channel);
-            // calculate line segments
-            let channelObj = params.channels[i];
-            if (params.channels[i].projectedPoints !== undefined && params.channels[i].projectedPoints.length === 8) {
-                params.channels[i].lines = calculateLineSegments(channelObj, params.class);
-            }
-        }
-    }
-}
-
-function numberToText(n) {
-    if (n === 0) {
-        return "";
-    } else if (n <= 19) {
-        let textNumbers = ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
-        return textNumbers[n - 1];
-    } else if (n <= 99) {
-        let textNumbers = ["Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
-        let firstPart = textNumbers[Math.floor(n / 10) - 2];
-        let secondPart = numberToText(n % 10);
-        if (secondPart === "") {
-            return firstPart;
-        } else {
-            return firstPart + "_" + secondPart;
-        }
-    } else if (n === 100) {
-        return "HUNDRED";
-    }
-}
-
-function setSequences() {
-    for (let i = 1; i <= 100; i++) {
-        let numberAsText = numberToText(i).toUpperCase();
-        labelTool.sequencesNuScenes.push(numberAsText);
-    }
-}
-
-function getDefaultObject() {
+function setObjectParameters(annotationObj) {
     let params = {
-        class: "",
-        x: -1,
-        y: -1,
-        z: -1,
-        delta_x: -1,
-        delta_y: -1,
-        delta_z: -1,
-        width: -1,
-        height: -1,
-        depth: -1,
-        rotationY: -1,
-        org: {
-            x: -1,
-            y: -1,
-            z: -1,
-            width: -1,
-            height: -1,
-            depth: -1,
-            rotationY: -1
-        },
-        interpolationStartFileIndex: -1,
-        interpolationStart: {
-            position: {
-                x: -1,
-                y: -1,
-                z: -1,
-                rotationY: -1
-            },
-            size: {
-                width: -1,
-                height: -1,
-                depth: -1
-            }
-        },
-        interpolationEnd: {
-            position: {
-                x: -1,
-                y: -1,
-                z: -1,
-                rotationY: -1
-            },
-            size: {
-                width: -1,
-                height: -1,
-                depth: -1
-            }
-        },
-        trackId: -1,
+        class: annotationObj["class"],
+        x: annotationObj["x"],
+        y: annotationObj["y"],
+        z: annotationObj["z"],
+        width: annotationObj["width"],
+        height: annotationObj["height"],
+        depth: annotationObj["depth"],
+        rotationY: parseFloat(annotationObj["rotationY"]),
         channels: [{
             rect: [],
             projectedPoints: [],
             lines: [],
-            channel: ''
+            channel: ""
         }, {
             rect: [],
             projectedPoints: [],
             lines: [],
-            channel: ''
+            channel: ""
         }, {
             rect: [],
             projectedPoints: [],
             lines: [],
-            channel: ''
+            channel: ""
         }, {
             rect: [],
             projectedPoints: [],
             lines: [],
-            channel: ''
+            channel: ""
         }, {
             rect: [],
             projectedPoints: [],
             lines: [],
-            channel: ''
+            channel: ""
         }, {
             rect: [],
             projectedPoints: [],
             lines: [],
-            channel: ''
-        }],
-        fromFile: true
+            channel: ""
+        }]
     };
+    for (let i = 0; i < annotationObj["channels"].length; i++) {
+        let channelObj = annotationObj["channels"][i];
+        if (channelObj.channel !== undefined) {
+            params["channels"][i]["channel"] = channelObj.channel;
+        }
+    }
     return params;
 }
 
@@ -529,53 +442,7 @@ let labelTool = {
         for (let annotationObjIndex in annotationObjects.contents[this.currentFileIndex]) {
             if (annotationObjects.contents[this.currentFileIndex].hasOwnProperty(annotationObjIndex)) {
                 let annotationObj = annotationObjects.contents[this.currentFileIndex][annotationObjIndex];
-                let params = {
-                    class: annotationObj["class"],
-                    x: annotationObj["x"],
-                    y: annotationObj["y"],
-                    z: annotationObj["z"],
-                    width: annotationObj["width"],
-                    height: annotationObj["height"],
-                    depth: annotationObj["depth"],
-                    rotationY: parseFloat(annotationObj["rotationY"]),
-                    channels: [{
-                        rect: [],
-                        projectedPoints: [],
-                        lines: [],
-                        channel: ""
-                    }, {
-                        rect: [],
-                        projectedPoints: [],
-                        lines: [],
-                        channel: ""
-                    }, {
-                        rect: [],
-                        projectedPoints: [],
-                        lines: [],
-                        channel: ""
-                    }, {
-                        rect: [],
-                        projectedPoints: [],
-                        lines: [],
-                        channel: ""
-                    }, {
-                        rect: [],
-                        projectedPoints: [],
-                        lines: [],
-                        channel: ""
-                    }, {
-                        rect: [],
-                        projectedPoints: [],
-                        lines: [],
-                        channel: ""
-                    }]
-                };
-                for (let i = 0; i < annotationObj["channels"].length; i++) {
-                    let channelObj = annotationObj["channels"][i];
-                    if (channelObj.channel !== undefined) {
-                        params["channels"][i]["channel"] = channelObj.channel;
-                    }
-                }
+                let params = setObjectParameters(annotationObj);
                 draw2DProjections(params);
                 // set new params
                 for (let i = 0; i < annotationObj["channels"].length; i++) {
@@ -754,7 +621,7 @@ let labelTool = {
                 let imagePanelTopPos = parseInt($("#layout_layout_resizer_top").css("top"), 10);
                 if (labelTool.currentDataset === labelTool.datasets.LISA_T && (channel === "CAM_BACK" || channel === "CAM_FRONT")) {
                     console.log("width");
-                    imageWidth = imageWidthBackFront;
+                    imageWidth = imageWidthBackFrontLISAT;
                 } else {
                     imageWidth = this.originalSize[0];
                 }
@@ -765,7 +632,6 @@ let labelTool = {
         // make image container scrollable
         $("#layout_layout_panel_top .w2ui-panel-content").addClass("dragscroll");
         $("#layout_layout_panel_top .w2ui-panel-content").css("overflow", "scroll");
-        // <div class="dragscroll" style="width: 320px; height: 160px; overflow: scroll; cursor: grab; cursor : -o-grab; cursor : -moz-grab; cursor : -webkit-grab;">
 
         let pointCloudContainer = $("#layout_layout_panel_main .w2ui-panel-content");
         pointCloudContainer.append('<div id="canvas3d" style="z-index: 0; background-color: #000000;"></div>');
@@ -1221,24 +1087,7 @@ let labelTool = {
             scene.remove(obj);
         }
         // remove all 2D BB objects from camera images
-        for (let annotationObjIndex in annotationObjects.contents[this.currentFileIndex]) {
-            if (annotationObjects.contents[this.currentFileIndex].hasOwnProperty(annotationObjIndex)) {
-                let annotationObj = annotationObjects.contents[this.currentFileIndex][annotationObjIndex];
-                for (let channelIdx in annotationObj.channels) {
-                    if (annotationObj.channels.hasOwnProperty(channelIdx)) {
-                        let channelObj = annotationObj.channels[channelIdx];
-                        for (let lineObj in channelObj.lines) {
-                            if (channelObj.lines.hasOwnProperty(lineObj)) {
-                                let line = channelObj.lines[lineObj];
-                                if (line !== undefined) {
-                                    line.remove();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        remove2DBoundingBoxes();
         // remove all folders
         folderBoundingBox3DArray = [];
         folderPositionArray = [];
@@ -1264,7 +1113,8 @@ let labelTool = {
             for (let i = 0; i < annotationObjects.contents[this.currentFileIndex].length; i++) {
                 // set start index
                 if (interpolationMode === true) {
-                    annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["interpolationStartFileIndex"] = this.currentFileIndex;
+                    // already set (when clicked on interpolation mode)
+                    // annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["interpolationStartFileIndex"] = this.currentFileIndex;
                     annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["interpolationEndFileIndex"] = newFileIndex;
                 }
                 annotationObjects.contents[newFileIndex][i] = jQuery.extend(true, {}, annotationObjects.contents[this.currentFileIndex][i]);
@@ -1341,6 +1191,22 @@ let labelTool = {
             annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["size"]["width"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["width"];
             annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["size"]["height"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["height"];
             annotationObjects.contents[newFileIndex][interpolationObjIndex]["interpolationEnd"]["size"]["depth"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["depth"];
+
+            // add start frame number
+            let interpolationStartFileIndex = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["interpolationStartFileIndex"];
+            folderPositionArray[interpolationObjIndex].domElement.firstChild.firstChild.innerText = "Interpolation Start Position (frame " + (interpolationStartFileIndex + 1) + ")";
+            folderSizeArray[interpolationObjIndex].domElement.firstChild.firstChild.innerText = "Interpolation Start Size (frame " + (interpolationStartFileIndex + 1) + ")";
+
+            // add end frame number
+            if (interpolationStartFileIndex !== newFileIndex) {
+                if (this.folderEndPosition !== undefined && this.folderEndSize !== undefined) {
+                    this.folderEndPosition.domElement.firstChild.firstChild.innerText = "Interpolation End Position (frame " + (newFileIndex + 1) + ")";
+                    this.folderEndSize.domElement.firstChild.firstChild.innerText = "Interpolation End Size (frame " + (newFileIndex + 1) + ")";
+                }
+
+
+            }
+
         }
         // open folder of selected object
         if (selectionIndex !== -1) {
@@ -1420,6 +1286,166 @@ let labelTool = {
     }
 };
 
+function getIndexByDimension(width, height, depth) {
+    for (let obj in annotationObjects.contents[labelTool.currentFileIndex]) {
+        let annotation = annotationObjects.contents[labelTool.currentFileIndex][obj];
+        if (annotation.width === width && annotation.height === height && annotation.depth === depth) {
+            return annotationObjects.contents[labelTool.currentFileIndex].indexOf(annotation);
+        }
+    }
+    return -1;
+}
+
+function draw2DProjections(params) {
+    for (let i = 0; i < params.channels.length; i++) {
+        if (params.channels[i].channel !== undefined && params.channels[i].channel !== "") {
+            // working for LISA_T
+            params.channels[i].projectedPoints = calculateProjectedBoundingBox(-params.x, -params.y, -params.z, params.width, params.height, params.depth, params.channels[i].channel);
+            // params.channels[i].projectedPoints = calculateProjectedBoundingBox(params.x, params.y, -params.z, params.width, params.height, params.depth, params.channels[i].channel);
+            // calculate line segments
+            let channelObj = params.channels[i];
+            if (params.channels[i].projectedPoints !== undefined && params.channels[i].projectedPoints.length === 8) {
+                params.channels[i].lines = calculateLineSegments(channelObj, params.class);
+            }
+        }
+    }
+}
+
+function numberToText(n) {
+    if (n === 0) {
+        return "";
+    } else if (n <= 19) {
+        let textNumbers = ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+        return textNumbers[n - 1];
+    } else if (n <= 99) {
+        let textNumbers = ["Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+        let firstPart = textNumbers[Math.floor(n / 10) - 2];
+        let secondPart = numberToText(n % 10);
+        if (secondPart === "") {
+            return firstPart;
+        } else {
+            return firstPart + "_" + secondPart;
+        }
+    } else if (n === 100) {
+        return "HUNDRED";
+    }
+}
+
+function setSequences() {
+    for (let i = 1; i <= 100; i++) {
+        let numberAsText = numberToText(i).toUpperCase();
+        labelTool.sequencesNuScenes.push(numberAsText);
+    }
+}
+
+function getDefaultObject() {
+    let params = {
+        class: "",
+        x: -1,
+        y: -1,
+        z: -1,
+        delta_x: -1,
+        delta_y: -1,
+        delta_z: -1,
+        width: -1,
+        height: -1,
+        depth: -1,
+        rotationY: -1,
+        org: {
+            x: -1,
+            y: -1,
+            z: -1,
+            width: -1,
+            height: -1,
+            depth: -1,
+            rotationY: -1
+        },
+        interpolationStartFileIndex: -1,
+        interpolationStart: {
+            position: {
+                x: -1,
+                y: -1,
+                z: -1,
+                rotationY: -1
+            },
+            size: {
+                width: -1,
+                height: -1,
+                depth: -1
+            }
+        },
+        interpolationEnd: {
+            position: {
+                x: -1,
+                y: -1,
+                z: -1,
+                rotationY: -1
+            },
+            size: {
+                width: -1,
+                height: -1,
+                depth: -1
+            }
+        },
+        trackId: -1,
+        channels: [{
+            rect: [],
+            projectedPoints: [],
+            lines: [],
+            channel: ''
+        }, {
+            rect: [],
+            projectedPoints: [],
+            lines: [],
+            channel: ''
+        }, {
+            rect: [],
+            projectedPoints: [],
+            lines: [],
+            channel: ''
+        }, {
+            rect: [],
+            projectedPoints: [],
+            lines: [],
+            channel: ''
+        }, {
+            rect: [],
+            projectedPoints: [],
+            lines: [],
+            channel: ''
+        }, {
+            rect: [],
+            projectedPoints: [],
+            lines: [],
+            channel: ''
+        }],
+        fromFile: true
+    };
+    return params;
+}
+
+function remove2DBoundingBoxes() {
+    for (let annotationObjIndex in annotationObjects.contents[labelTool.currentFileIndex]) {
+        if (annotationObjects.contents[labelTool.currentFileIndex].hasOwnProperty(annotationObjIndex)) {
+            let annotationObj = annotationObjects.contents[labelTool.currentFileIndex][annotationObjIndex];
+            for (let channelIdx in annotationObj.channels) {
+                if (annotationObj.channels.hasOwnProperty(channelIdx)) {
+                    let channelObj = annotationObj.channels[channelIdx];
+                    for (let lineObj in channelObj.lines) {
+                        if (channelObj.lines.hasOwnProperty(lineObj)) {
+                            let line = channelObj.lines[lineObj];
+                            if (line !== undefined) {
+                                console.log("remove");
+                                line.remove();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 function initPanes() {
     let maxHeight;
     let minHeight;
@@ -1430,6 +1456,8 @@ function initPanes() {
         minHeight = Math.ceil(window.innerWidth / (6 * 1.7778));
         maxHeight = 360;
     }
+
+    //------------------------------------------------------------------
     let topStyle = 'background-color: #F5F6F7; border: 1px solid #dfdfdf; padding: 0px;';
     $('#label-tool-wrapper').w2layout({
         name: 'layout',
@@ -1492,6 +1520,18 @@ function initPanes() {
                 camera.bottom = bottom;
                 camera.updateProjectionMatrix();
             }
+            // update projection of bounding boxes on camera images
+            // delete all labels
+            remove2DBoundingBoxes();
+            // draw all labels
+            for (let annotationObjIndex in annotationObjects.contents[labelTool.currentFileIndex]) {
+                if (annotationObjects.contents[labelTool.currentFileIndex].hasOwnProperty(annotationObjIndex)) {
+                    let annotationObj = annotationObjects.contents[labelTool.currentFileIndex][annotationObjIndex];
+                    let params = setObjectParameters(annotationObj);
+                    console.log("draw");
+                    draw2DProjections(params);
+                }
+            }
 
 
         },
@@ -1501,6 +1541,9 @@ function initPanes() {
                 $("#layout_layout_resizer_top").on('click', function () {
                     w2ui['layout'].resize();
                 });
+                $("#layout_layout_resizer_top").on('drag', function () {
+                    w2ui['layout'].resize();
+                });
             }
         }
     });
@@ -1508,6 +1551,9 @@ function initPanes() {
     w2ui['layout'].resizer = 10;
     w2ui['layout'].resize();
     w2ui['layout'].refresh();
+    //------------------------------------------------------------------
+    // $("#label-tool-wrapper").append("<SplitPane split='horizontal' minSize={180} defaultSize={180}><div id='panel-2d'></div><div id='panel-3d'></div></SplitPane>");
+
 
 }
 
