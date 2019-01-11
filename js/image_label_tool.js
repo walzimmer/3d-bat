@@ -1,19 +1,7 @@
 //let canvasArray = [document.getElementById("jpeg-label-canvas-front-left"), document.getElementById("jpeg-label-canvas-front"), document.getElementById("jpeg-label-canvas-front-right"), document.getElementById("jpeg-label-canvas-back-right"), document.getElementById("jpeg-label-canvas-back"), document.getElementById("jpeg-label-canvas-back-left")];
 let canvasArray = [];
 let canvasParamsArray = [{}, {}, {}, {}, {}, {}];
-let imageHeight;
-let imageWidth;
-let imageWidthBackFront;
-if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-    imageWidth = 320;
-    imageWidthBackFront = 480;
-    imageHeight = 240;
-} else {
-    // imageWidth = 640;
-    // imageHeight = 360;
-    imageWidth = 320;
-    imageHeight = 180;
-}
+let imageWidthBackFrontLISAT = 480;
 //var paperArray = [Raphael(canvasArray[0], width, height), Raphael(canvasArray[1], width, height), Raphael(canvasArray[2], width, height), Raphael(canvasArray[3], width, height), Raphael(canvasArray[4], width, height), Raphael(canvasArray[5], width, height)];
 let paperArray = [];
 let imageArray = [];
