@@ -1186,6 +1186,8 @@ let labelTool = {
         // open folder of selected object
         if (selectionIndex !== -1) {
             let selectionIndexNewFrame = getObjectIndexByTrackId(annotationObjects.contents[this.currentFileIndex][selectionIndex]["trackId"], annotationObjects.contents[this.currentFileIndex][selectionIndex]["class"], newFileIndex);
+            this.selectedMesh = this.cubeArray[newFileIndex][selectionIndexNewFrame];
+            addTransformControls();
             let channels = annotationObjects.contents[newFileIndex][selectionIndexNewFrame]["channels"];
             for (let channelIdx in channels) {
                 if (channels.hasOwnProperty(channelIdx)) {
@@ -1195,6 +1197,7 @@ let labelTool = {
         }
         this.currentFileIndex = newFileIndex;
         this.showData();
+
     },
 
     addResizeEventForImage: function () {
@@ -1508,6 +1511,8 @@ function initPanes() {
                 let params = setObjectParameters(annotationObj);
                 draw2DProjections(params);
             }
+            // update position of controls
+            $("#bounding-box-3d-menu").css("top", headerHeight + newImagePanelHeight);
 
 
         },

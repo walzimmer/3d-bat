@@ -1192,9 +1192,9 @@ function addTransformControls() {
 
     let size = smallestSide / 2;
     console.log("size controls addtransformcontrols: " + size);
-    transformControls.scale.x = size;
-    transformControls.scale.y = size;
-    transformControls.scale.z = size;
+    // transformControls.scale.x = size;
+    // transformControls.scale.y = size;
+    // transformControls.scale.z = size;
     transformControls.attach(labelTool.selectedMesh);
     scene.add(transformControls);
     window.removeEventListener('keydown', keyDownHandler);
