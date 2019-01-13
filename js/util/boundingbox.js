@@ -167,6 +167,7 @@ let annotationObjects = {
             this.contents[labelTool.currentFileIndex][insertIndex] = obj;
         }
         this.contents[labelTool.currentFileIndex][insertIndex]["class"] = params.class;
+        this.contents[labelTool.currentFileIndex].insertIndex = insertIndex;
         if (params.fromFile === false && this.__selectionIndex === -1) {
             if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
                 this.contents[labelTool.currentFileIndex][insertIndex]["trackId"] = classesBoundingBox.content[params.class].nextTrackId;
