@@ -587,7 +587,7 @@ text {
 #canvasSideView {
     position: fixed;
     width: 33.33vw;
-    height: 311px;
+    /*height: 311px;*/
     z-index: 102;
     left: 0px;
     top: 290px;
@@ -598,7 +598,7 @@ text {
 #canvasFrontView {
     position: fixed;
     width: 33.33vw;
-    height: 311px;
+    /*height: 311px;*/
     z-index: 102;
     left: 0px;
     top: 600px;
@@ -609,7 +609,7 @@ text {
 #canvasBev {
     position: fixed;
     width: 33.33vw;
-    height: 311px;
+    /*height: 311px;*/
     z-index: 102;
     left: 0px;
     top: 910px;

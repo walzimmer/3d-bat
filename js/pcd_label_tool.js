@@ -110,10 +110,10 @@ let parametersBoundingBox = {
     },
 };
 
-function getObjectIndexByTrackId(trackId, fileIdx) {
+function getObjectIndexByTrackId(trackId, className, fileIdx) {
     for (let i = 0; i < annotationObjects.contents[fileIdx].length; i++) {
         let obj = annotationObjects.contents[fileIdx][i];
-        if (obj["trackId"] === trackId) {
+        if (obj["trackId"] === trackId && obj["class"] === className) {
             return i;
         }
     }
@@ -135,7 +135,7 @@ function interpolate() {
     let depthDelta = (Number(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["interpolationEnd"]["size"]["depth"]) - Number(annotationObjects.contents[interpolationStartFileIndex][interpolationObjIndex]["interpolationStart"]["size"]["depth"])) / numFrames;
 
 
-    let idx = getObjectIndexByTrackId(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["trackId"], labelTool.currentFileIndex);
+    let idx = getObjectIndexByTrackId(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["trackId"], annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["class"], labelTool.currentFileIndex);
     for (let i = 1; i < numFrames; i++) {
         // cloning
         let clonedObject = jQuery.extend(true, {}, annotationObjects.contents[interpolationStartFileIndex][interpolationObjIndex]);
@@ -162,7 +162,7 @@ function interpolate() {
         }
 
 
-        let idx = getObjectIndexByTrackId(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["trackId"], interpolationStartFileIndex + i);
+        let idx = getObjectIndexByTrackId(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["trackId"], annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["class"], interpolationStartFileIndex + i);
 
         let newX = Number(annotationObjects.contents[interpolationStartFileIndex][idx]["interpolationStart"]["position"]["x"]) + i * xDelta;
         annotationObjects.contents[interpolationStartFileIndex + i][idx]["x"] = newX;
@@ -318,11 +318,11 @@ labelTool.onLoadData("PCD", function () {
     let pointCloudFullURL;
     let pointCloudWithoutGroundURL;
     if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-        pointCloudFullURL = labelTool.workBlob + '/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/' + 'pointclouds/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
-        pointCloudWithoutGroundURL = labelTool.workBlob + '/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/' + 'pointclouds_without_ground/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
+        pointCloudFullURL = 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/' + 'pointclouds/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
+        pointCloudWithoutGroundURL = 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/' + 'pointclouds_without_ground/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
     } else {
-        pointCloudFullURL = labelTool.workBlob + '/' + labelTool.currentDataset + '/pointclouds/all_scenes/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
-        pointCloudWithoutGroundURL = labelTool.workBlob + '/' + labelTool.currentDataset + '/pointclouds_without_ground/all_scenes/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
+        pointCloudFullURL = 'input/' + labelTool.currentDataset + '/pointclouds/all_scenes/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
+        pointCloudWithoutGroundURL = 'input/' + labelTool.currentDataset + '/pointclouds_without_ground/all_scenes/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
     }
 
     pcdLoader.load(pointCloudFullURL, function (mesh) {
@@ -644,7 +644,7 @@ function download() {
     // }
     outputString = b64EncodeUnicode(outputString);
     let fileName = labelTool.currentFileIndex.toString().padStart(6, '0');
-    $($('#bounding-box-3d-menu ul li')[0]).children().first().attr('href', 'data:application/octet-stream;base64,' + outputString).attr('download', fileName + '.txt');
+    $($('#bounding-box-3d-menu ul li')[0]).children().first().attr('href', 'data:application/octet-stream;base64,' + outputString).attr('download', labelTool.currentDataset + "_" + labelTool.currentSequence + '_annotations.txt');
 }
 
 //change camera position to bird view position
@@ -1064,6 +1064,22 @@ function resetCube(index) {
 
 //change window size
 function onWindowResize() {
+    // update height and top position of helper views
+    let imagePanelHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
+    let newHeight = Math.round((window.innerHeight - headerHeight - imagePanelHeight) / 3.0);
+    $("#canvasSideView").css("height", newHeight);
+    $("#canvasSideView").css("top", headerHeight + imagePanelHeight);
+    views[1].height = newHeight;
+    views[1].top = 0;
+    $("#canvasFrontView").css("height", newHeight);
+    $("#canvasFrontView").css("top", headerHeight + imagePanelHeight + newHeight);
+    views[2].height = newHeight;
+    views[2].top = newHeight;
+    $("#canvasBev").css("height", newHeight);
+    $("#canvasBev").css("top", headerHeight + imagePanelHeight + 2 * newHeight);
+    views[3].height = newHeight;
+    views[3].top = 2 * newHeight;
+
     // var canvas3D = $("canvas3d");
     // camera.aspect = canvas3D.getAttribute("width") / canvas3D.getAttribute("height");
     // camera.updateProjectionMatrix();
@@ -1130,6 +1146,7 @@ function addTransformControls() {
                 }
             }
             update2DBoundingBox(objectIndexByTrackId);
+            render();
         }
 
 
@@ -1139,8 +1156,8 @@ function addTransformControls() {
         // or hover over an arrow
         // or dragging starts or draggin ends
         // or mousedown or mouseup
-
         render();
+
         // console.log("change");
         // console.log("mode: "+event.target.getMode());
         // translating works (no object is created), problem: selection randomly works
@@ -1175,7 +1192,9 @@ function addTransformControls() {
 
     let size = smallestSide / 2;
     console.log("size controls addtransformcontrols: " + size);
-    transformControls.size = size;
+    transformControls.scale.x = size;
+    transformControls.scale.y = size;
+    transformControls.scale.z = size;
     transformControls.attach(labelTool.selectedMesh);
     scene.add(transformControls);
     window.removeEventListener('keydown', keyDownHandler);
@@ -1908,9 +1927,9 @@ function readPointCloud() {
     try {
         if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
 
-            rawFile.open("GET", labelTool.workBlob + '/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/pointclouds/' + pad(labelTool.currentFileIndex, 6) + '.pcd', false);
+            rawFile.open("GET", 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/pointclouds/' + pad(labelTool.currentFileIndex, 6) + '.pcd', false);
         } else {
-            rawFile.open("GET", labelTool.workBlob + '/' + labelTool.currentDataset + '/pointclouds/all_scenes/' + pad(labelTool.currentFileIndex, 6) + '.pcd', false);
+            rawFile.open("GET", 'input/' + labelTool.currentDataset + '/pointclouds/all_scenes/' + pad(labelTool.currentFileIndex, 6) + '.pcd', false);
         }
     } catch (error) {
         // no labels available for this camera image
@@ -2188,12 +2207,18 @@ function updateBEV(xPos, yPos, zPos, width, height, depth) {
 function initBev() {
     canvasBEV = document.createElement("canvas");
     canvasBEV.id = "canvasBev";
-    let wBev = 640;
+    let wBev = window.innerWidth / 3;
     canvasBEV.width = wBev;
     let imagePaneHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
-    let hBev = (window.innerHeight - imagePaneHeight - headerHeight) / 3;
+    let hBev;
+    if (isFullscreen() === true) {
+        hBev = (window.innerHeight - imagePaneHeight - headerHeight) / 3;
+    } else {
+        hBev = (screen.height + 24 - imagePaneHeight - headerHeight) / 3;
+    }
     canvasBEV.height = hBev;
     $("body").append(canvasBEV);
+    $("#canvasBev").css("top", headerHeight + imagePaneHeight + 2 * hBev);
 
     cameraBEV = new THREE.OrthographicCamera(window.innerWidth / -4, window.innerWidth / 4, window.innerHeight / 4, window.innerHeight / -4, -5000, 10000);
     cameraBEV.up = new THREE.Vector3(0, 0, -1);
@@ -2219,87 +2244,25 @@ function showBEV(xPos, yPos, zPos, width, height, depth) {
     $("#canvasBev").show();
 }
 
-// function showBEV(xPos, yPos, zPos, width, height, depth) {
-//     canvasBEV = document.createElement("canvas");
-//     canvasBEV.id = "panelBev";
-//     let wBev = 640;
-//     canvasBEV.width = wBev;
-//     let imagePaneHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
-//     const hBev = (window.innerHeight - imagePaneHeight - headerHeight) / 3;
-//     canvasBEV.height = hBev;
-//     let aspectRatio = wBev / hBev;
-//     // check which side is longer
-//     let left, right, lateralSize, bottom, top, verticalSize;
-//     let lateralOffset;
-//     if (xPos > 0) {
-//         lateralOffset = 3;
-//     } else {
-//         lateralOffset = -3;
-//     }
-//
-//     if (height > width && height / width > aspectRatio) {
-//         left = yPos + height / 2 + height / 10;
-//         right = yPos - height / 2 - height / 10;
-//         lateralSize = Math.abs(right - left);
-//         bottom = -xPos - lateralSize / (aspectRatio * 2);
-//         top = -xPos + lateralSize / (aspectRatio * 2);
-//     } else {
-//         bottom = yPos - height / 2 - 2 * height;
-//         top = yPos + height / 2 + 2 * height;
-//         verticalSize = Math.abs(top - bottom);
-//         left = -xPos + verticalSize * aspectRatio / 2;
-//         right = -xPos - verticalSize * aspectRatio / 2;
-//     }
-//     if (cameraBEV === undefined) {
-//         cameraBEV = new THREE.OrthographicCamera(left, right, bottom + lateralOffset, top + lateralOffset);
-//     } else {
-//         cameraBEV.left = left;
-//         cameraBEV.right = right;
-//         cameraBEV.top = top + lateralOffset;
-//         cameraBEV.bottom = bottom + lateralOffset;
-//     }
-//     cameraBEV.up.set(0, 0, 1);
-//     cameraBEV.position.set(xPos, yPos, zPos + 100);
-//     cameraBEV.lookAt(xPos, yPos, zPos);
-//     cameraBEV.updateProjectionMatrix();
-//
-//     // create div and append canvas
-//     $("body").append(canvasBEV);
-//     if (rendererBev === undefined) {
-//         rendererBev = new THREE.WebGLRenderer({
-//             antialias: true
-//         });
-//     }
-//
-//     // rendererBev.setPixelRatio(window.devicePixelRatio);
-//     rendererBev.setSize(wBev, hBev);
-//
-// }
-
 function initFrontView() {
     canvasFrontView = document.createElement("canvas");
     canvasFrontView.id = "canvasFrontView";
-    let widthFrontView = 640;
+    let widthFrontView = window.innerWidth / 3;
     canvasFrontView.width = widthFrontView;
     let imagePanelTopPos = parseInt($("#layout_layout_resizer_top").css("top"), 10);
-    let heightFrontView = (window.innerHeight - imagePanelTopPos - headerHeight) / 3;
+    let heightFrontView;
+    if (isFullscreen() === true) {
+        heightFrontView = (window.innerHeight - imagePanelTopPos - headerHeight) / 3;
+    } else {
+        heightFrontView = (screen.height + 24 - imagePanelTopPos - headerHeight) / 3;
+    }
     canvasFrontView.height = heightFrontView;
-    $("body").append(canvasFrontView);
 
-    // cameraFrontView = new THREE.OrthographicCamera();
+    $("body").append(canvasFrontView);
+    $("#canvasFrontView").css("top", headerHeight + imagePanelTopPos + heightFrontView);
     cameraFrontView = new THREE.OrthographicCamera(window.innerWidth / -4, window.innerWidth / 4, window.innerHeight / 4, window.innerHeight / -4, -5000, 10000);
-    // cameraFrontView.up = new THREE.Vector3(0, 0, -1);
     cameraFrontView.lookAt(new THREE.Vector3(0, 0, -1));
     scene.add(cameraFrontView);
-
-    // rendererFrontView = new THREE.WebGLRenderer({
-    //     antialias: true
-    // });
-
-    // mapControlsFrontView = new THREE.MapControls(cameraFrontView, canvasFrontView);
-    // mapControlsFrontView.enableRotate = false;
-    // mapControlsFrontView.enablePan = true;
-    // mapControlsFrontView.panSpeed = 0.5;
 }
 
 function updateFrontView(xPos, yPos, zPos, width, height, depth) {
@@ -2371,11 +2334,18 @@ function showFrontView(xPos, yPos, zPos, width, height, depth) {
 function initSideView() {
     canvasSideView = document.createElement("canvas");
     canvasSideView.id = "canvasSideView";
-    let widthSideView = 640;
+    let widthSideView = window.innerWidth / 3;
     let imagePaneHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
-    const heightSideView = (window.innerHeight - imagePaneHeight - headerHeight) / 3;
+    let heightSideView;
+    if (isFullscreen() === true) {
+        heightSideView = (window.innerHeight - imagePaneHeight - headerHeight) / 3;
+    } else {
+        heightSideView = (screen.height + 24 - imagePaneHeight - headerHeight) / 3;
+    }
+
     canvasSideView.width = widthSideView;
     canvasSideView.height = heightSideView;
+    canvasSideView.offsetTop = 0;
     $("body").append(canvasSideView);
 
     // cameraSideView = new THREE.OrthographicCamera();
@@ -2462,6 +2432,12 @@ function showHelperViews(xPos, yPos, zPos, width, height, depth) {
     $("#class-picker").css("left", window.innerWidth / 3 + 10);
 }
 
+function checkInterpolationModeCheckbox(interpolationModeCheckbox) {
+    interpolationModeCheckbox.parentElement.parentElement.style.opacity = 1.0;
+    interpolationModeCheckbox.parentElement.parentElement.style.pointerEvents = "all";
+    $(interpolationModeCheckbox.firstChild).removeAttr("tabIndex");
+}
+
 function mouseUpLogic(ev) {
 // check if scene contains transform controls
     useTransformControls = false;
@@ -2506,6 +2482,7 @@ function mouseUpLogic(ev) {
             annotationObjects.localOnSelect["PCD"](clickedObjectIndex);
             // set selected object
             labelTool.selectedMesh = labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex];
+            addTransformControls();
             if (transformControls.position !== undefined) {
                 transformControls.detach();
                 transformControls.attach(labelTool.selectedMesh);
@@ -2539,6 +2516,8 @@ function mouseUpLogic(ev) {
                 interpolateBtn.domElement.parentElement.parentElement.style.pointerEvents = "all";
                 interpolateBtn.domElement.parentElement.parentElement.style.opacity = 1.0;
             }
+            let interpolationModeCheckbox = document.getElementById("interpolation-checkbox");
+            checkInterpolationModeCheckbox(interpolationModeCheckbox);
 
         } else {
             // remove selection in camera view if 2d label exist
@@ -2573,6 +2552,9 @@ function mouseUpLogic(ev) {
             // move class picker to left
             $("#class-picker").css("left", 10);
 
+            let interpolationModeCheckbox = document.getElementById("interpolation-checkbox");
+            uncheckInterpolationModeCheckbox(interpolationModeCheckbox);
+
         }
 
         if (clickFlag === true) {
@@ -2595,8 +2577,7 @@ function mouseUpLogic(ev) {
                 if (annotationObjects.__selectionIndex === -1) {
                     // no object selected in 3d scene (new object was created)-> use selected class from class menu
                     trackId = classesBoundingBox.content[classesBoundingBox.targetName()].nextTrackId;
-                    //trackId = getNextTrackId(classesBoundingBox.targetName(), labelTool.datasets.NuScenes);
-                    insertIndex = annotationObjects.__insertIndex;
+                    insertIndex = annotationObjects.contents[labelTool.currentFileIndex].length;
                 } else {
                     // object was selected in 3d scene
                     trackId = annotationObjects.contents[labelTool.currentFileIndex][annotationObjects.__selectionIndex]["trackId"];
@@ -2605,8 +2586,7 @@ function mouseUpLogic(ev) {
             } else {
                 if (annotationObjects.__selectionIndex === -1) {
                     trackId = classesBoundingBox[classesBoundingBox.targetName()].nextTrackId;
-                    //trackId = getNextTrackId(classesBoundingBox.targetName(), labelTool.datasets.LISA_T);
-                    insertIndex = annotationObjects.__insertIndex;
+                    insertIndex = annotationObjects.contents[labelTool.currentFileIndex].length;
                 } else {
                     trackId = annotationObjects.contents[labelTool.currentFileIndex][annotationObjects.__selectionIndex]["trackId"];
                     insertIndex = annotationObjects.__selectionIndex;
@@ -2735,9 +2715,7 @@ function mouseUpLogic(ev) {
                     }
                 }
                 let interpolationModeCheckbox = document.getElementById("interpolation-checkbox");
-                interpolationModeCheckbox.parentElement.parentElement.style.opacity = 1.0;
-                interpolationModeCheckbox.parentElement.parentElement.style.pointerEvents = "all";
-                $(interpolationModeCheckbox.firstChild).removeAttr("tabIndex");
+                checkInterpolationModeCheckbox(interpolationModeCheckbox);
 
             }
             groundPlaneArray = [];
@@ -2878,10 +2856,13 @@ function mouseDownLogic(ev) {
             } else {
                 classesBoundingBox.content[label].nextTrackId--;
             }
+            $("#canvasSideView").remove();
+            $("#canvasFrontView").remove();
+            $("#canvasBev").remove();
 
-        }
+        }//end right click
     } else {
-        labelTool.selectedMesh = undefined;
+        // labelTool.selectedMesh = undefined;
         if (birdsEyeViewFlag === true) {
             clickedObjectIndex = -1;
             groundPlaneArray = [];
@@ -2912,9 +2893,18 @@ function handleMouseDown(ev) {
     }
 }
 
+function isFullscreen() {
+    return Math.round(window.innerHeight * window.devicePixelRatio) === screen.height;
+}
+
 function initViews() {
     let imagePanelTopPos = parseInt($("#layout_layout_resizer_top").css("top"), 10);
-    let canvas3DHeight = parseInt($("#canvas3d canvas").css("height"), 10);
+    let viewHeight;
+    if (isFullscreen() === true) {
+        viewHeight = Math.round((window.innerHeight - headerHeight - imagePanelTopPos) / 3);
+    } else {
+        viewHeight = Math.round((screen.height + 24 - headerHeight - imagePanelTopPos) / 3);
+    }
 
     views = [
         // main view
@@ -2932,7 +2922,7 @@ function initViews() {
             left: 0,
             top: 0,
             width: window.innerWidth / 3,
-            height: canvas3DHeight / 3,
+            height: viewHeight,
             background: new THREE.Color(22 / 256.0, 22 / 256.0, 22 / 256.0),
             up: [-1, 0, 0],
             fov: 70,
@@ -2944,9 +2934,9 @@ function initViews() {
         // front view
         {
             left: 0,
-            top: 312,
+            top: viewHeight,
             width: window.innerWidth / 3,
-            height: canvas3DHeight / 3,
+            height: viewHeight,
             background: new THREE.Color(22 / 256.0, 22 / 256.0, 22 / 256.0),
             up: [0, -1, 0],
             fov: 70,
@@ -2955,12 +2945,12 @@ function initViews() {
                 camera.lookAt(objectPosition);
             }
         },
-        // top view
+        // BEV
         {
             left: 0,
-            top: 624,
+            top: 2 * viewHeight,
             width: window.innerWidth / 3,
-            height: canvas3DHeight / 3,
+            height: viewHeight,
             background: new THREE.Color(22 / 256.0, 22 / 256.0, 22 / 256.0),
             up: [1, 0, 0],
             fov: 70,
@@ -2970,6 +2960,13 @@ function initViews() {
             }
         }
     ];
+    $("#canvasSideView").css("height", viewHeight);
+    $("#canvasSideView").css("top", headerHeight + imagePanelTopPos);
+    $("#canvasFrontView").css("height", viewHeight);
+    $("#canvasFrontView").css("top", headerHeight + imagePanelTopPos + viewHeight);
+    $("#canvasBev").css("height", viewHeight);
+    $("#canvasBev").css("top", headerHeight + imagePanelTopPos + 2 * viewHeight);
+
 
     let mainView = views[0];
     let mainCamera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
@@ -2988,6 +2985,12 @@ function initViews() {
         camera.up.fromArray(view.up);
         view.camera = camera;
     }
+}
+
+function uncheckInterpolationModeCheckbox(interpolationModeCheckbox) {
+    interpolationModeCheckbox.parentElement.parentElement.style.opacity = 0.2;
+    interpolationModeCheckbox.parentElement.parentElement.style.pointerEvents = "none";
+    interpolationModeCheckbox.firstChild.setAttribute("tabIndex", "-1");
 }
 
 function init() {
@@ -3141,6 +3144,7 @@ function init() {
         labelTool.savedFrames.push([]);
         annotationObjects.contents.push([]);
     }
+
     if (guiBoundingBoxAnnotationMap === undefined) {
         guiBoundingBoxAnnotationMap = {
             "Vehicle": guiAnnotationClasses.add(parametersBoundingBox, "Vehicle").name("Vehicle"),
@@ -3241,9 +3245,12 @@ function init() {
         });
         let interpolationModeCheckbox = guiOptions.add(parameters, 'interpolation_mode').name('Interpolation Mode').listen();
         interpolationModeCheckbox.domElement.id = 'interpolation-checkbox';
-        interpolationModeCheckbox.domElement.parentElement.parentElement.style.opacity = 0.2;
-        interpolationModeCheckbox.domElement.parentElement.parentElement.style.pointerEvents = "none";
-        interpolationModeCheckbox.domElement.firstChild.setAttribute("tabIndex", "-1");
+        // if scene contains no objects then deactivate checkbox
+        if (annotationFileExist(undefined, undefined) === false || interpolationMode === false) {
+            // no annotation file exist -> deactivate checkbox
+            uncheckInterpolationModeCheckbox(interpolationModeCheckbox.domElement);
+        }
+
         interpolationModeCheckbox.onChange(function (value) {
             interpolationMode = value;
             if (interpolationMode === true) {
