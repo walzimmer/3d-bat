@@ -514,10 +514,11 @@ text {
 
 #bounding-box-3d-menu {
     right: 0px;
-    bottom: 0px;
-    padding-bottom: 30px;
+    /*bottom: 0px;*/
+    /*padding-bottom: 30px;*/
     float: none;
     position: fixed;
+    top: 290px;
 }
 
 #layout_layout_resizer_top {
@@ -527,6 +528,11 @@ text {
 
 #layout_layout_panel_top .w2ui-panel-content {
     white-space: nowrap;
+}
+
+.close-button {
+    position: fixed !important;
+    width: 300px;
 }
 
 .class-tooltip {
