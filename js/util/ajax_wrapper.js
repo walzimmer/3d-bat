@@ -53,7 +53,7 @@ function request(options) {
 function annotationFileExist(fileIndex, channel) {
     let url;
     if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-        url = 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/annotations/' + labelTool.currentDataset+"_"+labelTool.currentSequence + '_annotations.txt';
+        url = 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/annotations/' + labelTool.currentDataset + "_" + labelTool.currentSequence + '_annotations.txt';
     } else {
         if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
             // load already created annotations provided by NuScenes
@@ -74,6 +74,7 @@ function annotationFileExist(fileIndex, channel) {
 function parseAnnotationFile(fileName) {
     let rawFile = new XMLHttpRequest();
     let annotationsJSONArray = [];
+    let frameAnnotations = [];
     try {
         if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
             rawFile.open("GET", 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/annotations/' + fileName, false);
@@ -94,58 +95,67 @@ function parseAnnotationFile(fileName) {
     rawFile.onreadystatechange = function () {
         if (rawFile.readyState === 4) {
             if (rawFile.status === 200 || rawFile.status === 0) {
-                let annotationsJSONString = rawFile.responseText;
-                // let str_list = allText.split("\n");
-                // for (let i = 0; i < str_list.length; i++) {
-                //     let str = str_list[i].split(" ");
-                //     if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes && str.length === 16) {
-                //         res.push({
-                //             class: str[0],
-                //             truncated: str[1],
-                //             occluded: str[2],
-                //             alpha: str[3],
-                //             left: str[4],
-                //             top: str[5],
-                //             right: str[6],
-                //             bottom: str[7],
-                //             height: str[8],
-                //             width: str[9],
-                //             length: str[10],
-                //             x: str[11],
-                //             y: str[12],
-                //             z: str[13],
-                //             rotationY: str[14],
-                //             score: str[15]
-                //         });
-                //     } else if (labelTool.showOriginalNuScenesLabels === false && labelTool.currentDataset === labelTool.datasets.NuScenes && str.length === 17) {
-                //         res.push({
-                //             class: str[0],
-                //             truncated: str[1],
-                //             occluded: str[2],
-                //             alpha: str[3],
-                //             left: str[4],
-                //             top: str[5],
-                //             right: str[6],
-                //             bottom: str[7],
-                //             height: str[8],
-                //             width: str[9],
-                //             length: str[10],
-                //             x: str[11],
-                //             y: str[12],
-                //             z: str[13],
-                //             rotationY: str[14],
-                //             score: str[15],
-                //             trackId: str[16]
-                //         });
-                //     }
-                // }
-                annotationsJSONArray = eval(annotationsJSONString);
-                return annotationsJSONArray;
+                if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
+                    let str_list = rawFile.responseText.split("\n");
+                    for (let i = 0; i < str_list.length; i++) {
+                        let str = str_list[i].split(" ");
+                        if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes && str.length === 16) {
+                            frameAnnotations.push({
+                                class: str[0],
+                                truncated: str[1],
+                                occluded: str[2],
+                                alpha: str[3],
+                                left: str[4],
+                                top: str[5],
+                                right: str[6],
+                                bottom: str[7],
+                                height: str[8],
+                                width: str[9],
+                                length: str[10],
+                                x: str[11],
+                                y: str[12],
+                                z: str[13],
+                                rotationY: str[14],
+                                score: str[15]
+                            });
+                        } else if (labelTool.showOriginalNuScenesLabels === false && labelTool.currentDataset === labelTool.datasets.NuScenes && str.length === 17) {
+                            frameAnnotations.push({
+                                class: str[0],
+                                truncated: str[1],
+                                occluded: str[2],
+                                alpha: str[3],
+                                left: str[4],
+                                top: str[5],
+                                right: str[6],
+                                bottom: str[7],
+                                height: str[8],
+                                width: str[9],
+                                length: str[10],
+                                x: str[11],
+                                y: str[12],
+                                z: str[13],
+                                rotationY: str[14],
+                                score: str[15],
+                                trackId: str[16]
+                            });
+                        }
+                    }
+                    return frameAnnotations;
+                } else {
+                    let annotationsJSONString = rawFile.responseText;
+                    annotationsJSONArray = eval(annotationsJSONString);
+                    return annotationsJSONArray;
+                }
             } else {
                 return null;
             }
         }
     };
     rawFile.send(null);
-    return annotationsJSONArray;
+    if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
+        return frameAnnotations;
+    } else {
+        return annotationsJSONArray;
+    }
+
 }

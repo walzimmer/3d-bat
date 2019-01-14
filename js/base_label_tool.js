@@ -1,54 +1,3 @@
-function setObjectParameters(annotationObj) {
-    let params = {
-        class: annotationObj["class"],
-        x: annotationObj["x"],
-        y: annotationObj["y"],
-        z: annotationObj["z"],
-        width: annotationObj["width"],
-        height: annotationObj["height"],
-        depth: annotationObj["depth"],
-        rotationY: parseFloat(annotationObj["rotationY"]),
-        channels: [{
-            rect: [],
-            projectedPoints: [],
-            lines: [],
-            channel: ""
-        }, {
-            rect: [],
-            projectedPoints: [],
-            lines: [],
-            channel: ""
-        }, {
-            rect: [],
-            projectedPoints: [],
-            lines: [],
-            channel: ""
-        }, {
-            rect: [],
-            projectedPoints: [],
-            lines: [],
-            channel: ""
-        }, {
-            rect: [],
-            projectedPoints: [],
-            lines: [],
-            channel: ""
-        }, {
-            rect: [],
-            projectedPoints: [],
-            lines: [],
-            channel: ""
-        }]
-    };
-    for (let i = 0; i < annotationObj["channels"].length; i++) {
-        let channelObj = annotationObj["channels"][i];
-        if (channelObj.channel !== undefined) {
-            params["channels"][i]["channel"] = channelObj.channel;
-        }
-    }
-    return params;
-}
-
 let labelTool = {
     datasets: Object.freeze({"NuScenes": "NuScenes", "LISA_T": "LISA_T"}),
     sequencesLISAT: Object.freeze({
@@ -460,8 +409,81 @@ let labelTool = {
             classesBoundingBox[label].nextTrackId++;
         }
     },
+    loadAnnotationsNuscenes: function (annotations) {
+        // Remove old bounding boxes of current frame.
+        annotationObjects.clear();
+        // Add new bounding boxes.
+        for (let i in annotations) {
+            // convert 2D bounding box to integer values
+            if (annotations.hasOwnProperty(i)) {
+                ["left", "right", "top", "bottom"].forEach(function (key) {
+                    annotations[i][key] = parseInt(annotations[i][key]);
+                });
+                let annotation = annotations[i];
+                // annotationObjects.selectEmpty();
+                let params = getDefaultObject();
+                params.class = annotation.class;
+                params.rotationY = parseFloat(annotation.rotationY);
+                params.org.rotationY = parseFloat(annotation.rotationY);
+                for (let i = 0; i < labelTool.camChannels.length; i++) {
+                    params.channels[i].channel = labelTool.camChannels[i].channel;
+                }
+                if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
+                    classesBoundingBox.addNuSceneLabel(annotation.class);
+                    classesBoundingBox.__target = Object.keys(classesBoundingBox.content)[0];
+                    params.trackId = classesBoundingBox.content[annotation.class].nextTrackId;
+                    classesBoundingBox.content[annotation.class].nextTrackId++;
+                } else {
+                    params.trackId = annotation.trackId;
+                    classesBoundingBox[annotation.class].nextTrackId++;
+                }
+
+                // Nuscenes labels are stored in global frame in the database
+                // Nuscenes: labels (3d positions) are transformed from global frame to point cloud (global -> ego, ego -> point cloud) before exporting them
+                // LISAT: labels are stored in ego frame which is also the point cloud frame (no transformation needed)
+                if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+                    params.x = parseFloat(annotation.x);
+                    params.y = -parseFloat(annotation.y);
+                    params.z = parseFloat(annotation.z);
+                    params.org.x = parseFloat(annotation.x);
+                    params.org.y = -parseFloat(annotation.y);
+                    params.org.z = parseFloat(annotation.z);
+                } else {
+                    params.x = parseFloat(annotation.x);
+                    params.y = -parseFloat(annotation.y);
+                    params.z = parseFloat(annotation.z);
+                    params.org.x = parseFloat(annotation.x);
+                    params.org.y = -parseFloat(annotation.y);
+                    params.org.z = parseFloat(annotation.z);
+                }
+                let tmpWidth = parseFloat(annotation.width);
+                let tmpHeight = parseFloat(annotation.height);
+                let tmpDepth = parseFloat(annotation.length);
+                if (tmpWidth !== 0.0 && tmpHeight !== 0.0 && tmpDepth !== 0.0) {
+                    tmpWidth = Math.max(tmpWidth, 0.0001);
+                    tmpHeight = Math.max(tmpHeight, 0.0001);
+                    tmpDepth = Math.max(tmpDepth, 0.0001);
+                    params.delta_x = 0;
+                    params.delta_y = 0;
+                    params.delta_z = 0;
+                    params.width = tmpWidth;
+                    params.height = tmpHeight;
+                    params.depth = tmpDepth;
+                    params.org.width = tmpWidth;
+                    params.org.height = tmpHeight;
+                    params.org.depth = tmpDepth;
+                }
+                // project 3D position into 2D camera image
+                draw2DProjections(params);
+                // add new entry to contents array
+                annotationObjects.set(annotationObjects.__insertIndex, params);
+                annotationObjects.__insertIndex++;
+                classesBoundingBox.target().nextTrackId++;
+            }
+        }
+    },
     // Set values to this.annotationObjects from annotations
-    loadAnnotations: function (allAnnotations) {
+    loadAnnotationsLISAT: function (allAnnotations) {
         // Remove old bounding boxes of current frame.
         annotationObjects.clear();
         let maxTrackIds = [0, 0, 0, 0, 0];// vehicle, truck, motorcycle, bicycle, pedestrian
@@ -557,7 +579,9 @@ let labelTool = {
             }
         }
         // project 3D positions of current frame into 2D camera images
-        draw2DProjections(annotationObjects.contents[this.currentFileIndex][0]);
+        if (annotationObjects.contents[this.currentFileIndex].length > 0) {
+            draw2DProjections(annotationObjects.contents[this.currentFileIndex][0]);
+        }
     },
 
     // Create annotations from this.annotationObjects
@@ -690,7 +714,12 @@ let labelTool = {
             },
             success: function (res) {
                 if (targetFile === this.currentFileIndex) {
-                    this.loadAnnotations(res);
+                    if (this.currentDataset === this.datasets.LISA_T) {
+                        this.loadAnnotationsLISAT(res);
+                    } else {
+                        this.loadAnnotationsNuscenes(res);
+                    }
+
                 }
                 this.loadCount--;
             }.bind(this),
@@ -701,6 +730,10 @@ let labelTool = {
     },
 
     reset() {
+        for (let i = scene.children.length; i >= 0; i--) {
+            let obj = scene.children[i];
+            scene.remove(obj);
+        }
         // base label tool
         this.currentFileIndex = 0;
         this.fileNames = [];
@@ -714,6 +747,9 @@ let labelTool = {
             guiOptions.removeFolder(annotationObj["class"] + ' ' + annotationObj["trackId"]);
         }
         annotationObjects.contents = [];
+        $(".class-tooltip").remove();
+        this.spriteArray = [];
+        this.selectedMesh = undefined;
 
         // classesBoundingBox
         classesBoundingBox.colorIdx = 0;
@@ -1069,7 +1105,6 @@ let labelTool = {
         folderPositionArray = [];
         folderSizeArray = [];
 
-
         if (this.cubeArray[newFileIndex].length === 0) {
             // move all 3d objects to new frame if nextFrame has no labels
             for (let i = 0; i < this.cubeArray[this.currentFileIndex].length; i++) {
@@ -1080,6 +1115,7 @@ let labelTool = {
 
                 let sprite = this.spriteArray[this.currentFileIndex][i];
                 let clonedSprite = sprite.clone();
+
                 this.spriteArray[newFileIndex].push(clonedSprite);
                 scene.add(clonedSprite);
             }
@@ -1101,6 +1137,30 @@ let labelTool = {
                 scene.add(mesh);
                 let sprite = this.spriteArray[newFileIndex][i];
                 scene.add(sprite);
+
+                let trackId = annotationObjects.contents[newFileIndex][i]["trackId"];
+                let className = annotationObjects.contents[newFileIndex][i]["class"];
+                let objectIndexByTrackIdAndClass = getObjectIndexByTrackIdAndClass(trackId, className, this.currentFileIndex);
+                if (objectIndexByTrackIdAndClass === -1) {
+                    // next frame contains a new object -> add tooltip for new object
+                    let classTooltipElement = $("<div class='class-tooltip' id='class-" + className.charAt(0) + trackId + "'>" + className.charAt(0) + trackId + " | " + className + "</div>");
+                    $("body").append(classTooltipElement);
+                    // set background color
+                    let color = classesBoundingBox[className].color;
+                    $(classTooltipElement[0]).css("background", color);
+                    $(classTooltipElement[0]).css("opacity", 0.5);
+                }
+            }
+            for (let i = 0; i < annotationObjects.contents[this.currentFileIndex].length; i++) {
+                // remove 2D labels that do not occur in new frame
+                let trackId = annotationObjects.contents[this.currentFileIndex][i]["trackId"];
+                let className = annotationObjects.contents[this.currentFileIndex][i]["class"];
+                let objectIndexByTrackIdAndClass = getObjectIndexByTrackIdAndClass(trackId, className, newFileIndex);
+                if (objectIndexByTrackIdAndClass === -1) {
+                    // current object does not exist in next frame -> remove its 2D label
+                    $("#class-" + className.charAt(0) + trackId).remove();
+                }
+
             }
         }
 
@@ -1158,7 +1218,7 @@ let labelTool = {
             annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["interpolationEnd"]["size"]["height"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["height"];
             annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["interpolationEnd"]["size"]["depth"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["depth"];
 
-            let objectIndexByTrackId = getObjectIndexByTrackId(annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["trackId"], annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["class"], newFileIndex);
+            let objectIndexByTrackId = getObjectIndexByTrackIdAndClass(annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["trackId"], annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["class"], newFileIndex);
             annotationObjects.contents[newFileIndex][objectIndexByTrackId]["interpolationEnd"]["position"]["x"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["x"];
             annotationObjects.contents[newFileIndex][objectIndexByTrackId]["interpolationEnd"]["position"]["y"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["y"];
             annotationObjects.contents[newFileIndex][objectIndexByTrackId]["interpolationEnd"]["position"]["z"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["z"];
@@ -1185,14 +1245,18 @@ let labelTool = {
         }
         // open folder of selected object
         if (selectionIndex !== -1) {
-            let selectionIndexNewFrame = getObjectIndexByTrackId(annotationObjects.contents[this.currentFileIndex][selectionIndex]["trackId"], annotationObjects.contents[this.currentFileIndex][selectionIndex]["class"], newFileIndex);
-            this.selectedMesh = this.cubeArray[newFileIndex][selectionIndexNewFrame];
-            addTransformControls();
-            let channels = annotationObjects.contents[newFileIndex][selectionIndexNewFrame]["channels"];
-            for (let channelIdx in channels) {
-                if (channels.hasOwnProperty(channelIdx)) {
-                    annotationObjects.select(selectionIndexNewFrame, channels[channelIdx].channel);
+            let selectionIndexNewFrame = getObjectIndexByTrackIdAndClass(annotationObjects.contents[this.currentFileIndex][selectionIndex]["trackId"], annotationObjects.contents[this.currentFileIndex][selectionIndex]["class"], newFileIndex);
+            if (selectionIndexNewFrame !== -1) {
+                this.selectedMesh = this.cubeArray[newFileIndex][selectionIndexNewFrame];
+                addTransformControls();
+                let channels = annotationObjects.contents[newFileIndex][selectionIndexNewFrame]["channels"];
+                for (let channelIdx in channels) {
+                    if (channels.hasOwnProperty(channelIdx)) {
+                        annotationObjects.select(selectionIndexNewFrame, channels[channelIdx].channel);
+                    }
                 }
+            } else {
+                annotationObjects.selectEmpty();
             }
         }
         this.currentFileIndex = newFileIndex;
@@ -1264,6 +1328,57 @@ let labelTool = {
         }
     }
 };
+
+function setObjectParameters(annotationObj) {
+    let params = {
+        class: annotationObj["class"],
+        x: annotationObj["x"],
+        y: annotationObj["y"],
+        z: annotationObj["z"],
+        width: annotationObj["width"],
+        height: annotationObj["height"],
+        depth: annotationObj["depth"],
+        rotationY: parseFloat(annotationObj["rotationY"]),
+        channels: [{
+            rect: [],
+            projectedPoints: [],
+            lines: [],
+            channel: ""
+        }, {
+            rect: [],
+            projectedPoints: [],
+            lines: [],
+            channel: ""
+        }, {
+            rect: [],
+            projectedPoints: [],
+            lines: [],
+            channel: ""
+        }, {
+            rect: [],
+            projectedPoints: [],
+            lines: [],
+            channel: ""
+        }, {
+            rect: [],
+            projectedPoints: [],
+            lines: [],
+            channel: ""
+        }, {
+            rect: [],
+            projectedPoints: [],
+            lines: [],
+            channel: ""
+        }]
+    };
+    for (let i = 0; i < annotationObj["channels"].length; i++) {
+        let channelObj = annotationObj["channels"][i];
+        if (channelObj.channel !== undefined) {
+            params["channels"][i]["channel"] = channelObj.channel;
+        }
+    }
+    return params;
+}
 
 function getIndexByDimension(width, height, depth) {
     for (let obj in annotationObjects.contents[labelTool.currentFileIndex]) {
