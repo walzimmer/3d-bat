@@ -110,7 +110,7 @@ let parametersBoundingBox = {
     },
 };
 
-function getObjectIndexByTrackId(trackId, className, fileIdx) {
+function getObjectIndexByTrackIdAndClass(trackId, className, fileIdx) {
     for (let i = 0; i < annotationObjects.contents[fileIdx].length; i++) {
         let obj = annotationObjects.contents[fileIdx][i];
         if (obj["trackId"] === trackId && obj["class"] === className) {
@@ -135,7 +135,7 @@ function interpolate() {
     let depthDelta = (Number(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["interpolationEnd"]["size"]["depth"]) - Number(annotationObjects.contents[interpolationStartFileIndex][interpolationObjIndex]["interpolationStart"]["size"]["depth"])) / numFrames;
 
 
-    let idx = getObjectIndexByTrackId(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["trackId"], annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["class"], labelTool.currentFileIndex);
+    let idx = getObjectIndexByTrackIdAndClass(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["trackId"], annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["class"], labelTool.currentFileIndex);
     for (let i = 1; i < numFrames; i++) {
         // cloning
         let clonedObject = jQuery.extend(true, {}, annotationObjects.contents[interpolationStartFileIndex][interpolationObjIndex]);
@@ -162,7 +162,7 @@ function interpolate() {
         }
 
 
-        let idx = getObjectIndexByTrackId(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["trackId"], annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["class"], interpolationStartFileIndex + i);
+        let idx = getObjectIndexByTrackIdAndClass(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["trackId"], annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndex]["class"], interpolationStartFileIndex + i);
 
         let newX = Number(annotationObjects.contents[interpolationStartFileIndex][idx]["interpolationStart"]["position"]["x"]) + i * xDelta;
         annotationObjects.contents[interpolationStartFileIndex + i][idx]["x"] = newX;
@@ -673,6 +673,28 @@ function increaseBrightness(hex, percent) {
 }
 
 
+function addClassTooltip(className, trackId,color, bbox) {
+    let classTooltipElement = $("<div class='class-tooltip' id='class-" + className.charAt(0) + trackId + "'>" + className.charAt(0) + trackId + " | " + className + "</div>");
+    $("body").append(classTooltipElement);
+    // set background color
+    $(classTooltipElement[0]).css("background", color);
+    $(classTooltipElement[0]).css("opacity", 0.5);
+
+    // Sprite
+    const spriteMaterial = new THREE.SpriteMaterial({
+        alphaTest: 0.5,
+        transparent: true,
+        depthTest: false,
+        depthWrite: false
+    });
+    let sprite = new THREE.Sprite(spriteMaterial);
+    sprite.position.set(bbox.x, bbox.y, bbox.z + bbox.depth / 2);
+    sprite.scale.set(1, 1, 1);
+    sprite.name = "sprite-" + className.charAt(0) + trackId;
+    scene.add(sprite);
+    labelTool.spriteArray[labelTool.currentFileIndex].push(sprite);
+}
+
 function get3DLabel(parameters) {
     let bbox = parameters;
     //let cubeGeometry = new THREE.CubeGeometry(1.0, 1.0, 1.0);//width, height, depth
@@ -711,25 +733,7 @@ function get3DLabel(parameters) {
     scene.add(cubeMesh);
 
     // class tooltip
-    let classTooltipElement = $("<div class='class-tooltip' id='class-" + parameters.class.charAt(0) + parameters.trackId + "'>" + parameters.class.charAt(0) + parameters.trackId + " | " + parameters.class + "</div>");
-    $("body").append(classTooltipElement);
-    // set background color
-    $(classTooltipElement[0]).css("background", color);
-    $(classTooltipElement[0]).css("opacity", 0.5);
-
-    // Sprite
-    const spriteMaterial = new THREE.SpriteMaterial({
-        alphaTest: 0.5,
-        transparent: true,
-        depthTest: false,
-        depthWrite: false
-    });
-    let sprite = new THREE.Sprite(spriteMaterial);
-    sprite.position.set(bbox.x, bbox.y, bbox.z + bbox.depth / 2);
-    sprite.scale.set(1, 1, 1);
-    sprite.name = "sprite-" + parameters.class.charAt(0) + parameters.trackId;
-    scene.add(sprite);
-    labelTool.spriteArray[labelTool.currentFileIndex].push(sprite);
+    addClassTooltip(parameters.class, parameters.trackId,color, bbox);
 
 
     labelTool.cubeArray[labelTool.currentFileIndex].push(cubeMesh);
@@ -1411,6 +1415,9 @@ function setCamera() {
 }
 
 function render() {
+    renderer.clear();
+    renderer.clearColor(22, 22, 22);
+    renderer.setClearColor(new THREE.Color(22 / 256.0, 22 / 256.0, 22 / 256.0));
     // render main window
     let mainView = views[0];
     renderer.setViewport(mainView.left, mainView.top, mainView.width, mainView.height);
@@ -1438,66 +1445,19 @@ function render() {
         }
     }
 
-
-    updateAnnotationOpacity();
-    updateScreenPosition();
-
-    // main 3d view/BEV
-    // old code using viewport
-    //renderer.setViewPort(0, 0, window.innerWidth, window.innerHeight);
-    // new code using rendertarget
-    // let renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {});
-    // renderer.render(scene, currentCamera, renderTarget);
-
-    // labelRenderer.render(scene, cameraBEV);
-
-
-    // side view
-    // if (cameraSideView !== undefined) {
-    //     let renderTargetSideView = new THREE.WebGLRenderTarget(window.innerWidth / 3, window.innerHeight / 3, {});
-    //     renderer.render(scene, cameraSideView, renderTargetSideView);
-    //     renderer.clear();
-    // }
-
-    // front view
-    // if (cameraFrontView !== undefined) {
-    //     let renderTargetFrontView = new THREE.WebGLRenderTarget(window.innerWidth / 3, window.innerHeight / 3, {});
-    //     renderer.render(scene, cameraFrontView, renderTargetFrontView);
-    //     renderer.clear();
-    // }
-
-    // BEV view
-    // if (cameraBEV !== undefined) {
-    //     let renderTargetBEV = new THREE.WebGLRenderTarget(window.innerWidth / 3, window.innerHeight / 3, {});
-    //     renderer.render(scene, cameraBEV, renderTargetBEV);
-    //     renderer.clear();
-    // }
-
-    // if (rendererBev !== undefined) {
-    //     rendererBev.render(scene, cameraBEV);
-    //     let context = canvasBEV.getContext("2d");
-    //     context.drawImage(rendererBev.domElement, 0, 0);
-    // }
-    // if (rendererSideView !== undefined) {
-    //     rendererSideView.render(scene, cameraSideView);
-    //     let context = canvasSideView.getContext("2d");
-    //     context.drawImage(rendererSideView.domElement, 0, 0);
-    // }
-    // if (rendererFrontView !== undefined) {
-    //     rendererFrontView.render(scene, cameraFrontView);
-    //     let context = canvasFrontView.getContext("2d");
-    //     context.drawImage(rendererFrontView.domElement, 0, 0);
-    // }
-
-
+    if (labelTool.cubeArray !== undefined && labelTool.cubeArray.length > 0 && labelTool.cubeArray[labelTool.currentFileIndex] !== undefined && labelTool.cubeArray[labelTool.currentFileIndex].length > 0
+        && labelTool.spriteArray !== undefined && labelTool.spriteArray.length > 0 && labelTool.spriteArray[labelTool.currentFileIndex] !== undefined && labelTool.spriteArray[labelTool.currentFileIndex].length > 0) {
+        updateAnnotationOpacity();
+        updateScreenPosition();
+    }
 }
 
 function updateAnnotationOpacity() {
     for (let i = 0; i < labelTool.cubeArray[labelTool.currentFileIndex].length; i++) {
         let obj = labelTool.cubeArray[labelTool.currentFileIndex][i];
         let sprite = labelTool.spriteArray[labelTool.currentFileIndex][i];
-        const meshDistance = currentCamera.position.distanceTo(obj.position);
-        const spriteDistance = currentCamera.position.distanceTo(sprite.position);
+        let meshDistance = currentCamera.position.distanceTo(obj.position);
+        let spriteDistance = currentCamera.position.distanceTo(sprite.position);
         spriteBehindObject = spriteDistance > meshDistance;
         sprite.material.opacity = spriteBehindObject ? 0.2 : 0.8;
 
@@ -1519,10 +1479,12 @@ function updateScreenPosition() {
         vector.y = Math.round((0.5 - vector.y / 2) * (canvas.height));
         if (annotationObj.trackId !== undefined) {
             let classTooltip = $("#class-" + annotationObj.class.charAt(0) + annotationObj.trackId)[0];
-            let imagePaneHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
-            classTooltip.style.top = `${vector.y + headerHeight + imagePaneHeight - 21}px`;
-            classTooltip.style.left = `${vector.x}px`;
-            classTooltip.style.opacity = spriteBehindObject ? 0.25 : 1;
+            if (classTooltip !== undefined) {
+                let imagePaneHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
+                classTooltip.style.top = `${vector.y + headerHeight + imagePaneHeight - 21}px`;
+                classTooltip.style.left = `${vector.x}px`;
+                classTooltip.style.opacity = spriteBehindObject ? 0.25 : 1;
+            }
         }
 
     }
