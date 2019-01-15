@@ -1,26 +1,18 @@
-//let canvasArray = [document.getElementById("jpeg-label-canvas-front-left"), document.getElementById("jpeg-label-canvas-front"), document.getElementById("jpeg-label-canvas-front-right"), document.getElementById("jpeg-label-canvas-back-right"), document.getElementById("jpeg-label-canvas-back"), document.getElementById("jpeg-label-canvas-back-left")];
 let canvasArray = [];
 let canvasParamsArray = [{}, {}, {}, {}, {}, {}];
 let imageWidthBackFrontLISAT = 480;
-//var paperArray = [Raphael(canvasArray[0], width, height), Raphael(canvasArray[1], width, height), Raphael(canvasArray[2], width, height), Raphael(canvasArray[3], width, height), Raphael(canvasArray[4], width, height), Raphael(canvasArray[5], width, height)];
 let paperArray = [];
 let imageArray = [];
 let fontSize = 20;
 let isDragging = false; // For distinguishing click and drag.
 let action = "add";
-// var grabbedSide = "";
 let mouseX = 0;
 let mouseY = 0;
-
-// var isIsolated = false;
-
 
 function remove(index) {
     // TODO: highlight 12 lines (draw 4 transparent (0.5) parallelograms and 2 transparent rectangles (front and rear))
     // removeBoundingBoxHighlight(index);
     removeTextBox(index);
-    // annotationObjects.contents[index]["rect"].remove();
-    // annotationObjects.contents[index]["rect"].remove();
 }
 
 /*********** Event handlers **************/
@@ -55,10 +47,6 @@ function select(newIndex, channel) {
         }
     }
 
-
-    // if (isIsolated) {
-    //     hideAllBoundingBoxes(newIndex);
-    // }
     // unhighlight bb in BEV
     for (let mesh in labelTool.cubeArray[labelTool.currentFileIndex]) {
         let meshObject = labelTool.cubeArray[labelTool.currentFileIndex][mesh];
@@ -147,7 +135,7 @@ labelTool.onInitialize("CAM_BACK_LEFT", function () {
 function loadData(camChannel) {
     let imgURL;
     if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-        imgURL =  "input/" + labelTool.currentDataset + "/" + labelTool.currentSequence + "/images/" + camChannel + "/" + labelTool.getTargetFileName() + ".jpg";
+        imgURL = "input/" + labelTool.currentDataset + "/" + labelTool.currentSequence + "/images/" + camChannel + "/" + labelTool.getTargetFileName() + ".jpg";
     } else {
         imgURL = "input/" + labelTool.currentDataset + "/images/" + camChannel + "/" + labelTool.getTargetFileName() + ".jpg";
     }
@@ -161,7 +149,6 @@ function loadData(camChannel) {
     imageArray[channelIdx] = paper.image(imgURL, 0, 0, "100%", "100%");
     imageArray[channelIdx].toBack();
     addEventsToImage(imageArray[channelIdx]);
-    labelTool.hasLoadedImage = true;
 }
 
 labelTool.onLoadData("CAM_FRONT_LEFT", function () {
