@@ -72,7 +72,7 @@ let classesBoundingBox = {
     select: function (label) {
         this.onChange(label);
         if (annotationObjects.getSelectedBoundingBox() !== undefined) {
-            annotationObjects.changeClass(annotationObjects.__selectionIndex, label);
+            annotationObjects.changeClass(annotationObjects.__selectionIndexCurrentFrame, label);
         }
         this.__target = label;
         this.currentClass = label;
