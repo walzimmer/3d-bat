@@ -167,8 +167,10 @@ let annotationObjects = {
             this.contents[labelTool.currentFileIndex][insertIndex] = obj;
         }
         this.contents[labelTool.currentFileIndex][insertIndex]["class"] = params.class;
+        this.contents[labelTool.currentFileIndex][insertIndex]["interpolationStart"] = params["interpolationStart"];
+        this.contents[labelTool.currentFileIndex][insertIndex]["interpolationStartFileIndex"] = params.interpolationStartFileIndex;
         this.contents[labelTool.currentFileIndex].insertIndex = insertIndex;
-        if (params.fromFile === false && this.__selectionIndex === -1) {
+        if (params.fromFile === false && this.__selectionIndexCurrentFrame === -1) {
             if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
                 this.contents[labelTool.currentFileIndex][insertIndex]["trackId"] = classesBoundingBox.content[params.class].nextTrackId;
             } else {
@@ -240,64 +242,47 @@ let annotationObjects = {
             rotationY: parseFloat(annotationObj["rotationY"]),
             trackId: annotationObj["trackId"]
         };
-        addBoundingBoxGui(bbox,undefined);
+        addBoundingBoxGui(bbox, undefined);
         // open current folder
         folderBoundingBox3DArray[selectedObjectIndex].open();
         folderPositionArray[selectedObjectIndex].open();
         folderSizeArray[selectedObjectIndex].open();
-
         // update name of selected object
         labelTool.selectedMesh.name = "cube-" + newClassLabel.charAt(0) + nextTrackIdNewClass;
-
-
         for (let channelObj in labelTool.camChannels) {
             if (labelTool.camChannels.hasOwnProperty(channelObj)) {
                 let channelObject = labelTool.camChannels[channelObj];
                 this.localOnChangeClass[channelObject.channel](selectedObjectIndex, newClassLabel);
-
             }
         }
         this.localOnChangeClass["PCD"](selectedObjectIndex, newClassLabel);
-
-
-    },
-    expand: function (label, trackId, fromFile) {
-        if (label === undefined) {
-            label = classesBoundingBox.targetName();
-        }
-        if (fromFile === false && this.__selectionIndex === -1) {
-            trackId = classesBoundingBox[label].nextTrackId;
-        }
-        this.contents[labelTool.currentFileIndex][this.__insertIndex] = {
-            "class": label,
-            "trackId": trackId
-        };
-        this.__insertIndex++;
     },
     getSelectedBoundingBox: function () {
-        if (this.__selectionIndex === -1 || this.contents[labelTool.currentFileIndex][this.__selectionIndex] === undefined) {
+        if (this.__selectionIndexCurrentFrame === -1 || this.contents[labelTool.currentFileIndex][this.__selectionIndexCurrentFrame] === undefined) {
             return undefined;
         } else {
-            return this.contents[labelTool.currentFileIndex][this.__selectionIndex];
+            return this.contents[labelTool.currentFileIndex][this.__selectionIndexCurrentFrame];
         }
     },
     setSelectionIndex: function (selectionIndex, channel) {
         // show bounding box highlighting
-        this.__selectionIndex = selectionIndex;
+        this.__selectionIndexCurrentFrame = selectionIndex;
         if (selectionIndex !== -1) {
             this.localOnSelect[channel](selectionIndex);
             this.localOnSelect["PCD"](selectionIndex);
+            return true;
+        } else {
+            return false;
         }
-        return true;
     },
-    select: function (index, channel) {
+    select: function (objectIndex, channel) {
         let notificationElem = $("#label-tool-log");
         notificationElem.val("3. Draw label in Birds-Eye-View");
         notificationElem.css("color", "#969696");
-        this.setSelectionIndex(index, channel);
+        this.setSelectionIndex(objectIndex, channel);
     },
     getSelectionIndex: function () {
-        return this.__selectionIndex;
+        return this.__selectionIndexCurrentFrame;
     },
     selectEmpty: function () {
         this.setSelectionIndex(-1, undefined);
@@ -317,7 +302,7 @@ let annotationObjects = {
         this.select(-1, undefined);
     },
     removeSelectedBoundingBox: function () {
-        this.remove(this.__selectionIndex);
+        this.remove(this.__selectionIndexCurrentFrame);
     },
     clear: function () {
         for (let j = 0; j < this.contents.length; j++) {
@@ -326,10 +311,12 @@ let annotationObjects = {
             }
         }
 
-        this.__selectionIndex = -1;
+        this.__selectionIndexCurrentFrame = -1;
+        this.__selectionIndexNextFrame = -1;
         this.__insertIndex = 0;
         this.contents[labelTool.currentFileIndex] = [];
     },
-    __selectionIndex: -1,
+    __selectionIndexCurrentFrame: -1,
+    __selectionIndexNextFrame: -1,
     __insertIndex: 0
 };

@@ -12,15 +12,11 @@ let labelTool = {
     numFramesNuScenes: 3962,
     numFrames: 0,
     dataTypes: [],
-    workBlob: '',
     currentFileIndex: 0,
+    previousFileIndex: 0,
     fileNames: [],
-    hasLoadedImage: [false, false, false, false, false, false],
-    hasLoadedPCD: false,
     originalSize: [0, 0], // Original size of jpeg image
     originalAnnotations: [],   // For checking modified or not
-    hold_flag: true,     // Hold bbox flag
-    loadCount: 0,         // To prevent sending annotations before loading them
     skipFrameCount: 1,
     targetClass: "Vehicle",
     pageBox: document.getElementById('page_num'),
@@ -696,7 +692,6 @@ let labelTool = {
     },
 
     getAnnotations(currentFileIndex) {
-        this.loadCount++;
         let fileName;
         if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
             fileName = labelTool.currentDataset + "_" + labelTool.currentSequence + "_annotations.txt";
@@ -704,7 +699,6 @@ let labelTool = {
             fileName = this.fileNames[currentFileIndex] + ".txt";
         }
 
-        let targetFile = this.currentFileIndex;
         request({
             url: '/label/annotations/',
             type: 'GET',
@@ -713,18 +707,13 @@ let labelTool = {
                 file_name: fileName
             },
             success: function (res) {
-                if (targetFile === this.currentFileIndex) {
-                    if (this.currentDataset === this.datasets.LISA_T) {
-                        this.loadAnnotationsLISAT(res);
-                    } else {
-                        this.loadAnnotationsNuscenes(res);
-                    }
-
+                if (this.currentDataset === this.datasets.LISA_T) {
+                    this.loadAnnotationsLISAT(res);
+                } else {
+                    this.loadAnnotationsNuscenes(res);
                 }
-                this.loadCount--;
             }.bind(this),
             error: function (res) {
-                this.loadCount--;
             }.bind(this)
         });
     },
@@ -1088,10 +1077,12 @@ let labelTool = {
     // }
     // ,
     changeFrame: function (newFileIndex) {
-        if (interpolationObjIndex === -1 && interpolationMode === true) {
+        interpolationObjIndexCurrentFile = annotationObjects.getSelectionIndex();
+        if (interpolationObjIndexCurrentFile === -1 && interpolationMode === true) {
             labelTool.logger.error("Please select an object for interpolation or uncheck interpolation mode.");
             return;
         }
+
 
         // remove all 3D BB objects from scene
         for (let i = scene.children.length; i >= 0; i--) {
@@ -1115,7 +1106,6 @@ let labelTool = {
 
                 let sprite = this.spriteArray[this.currentFileIndex][i];
                 let clonedSprite = sprite.clone();
-
                 this.spriteArray[newFileIndex].push(clonedSprite);
                 scene.add(clonedSprite);
             }
@@ -1123,12 +1113,9 @@ let labelTool = {
             for (let i = 0; i < annotationObjects.contents[this.currentFileIndex].length; i++) {
                 // set start index
                 if (interpolationMode === true) {
-                    // already set (when clicked on interpolation mode)
-                    // annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["interpolationStartFileIndex"] = this.currentFileIndex;
-                    annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["interpolationEndFileIndex"] = newFileIndex;
+                    annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEndFileIndex"] = newFileIndex;
                 }
                 annotationObjects.contents[newFileIndex][i] = jQuery.extend(true, {}, annotationObjects.contents[this.currentFileIndex][i]);
-                // check
             }
         } else {
             // next frame has already 3D annotations which will be added to the scene
@@ -1157,10 +1144,20 @@ let labelTool = {
                 let className = annotationObjects.contents[this.currentFileIndex][i]["class"];
                 let objectIndexByTrackIdAndClass = getObjectIndexByTrackIdAndClass(trackId, className, newFileIndex);
                 if (objectIndexByTrackIdAndClass === -1) {
+                    // TODO:
                     // current object does not exist in next frame -> remove its 2D label
-                    $("#class-" + className.charAt(0) + trackId).remove();
+                    // $("#class-" + className.charAt(0) + trackId).remove();
+                    // clone that object to new frame
+                    let mesh = this.cubeArray[this.currentFileIndex][i];
+                    let clonedMesh = mesh.clone();
+                    this.cubeArray[newFileIndex].push(clonedMesh);
+                    scene.add(clonedMesh);
+                    let sprite = this.spriteArray[this.currentFileIndex][i];
+                    let clonedSprite = sprite.clone();
+                    this.spriteArray[newFileIndex].push(clonedSprite);
+                    scene.add(clonedSprite);
+                    annotationObjects.contents[newFileIndex].push(jQuery.extend(true, {}, annotationObjects.contents[this.currentFileIndex][i]));
                 }
-
             }
         }
 
@@ -1168,24 +1165,25 @@ let labelTool = {
         this.pageBox.value = "";
         cFlag = false;
         rFlag = false;
-        this.hasLoadedImage = [false, false, false, false, false, false];
-        this.hasLoadedPCD = false;
 
         let bboxEndParams = undefined;
         if (interpolationMode === true) {
             bboxEndParams = {
-                x: annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["x"],
-                y: annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["y"],
-                z: annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["z"],
-                rotationY: annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["rotationY"],
-                width: annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["width"],
-                height: annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["height"],
-                depth: annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["depth"],
+                x: annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["x"],
+                y: annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["y"],
+                z: annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["z"],
+                rotationY: annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["rotationY"],
+                width: annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["width"],
+                height: annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["height"],
+                depth: annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["depth"],
                 newFileIndex: newFileIndex
             };
         }
 
-        let selectionIndex = annotationObjects.getSelectionIndex();
+        let selectionIndexNextFile = -1;
+        if (interpolationObjIndexCurrentFile !== -1) {
+            selectionIndexNextFile = getObjectIndexByTrackIdAndClass(annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["trackId"], annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["class"], newFileIndex);
+        }
         // update folders with values of next/previous frame
         for (let i = 0; i < annotationObjects.contents[newFileIndex].length; i++) {
             let annotationObj = annotationObjects.contents[newFileIndex][i];
@@ -1202,7 +1200,7 @@ let labelTool = {
             };
             guiOptions.removeFolder(bbox.class + ' ' + bbox.trackId);
             // add bboxEnd for selected object
-            if (selectionIndex === i && interpolationMode === true) {
+            if (selectionIndexNextFile === i && interpolationMode === true) {
                 addBoundingBoxGui(bbox, bboxEndParams);
             } else {
                 addBoundingBoxGui(bbox, undefined);
@@ -1210,49 +1208,67 @@ let labelTool = {
         }
         if (interpolationMode === true) {
             // clone current object position and scale and set it to end position and end scale
-            annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["x"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["x"];
-            annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["y"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["y"];
-            annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["z"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["z"];
-            annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["interpolationEnd"]["position"]["rotationY"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["rotationY"];
-            annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["interpolationEnd"]["size"]["width"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["width"];
-            annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["interpolationEnd"]["size"]["height"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["height"];
-            annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["interpolationEnd"]["size"]["depth"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["depth"];
+            annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["x"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["x"];
+            annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["y"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["y"];
+            annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["z"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["z"];
+            annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["rotationY"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["rotationY"];
+            annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["size"]["width"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["width"];
+            annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["size"]["height"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["height"];
+            annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["size"]["depth"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["depth"];
 
-            let objectIndexByTrackId = getObjectIndexByTrackIdAndClass(annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["trackId"], annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["class"], newFileIndex);
-            annotationObjects.contents[newFileIndex][objectIndexByTrackId]["interpolationEnd"]["position"]["x"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["x"];
-            annotationObjects.contents[newFileIndex][objectIndexByTrackId]["interpolationEnd"]["position"]["y"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["y"];
-            annotationObjects.contents[newFileIndex][objectIndexByTrackId]["interpolationEnd"]["position"]["z"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["z"];
-            annotationObjects.contents[newFileIndex][objectIndexByTrackId]["interpolationEnd"]["position"]["rotationY"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["rotationY"];
-            annotationObjects.contents[newFileIndex][objectIndexByTrackId]["interpolationEnd"]["size"]["width"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["width"];
-            annotationObjects.contents[newFileIndex][objectIndexByTrackId]["interpolationEnd"]["size"]["height"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["height"];
-            annotationObjects.contents[newFileIndex][objectIndexByTrackId]["interpolationEnd"]["size"]["depth"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["depth"];
+            let objectIndexNextFrame = getObjectIndexByTrackIdAndClass(annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["trackId"], annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["class"], newFileIndex);
+            annotationObjects.__selectionIndexNextFrame = objectIndexNextFrame;
+            annotationObjects.contents[newFileIndex][objectIndexNextFrame]["interpolationEnd"]["position"]["x"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["x"];
+            annotationObjects.contents[newFileIndex][objectIndexNextFrame]["interpolationEnd"]["position"]["y"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["y"];
+            annotationObjects.contents[newFileIndex][objectIndexNextFrame]["interpolationEnd"]["position"]["z"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["z"];
+            annotationObjects.contents[newFileIndex][objectIndexNextFrame]["interpolationEnd"]["position"]["rotationY"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["rotationY"];
+            annotationObjects.contents[newFileIndex][objectIndexNextFrame]["interpolationEnd"]["size"]["width"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["width"];
+            annotationObjects.contents[newFileIndex][objectIndexNextFrame]["interpolationEnd"]["size"]["height"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["height"];
+            annotationObjects.contents[newFileIndex][objectIndexNextFrame]["interpolationEnd"]["size"]["depth"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["depth"];
 
             // add start frame number
-            let interpolationStartFileIndex = annotationObjects.contents[this.currentFileIndex][interpolationObjIndex]["interpolationStartFileIndex"];
-            folderPositionArray[objectIndexByTrackId].domElement.firstChild.firstChild.innerText = "Interpolation Start Position (frame " + (interpolationStartFileIndex + 1) + ")";
-            folderSizeArray[objectIndexByTrackId].domElement.firstChild.firstChild.innerText = "Interpolation Start Size (frame " + (interpolationStartFileIndex + 1) + ")";
+            // TODO: error
+            let interpolationStartFileIndex = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationStartFileIndex"];
+            annotationObjects.contents[newFileIndex][objectIndexNextFrame]["interpolationStartFileIndex"] = interpolationStartFileIndex;
+            folderPositionArray[objectIndexNextFrame].domElement.firstChild.firstChild.innerText = "Interpolation Start Position (frame " + (interpolationStartFileIndex + 1) + ")";
+            folderSizeArray[objectIndexNextFrame].domElement.firstChild.firstChild.innerText = "Interpolation Start Size (frame " + (interpolationStartFileIndex + 1) + ")";
 
             // add end frame number
+            // TEST: newFileIndex= 1, interpolationStartFileIndex = 101 (click from frame 11 to show frame 1)
+            // TEST: newFileIndex= 11, interpolationStartFileIndex = 101 (click from frame 1 to show frame 11)
             if (interpolationStartFileIndex !== newFileIndex) {
                 if (this.folderEndPosition !== undefined && this.folderEndSize !== undefined) {
                     this.folderEndPosition.domElement.firstChild.firstChild.innerText = "Interpolation End Position (frame " + (newFileIndex + 1) + ")";
                     this.folderEndSize.domElement.firstChild.firstChild.innerText = "Interpolation End Size (frame " + (newFileIndex + 1) + ")";
                 }
-
-
+                // enable button if selected mesh not undefined
+                if (this.selectedMesh !== undefined) {
+                    interpolateBtn.domElement.parentElement.parentElement.style.pointerEvents = "all";
+                    interpolateBtn.domElement.parentElement.parentElement.style.opacity = 1.0;
+                }
             }
 
         }
+
+        this.previousFileIndex = this.currentFileIndex;
         // open folder of selected object
-        if (selectionIndex !== -1) {
-            let selectionIndexNewFrame = getObjectIndexByTrackIdAndClass(annotationObjects.contents[this.currentFileIndex][selectionIndex]["trackId"], annotationObjects.contents[this.currentFileIndex][selectionIndex]["class"], newFileIndex);
-            if (selectionIndexNewFrame !== -1) {
-                this.selectedMesh = this.cubeArray[newFileIndex][selectionIndexNewFrame];
-                addTransformControls();
-                let channels = annotationObjects.contents[newFileIndex][selectionIndexNewFrame]["channels"];
+        if (selectionIndexNextFile !== -1) {
+            // let selectionIndexNewFrame = getObjectIndexByTrackIdAndClass(annotationObjects.contents[this.currentFileIndex][selectionIndex]["trackId"], annotationObjects.contents[this.currentFileIndex][selectionIndex]["class"], newFileIndex);
+            // NOTE: set current file index after querying index above
+            this.currentFileIndex = newFileIndex;
+            interpolationObjIndexCurrentFile = interpolationObjIndexNextFile;
+            annotationObjects.__selectionIndexCurrentFrame = annotationObjects.__selectionIndexNextFrame;
+            if (selectionIndexNextFile !== -1) {
+                this.selectedMesh = this.cubeArray[newFileIndex][selectionIndexNextFile];
+                if (this.selectedMesh !== undefined) {
+                    addTransformControls();
+                } else {
+                    labelTool.removeObject("transformControls");
+                }
+                let channels = annotationObjects.contents[newFileIndex][selectionIndexNextFile]["channels"];
                 for (let channelIdx in channels) {
                     if (channels.hasOwnProperty(channelIdx)) {
-                        annotationObjects.select(selectionIndexNewFrame, channels[channelIdx].channel);
+                        annotationObjects.select(selectionIndexNextFile, channels[channelIdx].channel);
                     }
                 }
             } else {
@@ -1260,6 +1276,8 @@ let labelTool = {
             }
         }
         this.currentFileIndex = newFileIndex;
+        interpolationObjIndexCurrentFile = interpolationObjIndexNextFile;
+        annotationObjects.__selectionIndexCurrentFrame = annotationObjects.__selectionIndexNextFrame;
         this.showData();
 
     },
@@ -1519,21 +1537,30 @@ function getDefaultObject() {
 }
 
 function remove2DBoundingBoxes() {
-    for (let annotationObjIndex in annotationObjects.contents[labelTool.currentFileIndex]) {
-        if (annotationObjects.contents[labelTool.currentFileIndex].hasOwnProperty(annotationObjIndex)) {
-            let annotationObj = annotationObjects.contents[labelTool.currentFileIndex][annotationObjIndex];
-            for (let channelIdx in annotationObj.channels) {
-                if (annotationObj.channels.hasOwnProperty(channelIdx)) {
-                    let channelObj = annotationObj.channels[channelIdx];
-                    for (let lineObj in channelObj.lines) {
-                        if (channelObj.lines.hasOwnProperty(lineObj)) {
-                            let line = channelObj.lines[lineObj];
-                            if (line !== undefined) {
-                                console.log("remove");
-                                line.remove();
-                            }
-                        }
-                    }
+    // for (let channelObject in annotationObjects.contents[fileIndex][objectIndex].channels) {
+    //     if (annotationObjects.contents[fileIndex][objectIndex].channels.hasOwnProperty(channelObject)) {
+    //         let channelObj = annotationObjects.contents[fileIndex][objectIndex].channels[channelObject];
+    //         if (channelObj.channel !== '') {
+    //             for (let lineObj in channelObj.lines) {
+    //                 if (channelObj.lines.hasOwnProperty(lineObj)) {
+    //                     let line = channelObj.lines[lineObj];
+    //                     if (line !== undefined) {
+    //                         line.remove();
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+
+    // TODO: check if insertIndex is within length
+    for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
+        for (let j = 0; j < annotationObjects.contents[labelTool.currentFileIndex][i].channels.length; j++) {
+            for (let k = 0; k < annotationObjects.contents[labelTool.currentFileIndex][i].channels[j].lines.length; k++) {
+                let line = annotationObjects.contents[labelTool.currentFileIndex][i].channels[j].lines[k];
+                if (line !== undefined) {
+                    console.log("remove");
+                    line.remove();
                 }
             }
         }
