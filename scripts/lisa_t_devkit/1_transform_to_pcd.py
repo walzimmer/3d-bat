@@ -1,7 +1,9 @@
 import os
 import random
 
-path = '/media/cvrr/161d15ca-26dc-4d36-b085-945b15ce24b8/sandbox/3D_BoundingBox_Annotation_Tool_3D_BAT/input/LISA_T/2018-05-23-001-frame-00042917-00043816/pointclouds/'
+# sequence = '2018-05-23-001-frame-00042917-00043816'# DONE
+sequence = '2018-05-23-001-frame-00077323-00078222'
+path = '/media/cvrr/161d15ca-26dc-4d36-b085-945b15ce24b8/sandbox/3D_BoundingBox_Annotation_Tool_3D_BAT/input/LISA_T/' + sequence + '/pointclouds/'
 
 for filename in sorted(os.listdir(path)):
     with open(path + filename) as file_reader:
@@ -17,4 +19,5 @@ for filename in sorted(os.listdir(path)):
                 x = round(float(points[0]) / 100, 2)
                 y = round(float(points[1]) / 100, 2)
                 z = round(float(points[2]) / 100, 2)
-                file_writer.write(str(x) + ' ' + str(y) + ' ' + str(z) + ' ' + str(random.randint(0, 255)) + '\n')
+                i = points[3]
+                file_writer.write(str(x) + ' ' + str(y) + ' ' + str(z) + ' ' + str(i) + '\n')
