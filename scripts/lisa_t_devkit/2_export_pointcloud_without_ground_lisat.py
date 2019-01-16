@@ -1,9 +1,11 @@
 import os
 
-# sequence = '2018-05-23-001-frame-00042917-00043816'# DONE
-sequence = '2018-05-23-001-frame-00042917-00043816'
-path_in = '/media/cvrr/161d15ca-26dc-4d36-b085-945b15ce24b8/sandbox/3D_BoundingBox_Annotation_Tool_3D_BAT/input/LISA_T/' + sequence + '/pointclouds/'
-path_out = '/media/cvrr/161d15ca-26dc-4d36-b085-945b15ce24b8/sandbox/3D_BoundingBox_Annotation_Tool_3D_BAT/input/LISA_T/' + sequence + '/pointclouds_without_ground/'
+# sequence = '2018-05-23-001-frame-00042917-00043816' # DONE
+# sequence = '2018-05-23-001-frame-00077323-00078222' # DONE
+# sequence = '2018-05-23-001-frame-00080020-00080919' # DONE
+sequence = '2018-05-23-001-frame-00106993-00107892'
+path_in = '/media/cvrr/data/sandbox/3D_BoundingBox_Annotation_Tool_3D_BAT/input/LISA_T/' + sequence + '/pointclouds/'
+path_out = '/media/cvrr/data/sandbox/3D_BoundingBox_Annotation_Tool_3D_BAT/input/LISA_T/' + sequence + '/pointclouds_without_ground/'
 for file in sorted(os.listdir(path_in)):
     lines = []
     pointcloud_without_ground = []

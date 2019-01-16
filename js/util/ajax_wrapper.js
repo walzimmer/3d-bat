@@ -22,7 +22,7 @@ function request(options) {
                 let fileNameArray = [];
                 if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
                     labelTool.numFrames = labelTool.numFramesLISAT;
-                    labelTool.currentSequence = labelTool.sequencesLISAT.FIRST;
+                    // labelTool.currentSequence = labelTool.sequencesLISAT.date_2018_05_23_001_frame_00042917_00043816;
                     numFiles = 900;
                 } else {
                     labelTool.numFrames = labelTool.numFramesNuScenes;
