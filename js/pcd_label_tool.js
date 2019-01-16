@@ -231,7 +231,8 @@ let parameters = {
     switch_view: function () {
         switchView();
     },
-    datasets: 'LISA_T',
+    datasets: labelTool.datasets.LISA_T,
+    sequences: labelTool.sequencesLISAT.date_2018_05_23_001_frame_00106993_00107892,
     show_projected_points: false,
     show_nuscenes_labels: labelTool.showOriginalNuScenesLabels,
     show_field_of_view: false,
@@ -816,7 +817,7 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
     let cubeX = folderPosition.add(bbox, 'x').name("x (lateral)").min(-100).max(100).step(0.01).listen();
     let cubeY = folderPosition.add(bbox, 'y').name("y (longitudinal)").min(-100).max(100).step(0.01).listen();
     let cubeZ = folderPosition.add(bbox, 'z').name("z (vertical)").min(-3).max(10).step(0.01).listen();
-    let cubeYaw = folderPosition.add(bbox, 'rotationY').name("rotation (yaw)").min(-Math.PI).max(Math.PI).step(0.05).listen();
+    let cubeYaw = folderPosition.add(bbox, 'rotationY').name("rotation (yaw)").min(-Math.PI).max(Math.PI).step(0.01).listen();
     folderPosition.close();
     folderPositionArray.push(folderPosition);
 
@@ -1916,6 +1917,12 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
 
 function changeDataset(datasetName) {
     labelTool.currentDataset = datasetName;
+    labelTool.reset();
+    labelTool.start();
+}
+
+function changeSequence(sequence) {
+    labelTool.currentSequence = sequence;
     labelTool.reset();
     labelTool.start();
 }
@@ -3077,6 +3084,18 @@ function enableShowNuscenesLabelsCheckbox(showNuScenesLabelsCheckbox) {
     $(showNuScenesLabelsCheckbox.firstChild).removeAttr("tabIndex");
 }
 
+function enableChooseSequenceDropDown(chooseSequenceDropDown) {
+    chooseSequenceDropDown.parentElement.parentElement.parentElement.style.pointerEvents = "all";
+    chooseSequenceDropDown.parentElement.parentElement.parentElement.style.opacity = 1.0;
+    $(chooseSequenceDropDown.firstChild).removeAttr("tabIndex");
+}
+
+function disableChooseSequenceDropDown(chooseSequenceDropDown) {
+    chooseSequenceDropDown.parentElement.parentElement.parentElement.style.pointerEvents = "none";
+    chooseSequenceDropDown.parentElement.parentElement.parentElement.style.opacity = 0.2;
+    chooseSequenceDropDown.tabIndex = -1;
+}
+
 function init() {
     if (WEBGL.isWebGLAvailable() === false) {
         document.body.appendChild(WEBGL.getWebGLErrorMessage());
@@ -3263,23 +3282,26 @@ function init() {
         } else {
             enableShowNuscenesLabelsCheckbox(showNuScenesLabelsCheckbox);
         }
+        let chooseSequenceDropDown;
         guiOptions.add(parameters, 'datasets', ['NuScenes', 'LISA_T']).name("Choose dataset")
             .onChange(function (value) {
                 changeDataset(value);
                 let allCheckboxes = $(":checkbox");
                 let showNuScenesLabelsCheckbox = allCheckboxes[0];
                 if (value === labelTool.datasets.LISA_T) {
-                    // disable checkbox to show original nuscenes labels
                     disableShowNuscenesLabelsCheckbox(showNuScenesLabelsCheckbox);
-                    // checkbox.disabled = true;
-                    // $(checkbox).attr("disabled", true);
-                    // $("#show-nuscenes-labels").disabled = true;
+                    enableChooseSequenceDropDown(chooseSequenceDropDown);
                 } else {
-                    // checkbox.disabled = false;
                     enableShowNuscenesLabelsCheckbox(showNuScenesLabelsCheckbox);
-                    // $(checkbox).attr("disabled", false);
-                    // $("#show-nuscenes-labels").disabled = false;
+                    disableChooseSequenceDropDown(chooseSequenceDropDown);
                 }
+            });
+        chooseSequenceDropDown = guiOptions.add(parameters, 'sequences', [labelTool.sequencesLISAT.date_2018_05_23_001_frame_00042917_00043816,
+            labelTool.sequencesLISAT.date_2018_05_23_001_frame_00077323_00078222,
+            labelTool.sequencesLISAT.date_2018_05_23_001_frame_00080020_00080919,
+            labelTool.sequencesLISAT.date_2018_05_23_001_frame_00106993_00107892]).name("Choose Sequence")
+            .onChange(function (value) {
+                changeSequence(value);
             });
 
         let showFieldOfViewCheckbox = guiOptions.add(parameters, 'show_field_of_view').name('Field-Of-View').listen();

@@ -1,13 +1,15 @@
 let labelTool = {
     datasets: Object.freeze({"NuScenes": "NuScenes", "LISA_T": "LISA_T"}),
     sequencesLISAT: Object.freeze({
-        "FIRST": "2018-05-23-001-frame-00042917-00043816",
-        "SECOND": "2018-05-23-001-frame-00077323-00078222",
-        "THIRD": "2018-05-23-001-frame-00080020-00080919"
+        "date_2018_05_23_001_frame_00042917_00043816": "2018-05-23-001-frame-00042917-00043816",
+        "date_2018_05_23_001_frame_00077323_00078222": "2018-05-23-001-frame-00077323-00078222",
+        "date_2018_05_23_001_frame_00080020_00080919": "2018-05-23-001-frame-00080020-00080919",
+        "date_2018_05_23_001_frame_00106993_00107892": "2018-05-23-001-frame-00106993-00107892"
+
     }),
     sequencesNuScenes: [],
     currentDataset: 'LISA_T',
-    currentSequence: '',
+    currentSequence: '2018-05-23-001-frame-00042917-00043816',
     numFramesLISAT: 900,
     numFramesNuScenes: 3962,
     numFrames: 0,
