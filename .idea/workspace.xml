@@ -152,7 +152,7 @@
         <counts>
           <entry key="css" value="311" />
           <entry key="html" value="1334" />
-          <entry key="js" value="14513" />
+          <entry key="js" value="14958" />
           <entry key="json" value="25" />
         </counts>
       </usages-collector>
@@ -161,7 +161,7 @@
           <entry key="CSS" value="311" />
           <entry key="HTML" value="1334" />
           <entry key="JSON" value="21" />
-          <entry key="JavaScript" value="14513" />
+          <entry key="JavaScript" value="14958" />
           <entry key="tsconfig" value="4" />
         </counts>
       </usages-collector>
@@ -177,8 +177,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="175">
-              <caret line="90" column="21" lean-forward="true" selection-start-line="90" selection-start-column="21" selection-end-line="90" selection-end-column="21" />
+            <state relative-caret-position="305">
+              <caret line="93" column="72" lean-forward="true" selection-start-line="93" selection-start-column="72" selection-end-line="93" selection-end-column="72" />
             </state>
           </provider>
         </entry>
@@ -186,8 +186,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/js/pcd_label_tool.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="193">
-              <caret line="1137" column="51" lean-forward="true" selection-start-line="1137" selection-start-column="51" selection-end-line="1137" selection-end-column="51" />
+            <state relative-caret-position="246">
+              <caret line="3070" column="9" selection-start-line="3070" selection-start-column="9" selection-end-line="3070" selection-end-column="9" />
             </state>
           </provider>
         </entry>
@@ -253,23 +253,10 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>loadcount</find>
-      <find>hasloadedi</find>
-      <find>hasloadedpc</find>
-      <find>hold_flag</find>
-      <find>changef</find>
-      <find>previously</find>
-      <find>previous</find>
-      <find>changefram</find>
-      <find>changeframe</find>
-      <find>btn</find>
-      <find>interpola</find>
       <find>interpolat</find>
       <find>start position</find>
       <find>activateIn</find>
       <find>end position</find>
-      <find>interpolatebtn</find>
-      <find>interpolateBtn</find>
       <find>error</find>
       <find>todo: error</find>
       <find>TODO</find>
@@ -283,6 +270,19 @@
       <find>addtransform</find>
       <find>line</find>
       <find>mousedownl</find>
+      <find>mouseuplog</find>
+      <find>onmouseu</find>
+      <find>mouseuplo</find>
+      <find>deac</find>
+      <find>deactivate</find>
+      <find>interpolation</find>
+      <find>interpolatebtn</find>
+      <find>interpolateBtn</find>
+      <find>shownusceneslabels</find>
+      <find>showNuScenesLabelsCheckbox</find>
+      <find>changedata</find>
+      <find>tab</find>
+      <find>interpolationmodeche</find>
     </findStrings>
     <replaceStrings>
       <replace>#</replace>
@@ -371,9 +371,9 @@
         <option value="$PROJECT_DIR$/css/label_tool.css" />
         <option value="$PROJECT_DIR$/js/util/ajax_wrapper.js" />
         <option value="$PROJECT_DIR$/js/util/boundingbox.js" />
-        <option value="$PROJECT_DIR$/js/pcd_label_tool.js" />
         <option value="$PROJECT_DIR$/js/image_label_tool.js" />
         <option value="$PROJECT_DIR$/js/base_label_tool.js" />
+        <option value="$PROJECT_DIR$/js/pcd_label_tool.js" />
       </list>
     </option>
   </component>
@@ -640,12 +640,12 @@
       <workItem from="1546539749200" duration="75613000" />
       <workItem from="1546982564075" duration="1250000" />
       <workItem from="1546984295574" duration="15855000" />
-      <workItem from="1547143608323" duration="107547000" />
+      <workItem from="1547143608323" duration="112287000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="1361035000" />
+    <option name="totallyTimeSpent" value="1365775000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -694,7 +694,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/js/pcd_label_tool.js</url>
-          <line>1494</line>
+          <line>1511</line>
           <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
@@ -976,13 +976,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="175">
-          <caret line="90" column="21" lean-forward="true" selection-start-line="90" selection-start-column="21" selection-end-line="90" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/js/base_label_tool.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="168">
@@ -993,10 +986,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="305">
+          <caret line="93" column="72" lean-forward="true" selection-start-line="93" selection-start-column="72" selection-end-line="93" selection-end-column="72" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/js/pcd_label_tool.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="193">
-          <caret line="1137" column="51" lean-forward="true" selection-start-line="1137" selection-start-column="51" selection-end-line="1137" selection-end-column="51" />
+        <state relative-caret-position="246">
+          <caret line="3070" column="9" selection-start-line="3070" selection-start-column="9" selection-end-line="3070" selection-end-column="9" />
         </state>
       </provider>
     </entry>
