@@ -84,6 +84,7 @@ let spriteBehindObject;
 let pointCloudFull;
 let pointCloudWithoutGround;
 let useTransformControls;
+let dragControls = false;
 let parametersBoundingBox = {
     "Vehicle": function () {
         classesBoundingBox.select("Vehicle");
@@ -214,8 +215,7 @@ function interpolate() {
     folderBoundingBox3DArray[interpolationObjIndexCurrentFile].removeFolder("Interpolation End Position (frame " + (labelTool.previousFileIndex + 1) + ")");
     folderBoundingBox3DArray[interpolationObjIndexCurrentFile].removeFolder("Interpolation End Size (frame " + (labelTool.previousFileIndex + 1) + ")");
     // disable interpolate button
-    interpolateBtn.domElement.parentElement.parentElement.style.pointerEvents = "none";
-    interpolateBtn.domElement.parentElement.parentElement.style.opacity = 0.2;
+    disableInterpolationBtn();
 
     labelTool.logger.success("Interpolation successfully!");
 }
@@ -1125,6 +1125,39 @@ function getObjectIndexByName(objectName) {
     }
 }
 
+function updateObjectPosition() {
+    let objectIndexByTrackId = getObjectIndexByName(labelTool.selectedMesh.name);
+    annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["x"] = labelTool.selectedMesh.position.x;
+    annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["y"] = labelTool.selectedMesh.position.y;
+    annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["z"] = labelTool.selectedMesh.position.z;
+    annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["width"] = labelTool.selectedMesh.scale.x;
+    annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["length"] = labelTool.selectedMesh.scale.y;
+    annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["depth"] = labelTool.selectedMesh.scale.z;
+    annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["rotationY"] = labelTool.selectedMesh.rotation.z;
+    // update cube array
+    labelTool.cubeArray[labelTool.currentFileIndex][objectIndexByTrackId]["x"] = labelTool.selectedMesh.position.x;
+    labelTool.cubeArray[labelTool.currentFileIndex][objectIndexByTrackId]["y"] = labelTool.selectedMesh.position.y;
+    labelTool.cubeArray[labelTool.currentFileIndex][objectIndexByTrackId]["z"] = labelTool.selectedMesh.position.z;
+    labelTool.cubeArray[labelTool.currentFileIndex][objectIndexByTrackId]["width"] = labelTool.selectedMesh.scale.x;
+    labelTool.cubeArray[labelTool.currentFileIndex][objectIndexByTrackId]["length"] = labelTool.selectedMesh.scale.y;
+    labelTool.cubeArray[labelTool.currentFileIndex][objectIndexByTrackId]["depth"] = labelTool.selectedMesh.scale.z;
+    labelTool.cubeArray[labelTool.currentFileIndex][objectIndexByTrackId]["rotationY"] = labelTool.selectedMesh.rotation.z;
+
+    if (interpolationMode === true && labelTool.selectedMesh !== undefined) {
+        // let selectionIndex = annotationObjects.getSelectionIndex();
+        let interpolationStartFileIndex = annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationStartFileIndex"];
+        if (interpolationStartFileIndex !== labelTool.currentFileIndex) {
+            annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["x"] = labelTool.selectedMesh.position.x;
+            annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["y"] = labelTool.selectedMesh.position.y;
+            annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["z"] = labelTool.selectedMesh.position.z;
+            annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["rotationY"] = labelTool.selectedMesh.rotation.z;
+            annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["size"]["width"] = labelTool.selectedMesh.scale.x;
+            annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["size"]["length"] = labelTool.selectedMesh.scale.y;
+            annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["size"]["depth"] = labelTool.selectedMesh.scale.z;
+        }
+    }
+}
+
 function addTransformControls() {
     labelTool.removeObject("transformControls");
 
@@ -1133,41 +1166,17 @@ function addTransformControls() {
     // TODO: try detaching object instead of creating new transformcontrols object
     transformControls = new THREE.TransformControls(currentCamera, renderer.domElement);
     transformControls.addEventListener('change', function (event) {
-        useTransformControls = true;
-        // update 2d bounding box
-        if (labelTool.selectedMesh !== undefined) {
-            let objectIndexByTrackId = getObjectIndexByName(labelTool.selectedMesh.name);
-            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["x"] = labelTool.selectedMesh.position.x;
-            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["y"] = labelTool.selectedMesh.position.y;
-            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["z"] = labelTool.selectedMesh.position.z;
-            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["width"] = labelTool.selectedMesh.scale.x;
-            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["length"] = labelTool.selectedMesh.scale.y;
-            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["depth"] = labelTool.selectedMesh.scale.z;
-            annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["rotationY"] = labelTool.selectedMesh.rotation.z;
-            // update cube array
-            labelTool.cubeArray[labelTool.currentFileIndex][objectIndexByTrackId]["x"] = labelTool.selectedMesh.position.x;
-            labelTool.cubeArray[labelTool.currentFileIndex][objectIndexByTrackId]["y"] = labelTool.selectedMesh.position.y;
-            labelTool.cubeArray[labelTool.currentFileIndex][objectIndexByTrackId]["z"] = labelTool.selectedMesh.position.z;
-            labelTool.cubeArray[labelTool.currentFileIndex][objectIndexByTrackId]["width"] = labelTool.selectedMesh.scale.x;
-            labelTool.cubeArray[labelTool.currentFileIndex][objectIndexByTrackId]["length"] = labelTool.selectedMesh.scale.y;
-            labelTool.cubeArray[labelTool.currentFileIndex][objectIndexByTrackId]["depth"] = labelTool.selectedMesh.scale.z;
-            labelTool.cubeArray[labelTool.currentFileIndex][objectIndexByTrackId]["rotationY"] = labelTool.selectedMesh.rotation.z;
 
-            if (interpolationMode === true && labelTool.selectedMesh !== undefined) {
-                // let selectionIndex = annotationObjects.getSelectionIndex();
-                let interpolationStartFileIndex = annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationStartFileIndex"];
-                if (interpolationStartFileIndex !== labelTool.currentFileIndex) {
-                    annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["x"] = labelTool.selectedMesh.position.x;
-                    annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["y"] = labelTool.selectedMesh.position.y;
-                    annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["z"] = labelTool.selectedMesh.position.z;
-                    annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["rotationY"] = labelTool.selectedMesh.rotation.z;
-                    annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["size"]["width"] = labelTool.selectedMesh.scale.x;
-                    annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["size"]["length"] = labelTool.selectedMesh.scale.y;
-                    annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["size"]["depth"] = labelTool.selectedMesh.scale.z;
-                }
+        useTransformControls = true;
+
+        // update 2d bounding box
+        if (dragControls === true) {
+            if (labelTool.selectedMesh !== undefined) {
+                updateObjectPosition();
+                let objectIndexByTrackId = getObjectIndexByName(labelTool.selectedMesh.name);
+                update2DBoundingBox(labelTool.currentFileIndex, objectIndexByTrackId);
+                render();
             }
-            update2DBoundingBox(labelTool.currentFileIndex, objectIndexByTrackId);
-            render();
         }
 
 
@@ -1190,6 +1199,14 @@ function addTransformControls() {
     });
     transformControls.addEventListener('dragging-changed', function (event) {
         useTransformControls = true;
+        dragControls = true;
+        // update 2d bounding box
+        if (labelTool.selectedMesh !== undefined) {
+            updateObjectPosition();
+            let objectIndexByTrackId = getObjectIndexByName(labelTool.selectedMesh.name);
+            update2DBoundingBox(labelTool.currentFileIndex, objectIndexByTrackId);
+            render();
+        }
         // dragObject = false;
         console.log("dragging-changed");
         // executed after drag finished
@@ -2419,7 +2436,13 @@ function checkInterpolationModeCheckbox(interpolationModeCheckbox) {
     $(interpolationModeCheckbox.firstChild).removeAttr("tabIndex");
 }
 
+function enableInterpolationBtn() {
+    interpolateBtn.domElement.parentElement.parentElement.style.pointerEvents = "all";
+    interpolateBtn.domElement.parentElement.parentElement.style.opacity = 1.0;
+}
+
 function mouseUpLogic(ev) {
+    dragControls = false;
 // check if scene contains transform controls
     useTransformControls = false;
     for (let i = 0; i < scene.children.length; i++) {
@@ -2501,8 +2524,7 @@ function mouseUpLogic(ev) {
             // enable interpolate button if interpolation mode is activated AND selected object is the same as interpolated object
             if (interpolationMode === true) {
                 if (annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex]["interpolationStartFileIndex"] !== -1 && annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex]["interpolationStartFileIndex"] !== labelTool.currentFileIndex) {
-                    interpolateBtn.domElement.parentElement.parentElement.style.pointerEvents = "all";
-                    interpolateBtn.domElement.parentElement.parentElement.style.opacity = 1.0;
+                    enableInterpolationBtn();
                 } else {
                     interpolationObjIndexCurrentFile = clickedObjectIndex;
                     let obj = annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile];
@@ -2569,8 +2591,7 @@ function mouseUpLogic(ev) {
             annotationObjects.selectEmpty();
 
             // disable interpolate button
-            interpolateBtn.domElement.parentElement.parentElement.style.pointerEvents = "none";
-            interpolateBtn.domElement.parentElement.parentElement.style.opacity = 0.2;
+            disableInterpolationBtn();
 
             $("#canvasBev").hide();
             $("#canvasSideView").hide();
@@ -2725,7 +2746,6 @@ function mouseUpLogic(ev) {
                     addBboxParameters.channels[i].channel = channel;
                     // working for LISA_T
                     let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -yPos, -zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth, channel);
-                    // let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -yPos, zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth, channel);
                     addBboxParameters.channels[i].projectedPoints = projectedBoundingBox;
                 }
                 // calculate line segments
@@ -3040,6 +3060,23 @@ function uncheckInterpolationModeCheckbox(interpolationModeCheckbox) {
     interpolationModeCheckbox.firstChild.setAttribute("tabIndex", "-1");
 }
 
+function disableInterpolationBtn() {
+    interpolateBtn.domElement.parentElement.parentElement.style.pointerEvents = "none";
+    interpolateBtn.domElement.parentElement.parentElement.style.opacity = 0.2;
+}
+
+function disableShowNuscenesLabelsCheckbox(showNuScenesLabelsCheckbox) {
+    showNuScenesLabelsCheckbox.parentElement.parentElement.parentElement.style.pointerEvents = "none";
+    showNuScenesLabelsCheckbox.parentElement.parentElement.parentElement.style.opacity = 0.2;
+    showNuScenesLabelsCheckbox.tabIndex = -1;
+}
+
+function enableShowNuscenesLabelsCheckbox(showNuScenesLabelsCheckbox) {
+    showNuScenesLabelsCheckbox.parentElement.parentElement.parentElement.style.pointerEvents = "all";
+    showNuScenesLabelsCheckbox.parentElement.parentElement.parentElement.style.opacity = 1.0;
+    $(showNuScenesLabelsCheckbox.firstChild).removeAttr("tabIndex");
+}
+
 function init() {
     if (WEBGL.isWebGLAvailable() === false) {
         document.body.appendChild(WEBGL.getWebGLErrorMessage());
@@ -3204,34 +3241,17 @@ function init() {
         // 3D BB controls
         guiOptions.add(parameters, 'download').name("Download");
         guiOptions.add(parameters, 'switch_view').name("Switch view");
-        guiOptions.add(parameters, 'datasets', ['NuScenes', 'LISA_T']).name("Choose dataset")
-            .onChange(function (value) {
-                changeDataset(value);
-                let allCheckboxes = $(":checkbox");
-                let checkbox = allCheckboxes[0];
-                if (value === labelTool.datasets.LISA_T) {
-                    // disable checkbox to show original nuscenes labels
-                    checkbox.disabled = true;
-                    // $(checkbox).attr("disabled", true);
-                    // $("#show-nuscenes-labels").disabled = true;
-                } else {
-                    checkbox.disabled = false;
-                    // $(checkbox).attr("disabled", false);
-                    // $("#show-nuscenes-labels").disabled = false;
-                }
-            });
-
-
         let showOriginalNuScenesLabelsCheckbox = guiOptions.add(parameters, 'show_nuscenes_labels').name('NuScenes Labels').listen();
-        // showOriginalNuScenesLabelsCheckbox.domElement.id = "show-nuscenes-labels";
-        // showOriginalNuScenesLabelsCheckbox.domElement.previousSibling.disabled = true;
         showOriginalNuScenesLabelsCheckbox.onChange(function (value) {
             labelTool.showOriginalNuScenesLabels = value;
             if (labelTool.showOriginalNuScenesLabels === true) {
+                // TODO: improve:
+                // - do not reset
+                // - show current labels and in addition nuscenes labels
                 labelTool.reset();
                 labelTool.start();
             } else {
-                // TODO:
+                // TODO: hide nuscenes labels (do not reset)
                 labelTool.reset();
                 labelTool.start();
             }
@@ -3239,12 +3259,28 @@ function init() {
         let allCheckboxes = $(":checkbox");
         let showNuScenesLabelsCheckbox = allCheckboxes[0];
         if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-            showNuScenesLabelsCheckbox.disabled = true;
-            showNuScenesLabelsCheckbox.style.pointerEvents = "none";
+            disableShowNuscenesLabelsCheckbox(showNuScenesLabelsCheckbox);
         } else {
-            showNuScenesLabelsCheckbox.disabled = false;
-            showNuScenesLabelsCheckbox.style.pointerEvents = "all";
+            enableShowNuscenesLabelsCheckbox(showNuScenesLabelsCheckbox);
         }
+        guiOptions.add(parameters, 'datasets', ['NuScenes', 'LISA_T']).name("Choose dataset")
+            .onChange(function (value) {
+                changeDataset(value);
+                let allCheckboxes = $(":checkbox");
+                let showNuScenesLabelsCheckbox = allCheckboxes[0];
+                if (value === labelTool.datasets.LISA_T) {
+                    // disable checkbox to show original nuscenes labels
+                    disableShowNuscenesLabelsCheckbox(showNuScenesLabelsCheckbox);
+                    // checkbox.disabled = true;
+                    // $(checkbox).attr("disabled", true);
+                    // $("#show-nuscenes-labels").disabled = true;
+                } else {
+                    // checkbox.disabled = false;
+                    enableShowNuscenesLabelsCheckbox(showNuScenesLabelsCheckbox);
+                    // $(checkbox).attr("disabled", false);
+                    // $("#show-nuscenes-labels").disabled = false;
+                }
+            });
 
         let showFieldOfViewCheckbox = guiOptions.add(parameters, 'show_field_of_view').name('Field-Of-View').listen();
         showFieldOfViewCheckbox.onChange(function (value) {
@@ -3320,8 +3356,7 @@ function init() {
                     annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationStartFileIndex"] = labelTool.currentFileIndex;
                 }
             } else {
-                interpolateBtn.domElement.parentElement.parentElement.style.pointerEvents = "none";
-                interpolateBtn.domElement.parentElement.parentElement.style.opacity = 0.2;
+                disableInterpolationBtn();
                 if (interpolationObjIndexCurrentFile !== -1) {
                     folderPositionArray[interpolationObjIndexCurrentFile].domElement.firstChild.firstChild.innerText = "Position";
                     folderSizeArray[interpolationObjIndexCurrentFile].domElement.firstChild.firstChild.innerText = "Size";
@@ -3333,8 +3368,7 @@ function init() {
         });
         interpolateBtn = guiOptions.add(parameters, 'interpolate').name("Interpolate");
         interpolateBtn.domElement.id = 'interpolate-btn';
-        interpolateBtn.domElement.parentElement.parentElement.style.opacity = 0.2;
-        interpolateBtn.domElement.parentElement.parentElement.style.pointerEvents = "none";
+        disableInterpolationBtn();
         guiOptions.domElement.id = 'bounding-box-3d-menu';
         // add download Annotations button
         let downloadAnnotationsItem = $($('#bounding-box-3d-menu ul li')[0]);
