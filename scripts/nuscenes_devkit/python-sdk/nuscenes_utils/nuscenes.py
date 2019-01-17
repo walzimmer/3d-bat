@@ -36,7 +36,7 @@ class NuScenes:
     # def __init__(self, version: str='v0.1', dataroot: str='/data/nuscenes', verbose: bool=True):
     # def __init__(self, version: str = 'v0.1', dataroot: str = '../datasets/nuscenes/nuscenes_teaser_meta_v1', verbose: bool = True):
     def __init__(self, version: str = 'v0.1',
-                 dataroot: str = '/media/cvrr/161d15ca-26dc-4d36-b085-945b15ce24b8/sandbox/datasets/nuscenes/nuscenes_teaser_meta_v1/',
+                 dataroot: str = '/media/cvrr/data/sandbox/datasets/nuscenes/nuscenes_teaser_meta_v1/',
                  verbose: bool = True):
 
         """

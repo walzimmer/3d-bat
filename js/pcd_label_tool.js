@@ -2,6 +2,7 @@ let canvasBEV;
 let canvasSideView;
 let canvasFrontView;
 let views;
+let grid;
 
 let orthographicCamera;
 let perspectiveCamera;
@@ -232,7 +233,7 @@ let parameters = {
         switchView();
     },
     datasets: labelTool.datasets.LISA_T,
-    sequences: labelTool.sequencesLISAT.date_2018_05_23_001_frame_00106993_00107892,
+    sequences: labelTool.sequencesLISAT.date_2018_05_23_001_frame_00042917_00043816,
     show_projected_points: false,
     show_nuscenes_labels: labelTool.showOriginalNuScenesLabels,
     show_field_of_view: false,
@@ -780,7 +781,7 @@ function update2DBoundingBox(fileIndex, objectIndex) {
                     }
                 }
                 if (channelObj.projectedPoints !== undefined && channelObj.projectedPoints.length === 8) {
-                    channelObj.lines = calculateLineSegments(channelObj, className);
+                    channelObj.lines = calculateAndDrawLineSegments(channelObj, className);
                 }
             }
         }
@@ -805,6 +806,37 @@ function updateXPos(newFileIndex, value) {
     annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["x"] = value;
     // update bounding box
     update2DBoundingBox(labelTool.currentFileIndex, interpolationObjIndexCurrentFile);
+}
+
+/**
+ * calculates the highest available track id for a specific class
+ * @param label
+ */
+function setHighestAvailableTrackId(label) {
+    for (let newTrackId = 1; newTrackId <= annotationObjects.contents[labelTool.currentFileIndex].length; newTrackId++) {
+        let exist = false;
+        for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
+            if (label === annotationObjects.contents[labelTool.currentFileIndex][i]["class"] && newTrackId === annotationObjects.contents[labelTool.currentFileIndex][i]["trackId"]) {
+                exist = true;
+                break;
+            }
+        }
+        if (exist === false) {
+            // track id was not used yet
+            if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+                classesBoundingBox[label].nextTrackId = newTrackId;
+            } else {
+                classesBoundingBox.content[label].nextTrackId = newTrackId;
+            }
+            break;
+        }
+        if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+            classesBoundingBox[label].nextTrackId = annotationObjects.contents[labelTool.currentFileIndex].length + 1;
+        } else {
+            classesBoundingBox.content[label].nextTrackId = annotationObjects.contents[labelTool.currentFileIndex].length + 1;
+        }
+
+    }
 }
 
 //register new bounding box
@@ -1039,20 +1071,7 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
                     classesBoundingBox[label].nextTrackId--;
                 } else {
                     // otherwise not last object was deleted -> find out the highest possible track id
-                    for (let newTrackId = 1; newTrackId <= annotationObjects.contents[labelTool.currentFileIndex].length; newTrackId++) {
-                        let exist = false;
-                        for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
-                            if (newTrackId === annotationObjects.contents[labelTool.currentFileIndex][i]["trackId"]) {
-                                exist = true;
-                                break;
-                            }
-                        }
-                        if (exist === false) {
-                            // track id was not used yet
-                            classesBoundingBox[label].nextTrackId = newTrackId;
-                            break;
-                        }
-                    }
+                    setHighestAvailableTrackId(label);
                 }
             } else {
                 classesBoundingBox.content[label].nextTrackId--;
@@ -2627,6 +2646,7 @@ function mouseUpLogic(ev) {
 
             let trackId = -1;
             let insertIndex;
+            setHighestAvailableTrackId(classesBoundingBox.targetName());
             if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
                 if (annotationObjects.__selectionIndexCurrentFrame === -1) {
                     // no object selected in 3d scene (new object was created)-> use selected class from class menu
@@ -2760,7 +2780,7 @@ function mouseUpLogic(ev) {
                     let channelObj = addBboxParameters.channels[i];
                     if (channelObj.channel !== undefined && channelObj.channel !== '') {
                         if (addBboxParameters.channels[i].projectedPoints !== undefined && addBboxParameters.channels[i].projectedPoints.length === 8) {
-                            addBboxParameters.channels[i]["lines"] = calculateLineSegments(channelObj, classesBoundingBox.targetName());
+                            addBboxParameters.channels[i]["lines"] = calculateAndDrawLineSegments(channelObj, classesBoundingBox.targetName());
                         }
                     }
                 }
@@ -3096,6 +3116,26 @@ function disableChooseSequenceDropDown(chooseSequenceDropDown) {
     chooseSequenceDropDown.tabIndex = -1;
 }
 
+function createGrid() {
+    labelTool.removeObject("grid");
+    grid = new THREE.GridHelper(100, 100);
+    let posZLidar;
+    if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+        posZLidar = labelTool.positionLidarLISAT[2];
+    } else {
+        posZLidar = labelTool.positionLidarNuscenes[2];
+    }
+    grid.translateZ(-posZLidar);
+    grid.rotateX(Math.PI / 2);
+    grid.name = "grid";
+    if (showGridFlag === true) {
+        grid.visible = true;
+    } else {
+        grid.visible = false;
+    }
+    scene.add(grid);
+}
+
 function init() {
     if (WEBGL.isWebGLAvailable() === false) {
         document.body.appendChild(WEBGL.getWebGLErrorMessage());
@@ -3202,17 +3242,7 @@ function init() {
     // orthographicOrbitControls.enableRotate = false;
 
     setCamera();
-    let grid = new THREE.GridHelper(100, 100);
-    let posXLidar = labelTool.positionLidarNuscenes[2];
-    grid.translateZ(-posXLidar);
-    grid.rotateX(Math.PI / 2);
-    grid.name = "grid";
-    if (showGridFlag === true) {
-        grid.visible = true;
-    } else {
-        grid.visible = false;
-    }
-    scene.add(grid);
+    createGrid();
 
     if ($("#canvas3d").children().size() > 0) {
         $($("#canvas3d").children()[0]).remove();
@@ -3330,7 +3360,10 @@ function init() {
         let showGridCheckbox = guiOptions.add(parameters, 'show_grid').name('Show grid').listen();
         showGridCheckbox.onChange(function (value) {
             showGridFlag = value;
-            let grid = scene.getObjectByName("grid");
+            //let grid = scene.getObjectByName("grid");
+            if (grid === undefined || grid.parent === null) {
+                createGrid();
+            }
             if (showGridFlag === true) {
                 grid.visible = true;
             } else {

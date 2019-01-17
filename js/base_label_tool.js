@@ -180,6 +180,7 @@ let labelTool = {
     currentChannelLabel: document.getElementById('cam_channel'),
     // position of the lidar sensor in ego vehicle space
     positionLidarNuscenes: [0.891067, 0.0, 1.84292],//(long, lat, vert)
+    positionLidarLISAT: [0, 0, 60.7137000000000 / 100],
     translationVectorLidarToCamFront: [0.77, -0.02, -0.3],
     // positionLidarNuscenes: [1.84, 0.0, 1.84292],//(long, lat, vert)
     showOriginalNuScenesLabels: false,
@@ -566,7 +567,6 @@ let labelTool = {
                     }
                 }
                 // reset insert index
-                // TODO: set insert index for each frame
                 annotationObjects.__insertIndex = 0;
             }
         }// end for loop all annotations
@@ -578,7 +578,9 @@ let labelTool = {
         }
         // project 3D positions of current frame into 2D camera images
         if (annotationObjects.contents[this.currentFileIndex].length > 0) {
-            draw2DProjections(annotationObjects.contents[this.currentFileIndex][0]);
+            for (let i = 0; i < annotationObjects.contents[this.currentFileIndex].length; i++) {
+                draw2DProjections(annotationObjects.contents[this.currentFileIndex][i]);
+            }
         }
     },
 
@@ -791,43 +793,30 @@ let labelTool = {
     },
 
     start() {
-        let imageSizes;
-        if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-            imageSizes = {
-                minWidth: 320,
-                minHeight: 240,
-                maxWidth: 640,
-                maxHeight: 480
-            };
-        } else {
-            imageSizes = {
-                minWidth: Math.floor(window.innerWidth / 6),
-                minHeight: Math.floor(window.innerWidth / (6 * 1.77778)),
-                maxWidth: 640,
-                maxHeight: 360
-            };
-        }
-        this.originalSize[0] = imageSizes.minWidth;
-        this.originalSize[1] = imageSizes.minHeight;
-        this.getFileNames();
+        setImageSize();
+        labelTool.fileNames = this.getFileNames();
+        this.initialize();
+        this.showData();
+        this.getAnnotations(this.currentFileIndex);
     },
 
 
     getFileNames() {
-        request({
-            url: "/label/file_names/",
-            type: "GET",
-            dataType: "json",
-            data: {},
-            complete: function (res) {
-                let dict = JSON.parse(res.responseText);
-                labelTool.fileNames = dict["file_names"];
-                this.initialize();
-                this.showData();
-                this.getAnnotations(this.currentFileIndex);
-
-            }.bind(this)
-        });
+        let numFiles;
+        let fileNameArray = [];
+        if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+            labelTool.numFrames = labelTool.numFramesLISAT;
+            numFiles = 900;
+        } else {
+            labelTool.numFrames = labelTool.numFramesNuScenes;
+            setSequences();
+            labelTool.currentSequence = labelTool.sequencesNuScenes[0];
+            numFiles = 3962;
+        }
+        for (let i = 0; i < numFiles; i++) {
+            fileNameArray.push(pad(i, 6))
+        }
+        return fileNameArray;
     },
 
     getTargetFileName: function () {
@@ -1349,6 +1338,27 @@ let labelTool = {
     }
 };
 
+function setImageSize() {
+    let imageSizes;
+    if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+        imageSizes = {
+            minWidth: 320,
+            minHeight: 240,
+            maxWidth: 640,
+            maxHeight: 480
+        };
+    } else {
+        imageSizes = {
+            minWidth: Math.floor(window.innerWidth / 6),
+            minHeight: Math.floor(window.innerWidth / (6 * 1.77778)),
+            maxWidth: 640,
+            maxHeight: 360
+        };
+    }
+    labelTool.originalSize[0] = imageSizes.minWidth;
+    labelTool.originalSize[1] = imageSizes.minHeight;
+}
+
 function setObjectParameters(annotationObj) {
     let params = {
         class: annotationObj["class"],
@@ -1419,7 +1429,7 @@ function draw2DProjections(params) {
             // calculate line segments
             let channelObj = params.channels[i];
             if (params.channels[i].projectedPoints !== undefined && params.channels[i].projectedPoints.length === 8) {
-                params.channels[i].lines = calculateLineSegments(channelObj, params.class);
+                params.channels[i].lines = calculateAndDrawLineSegments(channelObj, params.class);
             }
         }
     }
@@ -1703,3 +1713,98 @@ $("#frame-skip").change(function () {
     }
     labelTool.skipFrameCount = value;
 });
+
+function calculateAndDrawLineSegments(channelObj, className) {
+    let channel = channelObj.channel;
+    let lineArray = [];
+    let channelIdx = getChannelIndexByName(channel);
+    // temporary color bottom 4 lines in yellow to check if projection matrix is correct
+    // let color = '#ffff00';
+    // uncomment line to use yellow to color bottom 4 lines
+    let color;
+    if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
+        let classIdx = classesBoundingBox.classNameArray.indexOf(className);
+        color = classesBoundingBox.colorArray[classIdx];
+    } else {
+        color = classesBoundingBox[className].color;
+    }
+    // bottom four lines
+    if ((channelObj.projectedPoints[0].x < 0 || channelObj.projectedPoints[0].x > 320) && (channelObj.projectedPoints[0].y < 0 || channelObj.projectedPoints[0].y > 240)
+        && (channelObj.projectedPoints[1].x < 0 || channelObj.projectedPoints[1].x > 320) && (channelObj.projectedPoints[1].y < 0 || channelObj.projectedPoints[1].y > 240)) {
+        // continue with next line
+    } else {
+        lineArray.push(getLine(channelIdx, channelObj.projectedPoints[0], channelObj.projectedPoints[1], color));
+    }
+    if ((channelObj.projectedPoints[1].x < 0 || channelObj.projectedPoints[1].x > 320) && (channelObj.projectedPoints[1].y < 0 || channelObj.projectedPoints[1].y > 240)
+        && (channelObj.projectedPoints[2].x < 0 || channelObj.projectedPoints[2].x > 320) && (channelObj.projectedPoints[2].y < 0 || channelObj.projectedPoints[2].y > 240)) {
+        // continue with next line
+    } else {
+        lineArray.push(getLine(channelIdx, channelObj.projectedPoints[1], channelObj.projectedPoints[2], color));
+    }
+    if ((channelObj.projectedPoints[2].x < 0 || channelObj.projectedPoints[2].x > 320) && (channelObj.projectedPoints[2].y < 0 || channelObj.projectedPoints[2].y > 240)
+        && (channelObj.projectedPoints[3].x < 0 || channelObj.projectedPoints[3].x > 320) && (channelObj.projectedPoints[3].y < 0 || channelObj.projectedPoints[3].y > 240)) {
+        // continue with next line
+    } else {
+        lineArray.push(getLine(channelIdx, channelObj.projectedPoints[2], channelObj.projectedPoints[3], color));
+    }
+    if ((channelObj.projectedPoints[3].x < 0 || channelObj.projectedPoints[3].x > 320) && (channelObj.projectedPoints[3].y < 0 || channelObj.projectedPoints[3].y > 240)
+        && (channelObj.projectedPoints[0].x < 0 || channelObj.projectedPoints[0].x > 320) && (channelObj.projectedPoints[0].y < 0 || channelObj.projectedPoints[0].y > 240)) {
+        // continue with next line
+    } else {
+        lineArray.push(getLine(channelIdx, channelObj.projectedPoints[3], channelObj.projectedPoints[0], color));
+    }
+    // color = '#00ff00';
+    // top four lines
+    if ((channelObj.projectedPoints[4].x < 0 || channelObj.projectedPoints[4].x > 320) && (channelObj.projectedPoints[4].y < 0 || channelObj.projectedPoints[4].y > 240)
+        && (channelObj.projectedPoints[5].x < 0 || channelObj.projectedPoints[5].x > 320) && (channelObj.projectedPoints[5].y < 0 || channelObj.projectedPoints[5].y > 240)) {
+        // continue with next line
+    } else {
+        lineArray.push(getLine(channelIdx, channelObj.projectedPoints[4], channelObj.projectedPoints[5], color));
+    }
+
+    if ((channelObj.projectedPoints[5].x < 0 || channelObj.projectedPoints[5].x > 320) && (channelObj.projectedPoints[5].y < 0 || channelObj.projectedPoints[5].y > 240)
+        && (channelObj.projectedPoints[6].x < 0 || channelObj.projectedPoints[6].x > 320) && (channelObj.projectedPoints[6].y < 0 || channelObj.projectedPoints[6].y > 240)) {
+        // continue with next line
+    } else {
+        lineArray.push(getLine(channelIdx, channelObj.projectedPoints[5], channelObj.projectedPoints[6], color));
+    }
+    if ((channelObj.projectedPoints[6].x < 0 || channelObj.projectedPoints[6].x > 320) && (channelObj.projectedPoints[6].y < 0 || channelObj.projectedPoints[6].y > 240)
+        && (channelObj.projectedPoints[7].x < 0 || channelObj.projectedPoints[7].x > 320) && (channelObj.projectedPoints[7].y < 0 || channelObj.projectedPoints[7].y > 240)) {
+        // continue with next line
+    } else {
+        lineArray.push(getLine(channelIdx, channelObj.projectedPoints[6], channelObj.projectedPoints[7], color));
+    }
+    if ((channelObj.projectedPoints[7].x < 0 || channelObj.projectedPoints[7].x > 320) && (channelObj.projectedPoints[7].y < 0 || channelObj.projectedPoints[7].y > 240)
+        && (channelObj.projectedPoints[4].x < 0 || channelObj.projectedPoints[4].x > 320) && (channelObj.projectedPoints[4].y < 0 || channelObj.projectedPoints[4].y > 240)) {
+        // continue with next line
+    } else {
+        lineArray.push(getLine(channelIdx, channelObj.projectedPoints[7], channelObj.projectedPoints[4], color));
+    }
+
+    // vertical lines
+    if ((channelObj.projectedPoints[0].x < 0 || channelObj.projectedPoints[0].x > 320) && (channelObj.projectedPoints[0].y < 0 || channelObj.projectedPoints[0].y > 240)
+        && (channelObj.projectedPoints[4].x < 0 || channelObj.projectedPoints[4].x > 320) && (channelObj.projectedPoints[4].y < 0 || channelObj.projectedPoints[4].y > 240)) {
+        // continue with next line
+    } else {
+        lineArray.push(getLine(channelIdx, channelObj.projectedPoints[0], channelObj.projectedPoints[4], color));
+    }
+    if ((channelObj.projectedPoints[1].x < 0 || channelObj.projectedPoints[1].x > 320) && (channelObj.projectedPoints[1].y < 0 || channelObj.projectedPoints[1].y > 240)
+        && (channelObj.projectedPoints[5].x < 0 || channelObj.projectedPoints[5].x > 320) && (channelObj.projectedPoints[5].y < 0 || channelObj.projectedPoints[5].y > 240)) {
+        // continue with next line
+    } else {
+        lineArray.push(getLine(channelIdx, channelObj.projectedPoints[1], channelObj.projectedPoints[5], color));
+    }
+    if ((channelObj.projectedPoints[2].x < 0 || channelObj.projectedPoints[2].x > 320) && (channelObj.projectedPoints[2].y < 0 || channelObj.projectedPoints[2].y > 240)
+        && (channelObj.projectedPoints[6].x < 0 || channelObj.projectedPoints[6].x > 320) && (channelObj.projectedPoints[6].y < 0 || channelObj.projectedPoints[6].y > 240)) {
+        // continue with next line
+    } else {
+        lineArray.push(getLine(channelIdx, channelObj.projectedPoints[2], channelObj.projectedPoints[6], color));
+    }
+    if ((channelObj.projectedPoints[3].x < 0 || channelObj.projectedPoints[3].x > 320) && (channelObj.projectedPoints[3].y < 0 || channelObj.projectedPoints[3].y > 240)
+        && (channelObj.projectedPoints[7].x < 0 || channelObj.projectedPoints[7].x > 320) && (channelObj.projectedPoints[7].y < 0 || channelObj.projectedPoints[7].y > 240)) {
+        // continue with next line
+    } else {
+        lineArray.push(getLine(channelIdx, channelObj.projectedPoints[3], channelObj.projectedPoints[7], color));
+    }
+    return lineArray;
+}

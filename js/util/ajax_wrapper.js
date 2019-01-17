@@ -17,29 +17,6 @@ function request(options) {
                 res = {responseText: JSON.stringify([responseDict])};
                 options.complete(res);
                 break;
-            case "/label/file_names/":
-                let numFiles;
-                let fileNameArray = [];
-                if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-                    labelTool.numFrames = labelTool.numFramesLISAT;
-                    // labelTool.currentSequence = labelTool.sequencesLISAT.date_2018_05_23_001_frame_00042917_00043816;
-                    numFiles = 900;
-                } else {
-                    labelTool.numFrames = labelTool.numFramesNuScenes;
-                    setSequences();
-                    labelTool.currentSequence = labelTool.sequencesNuScenes[0];
-                    numFiles = 3962;
-                }
-                for (let i = 0; i < numFiles; i++) {
-                    fileNameArray.push(pad(i, 6))
-                }
-
-                responseDict = {
-                    file_names: fileNameArray
-                };
-                res = {responseText: JSON.stringify(responseDict)};
-                options.complete(res);
-                break;
             case "/label/annotations/":
                 let fileName = options.data["file_name"];
                 res = [];
