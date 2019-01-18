@@ -130,7 +130,7 @@
           <entry key="css" value="9" />
           <entry key="gitignore" value="1" />
           <entry key="html" value="3" />
-          <entry key="js" value="35" />
+          <entry key="js" value="36" />
           <entry key="json" value="10" />
           <entry key="md" value="2" />
           <entry key="svg" value="1" />
@@ -143,7 +143,7 @@
           <entry key="CSS" value="9" />
           <entry key="HTML" value="3" />
           <entry key="JSON" value="10" />
-          <entry key="JavaScript" value="35" />
+          <entry key="JavaScript" value="36" />
           <entry key="Markdown" value="2" />
           <entry key="PLAIN_TEXT" value="4" />
           <entry key="SVG" value="1" />
@@ -156,7 +156,7 @@
           <entry key="css" value="311" />
           <entry key="gitignore" value="12" />
           <entry key="html" value="1334" />
-          <entry key="js" value="15948" />
+          <entry key="js" value="16440" />
           <entry key="json" value="25" />
         </counts>
       </usages-collector>
@@ -165,7 +165,7 @@
           <entry key="CSS" value="311" />
           <entry key="HTML" value="1334" />
           <entry key="JSON" value="21" />
-          <entry key="JavaScript" value="15948" />
+          <entry key="JavaScript" value="16440" />
           <entry key="PLAIN_TEXT" value="12" />
           <entry key="tsconfig" value="4" />
         </counts>
@@ -182,8 +182,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="205">
-              <caret line="151" column="49" lean-forward="true" selection-start-line="151" selection-start-column="49" selection-end-line="151" selection-end-column="49" />
+            <state relative-caret-position="231">
+              <caret line="152" lean-forward="true" selection-start-line="152" selection-end-line="152" />
             </state>
           </provider>
         </entry>
@@ -191,8 +191,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/js/pcd_label_tool.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="168">
-              <caret line="3363" column="61" lean-forward="true" selection-start-line="3363" selection-start-column="61" selection-end-line="3363" selection-end-column="61" />
+            <state relative-caret-position="639">
+              <caret line="1864" column="94" lean-forward="true" selection-start-line="1864" selection-start-column="94" selection-end-line="1864" selection-end-column="94" />
             </state>
           </provider>
         </entry>
@@ -209,17 +209,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/js/util/classesBoundingBox.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="452">
+            <state relative-caret-position="517">
               <caret line="85" column="4" selection-start-line="85" selection-start-column="4" selection-end-line="85" selection-end-column="4" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/js/lib/three.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="251">
-              <caret line="14711" column="12" selection-start-line="14711" selection-start-column="12" selection-end-line="14711" selection-end-column="12" />
             </state>
           </provider>
         </entry>
@@ -276,10 +267,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>onmouseu</find>
-      <find>mouseuplo</find>
-      <find>deac</find>
-      <find>deactivate</find>
       <find>interpolation</find>
       <find>interpolatebtn</find>
       <find>interpolateBtn</find>
@@ -296,7 +283,6 @@
       <find>currentse</find>
       <find>guiop</find>
       <find>3d-menu</find>
-      <find>rotation</find>
       <find>step</find>
       <find>chooseseq</find>
       <find>delete</find>
@@ -306,6 +292,11 @@
       <find>lidar</find>
       <find>positionlid</find>
       <find>grid</find>
+      <find>onchange</find>
+      <find>new three.cu</find>
+      <find>rotation</find>
+      <find>project</find>
+      <find>math.</find>
     </findStrings>
     <replaceStrings>
       <replace>#</replace>
@@ -467,6 +458,24 @@
             <path>
               <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="b2602c69:ProjectViewProjectNode" />
               <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="462c0819:PsiDirectoryNode" />
+              <item name="input" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="b2602c69:ProjectViewProjectNode" />
+              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="462c0819:PsiDirectoryNode" />
+              <item name="input" type="462c0819:PsiDirectoryNode" />
+              <item name="LISA_T" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="b2602c69:ProjectViewProjectNode" />
+              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="462c0819:PsiDirectoryNode" />
+              <item name="input" type="462c0819:PsiDirectoryNode" />
+              <item name="LISA_T" type="462c0819:PsiDirectoryNode" />
+              <item name="2018-05-23-001-frame-00042917-00043816" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="b2602c69:ProjectViewProjectNode" />
+              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="462c0819:PsiDirectoryNode" />
               <item name="js" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -585,12 +594,12 @@
       <workItem from="1546539749200" duration="75613000" />
       <workItem from="1546982564075" duration="1250000" />
       <workItem from="1546984295574" duration="15855000" />
-      <workItem from="1547143608323" duration="131581000" />
+      <workItem from="1547143608323" duration="142158000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="1385069000" />
+    <option name="totallyTimeSpent" value="1395646000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -605,11 +614,11 @@
     <frame x="-1" y="0" width="1922" height="1081" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15724947" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.15724947" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info active="true" anchor="bottom" id="Find" order="1" sideWeight="0.4968017" visible="true" weight="0.39435145" />
+      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.4968017" weight="0.39435145" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4993687" weight="0.3294979" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39958158" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
@@ -865,13 +874,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/js/lib/three.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="251">
-          <caret line="14711" column="12" selection-start-line="14711" selection-start-column="12" selection-end-line="14711" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/js/lib/w2ui-1.5.rc1.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="189">
@@ -907,13 +909,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/js/util/classesBoundingBox.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="452">
-          <caret line="85" column="4" selection-start-line="85" selection-start-column="4" selection-end-line="85" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/js/util/boundingbox.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="114">
@@ -931,17 +926,31 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/js/lib/three.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="26">
+          <caret line="1126" lean-forward="true" selection-start-line="1126" selection-end-line="1126" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/util/classesBoundingBox.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="517">
+          <caret line="85" column="4" selection-start-line="85" selection-start-column="4" selection-end-line="85" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="205">
-          <caret line="151" column="49" lean-forward="true" selection-start-line="151" selection-start-column="49" selection-end-line="151" selection-end-column="49" />
+        <state relative-caret-position="231">
+          <caret line="152" lean-forward="true" selection-start-line="152" selection-end-line="152" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/js/pcd_label_tool.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="168">
-          <caret line="3363" column="61" lean-forward="true" selection-start-line="3363" selection-start-column="61" selection-end-line="3363" selection-end-column="61" />
+        <state relative-caret-position="639">
+          <caret line="1864" column="94" lean-forward="true" selection-start-line="1864" selection-start-column="94" selection-end-line="1864" selection-end-column="94" />
         </state>
       </provider>
     </entry>
