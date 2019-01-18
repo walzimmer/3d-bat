@@ -769,7 +769,7 @@ function update2DBoundingBox(fileIndex, objectIndex) {
                 let rotationYaw = annotationObjects.contents[fileIndex][objectIndex]["rotationY"];
                 let channel = channelObj.channel;
                 // working for LISA_T
-                channelObj.projectedPoints = calculateProjectedBoundingBox(-x, -y, -z, width, height, depth, channel);
+                channelObj.projectedPoints = calculateProjectedBoundingBox(-x, -y, -z, width, height, depth, channel, rotationYaw);
                 // channelObj.projectedPoints = calculateProjectedBoundingBox(-x, -y, z, width, height, depth, channel);
                 // remove previous drawn lines
                 for (let lineObj in channelObj.lines) {
@@ -1782,8 +1782,16 @@ function getChannelsByPosition(x, y) {
     return channels;
 }
 
+function rotatePoint(pointX, pointY, originX, originY, angle) {
+    angle = angle * Math.PI / 180.0;
+    return {
+        x: Math.cos(angle) * (pointX - originX) - Math.sin(angle) * (pointY - originY) + originX,
+        y: Math.sin(angle) * (pointX - originX) + Math.cos(angle) * (pointY - originY) + originY
+    };
+}
 
-function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, channel) {
+
+function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, channel, rotationYaw) {
     let idx = getChannelIndexByName(channel);
     // LIDAR uses long, lat, vert
     // pos_long = pos_long - labelTool.positionLidarNuscenes[1];
@@ -1830,6 +1838,17 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
         dimensionScalingFactor = 100;// multiply by 100 to transform from cm to m
     }
     let cornerPoints = [];
+
+    // temporary
+    // xPos = 0;
+    // yPos = 0;
+    // zPos = 0;
+    // width = 1.0;
+    // height = 1.0;
+    // depth = 1.0;
+    // rotationYaw = Math.PI / 4;
+
+
     cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos - height / 2, zPos + depth / 2));
     cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos - height / 2, zPos + depth / 2));
     cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos + height / 2, zPos + depth / 2));
@@ -1838,9 +1857,18 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
     cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos - height / 2, zPos - depth / 2));
     cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos + height / 2, zPos - depth / 2));
     cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos + height / 2, zPos - depth / 2));
+
     let projectedPoints = [];
     for (let cornerPoint in cornerPoints) {
         let point = cornerPoints[cornerPoint];
+        // TODO: rotate all 8 corner points before projection
+        pointRotated = rotatePoint(point.x, point.y, xPos, yPos, rotationYaw*360/(2*Math.PI));
+        point.x = pointRotated.x;
+        point.y = pointRotated.y;
+        // let hypothenuse = Math.sqrt(Math.pow(width / 2.0, 2) + Math.pow(height / 2.0, 2));
+        // point.x = point.x + Math.cos(rotationYaw * 360 / (2 * Math.PI)) * hypothenuse;
+        // point.y = point.y + Math.sin(rotationYaw * 360 / (2 * Math.PI)) * hypothenuse;
+
         // working for LISA_T
         let point3D = [point.x * dimensionScalingFactor, (point.y + longitudeOffset) * dimensionScalingFactor, (point.z + streetVerticalOffset) * dimensionScalingFactor, 1];
         // let point3D = [point.x * dimensionScalingFactor, (point.y + longitudeOffset) * dimensionScalingFactor, (-point.z + streetVerticalOffset) * dimensionScalingFactor, 1];
