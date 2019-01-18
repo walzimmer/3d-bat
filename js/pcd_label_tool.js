@@ -766,10 +766,10 @@ function update2DBoundingBox(fileIndex, objectIndex) {
                 let height = annotationObjects.contents[fileIndex][objectIndex]["height"];
                 let depth = annotationObjects.contents[fileIndex][objectIndex]["depth"];
                 // TODO: rotation
-                let rotationYaw = annotationObjects.contents[fileIndex][objectIndex]["rotationY"];
+                let rotationY = annotationObjects.contents[fileIndex][objectIndex]["rotationY"];
                 let channel = channelObj.channel;
                 // working for LISA_T
-                channelObj.projectedPoints = calculateProjectedBoundingBox(-x, -y, -z, width, height, depth, channel, rotationYaw);
+                channelObj.projectedPoints = calculateProjectedBoundingBox(-x, -y, -z, width, height, depth, channel, rotationY);
                 // channelObj.projectedPoints = calculateProjectedBoundingBox(-x, -y, z, width, height, depth, channel);
                 // remove previous drawn lines
                 for (let lineObj in channelObj.lines) {
@@ -1791,7 +1791,7 @@ function rotatePoint(pointX, pointY, originX, originY, angle) {
 }
 
 
-function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, channel, rotationYaw) {
+function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, channel, rotationY) {
     let idx = getChannelIndexByName(channel);
     // LIDAR uses long, lat, vert
     // pos_long = pos_long - labelTool.positionLidarNuscenes[1];
@@ -1862,7 +1862,7 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
     for (let cornerPoint in cornerPoints) {
         let point = cornerPoints[cornerPoint];
         // TODO: rotate all 8 corner points before projection
-        pointRotated = rotatePoint(point.x, point.y, xPos, yPos, rotationYaw*360/(2*Math.PI));
+        pointRotated = rotatePoint(point.x, point.y, xPos, yPos, rotationY*360/(2*Math.PI));
         point.x = pointRotated.x;
         point.y = pointRotated.y;
         // let hypothenuse = Math.sqrt(Math.pow(width / 2.0, 2) + Math.pow(height / 2.0, 2));
@@ -2800,7 +2800,7 @@ function mouseUpLogic(ev) {
                     let channel = labelTool.camChannels[i].channel;
                     addBboxParameters.channels[i].channel = channel;
                     // working for LISA_T
-                    let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -yPos, -zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth, channel);
+                    let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -yPos, -zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth, channel,addBboxParameters.rotationY);
                     addBboxParameters.channels[i].projectedPoints = projectedBoundingBox;
                 }
                 // calculate line segments
