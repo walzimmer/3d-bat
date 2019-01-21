@@ -193,7 +193,6 @@ let labelTool = {
     folderEndSize: undefined,
     logger: undefined,
 
-
     /********** Externally defined functions **********
      * Define these functions in the labeling tools.
      **************************************************/
@@ -408,7 +407,7 @@ let labelTool = {
             classesBoundingBox[label].nextTrackId++;
         }
     },
-    loadAnnotationsNuscenes: function (annotations) {
+    loadAnnotationsNuscenes: function (annotations, fileIndex) {
         // Remove old bounding boxes of current frame.
         annotationObjects.clear();
         // Add new bounding boxes.
@@ -472,6 +471,7 @@ let labelTool = {
                     params.org.height = tmpHeight;
                     params.org.depth = tmpDepth;
                 }
+                params.fileIndex = fileIndex;
                 // project 3D position into 2D camera image
                 draw2DProjections(params);
                 // add new entry to contents array
@@ -553,6 +553,7 @@ let labelTool = {
                             params.org.height = tmpHeight;
                             params.org.depth = tmpDepth;
                         }
+                        params.fileIndex = Number(frameAnnotationIdx);
                         // add new entry to contents array
                         annotationObjects.set(annotationObjects.__insertIndex, params);
                         annotationObjects.__insertIndex++;
@@ -699,27 +700,38 @@ let labelTool = {
         let fileName;
         if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
             fileName = labelTool.currentDataset + "_" + labelTool.currentSequence + "_annotations.txt";
+            request({
+                url: '/label/annotations/',
+                type: 'GET',
+                dataType: 'json',
+                data: {
+                    file_name: fileName
+                },
+                success: function (res) {
+                    this.loadAnnotationsLISAT(res);
+                }.bind(this),
+                error: function (res) {
+                }.bind(this)
+            });
         } else {
-            fileName = this.fileNames[currentFileIndex] + ".txt";
+            for (let i = 0; i < this.fileNames.length; i++) {
+                request({
+                    url: '/label/annotations/',
+                    type: 'GET',
+                    dataType: 'json',
+                    data: {
+                        file_name: fileName
+                    },
+                    success: function (res) {
+                        this.loadAnnotationsNuscenes(res, i);
+                    }.bind(this),
+                    error: function (res) {
+                    }.bind(this)
+                });
+            }
         }
 
-        request({
-            url: '/label/annotations/',
-            type: 'GET',
-            dataType: 'json',
-            data: {
-                file_name: fileName
-            },
-            success: function (res) {
-                if (this.currentDataset === this.datasets.LISA_T) {
-                    this.loadAnnotationsLISAT(res);
-                } else {
-                    this.loadAnnotationsNuscenes(res);
-                }
-            }.bind(this),
-            error: function (res) {
-            }.bind(this)
-        });
+
     },
 
     reset() {
@@ -1082,7 +1094,14 @@ let labelTool = {
         }
         // remove all 2D BB objects from camera images
         remove2DBoundingBoxes();
+        // remove all class labels in point cloud or bird eye view
+        $(".class-tooltip").remove();
+
         // remove all folders
+        for (let i = 0; i < annotationObjects.contents[this.currentFileIndex].length; i++) {
+            guiOptions.removeFolder(annotationObjects.contents[this.currentFileIndex][i]["class"] + ' ' + annotationObjects.contents[this.currentFileIndex][i]["trackId"]);
+        }
+        // empty all folder arrays
         folderBoundingBox3DArray = [];
         folderPositionArray = [];
         folderSizeArray = [];
@@ -1090,23 +1109,31 @@ let labelTool = {
         if (this.cubeArray[newFileIndex].length === 0) {
             // move all 3d objects to new frame if nextFrame has no labels
             for (let i = 0; i < this.cubeArray[this.currentFileIndex].length; i++) {
-                let mesh = this.cubeArray[this.currentFileIndex][i];
-                let clonedMesh = mesh.clone();
-                this.cubeArray[newFileIndex].push(clonedMesh);
-                scene.add(clonedMesh);
+                let copyLabelToNextFrame = annotationObjects.contents[this.currentFileIndex][i]["copyLabelToNextFrame"];
+                //let copyLabelToNextFrame = document.getElementById("copy-label-to-next-frame-checkbox-" + i).firstChild.checked;
+                if (copyLabelToNextFrame === true) {
+                    let mesh = this.cubeArray[this.currentFileIndex][i];
+                    let clonedMesh = mesh.clone();
+                    this.cubeArray[newFileIndex].push(clonedMesh);
+                    scene.add(clonedMesh);
 
-                let sprite = this.spriteArray[this.currentFileIndex][i];
-                let clonedSprite = sprite.clone();
-                this.spriteArray[newFileIndex].push(clonedSprite);
-                scene.add(clonedSprite);
+                    let sprite = this.spriteArray[this.currentFileIndex][i];
+                    let clonedSprite = sprite.clone();
+                    this.spriteArray[newFileIndex].push(clonedSprite);
+                    scene.add(clonedSprite);
+                }
             }
             // Deep copy
             for (let i = 0; i < annotationObjects.contents[this.currentFileIndex].length; i++) {
-                // set start index
-                if (interpolationMode === true) {
-                    annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEndFileIndex"] = newFileIndex;
+                let copyLabelToNextFrame = annotationObjects.contents[this.currentFileIndex][i]["copyLabelToNextFrame"];
+                //let copyLabelToNextFrame = document.getElementById("copy-label-to-next-frame-checkbox-" + i).firstChild.checked;
+                if (copyLabelToNextFrame === true) {
+                    if (interpolationMode === true) {
+                        // set start index
+                        annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEndFileIndex"] = newFileIndex;
+                    }
+                    annotationObjects.contents[newFileIndex][i] = jQuery.extend(true, {}, annotationObjects.contents[this.currentFileIndex][i]);
                 }
-                annotationObjects.contents[newFileIndex][i] = jQuery.extend(true, {}, annotationObjects.contents[this.currentFileIndex][i]);
             }
         } else {
             // next frame has already 3D annotations which will be added to the scene
@@ -1130,14 +1157,12 @@ let labelTool = {
                 }
             }
             for (let i = 0; i < annotationObjects.contents[this.currentFileIndex].length; i++) {
-                // remove 2D labels that do not occur in new frame
                 let trackId = annotationObjects.contents[this.currentFileIndex][i]["trackId"];
                 let className = annotationObjects.contents[this.currentFileIndex][i]["class"];
                 let objectIndexByTrackIdAndClass = getObjectIndexByTrackIdAndClass(trackId, className, newFileIndex);
-                if (objectIndexByTrackIdAndClass === -1) {
-                    // TODO:
-                    // current object does not exist in next frame -> remove its 2D label
-                    // $("#class-" + className.charAt(0) + trackId).remove();
+                let copyLabelToNextFrame = annotationObjects.contents[this.currentFileIndex][i]["copyLabelToNextFrame"];
+                //let copyLabelToNextFrame = document.getElementById("copy-label-to-next-frame-checkbox-" + i).firstChild.checked;
+                if (objectIndexByTrackIdAndClass === -1 && copyLabelToNextFrame === true) {
                     // clone that object to new frame
                     let mesh = this.cubeArray[this.currentFileIndex][i];
                     let clonedMesh = mesh.clone();
@@ -1187,9 +1212,10 @@ let labelTool = {
                 height: annotationObj["height"],
                 depth: annotationObj["depth"],
                 rotationY: parseFloat(annotationObj["rotationY"]),
-                trackId: annotationObj["trackId"]
+                trackId: annotationObj["trackId"],
+                copyLabelToNextFrame: annotationObj["copyLabelToNextFrame"]
             };
-            guiOptions.removeFolder(bbox.class + ' ' + bbox.trackId);
+            // guiOptions.removeFolder(bbox.class + ' ' + bbox.trackId);
             // add bboxEnd for selected object
             if (selectionIndexNextFile === i && interpolationMode === true) {
                 addBoundingBoxGui(bbox, bboxEndParams);
@@ -1218,15 +1244,12 @@ let labelTool = {
             annotationObjects.contents[newFileIndex][objectIndexNextFrame]["interpolationEnd"]["size"]["depth"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["depth"];
 
             // add start frame number
-            // TODO: error
             let interpolationStartFileIndex = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationStartFileIndex"];
             annotationObjects.contents[newFileIndex][objectIndexNextFrame]["interpolationStartFileIndex"] = interpolationStartFileIndex;
             folderPositionArray[objectIndexNextFrame].domElement.firstChild.firstChild.innerText = "Interpolation Start Position (frame " + (interpolationStartFileIndex + 1) + ")";
             folderSizeArray[objectIndexNextFrame].domElement.firstChild.firstChild.innerText = "Interpolation Start Size (frame " + (interpolationStartFileIndex + 1) + ")";
 
             // add end frame number
-            // TEST: newFileIndex= 1, interpolationStartFileIndex = 101 (click from frame 11 to show frame 1)
-            // TEST: newFileIndex= 11, interpolationStartFileIndex = 101 (click from frame 1 to show frame 11)
             if (interpolationStartFileIndex !== newFileIndex) {
                 if (this.folderEndPosition !== undefined && this.folderEndSize !== undefined) {
                     this.folderEndPosition.domElement.firstChild.firstChild.innerText = "Interpolation End Position (frame " + (newFileIndex + 1) + ")";
@@ -1244,7 +1267,6 @@ let labelTool = {
         this.previousFileIndex = this.currentFileIndex;
         // open folder of selected object
         if (selectionIndexNextFile !== -1) {
-            // let selectionIndexNewFrame = getObjectIndexByTrackIdAndClass(annotationObjects.contents[this.currentFileIndex][selectionIndex]["trackId"], annotationObjects.contents[this.currentFileIndex][selectionIndex]["class"], newFileIndex);
             // NOTE: set current file index after querying index above
             this.currentFileIndex = newFileIndex;
             interpolationObjIndexCurrentFile = interpolationObjIndexNextFile;
@@ -1424,7 +1446,7 @@ function draw2DProjections(params) {
     for (let i = 0; i < params.channels.length; i++) {
         if (params.channels[i].channel !== undefined && params.channels[i].channel !== "") {
             // working for LISA_T
-            params.channels[i].projectedPoints = calculateProjectedBoundingBox(-params.x, -params.y, -params.z, params.width, params.height, params.depth, params.channels[i].channel,params.rotationY);
+            params.channels[i].projectedPoints = calculateProjectedBoundingBox(-params.x, -params.y, -params.z, params.width, params.height, params.depth, params.channels[i].channel, params.rotationY);
             // params.channels[i].projectedPoints = calculateProjectedBoundingBox(params.x, params.y, -params.z, params.width, params.height, params.depth, params.channels[i].channel);
             // calculate line segments
             let channelObj = params.channels[i];
@@ -1543,29 +1565,14 @@ function getDefaultObject() {
             lines: [],
             channel: ''
         }],
-        fromFile: true
+        fromFile: true,
+        fileIndex: -1,
+        copyLabelToNextFrame: true
     };
     return params;
 }
 
 function remove2DBoundingBoxes() {
-    // for (let channelObject in annotationObjects.contents[fileIndex][objectIndex].channels) {
-    //     if (annotationObjects.contents[fileIndex][objectIndex].channels.hasOwnProperty(channelObject)) {
-    //         let channelObj = annotationObjects.contents[fileIndex][objectIndex].channels[channelObject];
-    //         if (channelObj.channel !== '') {
-    //             for (let lineObj in channelObj.lines) {
-    //                 if (channelObj.lines.hasOwnProperty(lineObj)) {
-    //                     let line = channelObj.lines[lineObj];
-    //                     if (line !== undefined) {
-    //                         line.remove();
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
-
-    // TODO: check if insertIndex is within length
     for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
         for (let j = 0; j < annotationObjects.contents[labelTool.currentFileIndex][i].channels.length; j++) {
             for (let k = 0; k < annotationObjects.contents[labelTool.currentFileIndex][i].channels[j].lines.length; k++) {
