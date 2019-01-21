@@ -49,8 +49,8 @@ let interpolateBtn;
 
 let guiAnnotationClasses = new dat.GUI({autoPlace: true, width: 90, resizable: false});
 let guiBoundingBoxAnnotationMap;
-let guiOptions = new dat.GUI({autoPlace: true, width: 300, resizable: false});
-let numGUIOptions = 10;
+let guiOptions = new dat.GUI({autoPlace: true, width: 350, resizable: false});
+let numGUIOptions = 12;
 let showProjectedPointsFlag = false;
 let showGridFlag = false;
 let filterGround = false;
@@ -127,6 +127,10 @@ function getObjectIndexByTrackIdAndClass(trackId, className, fileIdx) {
 function interpolate() {
     interpolationObjIndexCurrentFile = annotationObjects.getSelectionIndex();
     let interpolationStartFileIndex = Number(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationStartFileIndex"]);
+    if (interpolationStartFileIndex === -1) {
+        labelTool.logger.error("Interpolation failed. Select object to interpolate and try again.");
+        return;
+    }
     let numFrames = labelTool.currentFileIndex - interpolationStartFileIndex;
     let objectIndexStartFile = getObjectIndexByTrackIdAndClass(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["trackId"], annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["class"], interpolationStartFileIndex);
     let xDelta = (Number(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["x"]) - Number(annotationObjects.contents[interpolationStartFileIndex][objectIndexStartFile]["interpolationStart"]["position"]["x"])) / numFrames;
@@ -239,6 +243,28 @@ let parameters = {
     show_field_of_view: false,
     show_grid: false,
     filter_ground: false,
+    select_all_copy_label_to_next_frame: function () {
+        for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
+            annotationObjects.contents[labelTool.currentFileIndex][i]["copyLabelToNextFrame"] = true;
+            let checkboxElem = document.getElementById("copy-label-to-next-frame-checkbox-" + i);
+            checkboxElem.firstChild.checked = true;
+        }
+    },
+    unselect_all_copy_label_to_next_frame: function () {
+        for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
+            // set all to false, expect the selected object (if interpolation mode active)
+            if (interpolationMode === false || i !== annotationObjects.getSelectionIndex()) {
+                annotationObjects.contents[labelTool.currentFileIndex][i]["copyLabelToNextFrame"] = false;
+                let checkboxElem = document.getElementById("copy-label-to-next-frame-checkbox-" + i);
+                checkboxElem.firstChild.checked = false;
+                $(checkboxElem).children().first().removeAttr("checked");
+            } else {
+                annotationObjects.contents[labelTool.currentFileIndex][i]["copyLabelToNextFrame"] = true;
+                let checkboxElem = document.getElementById("copy-label-to-next-frame-checkbox-" + i);
+                checkboxElem.firstChild.checked = true;
+            }
+        }
+    },
     interpolation_mode: false,
     interpolate: function () {
         if (interpolationMode === true) {
@@ -685,13 +711,8 @@ function increaseBrightness(hex, percent) {
 }
 
 
-function addClassTooltip(className, trackId, color, bbox) {
+function addClassTooltip(fileIndex, className, trackId, color, bbox) {
     let classTooltipElement = $("<div class='class-tooltip' id='class-" + className.charAt(0) + trackId + "'>" + className.charAt(0) + trackId + " | " + className + "</div>");
-    $("body").append(classTooltipElement);
-    // set background color
-    $(classTooltipElement[0]).css("background", color);
-    $(classTooltipElement[0]).css("opacity", 0.5);
-
     // Sprite
     const spriteMaterial = new THREE.SpriteMaterial({
         alphaTest: 0.5,
@@ -703,8 +724,16 @@ function addClassTooltip(className, trackId, color, bbox) {
     sprite.position.set(bbox.x, bbox.y, bbox.z + bbox.depth / 2);
     sprite.scale.set(1, 1, 1);
     sprite.name = "sprite-" + className.charAt(0) + trackId;
-    scene.add(sprite);
-    labelTool.spriteArray[labelTool.currentFileIndex].push(sprite);
+
+    // add tooltip only to DOM if fileIndex is equal to current file index
+    if (fileIndex === labelTool.currentFileIndex) {
+        $("body").append(classTooltipElement);
+        // set background color
+        $(classTooltipElement[0]).css("background", color);
+        $(classTooltipElement[0]).css("opacity", 0.5);
+        scene.add(sprite);
+    }
+    labelTool.spriteArray[fileIndex].push(sprite);
 }
 
 function get3DLabel(parameters) {
@@ -742,14 +771,14 @@ function get3DLabel(parameters) {
     let edges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
     cubeMesh.add(edges);
 
-    scene.add(cubeMesh);
-
+    // add object only to scene if file index is equal to current file index
+    if (parameters.fileIndex === labelTool.currentFileIndex) {
+        scene.add(cubeMesh);
+        addBoundingBoxGui(bbox, undefined);
+    }
     // class tooltip
-    addClassTooltip(parameters.class, parameters.trackId, color, bbox);
-
-
-    labelTool.cubeArray[labelTool.currentFileIndex].push(cubeMesh);
-    addBoundingBoxGui(bbox, undefined);
+    addClassTooltip(parameters.fileIndex, parameters.class, parameters.trackId, color, bbox);
+    labelTool.cubeArray[parameters.fileIndex].push(cubeMesh);
     return bbox;
 }
 
@@ -1027,7 +1056,8 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
         $("#bounding-box-3d-menu ul").children().eq(insertIndex + numGUIOptions).children().first().children().first().children().first().text(bbox.class + " " + Math.round(value));
     });
 
-    let resetParameters = {
+    let labelAttributes = {
+        'copy_label_to_next_frame': bbox.copyLabelToNextFrame,
         reset: function () {
             resetCube(insertIndex);
         },
@@ -1076,10 +1106,22 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
             } else {
                 classesBoundingBox.content[label].nextTrackId--;
             }
+            // if last object in current frame was deleted than disable interpolation mode
+            if (annotationObjects.contents[labelTool.currentFileIndex].length === 0) {
+                interpolationMode = false;
+                $("#interpolation-checkbox").children().first().prop("checked", false);
+                $("#interpolation-checkbox").children().first().removeAttr("checked");
+            }
         }
     };
-    folderBoundingBox3DArray[folderBoundingBox3DArray.length - 1].add(resetParameters, 'reset').name("Reset");
-    folderBoundingBox3DArray[folderBoundingBox3DArray.length - 1].add(resetParameters, 'delete').name("Delete");
+    let copyLabelToNextFrameCheckbox = folderBoundingBox3DArray[folderBoundingBox3DArray.length - 1].add(labelAttributes, 'copy_label_to_next_frame').name("Copy label to next frame");
+    copyLabelToNextFrameCheckbox.domElement.id = 'copy-label-to-next-frame-checkbox-' + insertIndex;
+    copyLabelToNextFrameCheckbox.onChange(function (value) {
+        annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["copyLabelToNextFrame"] = value;
+    });
+
+    folderBoundingBox3DArray[folderBoundingBox3DArray.length - 1].add(labelAttributes, 'reset').name("Reset");
+    folderBoundingBox3DArray[folderBoundingBox3DArray.length - 1].add(labelAttributes, 'delete').name("Delete");
 }
 
 //reset cube parameter and position
@@ -1357,7 +1399,7 @@ function setCamera() {
         currentOrbitControls = new THREE.OrbitControls(currentCamera, renderer.domElement);
         currentOrbitControls.enablePan = true;
         currentOrbitControls.enableRotate = true;
-        currentOrbitControls.autoRotate = false;
+        currentOrbitControls.autoRotate = false;// true for demo
         currentOrbitControls.enableKeys = false;
         currentOrbitControls.maxPolarAngle = Math.PI / 2;
         // currentOrbitControls = perspectiveOrbitControls;
@@ -1506,6 +1548,7 @@ function render() {
         updateAnnotationOpacity();
         updateScreenPosition();
     }
+    currentOrbitControls.update();
 }
 
 function updateAnnotationOpacity() {
@@ -1818,20 +1861,20 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
         zPos = zPos + labelTool.translationVectorLidarToCamFront[2];//vertical
     } else {
         if (channel === "CAM_FRONT") {
-            imageScalingFactor = 4;
+            imageScalingFactor = 960 / imagePanelHeight;
             // TODO: height should be 1.4478m but 0.6m is working
-            streetVerticalOffset = 60.7137000000000 / 100;//height of lidar
+            streetVerticalOffset = 60.7137000000000 / 100;//height of lidar; scene1: 60.7137000000000 / 100; scene4: 0
             //streetVerticalOffset = 1.4478; //height of lidar
         } else if (channel === "CAM_BACK") {
             imageScalingFactor = 960 / imagePanelHeight;//960
-            streetVerticalOffset = -100 / 100;
+            streetVerticalOffset = -100 / 100;// scene1:-100 / 100; scene4: 0
         } else {
             imageScalingFactor = 1440 / imagePanelHeight;//6
             streetVerticalOffset = 0;
         }
 
         if (channel === "CAM_BACK_LEFT" || channel === "CAM_BACK_RIGHT") {
-            longitudeOffset = -100 / 100;
+            longitudeOffset = -100 / 100;// sequence1 -100/100, sequence4: 0
         } else {
             longitudeOffset = 0;
         }
@@ -1862,7 +1905,7 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
     for (let cornerPoint in cornerPoints) {
         let point = cornerPoints[cornerPoint];
         // TODO: rotate all 8 corner points before projection
-        pointRotated = rotatePoint(point.x, point.y, xPos, yPos, rotationY*360/(2*Math.PI));
+        pointRotated = rotatePoint(point.x, point.y, xPos, yPos, rotationY * 360 / (2 * Math.PI));
         point.x = pointRotated.x;
         point.y = pointRotated.y;
         // let hypothenuse = Math.sqrt(Math.pow(width / 2.0, 2) + Math.pow(height / 2.0, 2));
@@ -2484,7 +2527,7 @@ function showHelperViews(xPos, yPos, zPos, width, height, depth) {
     $("#class-picker").css("left", window.innerWidth / 3 + 10);
 }
 
-function checkInterpolationModeCheckbox(interpolationModeCheckbox) {
+function enableInterpolationModeCheckbox(interpolationModeCheckbox) {
     interpolationModeCheckbox.parentElement.parentElement.style.opacity = 1.0;
     interpolationModeCheckbox.parentElement.parentElement.style.pointerEvents = "all";
     $(interpolationModeCheckbox.firstChild).removeAttr("tabIndex");
@@ -2618,7 +2661,7 @@ function mouseUpLogic(ev) {
                 }
             }
             let interpolationModeCheckbox = document.getElementById("interpolation-checkbox");
-            checkInterpolationModeCheckbox(interpolationModeCheckbox);
+            enableInterpolationModeCheckbox(interpolationModeCheckbox);
 
 
         } else {
@@ -2654,7 +2697,7 @@ function mouseUpLogic(ev) {
             $("#class-picker").css("left", 10);
 
             let interpolationModeCheckbox = document.getElementById("interpolation-checkbox");
-            uncheckInterpolationModeCheckbox(interpolationModeCheckbox);
+            disableInterpolationModeCheckbox(interpolationModeCheckbox);
 
         }
 
@@ -2701,87 +2744,31 @@ function mouseUpLogic(ev) {
                 let yPos = (groundPointMouseUp.y + groundPointMouseDown.y) / 2;
                 //let zPos = -100 / 100; // height of lidar sensor. Use it to put object on street
                 let zPos = -60.7137000000000 / 100;
-                let addBboxParameters = {
+
+                let addBboxParameters = getDefaultObject();
+                addBboxParameters.class = classesBoundingBox.targetName();
+                addBboxParameters.x = xPos;
+                addBboxParameters.y = yPos;
+                addBboxParameters.z = zPos;
+                addBboxParameters.width = Math.abs(groundPointMouseUp.x - groundPointMouseDown.x);
+                addBboxParameters.height = Math.abs(groundPointMouseUp.y - groundPointMouseDown.y);
+                addBboxParameters.depth = 2.0;
+                addBboxParameters.rotationY = 0;
+                addBboxParameters.original = {
                     class: classesBoundingBox.targetName(),
-                    x: xPos,
-                    y: yPos,
+                    x: (groundPointMouseUp.x + groundPointMouseDown.x) / 2,
+                    y: (groundPointMouseUp.y + groundPointMouseDown.y) / 2,
                     z: zPos,
                     width: Math.abs(groundPointMouseUp.x - groundPointMouseDown.x),
                     height: Math.abs(groundPointMouseUp.y - groundPointMouseDown.y),
                     depth: 2.0,
                     rotationY: 0,
-                    original: {
-                        class: classesBoundingBox.targetName(),
-                        x: (groundPointMouseUp.x + groundPointMouseDown.x) / 2,
-                        y: (groundPointMouseUp.y + groundPointMouseDown.y) / 2,
-                        z: zPos,
-                        width: Math.abs(groundPointMouseUp.x - groundPointMouseDown.x),
-                        height: Math.abs(groundPointMouseUp.y - groundPointMouseDown.y),
-                        depth: 2.0,
-                        rotationY: 0,
-                        trackId: trackId
-                    },
-                    interpolationStartFileIndex: -1,
-                    interpolationStart: {
-                        position: {
-                            x: -1,
-                            y: -1,
-                            z: -1,
-                            rotationY: -1
-                        },
-                        size: {
-                            width: -1,
-                            height: -1,
-                            depth: -1
-                        }
-                    },
-                    interpolationEnd: {
-                        position: {
-                            x: -1,
-                            y: -1,
-                            z: -1,
-                            rotationY: -1
-                        },
-                        size: {
-                            width: -1,
-                            height: -1,
-                            depth: -1
-                        }
-                    },
-                    trackId: trackId,
-                    channels: [{
-                        rect: [],
-                        projectedPoints: [],
-                        lines: [],
-                        channel: ''
-                    }, {
-                        rect: [],
-                        projectedPoints: [],
-                        lines: [],
-                        channel: ''
-                    }, {
-                        rect: [],
-                        projectedPoints: [],
-                        lines: [],
-                        channel: ''
-                    }, {
-                        rect: [],
-                        projectedPoints: [],
-                        lines: [],
-                        channel: ''
-                    }, {
-                        rect: [],
-                        projectedPoints: [],
-                        lines: [],
-                        channel: ''
-                    }, {
-                        rect: [],
-                        projectedPoints: [],
-                        lines: [],
-                        channel: ''
-                    }],
-                    fromFile: false
+                    trackId: trackId
                 };
+                addBboxParameters.trackId = trackId;
+                addBboxParameters.fromFile = false;
+                addBboxParameters.fileIndex = labelTool.currentFileIndex;
+                addBboxParameters.copyLabelToNextFrame = true;
 
                 if (interpolationMode === true) {
                     addBboxParameters["interpolationStart"]["position"]["x"] = addBboxParameters["x"];
@@ -2800,7 +2787,7 @@ function mouseUpLogic(ev) {
                     let channel = labelTool.camChannels[i].channel;
                     addBboxParameters.channels[i].channel = channel;
                     // working for LISA_T
-                    let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -yPos, -zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth, channel,addBboxParameters.rotationY);
+                    let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -yPos, -zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth, channel, addBboxParameters.rotationY);
                     addBboxParameters.channels[i].projectedPoints = projectedBoundingBox;
                 }
                 // calculate line segments
@@ -2831,7 +2818,7 @@ function mouseUpLogic(ev) {
                     }
                 }
                 let interpolationModeCheckbox = document.getElementById("interpolation-checkbox");
-                checkInterpolationModeCheckbox(interpolationModeCheckbox);
+                enableInterpolationModeCheckbox(interpolationModeCheckbox);
 
                 if (interpolationMode === true) {
                     interpolationObjIndexCurrentFile = insertIndex;
@@ -2982,6 +2969,13 @@ function mouseDownLogic(ev) {
             $("#canvasFrontView").remove();
             $("#canvasBev").remove();
 
+            // if last object in current frame was deleted than disable interpolation mode
+            if (annotationObjects.contents[labelTool.currentFileIndex].length === 0) {
+                interpolationMode = false;
+                $("#interpolation-checkbox").children().first().prop("checked", false);
+                $("#interpolation-checkbox").children().first().removeAttr("checked");
+            }
+
         }//end right click
     } else {
         // labelTool.selectedMesh = undefined;
@@ -3109,7 +3103,7 @@ function initViews() {
     }
 }
 
-function uncheckInterpolationModeCheckbox(interpolationModeCheckbox) {
+function disableInterpolationModeCheckbox(interpolationModeCheckbox) {
     interpolationModeCheckbox.parentElement.parentElement.style.opacity = 0.2;
     interpolationModeCheckbox.parentElement.parentElement.style.pointerEvents = "none";
     interpolationModeCheckbox.firstChild.setAttribute("tabIndex", "-1");
@@ -3409,18 +3403,19 @@ function init() {
                 addObject(pointCloudFull, "pointcloud_full");
             }
         });
-        let interpolationModeCheckbox = guiOptions.add(parameters, 'interpolation_mode').name('Interpolation Mode').listen();
+        guiOptions.add(parameters, 'select_all_copy_label_to_next_frame').name("Select all 'Copy label to next frame'");
+        guiOptions.add(parameters, 'unselect_all_copy_label_to_next_frame').name("Unselect all 'Copy label to next frame'");
+        let interpolationModeCheckbox = guiOptions.add(parameters, 'interpolation_mode').name('Interpolation Mode');
         interpolationModeCheckbox.domElement.id = 'interpolation-checkbox';
         // if scene contains no objects then deactivate checkbox
         if (annotationFileExist(undefined, undefined) === false || interpolationMode === false) {
             // no annotation file exist -> deactivate checkbox
-            uncheckInterpolationModeCheckbox(interpolationModeCheckbox.domElement);
+            disableInterpolationModeCheckbox(interpolationModeCheckbox.domElement);
         }
 
         interpolationModeCheckbox.onChange(function (value) {
             interpolationMode = value;
             if (interpolationMode === true) {
-
                 interpolationObjIndexCurrentFile = annotationObjects.getSelectionIndex();
                 if (interpolationObjIndexCurrentFile !== -1) {
                     // set interpolation start position
@@ -3438,6 +3433,10 @@ function init() {
                     // set start index
                     annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationStartFileIndex"] = labelTool.currentFileIndex;
                 }
+                // check 'copy label to next frame' of selected object
+                annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["copyLabelToNextFrame"] = true;
+                let checkboxElem = document.getElementById("copy-label-to-next-frame-checkbox-" + interpolationObjIndexCurrentFile);
+                checkboxElem.firstChild.checked = true;
             } else {
                 disableInterpolationBtn();
                 if (interpolationObjIndexCurrentFile !== -1) {
@@ -3447,6 +3446,7 @@ function init() {
                     folderBoundingBox3DArray[interpolationObjIndexCurrentFile].removeFolder("Interpolation End Position (frame " + (labelTool.previousFileIndex + 1) + ")");
                     folderBoundingBox3DArray[interpolationObjIndexCurrentFile].removeFolder("Interpolation End Size (frame " + (labelTool.previousFileIndex + 1) + ")");
                 }
+                interpolationObjIndexCurrentFile = -1;
             }
         });
         interpolateBtn = guiOptions.add(parameters, 'interpolate').name("Interpolate");
@@ -3470,7 +3470,7 @@ function init() {
     classPickerElem.css('border-bottom', '0px');
 
 
-    $('#bounding-box-3d-menu').css('width', '290px');
+    $('#bounding-box-3d-menu').css('width', '350px');
     $('#bounding-box-3d-menu ul li').css('background-color', '#353535');
 
 

@@ -55,25 +55,27 @@ let annotationObjects = {
     },
     set: function (insertIndex, params) {
         let obj = get3DLabel(params);
-        if (this.contents[labelTool.currentFileIndex][insertIndex] === undefined) {
-            this.contents[labelTool.currentFileIndex].push(obj);
+        if (this.contents[params.fileIndex][insertIndex] === undefined) {
+            this.contents[params.fileIndex].push(obj);
         } else {
-            this.contents[labelTool.currentFileIndex][insertIndex] = obj;
+            this.contents[params.fileIndex][insertIndex] = obj;
         }
-        this.contents[labelTool.currentFileIndex][insertIndex]["class"] = params.class;
-        this.contents[labelTool.currentFileIndex][insertIndex]["interpolationStart"] = params["interpolationStart"];
-        this.contents[labelTool.currentFileIndex][insertIndex]["interpolationStartFileIndex"] = params.interpolationStartFileIndex;
-        this.contents[labelTool.currentFileIndex].insertIndex = insertIndex;
+        this.contents[params.fileIndex][insertIndex]["class"] = params.class;
+        this.contents[params.fileIndex][insertIndex]["interpolationStart"] = params["interpolationStart"];
+        this.contents[params.fileIndex][insertIndex]["interpolationStartFileIndex"] = params.interpolationStartFileIndex;
+        this.contents[params.fileIndex].insertIndex = insertIndex;
         if (params.fromFile === false && this.__selectionIndexCurrentFrame === -1) {
             if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
-                this.contents[labelTool.currentFileIndex][insertIndex]["trackId"] = classesBoundingBox.content[params.class].nextTrackId;
+                this.contents[params.fileIndex][insertIndex]["trackId"] = classesBoundingBox.content[params.class].nextTrackId;
             } else {
-                this.contents[labelTool.currentFileIndex][insertIndex]["trackId"] = classesBoundingBox[params.class].nextTrackId;
+                this.contents[params.fileIndex][insertIndex]["trackId"] = classesBoundingBox[params.class].nextTrackId;
             }
         } else {
-            this.contents[labelTool.currentFileIndex][insertIndex]["trackId"] = params.trackId;
+            this.contents[params.fileIndex][insertIndex]["trackId"] = params.trackId;
         }
-        this.contents[labelTool.currentFileIndex][insertIndex]["channels"] = params.channels;
+        this.contents[params.fileIndex][insertIndex]["channels"] = params.channels;
+        this.contents[params.fileIndex][insertIndex]["fileIndex"] = params.fileIndex;
+        this.contents[params.fileIndex][insertIndex]["copyLabelToNextFrame"] = params.copyLabelToNextFrame;
     },
     changeClass: function (selectedObjectIndex, newClassLabel) {
         if (this.contents[labelTool.currentFileIndex][selectedObjectIndex] === undefined) {
@@ -134,7 +136,8 @@ let annotationObjects = {
             height: annotationObj["height"],
             depth: annotationObj["depth"],
             rotationY: parseFloat(annotationObj["rotationY"]),
-            trackId: annotationObj["trackId"]
+            trackId: annotationObj["trackId"],
+            copyLabelToNextFrame: annotationObj["copyLabelToNextFrame"]
         };
         addBoundingBoxGui(bbox, undefined);
         // open current folder
