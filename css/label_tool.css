@@ -513,12 +513,11 @@ text {
 }
 
 #bounding-box-3d-menu {
-    right: 0px;
-    /*bottom: 0px;*/
-    /*padding-bottom: 30px;*/
-    float: none;
     position: fixed;
+    float: none;
+    right: 0px;
     top: 290px;
+    width: 400px;
 }
 
 #layout_layout_resizer_top {

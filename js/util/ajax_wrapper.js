@@ -6,17 +6,8 @@ function pad(n, width, z) {
 
 function request(options) {
     if (options.type === "GET") {
-        let responseDict;
         let res;
         switch (options.url) {
-            case "/labels/":
-                responseDict = {
-                    blob: "input",
-                    progress: 102
-                };
-                res = {responseText: JSON.stringify([responseDict])};
-                options.complete(res);
-                break;
             case "/label/annotations/":
                 let fileName = options.data["file_name"];
                 res = [];
@@ -57,9 +48,9 @@ function parseAnnotationFile(fileName) {
             rawFile.open("GET", 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/annotations/' + fileName, false);
         } else {
             if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
-                rawFile.open("GET", 'input/' + labelTool.currentDataset + '/Annotations/LIDAR_TOP/' + fileName, false);
+                rawFile.open("GET", 'input/' + labelTool.currentDataset + '/annotations_original/LIDAR_TOP/' + fileName, false);
             } else {
-                rawFile.open("GET", 'input/' + labelTool.currentDataset + '/Annotations_test/' + fileName, false);
+                rawFile.open("GET", 'input/' + labelTool.currentDataset + '/annotations/LIDAR_TOP/' + fileName, false);
             }
         }
 
@@ -95,7 +86,7 @@ function parseAnnotationFile(fileName) {
                                 rotationY: str[14],
                                 score: str[15]
                             });
-                        } else if (labelTool.showOriginalNuScenesLabels === false && labelTool.currentDataset === labelTool.datasets.NuScenes && str.length === 17) {
+                        } else if (labelTool.showOriginalNuScenesLabels === false && labelTool.currentDataset === labelTool.datasets.NuScenes && str.length === 18) {
                             frameAnnotations.push({
                                 class: str[0],
                                 truncated: str[1],
@@ -113,7 +104,8 @@ function parseAnnotationFile(fileName) {
                                 z: str[13],
                                 rotationY: str[14],
                                 score: str[15],
-                                trackId: str[16]
+                                trackId: str[16],
+                                fileIndex: str[17]
                             });
                         }
                     }
