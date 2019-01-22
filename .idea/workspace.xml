@@ -2,10 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="428d2e24-9b74-4b18-97ad-d2e286a506fa" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/input/LISA_T/2018-05-23-001-frame-00042917-00043816_small/annotations/LISA_T_2018-05-23-001-frame-00042917-00043816_annotations.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/3D_BoundingBox_Annotation_Tool_3D_BAT.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/3D_BoundingBox_Annotation_Tool_3D_BAT.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -129,7 +128,7 @@
           <entry key="html" value="3" />
           <entry key="js" value="40" />
           <entry key="json" value="12" />
-          <entry key="md" value="2" />
+          <entry key="md" value="4" />
           <entry key="svg" value="1" />
           <entry key="ts" value="2" />
           <entry key="txt" value="5" />
@@ -141,7 +140,7 @@
           <entry key="HTML" value="3" />
           <entry key="JSON" value="12" />
           <entry key="JavaScript" value="40" />
-          <entry key="Markdown" value="2" />
+          <entry key="Markdown" value="4" />
           <entry key="PLAIN_TEXT" value="7" />
           <entry key="SVG" value="1" />
           <entry key="TypeScript" value="2" />
@@ -155,6 +154,7 @@
           <entry key="html" value="1456" />
           <entry key="js" value="24156" />
           <entry key="json" value="25" />
+          <entry key="md" value="977" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
@@ -163,6 +163,7 @@
           <entry key="HTML" value="1456" />
           <entry key="JSON" value="21" />
           <entry key="JavaScript" value="24156" />
+          <entry key="Markdown" value="977" />
           <entry key="PLAIN_TEXT" value="28" />
           <entry key="tsconfig" value="4" />
         </counts>
@@ -188,11 +189,35 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/.gitignore">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="156">
               <caret line="6" column="5" selection-start-line="6" selection-start-column="5" selection-end-line="6" selection-end-column="5" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/scripts/nuscenes_devkit/devkit_instructions.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="SPLIT">
+              <first_editor relative-caret-position="572">
+                <caret line="22" column="23" lean-forward="true" selection-end-line="400" />
+              </first_editor>
+              <second_editor />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/README.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="SPLIT">
+              <first_editor relative-caret-position="708">
+                <caret line="116" lean-forward="true" selection-start-line="116" selection-end-line="116" />
+              </first_editor>
+              <second_editor />
             </state>
           </provider>
         </entry>
@@ -246,28 +271,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/js/lib/Toast.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <caret column="4" selection-start-column="4" selection-end-column="4" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/js/util/boundingbox.js">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="142">
               <caret line="55" column="6" selection-start-line="55" selection-start-column="6" selection-end-line="55" selection-end-column="6" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/js/util/ajax_wrapper.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="58">
-              <caret line="20" column="9" selection-start-line="20" selection-start-column="9" selection-end-line="20" selection-end-column="9" />
             </state>
           </provider>
         </entry>
@@ -346,7 +353,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/js/lib/threex.keyboardstate.js" />
         <option value="$PROJECT_DIR$/input/LISA_T/2018-05-23-001-frame-00042917-00043816/pointclouds/000000.txt" />
         <option value="$PROJECT_DIR$/js/util/createColorMap.js" />
         <option value="$PROJECT_DIR$/js/util/colorMapJet.json" />
@@ -397,6 +403,7 @@
         <option value="$PROJECT_DIR$/js/pcd_label_tool.js" />
         <option value="$PROJECT_DIR$/index.html" />
         <option value="$PROJECT_DIR$/.gitignore" />
+        <option value="$PROJECT_DIR$/README.md" />
       </list>
     </option>
   </component>
@@ -415,9 +422,9 @@
     </packageJsonPaths>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-1" />
-    <option name="width" value="1922" />
-    <option name="height" value="1081" />
+    <option name="x" value="2061" />
+    <option name="width" value="1442" />
+    <option name="height" value="1080" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -462,37 +469,6 @@
               <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="b2602c69:ProjectViewProjectNode" />
               <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="462c0819:PsiDirectoryNode" />
               <item name="assets" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="b2602c69:ProjectViewProjectNode" />
-              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="462c0819:PsiDirectoryNode" />
-              <item name="css" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="b2602c69:ProjectViewProjectNode" />
-              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="462c0819:PsiDirectoryNode" />
-              <item name="input" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="b2602c69:ProjectViewProjectNode" />
-              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="462c0819:PsiDirectoryNode" />
-              <item name="input" type="462c0819:PsiDirectoryNode" />
-              <item name="LISA_T" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="b2602c69:ProjectViewProjectNode" />
-              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="462c0819:PsiDirectoryNode" />
-              <item name="input" type="462c0819:PsiDirectoryNode" />
-              <item name="LISA_T" type="462c0819:PsiDirectoryNode" />
-              <item name="2018-05-23-001-frame-00042917-00043816_small" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="b2602c69:ProjectViewProjectNode" />
-              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="462c0819:PsiDirectoryNode" />
-              <item name="input" type="462c0819:PsiDirectoryNode" />
-              <item name="LISA_T" type="462c0819:PsiDirectoryNode" />
-              <item name="2018-05-23-001-frame-00042917-00043816_small" type="462c0819:PsiDirectoryNode" />
-              <item name="images" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -607,12 +583,12 @@
       <workItem from="1546984295574" duration="15855000" />
       <workItem from="1547143608323" duration="152087000" />
       <workItem from="1547866929954" duration="18572000" />
-      <workItem from="1548016167176" duration="60870000" />
+      <workItem from="1548016167176" duration="62644000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="1485017000" />
+    <option name="totallyTimeSpent" value="1486791000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -624,10 +600,10 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-1" y="360" width="1922" height="1081" extended-state="6" />
+    <frame x="1919" y="0" width="2562" height="1441" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2217484" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.16534181" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -640,7 +616,7 @@
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Database Changes" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="9" show_stripe_button="false" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="10" sideWeight="0.49558082" visible="true" weight="0.3786611" />
+      <window_info anchor="bottom" id="Terminal" order="10" sideWeight="0.49558082" visible="true" weight="0.275076" />
       <window_info anchor="bottom" id="Event Log" order="11" sideWeight="0.50063133" side_tool="true" weight="0.3294979" />
       <window_info anchor="bottom" id="RNConsole" order="12" weight="0.3294979" />
       <window_info anchor="bottom" id="TypeScript" order="13" weight="0.3294979" />
@@ -668,20 +644,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/multiviewport.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="293">
-          <caret line="50" column="8" selection-start-line="50" selection-start-column="8" selection-end-line="50" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/js/lib/controls/MapControls.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="26">
-          <caret line="19" column="19" selection-start-line="19" selection-start-column="19" selection-end-line="19" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/my-app/public/manifest.json" />
     <entry file="file://$PROJECT_DIR$/my-app/.gitignore" />
     <entry file="file://$PROJECT_DIR$/my-app/package.json" />
@@ -947,6 +909,26 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="156">
           <caret line="6" column="5" selection-start-line="6" selection-start-column="5" selection-end-line="6" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/nuscenes_devkit/devkit_instructions.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="572">
+            <caret line="22" column="23" lean-forward="true" selection-end-line="400" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="708">
+            <caret line="116" lean-forward="true" selection-start-line="116" selection-end-line="116" />
+          </first_editor>
+          <second_editor />
         </state>
       </provider>
     </entry>
