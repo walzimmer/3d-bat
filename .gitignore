@@ -20,7 +20,7 @@ doc
 .project
 .pydevproject
 _ext
-input/*
+input/NuScenes/*
 input/NuScenes/pointclouds/all_scenes
 input/NuScenes/pointclouds_without_ground/all_scenes
 input/NuScenes/images
