@@ -673,3 +673,11 @@ text {
 .Resizer.disabled:hover {
     border-color: transparent;
 }
+
+#time-elapsed {
+    position: relative;
+    float: right;
+    top: 15px;
+    right: 20px;
+    color: #969696;
+}
