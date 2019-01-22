@@ -1,3 +1,20 @@
+function initTimer() {
+    labelTool.timeElapsed = 0;
+    let hours = 0;
+    let minutes = 0;
+    let seconds = 0;
+    let timeString = "";
+    setInterval(function () {
+        // increase elapsed time every second
+        labelTool.timeElapsed = labelTool.timeElapsed + 1;
+        seconds = labelTool.timeElapsed % 60;
+        minutes = Math.floor(labelTool.timeElapsed / 60);
+        hours = Math.floor(labelTool.timeElapsed / (60 * 60));
+        timeString = pad(hours, 2)+":"+ pad(minutes,2) + ":" + pad(seconds,2);
+        $("#time-elapsed").text(timeString);
+    }, 1000);
+}
+
 let labelTool = {
     datasets: Object.freeze({"NuScenes": "NuScenes", "LISA_T": "LISA_T"}),
     sequencesLISAT: Object.freeze({
@@ -177,7 +194,6 @@ let labelTool = {
             [0, 0, 0, 1]],
         rotation: 305
     }],
-
     currentChannelLabel: document.getElementById('cam_channel'),
     // position of the lidar sensor in ego vehicle space
     positionLidarNuscenes: [0.891067, 0.0, 1.84292],//(long, lat, vert)
@@ -193,6 +209,7 @@ let labelTool = {
     folderEndPosition: undefined,
     folderEndSize: undefined,
     logger: undefined,
+    timeElapsed: 0, // elapsed time in seconds
 
     /********** Externally defined functions **********
      * Define these functions in the labeling tools.
@@ -809,6 +826,7 @@ let labelTool = {
     },
 
     start() {
+        initTimer();
         setImageSize();
         labelTool.fileNames = this.getFileNames();
         this.initialize();
