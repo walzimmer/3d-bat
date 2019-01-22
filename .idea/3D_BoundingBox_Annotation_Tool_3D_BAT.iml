@@ -3,8 +3,14 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$" isTestSource="false" />
-      <excludeFolder url="file://$MODULE_DIR$/input" />
+      <excludeFolder url="file://$MODULE_DIR$/input/LISA_T/2018-05-23-001-frame-00042917-00043816" />
+      <excludeFolder url="file://$MODULE_DIR$/input/LISA_T/2018-05-23-001-frame-00077323-00078222" />
+      <excludeFolder url="file://$MODULE_DIR$/input/LISA_T/2018-05-23-001-frame-00080020-00080919" />
+      <excludeFolder url="file://$MODULE_DIR$/input/LISA_T/2018-05-23-001-frame-00106993-00107892" />
+      <excludeFolder url="file://$MODULE_DIR$/input/NuScenes" />
     </content>
+    <content url="file://$MODULE_DIR$/input/LISA_T/2018-05-23-001-frame-00042917-00043816_small" />
+    <content url="file://$MODULE_DIR$/input/LISA_T/2018-05-23-001-frame-00042917-00043816_small/images" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
