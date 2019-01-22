@@ -1,3 +1,10 @@
+# Installation
+1. Clone repository: git clone https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT.git
+2. Install npm: $sudo apt-get install npm
+3. Install required packages: $npm install
+4. Install PHP Storm (IDE with integrated server): https://www.jetbrains.com/phpstorm/download/download-thanks.html
+5. Open index.html with chromium-browser (Linux) or Chrome (Windows) within the IDE
+ 
 # 3D Boundingbox Annotation Instructions
 1. Step: Draw bounding box in the Bird's-Eye-View (BEV)
 2. Step: Move/Scale it in BEV using 3D arrows (drag and drop) or sliders
