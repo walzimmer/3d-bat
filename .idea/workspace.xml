@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+g<?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="428d2e24-9b74-4b18-97ad-d2e286a506fa" name="Default Changelist" comment="">
@@ -214,8 +214,8 @@
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="156">
-                <caret line="6" selection-start-line="6" selection-end-line="6" />
+              <first_editor relative-caret-position="360">
+                <caret line="34" column="23" lean-forward="true" selection-start-line="34" selection-start-column="23" selection-end-line="34" selection-end-column="23" />
               </first_editor>
               <second_editor />
             </state>
@@ -422,7 +422,8 @@
     </packageJsonPaths>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="2061" />
+    <option name="x" value="274" />
+    <option name="y" value="360" />
     <option name="width" value="1442" />
     <option name="height" value="1080" />
   </component>
@@ -589,12 +590,12 @@
       <workItem from="1546984295574" duration="15855000" />
       <workItem from="1547143608323" duration="152087000" />
       <workItem from="1547866929954" duration="18572000" />
-      <workItem from="1548016167176" duration="63677000" />
+      <workItem from="1548016167176" duration="63965000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="1487824000" />
+    <option name="totallyTimeSpent" value="1488112000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -606,10 +607,10 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="1919" y="0" width="2562" height="1441" extended-state="6" />
+    <frame x="-1" y="360" width="1922" height="1081" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.16534181" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2217484" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -622,7 +623,7 @@
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Database Changes" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="9" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Terminal" order="10" sideWeight="0.49558082" visible="true" weight="0.275076" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="10" sideWeight="0.49558082" visible="true" weight="0.3786611" />
       <window_info anchor="bottom" id="Event Log" order="11" sideWeight="0.50063133" side_tool="true" weight="0.3294979" />
       <window_info anchor="bottom" id="RNConsole" order="12" weight="0.3294979" />
       <window_info anchor="bottom" id="TypeScript" order="13" weight="0.3294979" />
@@ -931,8 +932,8 @@
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="156">
-            <caret line="6" selection-start-line="6" selection-end-line="6" />
+          <first_editor relative-caret-position="360">
+            <caret line="34" column="23" lean-forward="true" selection-start-line="34" selection-start-column="23" selection-end-line="34" selection-end-column="23" />
           </first_editor>
           <second_editor />
         </state>
