@@ -13,6 +13,7 @@ let cameraSideView;
 let cameraFrontView;
 
 let currentOrbitControls;
+let controlsTarget = new THREE.Vector3(0, 0, 0);
 let orthographicOrbitControls;
 let perspectiveOrbitControls;
 let transformControls;
@@ -151,18 +152,11 @@ function interpolate() {
         let clonedSprite = labelTool.spriteArray[interpolationStartFileIndex][objectIndexStartFile].clone();
         let objectIndexNextFrame = getObjectIndexByTrackIdAndClass(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["trackId"], annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["class"], interpolationStartFileIndex + i);
         // use length>2 because 1. element is insertIndex
-        if (annotationObjects.contents[interpolationStartFileIndex + i] !== undefined && annotationObjects.contents[interpolationStartFileIndex + i].length > 2) {
+        if (annotationObjects.contents[interpolationStartFileIndex + i] !== undefined && annotationObjects.contents[interpolationStartFileIndex + i].length > 0 && objectIndexNextFrame !== -1) {
             // if frame contains some objects, then find object with same trackId and overwrite it
-            if (objectIndexNextFrame !== -1) {
-                annotationObjects.contents[interpolationStartFileIndex + i][objectIndexNextFrame] = clonedObject;
-                labelTool.cubeArray[interpolationStartFileIndex + i][objectIndexNextFrame] = clonedCubeObject;
-                // scene.add(clonedCubeObject);
-                labelTool.spriteArray[interpolationStartFileIndex + i][objectIndexNextFrame] = clonedSprite;
-                // scene.add(clonedSprite);
-            } else {
-                alert("track id not found");
-                break;
-            }
+            annotationObjects.contents[interpolationStartFileIndex + i][objectIndexNextFrame] = clonedObject;
+            labelTool.cubeArray[interpolationStartFileIndex + i][objectIndexNextFrame] = clonedCubeObject;
+            labelTool.spriteArray[interpolationStartFileIndex + i][objectIndexNextFrame] = clonedSprite;
         } else {
             // else clone object to new frame and adjusts interpolated position and size
             annotationObjects.contents[interpolationStartFileIndex + i].push(clonedObject);
@@ -1116,6 +1110,12 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
     };
     let copyLabelToNextFrameCheckbox = folderBoundingBox3DArray[folderBoundingBox3DArray.length - 1].add(labelAttributes, 'copy_label_to_next_frame').name("Copy label to next frame");
     copyLabelToNextFrameCheckbox.domElement.id = 'copy-label-to-next-frame-checkbox-' + insertIndex;
+    // check copy checkbox AND disable it for selected object if in interpolation mode
+    if (interpolationMode === true && bboxEndParams !== undefined) {
+        copyLabelToNextFrameCheckbox.domElement.firstChild.checked = true;
+        disableCopyLabelToNextFrameCheckbox(copyLabelToNextFrameCheckbox.domElement);
+
+    }
     copyLabelToNextFrameCheckbox.onChange(function (value) {
         annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["copyLabelToNextFrame"] = value;
     });
@@ -1867,7 +1867,7 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
             //streetVerticalOffset = 1.4478; //height of lidar
         } else if (channel === "CAM_BACK") {
             imageScalingFactor = 960 / imagePanelHeight;//960
-            streetVerticalOffset = -100 / 100;// scene1:-100 / 100; scene4: 0
+            streetVerticalOffset = -130 / 100;// scene1:-100 / 100; scene4: 0
         } else {
             imageScalingFactor = 1440 / imagePanelHeight;//6
             streetVerticalOffset = 0;
@@ -2178,6 +2178,22 @@ function loadColorMap() {
     rawFile.send(null);
 }
 
+function onDocumentMouseWheel(event) {
+    let factor = 15;
+    let mX = (event.clientX / jQuery(container).width()) * 2 - 1;
+    let mY = -(event.clientY / jQuery(container).height()) * 2 + 1;
+    let vector = new THREE.Vector3(mX, mY, 0.1);
+    vector.unproject(currentCamera);
+    vector.sub(currentCamera.position);
+    if (event.deltaY < 0) {
+        currentCamera.position.addVectors(currentCamera.position, vector.setLength(factor));
+        currentOrbitControls.target.addVectors(currentOrbitControls.target, vector.setLength(factor));
+    } else {
+        currentCamera.position.subVectors(currentCamera.position, vector.setLength(factor));
+        currentOrbitControls.target.subVectors(currentOrbitControls.target, vector.setLength(factor));
+    }
+}
+
 function onDocumentMouseMove(event) {
     // the following line would stop any other event handler from firing
     // (such as the mouse's TrackballControls)
@@ -2186,6 +2202,9 @@ function onDocumentMouseMove(event) {
     // update the mouse variable
     mousePos.x = (event.clientX / window.innerWidth) * 2 - 1;
     mousePos.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    // controlsTarget.x = mousePos.x;
+    // controlsTarget.y = mousePos.y;
+    // currentOrbitControls.target = controlsTarget;
 }
 
 function increaseTrackId(label, dataset) {
@@ -2252,51 +2271,13 @@ function scatter(vertices, size, color, texture = "") {
 }
 
 function updateBEV(xPos, yPos, zPos, width, height, depth) {
-    let wBev = 640;
     let imagePaneHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
-    const hBev = (window.innerHeight - imagePaneHeight - headerHeight) / 3;
-    let aspectRatio = wBev / hBev;
-    // check which side is longer
-    let left, right, lateralSize, bottom, top, verticalSize;
-    let lateralOffset;
-    // if (xPos > 0) {
-    //     lateralOffset = 3;
-    // } else {
-    //     lateralOffset = -3;
-    // }
-    if (height > width && height / width > aspectRatio) {
-        left = yPos + height / 2 + height / 10;
-        right = yPos - height / 2 - height / 10;
-        lateralSize = Math.abs(right - left);
-        bottom = -xPos - lateralSize / (aspectRatio * 2);
-        top = -xPos + lateralSize / (aspectRatio * 2);
-    } else {
-        bottom = yPos - height / 2 - 2 * height;
-        top = yPos + height / 2 + 2 * height;
-        verticalSize = Math.abs(top - bottom);
-        left = -xPos + verticalSize * aspectRatio / 2;
-        right = -xPos - verticalSize * aspectRatio / 2;
-    }
-    // cameraBEV.left = left;
-    // cameraBEV.right = right;
-    // cameraBEV.top = top;
-    // cameraBEV.bottom = bottom;
-    // cameraBEV.up.set(0, 0, 0);
+    let panelTopPos = headerHeight + imagePaneHeight;
+    canvasBEV.left = "0px";
+    canvasBEV.top = panelTopPos;
 
     cameraBEV.position.set(xPos, yPos, zPos + 100);
     cameraBEV.lookAt(xPos, yPos, zPos);
-    // cameraBEV.updateProjectionMatrix();
-
-    // mapControlsBev = new THREE.MapControls(cameraBEV, canvasBEV);
-    // mapControlsBev.enablePan = true;
-    // mapControlsBev.enableRotate = false;
-    // mapControlsBev.panSpeed = 0.5;
-    // mapControlsBev.update();
-
-    // rendererBev.setSize(wBev, hBev);
-    // rendererBev.setSize(window.innerWidth, window.innerHeight);
-    // rendererBev.setClearColor(0x000000, 1);
-    // rendererBev.autoClear = false;
 }
 
 function initBev() {
@@ -2319,16 +2300,6 @@ function initBev() {
     cameraBEV.up = new THREE.Vector3(0, 0, -1);
     cameraBEV.lookAt(new THREE.Vector3(0, -1, 0));
     scene.add(cameraBEV);
-
-    // rendererBev = new THREE.WebGLRenderer({
-    //     antialias: true
-    // });
-
-    // mapControlsBev = new THREE.MapControls(cameraBEV, canvasBEV);
-    // mapControlsBev.enablePan = true;
-    // mapControlsBev.enableRotate = false;
-    // mapControlsBev.panSpeed = 0.5;
-    // mapControlsBev.update();
 }
 
 function showBEV(xPos, yPos, zPos, width, height, depth) {
@@ -2361,41 +2332,7 @@ function initFrontView() {
 }
 
 function updateFrontView(xPos, yPos, zPos, width, height, depth) {
-    let widthFrontView = 640;
     let imagePanelTopPos = parseInt($("#layout_layout_resizer_top").css("top"), 10);
-    const heightFrontView = (window.innerHeight - imagePanelTopPos - headerHeight) / 3;
-    let aspectRatio = widthFrontView / heightFrontView;
-
-    let lateralOffset;
-    if (xPos > 0) {
-        lateralOffset = -2.5;
-    } else {
-        lateralOffset = 3.5;
-    }
-    let left, right, lateralSize, bottom, top, verticalSize;
-    if (width / depth > aspectRatio) {
-        left = -xPos + width / 2 + width / 10;
-        right = -xPos - width / 2 - width / 10;
-        lateralSize = Math.abs(right - left);
-        bottom = zPos + 60.7137000000000 / 100 - lateralSize / (aspectRatio * 2);
-        top = zPos + 60.7137000000000 / 100 + lateralSize / (aspectRatio * 2);
-    } else {
-        bottom = zPos + 60.7137000000000 / 100 - depth / 2 - depth / 10;
-        top = zPos + 60.7137000000000 / 100 + depth / 2 + depth / 10;
-        verticalSize = Math.abs(top - bottom);
-        left = -xPos + verticalSize * aspectRatio / 2;
-        right = -xPos - verticalSize * aspectRatio / 2;
-    }
-    // cameraFrontView.up.set(0, 0, 1);
-    // cameraFrontView.left = left + lateralOffset;
-    // cameraFrontView.right = right + lateralOffset;
-    // cameraFrontView.bottom = bottom;
-    // cameraFrontView.top = top;
-    // cameraFrontView.position.set(xPos, yPos + 10, zPos);
-    // cameraFrontView.lookAt(xPos, yPos, zPos);
-    // cameraFrontView.updateProjectionMatrix();
-
-
     let panelTopPos = imagePanelTopPos + headerHeight + 270;
     canvasFrontView.left = "0px";
     canvasFrontView.top = panelTopPos;
@@ -2404,18 +2341,9 @@ function updateFrontView(xPos, yPos, zPos, width, height, depth) {
             antialias: true
         });
     }
-
-    // rendererFrontView.setPixelRatio(window.devicePixelRatio);
-    // rendererFrontView.setSize(widthFrontView, heightFrontView);
     rendererFrontView.setSize(window.innerWidth, window.innerHeight);
     rendererFrontView.setClearColor(0x000000, 1);
     rendererFrontView.autoClear = false;
-
-    // mapControlsFrontView = new THREE.MapControls(cameraFrontView, canvasFrontView);
-    // mapControlsFrontView.enablePan = true;
-    // mapControlsFrontView.enableRotate = false;
-    // mapControlsFrontView.panSpeed = 0.5;
-    // mapControlsFrontView.update();
 }
 
 function showFrontView(xPos, yPos, zPos, width, height, depth) {
@@ -2465,49 +2393,10 @@ function initSideView() {
 }
 
 function updateSideView(xPos, yPos, zPos, width, height, depth) {
-    let widthSideView = 640;
     let imagePaneHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
-    const heightSideView = (window.innerHeight - imagePaneHeight - headerHeight) / 3;
-    let aspectRatio = widthSideView / heightSideView;
-    let offsetLongitudinal;
-    if (yPos > 0) {
-        offsetLongitudinal = 2;
-    } else {
-        offsetLongitudinal = +3.5;
-    }
-    let left, right, lateralSize, verticalSize, bottom, top;
-    if (height / depth > aspectRatio) {
-        left = xPos + height / 2 + height / 2;
-        right = xPos - height / 2 - height / 2;
-        lateralSize = Math.abs(right - left);
-        bottom = zPos + 60.7137000000000 / 100 - lateralSize / (aspectRatio * 2);
-        top = zPos + 60.7137000000000 / 100 + lateralSize / (aspectRatio * 2);
-    } else {
-        bottom = zPos + 60.7137000000000 / 100 - depth / 2 - depth / 2;
-        top = zPos + 60.7137000000000 / 100 + depth / 2 + depth / 2;
-        verticalSize = Math.abs(top - bottom);
-        left = xPos + verticalSize * aspectRatio / 2;
-        right = xPos - verticalSize * aspectRatio / 2;
-    }
-    // cameraSideView.left = left + offsetLongitudinal;
-    // cameraSideView.right = right + offsetLongitudinal;
-    // cameraSideView.bottom = bottom;
-    // cameraSideView.top = top;
-    // cameraSideView.up.set(0, 0, 1);
-    // cameraSideView.position.set(xPos - 10, yPos, zPos);
-    // cameraSideView.up.set(0, 0, 1);
-    // cameraSideView.position.set(xPos + 10, yPos, zPos);
-    // cameraSideView.lookAt(xPos, yPos, zPos);
-    // cameraSideView.updateProjectionMatrix();
-
     let panelTopPos = headerHeight + imagePaneHeight;
     canvasSideView.left = "0px";
     canvasSideView.top = panelTopPos;
-
-    //rendererSideView.setSize(widthSideView, heightSideView);
-    // rendererSideView.setSize(window.innerWidth, window.innerHeight);
-    // rendererSideView.setClearColor(0x000000, 1);
-    // rendererSideView.autoClear = false;
 }
 
 function showSideView(xPos, yPos, zPos, width, height, depth) {
@@ -2540,7 +2429,7 @@ function enableInterpolationBtn() {
 
 function mouseUpLogic(ev) {
     dragControls = false;
-// check if scene contains transform controls
+    // check if scene contains transform controls
     useTransformControls = false;
     for (let i = 0; i < scene.children.length; i++) {
         if (scene.children[i].name === "transformControls") {
@@ -2638,7 +2527,7 @@ function mouseUpLogic(ev) {
                     folderSizeArray[interpolationObjIndexCurrentFile].domElement.firstChild.firstChild.innerText = "Interpolation Start Size (frame " + (labelTool.currentFileIndex + 1) + ")";
 
                     if (clickedObjectIndexPrevious !== -1) {
-                        // remove start position and size from previous selected object
+                        // TODO: remove start position and size from previous selected object
                         folderPositionArray[clickedObjectIndexPrevious].domElement.firstChild.firstChild.innerText = "Position";
                         folderSizeArray[clickedObjectIndexPrevious].domElement.firstChild.firstChild.innerText = "Size";
                         // remove start position from previous selected object
@@ -2656,8 +2545,14 @@ function mouseUpLogic(ev) {
                                 depth: -1
                             }
                         };
-                    }
+                        // enable copy checkbox of prev. object
+                        let checkboxElemPrev = document.getElementById("copy-label-to-next-frame-checkbox-" + clickedObjectIndexPrevious);
+                        enableCopyLabelToNextFrameCheckbox(checkboxElemPrev);
+                        // disable copy checkbox of current obj
+                        let checkboxElemCurrent = document.getElementById("copy-label-to-next-frame-checkbox-" + interpolationObjIndexCurrentFile);
+                        disableCopyLabelToNextFrameCheckbox(checkboxElemCurrent);
 
+                    }
                 }
             }
             let interpolationModeCheckbox = document.getElementById("interpolation-checkbox");
@@ -2727,14 +2622,17 @@ function mouseUpLogic(ev) {
                     // object was selected in 3d scene
                     trackId = annotationObjects.contents[labelTool.currentFileIndex][annotationObjects.__selectionIndexCurrentFrame]["trackId"];
                     insertIndex = annotationObjects.__selectionIndexCurrentFrame;
+                    clickedObjectIndexPrevious = annotationObjects.__selectionIndexCurrentFrame;
                 }
             } else {
                 if (annotationObjects.__selectionIndexCurrentFrame === -1) {
                     trackId = classesBoundingBox[classesBoundingBox.targetName()].nextTrackId;
                     insertIndex = annotationObjects.contents[labelTool.currentFileIndex].length;
+                    clickedObjectIndexPrevious = annotationObjects.contents[labelTool.currentFileIndex].length;
                 } else {
                     trackId = annotationObjects.contents[labelTool.currentFileIndex][annotationObjects.__selectionIndexCurrentFrame]["trackId"];
                     insertIndex = annotationObjects.__selectionIndexCurrentFrame;
+                    clickedObjectIndexPrevious = annotationObjects.__selectionIndexCurrentFrame;
                 }
             }
 
@@ -2863,7 +2761,7 @@ function mouseDownLogic(ev) {
     if (clickedObjects.length > 0) {
 
         if (ev.button === 0) {
-            clickedObjectIndexPrevious = clickedObjectIndex;
+            // clickedObjectIndexPrevious = clickedObjectIndex;
             clickedObjectIndex = labelTool.cubeArray[labelTool.currentFileIndex].indexOf(clickedObjects[0].object);
             clickFlag = true;
             clickedPoint = clickedObjects[0].point;
@@ -3109,6 +3007,18 @@ function disableInterpolationModeCheckbox(interpolationModeCheckbox) {
     interpolationModeCheckbox.firstChild.setAttribute("tabIndex", "-1");
 }
 
+function disableCopyLabelToNextFrameCheckbox(copyLabelToNextFrameCheckbox) {
+    copyLabelToNextFrameCheckbox.parentElement.parentElement.style.opacity = 0.2;
+    copyLabelToNextFrameCheckbox.parentElement.parentElement.style.pointerEvents = "none";
+    copyLabelToNextFrameCheckbox.firstChild.setAttribute("tabIndex", "-1");
+}
+
+function enableCopyLabelToNextFrameCheckbox(copyLabelToNextFrameCheckbox) {
+    copyLabelToNextFrameCheckbox.parentElement.parentElement.style.opacity = 1.0;
+    copyLabelToNextFrameCheckbox.parentElement.parentElement.style.pointerEvents = "all";
+    $(copyLabelToNextFrameCheckbox.firstChild).removeAttr("tabIndex");
+}
+
 function disableInterpolationBtn() {
     interpolateBtn.domElement.parentElement.parentElement.style.pointerEvents = "none";
     interpolateBtn.domElement.parentElement.parentElement.style.opacity = 0.2;
@@ -3289,6 +3199,44 @@ function init() {
         handleMouseUp(ev);
     };
 
+    // currentOrbitControls.noZoom = true;
+    // $('#canvas3d').on('mousewheel', function (e) {
+    //     let mouseX = (e.clientX - (window.innerWidth / 2)) * 10;
+    //     let mouseY = (e.clientY - (window.innerHeight / 2)) * 10;
+    //
+    //     if (e.originalEvent.deltaY < 0) { // zoom to the front
+    //         currentCamera.position.x -= mouseX * .00125;
+    //         currentCamera.position.z += mouseY * .00125;
+    //         currentCamera.position.y += 1.1 * 10;
+    //         currentOrbitControls.target.x -= mouseX * .00125;
+    //         currentOrbitControls.target.z += mouseY * .00125;
+    //         currentOrbitControls.target.y += 1.1 * 10;
+    //     } else {                          // zoom to the back
+    //         currentCamera.position.x += mouseX * .00125;
+    //         currentCamera.position.z -= mouseY * .00125;
+    //         currentCamera.position.y -= 1.1 * 10;
+    //         currentOrbitControls.target.x += mouseX * .00125;
+    //         currentOrbitControls.target.z -= mouseY * .00125;
+    //         currentOrbitControls.target.y -= 1.1 * 10;
+    //     }
+    // });
+    //canvas3D.addEventListener('mousewheel', onDocumentMouseWheel, false);
+    // canvas3D.onmousewheel = function (event) {
+    //     let factor = 15;
+    //     let mX = (event.clientX / jQuery(container).width()) * 2 - 1;
+    //     let mY = -(event.clientY / jQuery(container).height()) * 2 + 1;
+    //     let vector = new THREE.Vector3(mX, mY, 0.1);
+    //     vector.unproject(currentCamera);
+    //     vector.sub(currentCamera.position);
+    //     if (event.deltaY < 0) {
+    //         currentCamera.position.addVectors(currentCamera.position, vector.setLength(factor));
+    //         currentOrbitControls.target.addVectors(currentOrbitControls.target, vector.setLength(factor));
+    //     } else {
+    //         currentCamera.position.subVectors(currentCamera.position, vector.setLength(factor));
+    //         currentOrbitControls.target.subVectors(currentOrbitControls.target, vector.setLength(factor));
+    //     }
+    // };
+
     labelTool.cubeArray = [];
     labelTool.spriteArray = [];
     labelTool.savedFrames = [];
@@ -3437,16 +3385,32 @@ function init() {
                 annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["copyLabelToNextFrame"] = true;
                 let checkboxElem = document.getElementById("copy-label-to-next-frame-checkbox-" + interpolationObjIndexCurrentFile);
                 checkboxElem.firstChild.checked = true;
+                // disable checkbox
+                disableCopyLabelToNextFrameCheckbox(checkboxElem);
             } else {
                 disableInterpolationBtn();
                 if (interpolationObjIndexCurrentFile !== -1) {
                     folderPositionArray[interpolationObjIndexCurrentFile].domElement.firstChild.firstChild.innerText = "Position";
                     folderSizeArray[interpolationObjIndexCurrentFile].domElement.firstChild.firstChild.innerText = "Size";
                     enableStartPositionAndSize();
-                    folderBoundingBox3DArray[interpolationObjIndexCurrentFile].removeFolder("Interpolation End Position (frame " + (labelTool.previousFileIndex + 1) + ")");
-                    folderBoundingBox3DArray[interpolationObjIndexCurrentFile].removeFolder("Interpolation End Size (frame " + (labelTool.previousFileIndex + 1) + ")");
+                    //[1].__folders[""Interpolation End Position (frame 1)""]
+                    for (let i = 0; i < folderBoundingBox3DArray.length; i++) {
+                        // get all keys of folders object
+                        let keys = Object.keys(folderBoundingBox3DArray[i].__folders);
+                        for (let j = 0; j < keys.length; j++) {
+                            if (keys[j].startsWith("Interpolation End")) {
+                                folderBoundingBox3DArray[i].removeFolder(keys[j]);
+                            }
+                        }
+                    }
+                    // folderBoundingBox3DArray[interpolationObjIndexCurrentFile].removeFolder("Interpolation End Position (frame " + (labelTool.previousFileIndex + 1) + ")");
+                    // folderBoundingBox3DArray[interpolationObjIndexCurrentFile].removeFolder("Interpolation End Size (frame " + (labelTool.previousFileIndex + 1) + ")");
+                    // enable checkbox
+                    let checkboxElem = document.getElementById("copy-label-to-next-frame-checkbox-" + interpolationObjIndexCurrentFile);
+                    enableCopyLabelToNextFrameCheckbox(checkboxElem);
                 }
                 interpolationObjIndexCurrentFile = -1;
+
             }
         });
         interpolateBtn = guiOptions.add(parameters, 'interpolate').name("Interpolate");
