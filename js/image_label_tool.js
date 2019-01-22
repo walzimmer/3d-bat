@@ -688,18 +688,6 @@ function addEvent(element, trigger, action) {
     }
 }
 
-function convertPositionToFile(x, y, camChannel) {
-    let canvasParams = canvasParamsArray[getChannelIndexByName(camChannel)];
-    return [Math.round(x * labelTool.originalSize[0] / canvasParams.width),
-        Math.round(y * labelTool.originalSize[1] / canvasParams.height)]
-}
-
-function convertPositionToCanvas(x, y, camChannel) {
-    let canvasParams = canvasParamsArray[getChannelIndexByName(camChannel)];
-    return [Math.round(x * canvasParams.width / labelTool.originalSize[0]),
-        Math.round(y * canvasParams.height / labelTool.originalSize[1])];
-}
-
 function getChannelIndexByName(camChannel) {
     for (let channelObj in labelTool.camChannels) {
         if (labelTool.camChannels.hasOwnProperty(channelObj)) {
