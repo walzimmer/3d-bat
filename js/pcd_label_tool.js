@@ -231,7 +231,7 @@ let parameters = {
         switchView();
     },
     datasets: labelTool.datasets.LISA_T,
-    sequences: labelTool.sequencesLISAT.date_2018_05_23_001_frame_00042917_00043816,
+    sequences: labelTool.sequencesLISAT.date_2018_05_23_001_frame_00042917_00043816_small,
     show_projected_points: false,
     show_nuscenes_labels: labelTool.showOriginalNuScenesLabels,
     show_field_of_view: false,
@@ -1360,11 +1360,39 @@ function keyDownHandler(event) {
             transformControls.showY = !transformControls.showY;
             break;
         case 90: // Z
-            transformControls.showZ = !transformControls.showZ;
+            // only allow to switch z axis in 3d view
+            if (birdsEyeViewFlag === false) {
+                transformControls.showZ = !transformControls.showZ;
+            } else {
+                labelTool.logger.message("Show/Hide z-axis only in 3D view possible.");
+            }
             break;
         case 32: // Spacebar
             transformControls.enabled = !transformControls.enabled;
             break;
+        case 78:// N
+            // next frame
+            labelTool.nextFrame();
+            break;
+        case 80:// P
+            // previous frame
+            labelTool.previousFrame();
+            break;
+        case 73: //I
+            if (annotationObjects.getSelectionIndex() !== -1) {
+                if (interpolationMode === true) {
+                    if (annotationObjects.contents[labelTool.currentFileIndex][annotationObjects.getSelectionIndex()]["interpolationStartFileIndex"] !== labelTool.currentFileIndex) {
+                        interpolate();
+                    } else {
+                        labelTool.logger.message("Please choose end frame.");
+                    }
+                } else {
+                    labelTool.logger.message("Please activate interpolation mode first.");
+                }
+            } else {
+                labelTool.logger.message("Please select an object first.");
+            }
+
     }
 }
 
@@ -3296,7 +3324,9 @@ function init() {
                     disableChooseSequenceDropDown(chooseSequenceDropDown);
                 }
             });
-        chooseSequenceDropDown = guiOptions.add(parameters, 'sequences', [labelTool.sequencesLISAT.date_2018_05_23_001_frame_00042917_00043816,
+        chooseSequenceDropDown = guiOptions.add(parameters, 'sequences', [
+            labelTool.sequencesLISAT.date_2018_05_23_001_frame_00042917_00043816_small,
+            labelTool.sequencesLISAT.date_2018_05_23_001_frame_00042917_00043816,
             labelTool.sequencesLISAT.date_2018_05_23_001_frame_00077323_00078222,
             labelTool.sequencesLISAT.date_2018_05_23_001_frame_00080020_00080919,
             labelTool.sequencesLISAT.date_2018_05_23_001_frame_00106993_00107892]).name("Choose Sequence")
