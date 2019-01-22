@@ -17,7 +17,8 @@ let labelTool = {
     currentFileIndex: 0,
     previousFileIndex: 0,
     fileNames: [],
-    originalSize: [0, 0], // Original size of jpeg image
+    // originalSize: [0, 0], // Original size of jpeg image
+    imageSizes: {},
     originalAnnotations: [],   // For checking modified or not
     skipFrameCount: 1,
     targetClass: "Vehicle",
@@ -642,11 +643,14 @@ let labelTool = {
 
                 canvasArray.push(canvasElem);
                 let imagePanelTopPos = parseInt($("#layout_layout_resizer_top").css("top"), 10);
-                if (labelTool.currentDataset === labelTool.datasets.LISA_T && (channel === "CAM_BACK" || channel === "CAM_FRONT")) {
-                    console.log("width");
-                    imageWidth = imageWidthBackFrontLISAT;
+                if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+                    if (channel === "CAM_BACK" || channel === "CAM_FRONT") {
+                        imageWidth = labelTool.imageSizes["LISA_T"]["minWidthWide"];
+                    } else {
+                        imageWidth = labelTool.imageSizes["LISA_T"]["minWidthNormal"];
+                    }
                 } else {
-                    imageWidth = this.originalSize[0];
+                    imageWidth = labelTool.imageSizes["NuScenes"]["minWidthNormal"];
                 }
                 paperArray.push(Raphael(canvasElem, imageWidth, imagePanelTopPos));
             }
@@ -1097,8 +1101,12 @@ let labelTool = {
         // remove all class labels in point cloud or bird eye view
         $(".class-tooltip").remove();
 
+        // store copy flags before removing folder
+        let copyFlags = [];
         // remove all folders
         for (let i = 0; i < annotationObjects.contents[this.currentFileIndex].length; i++) {
+            let checkboxElem = document.getElementById("copy-label-to-next-frame-checkbox-" + i);
+            copyFlags.push(checkboxElem.firstChild.checked);
             guiOptions.removeFolder(annotationObjects.contents[this.currentFileIndex][i]["class"] + ' ' + annotationObjects.contents[this.currentFileIndex][i]["trackId"]);
         }
         // empty all folder arrays
@@ -1107,10 +1115,9 @@ let labelTool = {
         folderSizeArray = [];
 
         if (this.cubeArray[newFileIndex].length === 0) {
-            // move all 3d objects to new frame if nextFrame has no labels
+            // move 3D objects to new frame if nextFrame has no labels and copy flag is set
             for (let i = 0; i < this.cubeArray[this.currentFileIndex].length; i++) {
-                let copyLabelToNextFrame = annotationObjects.contents[this.currentFileIndex][i]["copyLabelToNextFrame"];
-                //let copyLabelToNextFrame = document.getElementById("copy-label-to-next-frame-checkbox-" + i).firstChild.checked;
+                let copyLabelToNextFrame = copyFlags[i];
                 if (copyLabelToNextFrame === true) {
                     let mesh = this.cubeArray[this.currentFileIndex][i];
                     let clonedMesh = mesh.clone();
@@ -1125,14 +1132,14 @@ let labelTool = {
             }
             // Deep copy
             for (let i = 0; i < annotationObjects.contents[this.currentFileIndex].length; i++) {
-                let copyLabelToNextFrame = annotationObjects.contents[this.currentFileIndex][i]["copyLabelToNextFrame"];
-                //let copyLabelToNextFrame = document.getElementById("copy-label-to-next-frame-checkbox-" + i).firstChild.checked;
+                //let copyLabelToNextFrame = annotationObjects.contents[this.currentFileIndex][i]["copyLabelToNextFrame"];
+                let copyLabelToNextFrame = copyFlags[i];
                 if (copyLabelToNextFrame === true) {
                     if (interpolationMode === true) {
                         // set start index
                         annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEndFileIndex"] = newFileIndex;
                     }
-                    annotationObjects.contents[newFileIndex][i] = jQuery.extend(true, {}, annotationObjects.contents[this.currentFileIndex][i]);
+                    annotationObjects.contents[newFileIndex].push(jQuery.extend(true, {}, annotationObjects.contents[this.currentFileIndex][i]));
                 }
             }
         } else {
@@ -1146,7 +1153,7 @@ let labelTool = {
                 let trackId = annotationObjects.contents[newFileIndex][i]["trackId"];
                 let className = annotationObjects.contents[newFileIndex][i]["class"];
                 let objectIndexByTrackIdAndClass = getObjectIndexByTrackIdAndClass(trackId, className, this.currentFileIndex);
-                if (objectIndexByTrackIdAndClass === -1) {
+                if (objectIndexByTrackIdAndClass !== -1) {
                     // next frame contains a new object -> add tooltip for new object
                     let classTooltipElement = $("<div class='class-tooltip' id='class-" + className.charAt(0) + trackId + "'>" + className.charAt(0) + trackId + " | " + className + "</div>");
                     $("body").append(classTooltipElement);
@@ -1160,10 +1167,9 @@ let labelTool = {
                 let trackId = annotationObjects.contents[this.currentFileIndex][i]["trackId"];
                 let className = annotationObjects.contents[this.currentFileIndex][i]["class"];
                 let objectIndexByTrackIdAndClass = getObjectIndexByTrackIdAndClass(trackId, className, newFileIndex);
-                let copyLabelToNextFrame = annotationObjects.contents[this.currentFileIndex][i]["copyLabelToNextFrame"];
-                //let copyLabelToNextFrame = document.getElementById("copy-label-to-next-frame-checkbox-" + i).firstChild.checked;
+                let copyLabelToNextFrame = copyFlags[i];
                 if (objectIndexByTrackIdAndClass === -1 && copyLabelToNextFrame === true) {
-                    // clone that object to new frame
+                    // clone that object to new frame if copy flag set and it not yet exist in next frame
                     let mesh = this.cubeArray[this.currentFileIndex][i];
                     let clonedMesh = mesh.clone();
                     this.cubeArray[newFileIndex].push(clonedMesh);
@@ -1198,11 +1204,24 @@ let labelTool = {
 
         let selectionIndexNextFile = -1;
         if (interpolationObjIndexCurrentFile !== -1) {
-            selectionIndexNextFile = getObjectIndexByTrackIdAndClass(annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["trackId"], annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["class"], newFileIndex);
+            if (interpolationMode === true) {
+                selectionIndexNextFile = getObjectIndexByTrackIdAndClass(annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["trackId"], annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["class"], newFileIndex);
+            } else {
+                selectionIndexNextFile = getObjectIndexByTrackIdAndClass(annotationObjects.contents[this.currentFileIndex][annotationObjects.getSelectionIndex()]["trackId"], annotationObjects.contents[this.currentFileIndex][annotationObjects.getSelectionIndex()]["class"], newFileIndex);
+            }
         }
         // update folders with values of next/previous frame
         for (let i = 0; i < annotationObjects.contents[newFileIndex].length; i++) {
             let annotationObj = annotationObjects.contents[newFileIndex][i];
+            let copyFlag;
+            // if next object exists in current frame then use copy flag of current frame
+            let indexInCurrentFile = getObjectIndexByTrackIdAndClass(annotationObj["trackId"], annotationObj["class"], this.currentFileIndex);
+            if (indexInCurrentFile === -1) {
+                //object does not exist in current frame -> use copy index of next frame
+                copyFlag = annotationObj["copyLabelToNextFrame"];
+            } else {
+                copyFlag = copyFlags[indexInCurrentFile];
+            }
             let bbox = {
                 class: annotationObj["class"],
                 x: annotationObj["x"],
@@ -1213,9 +1232,8 @@ let labelTool = {
                 depth: annotationObj["depth"],
                 rotationY: parseFloat(annotationObj["rotationY"]),
                 trackId: annotationObj["trackId"],
-                copyLabelToNextFrame: annotationObj["copyLabelToNextFrame"]
+                copyLabelToNextFrame: copyFlag
             };
-            // guiOptions.removeFolder(bbox.class + ' ' + bbox.trackId);
             // add bboxEnd for selected object
             if (selectionIndexNextFile === i && interpolationMode === true) {
                 addBoundingBoxGui(bbox, bboxEndParams);
@@ -1262,6 +1280,11 @@ let labelTool = {
                 }
             }
 
+        } else {
+            if (annotationObjects.getSelectionIndex() !== -1) {
+                let objectIndexNextFrame = getObjectIndexByTrackIdAndClass(annotationObjects.contents[this.currentFileIndex][annotationObjects.getSelectionIndex()]["trackId"], annotationObjects.contents[this.currentFileIndex][annotationObjects.getSelectionIndex()]["class"], newFileIndex);
+                annotationObjects.__selectionIndexNextFrame = objectIndexNextFrame;
+            }
         }
 
         this.previousFileIndex = this.currentFileIndex;
@@ -1271,21 +1294,17 @@ let labelTool = {
             this.currentFileIndex = newFileIndex;
             interpolationObjIndexCurrentFile = interpolationObjIndexNextFile;
             annotationObjects.__selectionIndexCurrentFrame = annotationObjects.__selectionIndexNextFrame;
-            if (selectionIndexNextFile !== -1) {
-                this.selectedMesh = this.cubeArray[newFileIndex][selectionIndexNextFile];
-                if (this.selectedMesh !== undefined) {
-                    addTransformControls();
-                } else {
-                    labelTool.removeObject("transformControls");
-                }
-                let channels = annotationObjects.contents[newFileIndex][selectionIndexNextFile]["channels"];
-                for (let channelIdx in channels) {
-                    if (channels.hasOwnProperty(channelIdx)) {
-                        annotationObjects.select(selectionIndexNextFile, channels[channelIdx].channel);
-                    }
-                }
+            this.selectedMesh = this.cubeArray[newFileIndex][selectionIndexNextFile];
+            if (this.selectedMesh !== undefined) {
+                addTransformControls();
             } else {
-                annotationObjects.selectEmpty();
+                labelTool.removeObject("transformControls");
+            }
+            let channels = annotationObjects.contents[newFileIndex][selectionIndexNextFile]["channels"];
+            for (let channelIdx in channels) {
+                if (channels.hasOwnProperty(channelIdx)) {
+                    annotationObjects.select(selectionIndexNextFile, channels[channelIdx].channel);
+                }
             }
         }
         this.currentFileIndex = newFileIndex;
@@ -1361,24 +1380,25 @@ let labelTool = {
 };
 
 function setImageSize() {
-    let imageSizes;
-    if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-        imageSizes = {
-            minWidth: 320,
-            minHeight: 240,
-            maxWidth: 640,
-            maxHeight: 480
-        };
-    } else {
-        imageSizes = {
-            minWidth: Math.floor(window.innerWidth / 6),
-            minHeight: Math.floor(window.innerWidth / (6 * 1.77778)),
-            maxWidth: 640,
-            maxHeight: 360
-        };
-    }
-    labelTool.originalSize[0] = imageSizes.minWidth;
-    labelTool.originalSize[1] = imageSizes.minHeight;
+    // calculate the image width given the window width
+    labelTool.imageSizes = {
+        "LISA_T": {
+            minWidthNormal: Math.round(window.innerWidth / 7.0),
+            minHeightNormal: Math.round(window.innerWidth / (7.0 * 1.333)),
+            maxWidthNormal: Math.round(2 * window.innerWidth / 7.0),
+            maxHeightNormal: Math.round(2 * window.innerWidth / (7.0 * 1.333)),
+            minWidthWide: Math.round(1.5 * window.innerWidth / 7.0),
+            minHeightWide: Math.round(1.5 * window.innerWidth / (7.0 * 1.333)),
+            maxWidthWide: Math.round(2 * 1.5 * window.innerWidth / 7.0),
+            maxHeightWide: Math.round(2 * 1.5 * window.innerWidth / (7.0 * 1.333))
+        },
+        "NuScenes": {
+            minWidthNormal: Math.floor(window.innerWidth / 6),
+            minHeightNormal: Math.floor(window.innerWidth / (6 * 1.77778)),
+            maxWidthNormal: 640,
+            maxHeightNormal: 360
+        }
+    };
 }
 
 function setObjectParameters(annotationObj) {
@@ -1590,11 +1610,11 @@ function initPanes() {
     let maxHeight;
     let minHeight;
     if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-        minHeight = 240;
-        maxHeight = 480;
+        minHeight = labelTool.imageSizes["LISA_T"]["minHeightNormal"];
+        maxHeight = labelTool.imageSizes["LISA_T"]["maxHeightNormal"];
     } else {
-        minHeight = Math.ceil(window.innerWidth / (6 * 1.7778));
-        maxHeight = 360;
+        minHeight = labelTool.imageSizes["NuScenes"]["minHeightNormal"];
+        maxHeight = labelTool.imageSizes["NuScenes"]["maxHeightNormal"];
     }
 
     //------------------------------------------------------------------
