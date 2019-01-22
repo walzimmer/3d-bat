@@ -2,11 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="428d2e24-9b74-4b18-97ad-d2e286a506fa" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/scripts/lisa_t_devkit/rename_files.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/base_label_tool.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/base_label_tool.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/pcd_label_tool.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/pcd_label_tool.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -126,7 +123,7 @@
         <counts>
           <entry key="babelrc" value="1" />
           <entry key="css" value="10" />
-          <entry key="gitignore" value="1" />
+          <entry key="gitignore" value="2" />
           <entry key="html" value="3" />
           <entry key="js" value="40" />
           <entry key="json" value="12" />
@@ -143,7 +140,7 @@
           <entry key="JSON" value="12" />
           <entry key="JavaScript" value="40" />
           <entry key="Markdown" value="2" />
-          <entry key="PLAIN_TEXT" value="6" />
+          <entry key="PLAIN_TEXT" value="7" />
           <entry key="SVG" value="1" />
           <entry key="TypeScript" value="2" />
           <entry key="tsconfig" value="1" />
@@ -152,7 +149,7 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="css" value="344" />
-          <entry key="gitignore" value="12" />
+          <entry key="gitignore" value="28" />
           <entry key="html" value="1456" />
           <entry key="js" value="24156" />
           <entry key="json" value="25" />
@@ -164,7 +161,7 @@
           <entry key="HTML" value="1456" />
           <entry key="JSON" value="21" />
           <entry key="JavaScript" value="24156" />
-          <entry key="PLAIN_TEXT" value="12" />
+          <entry key="PLAIN_TEXT" value="28" />
           <entry key="tsconfig" value="4" />
         </counts>
       </usages-collector>
@@ -177,14 +174,23 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="191">
-              <caret line="128" column="47" lean-forward="true" selection-start-line="128" selection-start-column="47" selection-end-line="128" selection-end-column="47" />
+            <state relative-caret-position="349">
+              <caret line="148" column="7" lean-forward="true" selection-start-line="148" selection-start-column="7" selection-end-line="148" selection-end-column="7" />
               <folding>
                 <element signature="n#ul#0;n#li#0;n#ul#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="171">
+              <caret line="22" column="16" selection-start-line="22" selection-start-column="16" selection-end-line="22" selection-end-column="16" />
             </state>
           </provider>
         </entry>
@@ -193,7 +199,7 @@
         <entry file="file://$PROJECT_DIR$/test.json">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="725">
-              <caret line="19005" column="1" lean-forward="true" selection-start-line="19005" selection-start-column="1" selection-end-line="19005" selection-end-column="1" />
+              <caret line="19005" column="1" selection-start-line="19005" selection-start-column="1" selection-end-line="19005" selection-end-column="1" />
             </state>
           </provider>
         </entry>
@@ -202,7 +208,7 @@
         <entry file="file://$PROJECT_DIR$/js/pcd_label_tool.js">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="569">
-              <caret line="233" column="90" lean-forward="true" selection-start-line="233" selection-start-column="90" selection-end-line="233" selection-end-column="90" />
+              <caret line="233" column="90" selection-start-line="233" selection-start-column="90" selection-end-line="233" selection-end-column="90" />
             </state>
           </provider>
         </entry>
@@ -211,16 +217,7 @@
         <entry file="file://$PROJECT_DIR$/css/label_tool.css">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="283">
-              <caret line="660" column="23" lean-forward="true" selection-start-line="660" selection-start-column="23" selection-end-line="660" selection-end-column="23" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/js/util/classesBoundingBox.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2210">
-              <caret line="85" column="4" selection-start-line="85" selection-start-column="4" selection-end-line="85" selection-end-column="4" />
+              <caret line="660" column="23" selection-start-line="660" selection-start-column="23" selection-end-line="660" selection-end-column="23" />
             </state>
           </provider>
         </entry>
@@ -229,7 +226,7 @@
         <entry file="file://$PROJECT_DIR$/js/base_label_tool.js">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="121">
-              <caret line="677" column="16" lean-forward="true" selection-start-line="677" selection-start-column="16" selection-end-line="677" selection-end-column="16" />
+              <caret line="677" column="16" selection-start-line="677" selection-start-column="16" selection-end-line="677" selection-end-column="16" />
               <folding>
                 <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
               </folding>
@@ -241,7 +238,7 @@
         <entry file="file://$PROJECT_DIR$/js/image_label_tool.js">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="335">
-              <caret line="698" column="5" lean-forward="true" selection-start-line="698" selection-start-column="5" selection-end-line="698" selection-end-column="5" />
+              <caret line="698" column="5" selection-start-line="698" selection-start-column="5" selection-end-line="698" selection-end-column="5" />
             </state>
           </provider>
         </entry>
@@ -388,7 +385,6 @@
         <option value="$PROJECT_DIR$/package.json" />
         <option value="$PROJECT_DIR$/tsconfig.json" />
         <option value="$PROJECT_DIR$/input/LISA_T/2018-05-23-001-frame-00042917-00043816/annotations/000000.txt" />
-        <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/js/util/ajax_wrapper.js" />
         <option value="$PROJECT_DIR$/js/lib/dat.gui.js" />
         <option value="$PROJECT_DIR$/js/util/boundingbox.js" />
@@ -398,6 +394,7 @@
         <option value="$PROJECT_DIR$/js/base_label_tool.js" />
         <option value="$PROJECT_DIR$/js/pcd_label_tool.js" />
         <option value="$PROJECT_DIR$/index.html" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -479,28 +476,6 @@
               <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="462c0819:PsiDirectoryNode" />
               <item name="input" type="462c0819:PsiDirectoryNode" />
               <item name="LISA_T" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="b2602c69:ProjectViewProjectNode" />
-              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="462c0819:PsiDirectoryNode" />
-              <item name="input" type="462c0819:PsiDirectoryNode" />
-              <item name="LISA_T" type="462c0819:PsiDirectoryNode" />
-              <item name="2018-05-23-001-frame-00042917-00043816" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="b2602c69:ProjectViewProjectNode" />
-              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="462c0819:PsiDirectoryNode" />
-              <item name="input" type="462c0819:PsiDirectoryNode" />
-              <item name="LISA_T" type="462c0819:PsiDirectoryNode" />
-              <item name="2018-05-23-001-frame-00042917-00043816_small" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="b2602c69:ProjectViewProjectNode" />
-              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="462c0819:PsiDirectoryNode" />
-              <item name="input" type="462c0819:PsiDirectoryNode" />
-              <item name="LISA_T" type="462c0819:PsiDirectoryNode" />
-              <item name="2018-05-23-001-frame-00042917-00043816_small" type="462c0819:PsiDirectoryNode" />
-              <item name="images" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -615,12 +590,12 @@
       <workItem from="1546984295574" duration="15855000" />
       <workItem from="1547143608323" duration="152087000" />
       <workItem from="1547866929954" duration="18572000" />
-      <workItem from="1548016167176" duration="57198000" />
+      <workItem from="1548016167176" duration="60425000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="1481345000" />
+    <option name="totallyTimeSpent" value="1484572000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -633,6 +608,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-1" y="360" width="1922" height="1081" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2217484" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -647,7 +623,7 @@
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Database Changes" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="9" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Terminal" order="10" sideWeight="0.49558082" weight="0.3786611" />
+      <window_info anchor="bottom" id="Terminal" order="10" sideWeight="0.49558082" visible="true" weight="0.3786611" />
       <window_info anchor="bottom" id="Event Log" order="11" sideWeight="0.50063133" side_tool="true" weight="0.3294979" />
       <window_info anchor="bottom" id="RNConsole" order="12" weight="0.3294979" />
       <window_info anchor="bottom" id="TypeScript" order="13" weight="0.3294979" />
@@ -844,13 +820,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.gitignore">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="674">
-          <caret line="44" column="51" selection-start-line="44" selection-start-column="51" selection-end-line="44" selection-end-column="51" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/js/lib/three.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="26">
@@ -912,28 +881,28 @@
     <entry file="file://$PROJECT_DIR$/test.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="725">
-          <caret line="19005" column="1" lean-forward="true" selection-start-line="19005" selection-start-column="1" selection-end-line="19005" selection-end-column="1" />
+          <caret line="19005" column="1" selection-start-line="19005" selection-start-column="1" selection-end-line="19005" selection-end-column="1" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/css/label_tool.css">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="283">
-          <caret line="660" column="23" lean-forward="true" selection-start-line="660" selection-start-column="23" selection-end-line="660" selection-end-column="23" />
+          <caret line="660" column="23" selection-start-line="660" selection-start-column="23" selection-end-line="660" selection-end-column="23" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/js/image_label_tool.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="335">
-          <caret line="698" column="5" lean-forward="true" selection-start-line="698" selection-start-column="5" selection-end-line="698" selection-end-column="5" />
+          <caret line="698" column="5" selection-start-line="698" selection-start-column="5" selection-end-line="698" selection-end-column="5" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/js/base_label_tool.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="121">
-          <caret line="677" column="16" lean-forward="true" selection-start-line="677" selection-start-column="16" selection-end-line="677" selection-end-column="16" />
+          <caret line="677" column="16" selection-start-line="677" selection-start-column="16" selection-end-line="677" selection-end-column="16" />
           <folding>
             <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
           </folding>
@@ -943,17 +912,24 @@
     <entry file="file://$PROJECT_DIR$/js/pcd_label_tool.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="569">
-          <caret line="233" column="90" lean-forward="true" selection-start-line="233" selection-start-column="90" selection-end-line="233" selection-end-column="90" />
+          <caret line="233" column="90" selection-start-line="233" selection-start-column="90" selection-end-line="233" selection-end-column="90" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="191">
-          <caret line="128" column="47" lean-forward="true" selection-start-line="128" selection-start-column="47" selection-end-line="128" selection-end-column="47" />
+        <state relative-caret-position="349">
+          <caret line="148" column="7" lean-forward="true" selection-start-line="148" selection-start-column="7" selection-end-line="148" selection-end-column="7" />
           <folding>
             <element signature="n#ul#0;n#li#0;n#ul#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="171">
+          <caret line="22" column="16" selection-start-line="22" selection-start-column="16" selection-end-line="22" selection-end-column="16" />
         </state>
       </provider>
     </entry>
