@@ -10,7 +10,7 @@ function initTimer() {
         seconds = labelTool.timeElapsed % 60;
         minutes = Math.floor(labelTool.timeElapsed / 60);
         hours = Math.floor(labelTool.timeElapsed / (60 * 60));
-        timeString = pad(hours, 2)+":"+ pad(minutes,2) + ":" + pad(seconds,2);
+        timeString = pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2);
         $("#time-elapsed").text(timeString);
     }, 1000);
 }
@@ -18,6 +18,7 @@ function initTimer() {
 let labelTool = {
     datasets: Object.freeze({"NuScenes": "NuScenes", "LISA_T": "LISA_T"}),
     sequencesLISAT: Object.freeze({
+        "date_2018_05_23_001_frame_00042917_00043816_small": "2018-05-23-001-frame-00042917-00043816_small",
         "date_2018_05_23_001_frame_00042917_00043816": "2018-05-23-001-frame-00042917-00043816",
         "date_2018_05_23_001_frame_00077323_00078222": "2018-05-23-001-frame-00077323-00078222",
         "date_2018_05_23_001_frame_00080020_00080919": "2018-05-23-001-frame-00080020-00080919",
@@ -26,7 +27,7 @@ let labelTool = {
     }),
     sequencesNuScenes: [],
     currentDataset: 'LISA_T',
-    currentSequence: '2018-05-23-001-frame-00042917-00043816',
+    currentSequence: '2018-05-23-001-frame-00042917-00043816_small',
     numFramesLISAT: 900,
     numFramesNuScenes: 3962,
     numFrames: 0,
@@ -839,8 +840,14 @@ let labelTool = {
         let numFiles;
         let fileNameArray = [];
         if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-            labelTool.numFrames = labelTool.numFramesLISAT;
-            numFiles = 900;
+            if (labelTool.currentSequence === labelTool.sequencesLISAT.date_2018_05_23_001_frame_00042917_00043816_small) {
+                labelTool.numFrames = 300;
+                numFiles = 300;
+            } else {
+                labelTool.numFrames = labelTool.numFramesLISAT;
+                numFiles = 900;
+            }
+
         } else {
             labelTool.numFrames = labelTool.numFramesNuScenes;
             setSequences();
@@ -1731,10 +1738,6 @@ function initPanes() {
     w2ui['layout'].resizer = 10;
     w2ui['layout'].resize();
     w2ui['layout'].refresh();
-    //------------------------------------------------------------------
-    // $("#label-tool-wrapper").append("<SplitPane split='horizontal' minSize={180} defaultSize={180}><div id='panel-2d'></div><div id='panel-3d'></div></SplitPane>");
-
-
 }
 
 $("#previous-frame-button").keyup(function (e) {
