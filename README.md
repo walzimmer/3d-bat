@@ -4,6 +4,7 @@
 3. Install required packages: $npm install
 4. Install PHP Storm (IDE with integrated server): https://www.jetbrains.com/phpstorm/download/download-thanks.html
 5. Open index.html with chromium-browser (Linux) or Chrome (Windows) within the IDE
+6. Install WhatPulse to measure the number of clicks and key strokes while labeling 
  
 # 3D Boundingbox Annotation Instructions
 1. Step: Draw bounding box in the Bird's-Eye-View (BEV)
@@ -16,6 +17,7 @@
     4. Click on the 'Interpolate' button in the menu
 5. Step: Repeat steps 1-4 for all objects in the sequence
 6. Step: Download labels to your computer (JSON file)
+7. Step: Stop the time after labeling is done.
 
 Hints:
 + Select 'Copy label to next frame' checkbox if you want to keep the label (position, size, class) for next frame 
@@ -24,7 +26,7 @@ Hints:
 + **Do not** apply more than one box to a single object.
 + Check every cuboid in every frame, to make sure all points are inside the cuboid and **look reasonable in the image view**.
 
-# Special Rules 
+# Special Rules
 + **Minimum LIDAR Points** : 
     + Label any target object containing **at least 10 LIDAR point**, as long as you can be reasonably sure you know the location and shape of the object. Use your best judgment on correct cuboid position, sizing, and heading. 
 + **Cuboid Sizing** : 
