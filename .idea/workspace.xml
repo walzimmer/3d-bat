@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="428d2e24-9b74-4b18-97ad-d2e286a506fa" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/input/LISA_T/2018-05-23-001-frame-00042917-00043816_small/annotations/LISA_T_2018-05-23-001-frame-00042917-00043816_annotations.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -189,8 +188,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/.gitignore">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="171">
-              <caret line="22" column="16" selection-start-line="22" selection-start-column="16" selection-end-line="22" selection-end-column="16" />
+            <state relative-caret-position="351">
+              <caret line="39" column="58" lean-forward="true" selection-start-line="39" selection-start-column="58" selection-end-line="39" selection-end-column="58" />
             </state>
           </provider>
         </entry>
@@ -477,6 +476,13 @@
               <item name="input" type="462c0819:PsiDirectoryNode" />
               <item name="LISA_T" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="b2602c69:ProjectViewProjectNode" />
+              <item name="3D_BoundingBox_Annotation_Tool_3D_BAT" type="462c0819:PsiDirectoryNode" />
+              <item name="input" type="462c0819:PsiDirectoryNode" />
+              <item name="LISA_T" type="462c0819:PsiDirectoryNode" />
+              <item name="2018-05-23-001-frame-00042917-00043816_small" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -590,12 +596,12 @@
       <workItem from="1546984295574" duration="15855000" />
       <workItem from="1547143608323" duration="152087000" />
       <workItem from="1547866929954" duration="18572000" />
-      <workItem from="1548016167176" duration="60425000" />
+      <workItem from="1548016167176" duration="60669000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="1484572000" />
+    <option name="totallyTimeSpent" value="1484816000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -608,7 +614,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-1" y="360" width="1922" height="1081" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2217484" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -928,8 +933,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="171">
-          <caret line="22" column="16" selection-start-line="22" selection-start-column="16" selection-end-line="22" selection-end-column="16" />
+        <state relative-caret-position="351">
+          <caret line="39" column="58" lean-forward="true" selection-start-line="39" selection-start-column="58" selection-end-line="39" selection-end-column="58" />
         </state>
       </provider>
     </entry>
