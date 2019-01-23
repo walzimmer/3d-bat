@@ -1956,7 +1956,8 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
             // add only points that are in front of camera
             let windowX = point2D[0] / point2D[2];
             let windowY = point2D[1] / point2D[2];
-            projectedPoints.push({x: windowX / imageScalingFactor, y: windowY / imageScalingFactor});
+            //projectedPoints.push({x: windowX / imageScalingFactor, y: windowY / imageScalingFactor});
+            projectedPoints.push(new THREE.Vector2(windowX / imageScalingFactor, windowY / imageScalingFactor));
         } else {
             // do not draw bounding box if it is too close too camera or behind
             return [];
