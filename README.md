@@ -27,39 +27,38 @@
 |  I  | Interpolate    ||
 |  CTRL+move bounding box  | Snap to grid in 0.5m steps   ||
 |  T  | Enable/Disable Translation mode||
-|     |  W  | Move selected object forward|
-|     |  A  | Move selected object to left|
-|     |  S  | Move selected object backward|
-|     |  D  | Move selected object to right|
-|     |  Q  | Move selected object down|
-|     |  E  | Move selected object up|
+|     |  W  | Move selected object forward (TODO)|
+|     |  A  | Move selected object to left (TODO)|
+|     |  S  | Move selected object backward (TODO)|
+|     |  D  | Move selected object to right (TODO)|
+|     |  Q  | Move selected object down (TODO)|
+|     |  E  | Move selected object up (TODO)|
 |  R  | Enable/Disable Rotation mode||
-|     |  LEFT | Rotate selected object counter-clock-wise|
-|     |  RIGHT  | Rotate selected object clock-wise|
+|     |  LEFT | Rotate selected object counter-clock-wise (TODO)|
+|     |  RIGHT  | Rotate selected object clock-wise (TODO)|
 |  Y  | Enable/Disable Scaling mode ||
-|     | UP | Increase length along longitudinal axis (y-axis)|
-|     | DOWN | Decrease length along longitudinal axis (y-axis)|
-|     |  LEFT  | Decrease width along lateral axis (x-axis)|
-|     |  RIGHT  | Increase width along lateral axis (x-axis)|
-|     |  SHIFT-RIGHT  | Increase height along vertical axis (z-axis)|
-|     |  CTRL-RIGHT | Decrease height along vertical axis (z-axis)|
+|     | UP | Increase length along longitudinal axis (y-axis) (TODO)|
+|     | DOWN | Decrease length along longitudinal axis (y-axis) (TODO)|
+|     |  LEFT  | Decrease width along lateral axis (x-axis) (TODO)|
+|     |  RIGHT  | Increase width along lateral axis (x-axis) (TODO)|
+|     |  SHIFT-RIGHT  | Increase height along vertical axis (z-axis) (TODO)|
+|     |  CTRL-RIGHT | Decrease height along vertical axis (z-axis) (TODO)|
 |  +  | Increase arrow size ||
 |  -  | Decrease arrow size ||
-|  +  | Increase arrow size ||
 |  X  | Show/Hide X-axis ||
 |  Y  | Show/Hide Y-axis ||
-|  Z  | Show/Hide Z-axis ||
+|  Z  | Show/Hide Z-axis (only in 3D mode)||
 |  Spacebar  | Enable/Disable Transform Controls ||
-|  TAB  | Select next object ||
-| DEL | Delete selected object||
-|  M  | Marking mode||
-|     | LEFT | Move orientation of object counter-clock-wise|
-|     | RIGHT| Move orientation of object clock-wise|
-|  1  | Select class CAR||
-|  2  | Select class Truck||
-|  3  | Select class Motorcycle||
-|  4  | Select class Bicycle||  
-|  5  | Select class Pedestrian||
+|  TAB  | Select next object (TODO)||
+| DEL | Delete selected object (TODO)||
+|  M  | Marking mode (TODO)||
+|     | LEFT | Move orientation of object counter-clock-wise (TODO)|
+|     | RIGHT| Move orientation of object clock-wise (TODO)|
+|  1  | Select class CAR (TODO)||
+|  2  | Select class Truck (TODO)||
+|  3  | Select class Motorcycle (TODO)||
+|  4  | Select class Bicycle (TODO)||  
+|  5  | Select class Pedestrian (TODO)||
 
 
 
