@@ -120,26 +120,33 @@ let annotationObjects = {
         // update name of sprite
         labelTool.spriteArray[labelTool.currentFileIndex][selectedObjectIndex].name = "sprite-" + newClassLabel.charAt(0) + nextTrackIdNewClass;
 
-        // update folder name
+        // update class of folder and track id instead of creating new folder
+        folderBoundingBox3DArray[selectedObjectIndex].domElement.children[0].children[0].innerHTML = newClassLabel + ' ' + nextTrackIdNewClass;
+        //                                                           ul        number      div       div[class c]    input
+        folderBoundingBox3DArray[selectedObjectIndex].domElement.children[0].children[3].children[0].children[1].children[0].value = nextTrackIdNewClass;
+
+
         // add folder at same position with new class label and track id
-        guiOptions.removeFolder(currentClassLabel + ' ' + currentTrackId);
-        folderBoundingBox3DArray.splice(selectedObjectIndex, 1);
-        folderPositionArray.splice(selectedObjectIndex, 1);
-        folderSizeArray.splice(selectedObjectIndex, 1);
-        let annotationObj = annotationObjects.contents[labelTool.currentFileIndex][selectedObjectIndex];
-        let bbox = {
-            class: annotationObj["class"],
-            x: annotationObj["x"],
-            y: annotationObj["y"],
-            z: annotationObj["z"],
-            width: annotationObj["width"],
-            height: annotationObj["height"],
-            depth: annotationObj["depth"],
-            rotationY: parseFloat(annotationObj["rotationY"]),
-            trackId: annotationObj["trackId"],
-            copyLabelToNextFrame: annotationObj["copyLabelToNextFrame"]
-        };
-        addBoundingBoxGui(bbox, undefined);
+        //guiOptions.removeFolder(currentClassLabel + ' ' + currentTrackId);
+        //folderBoundingBox3DArray.splice(selectedObjectIndex, 1);
+        //folderPositionArray.splice(selectedObjectIndex, 1);
+        //folderSizeArray.splice(selectedObjectIndex, 1);
+        // let annotationObj = annotationObjects.contents[labelTool.currentFileIndex][selectedObjectIndex];
+        // let bbox = {
+        //     class: annotationObj["class"],
+        //     x: annotationObj["x"],
+        //     y: annotationObj["y"],
+        //     z: annotationObj["z"],
+        //     width: annotationObj["width"],
+        //     height: annotationObj["height"],
+        //     depth: annotationObj["depth"],
+        //     rotationY: parseFloat(annotationObj["rotationY"]),
+        //     trackId: annotationObj["trackId"],
+        //     copyLabelToNextFrame: annotationObj["copyLabelToNextFrame"]
+        // };
+        // addBoundingBoxGui(bbox, undefined);
+
+
         // open current folder
         folderBoundingBox3DArray[selectedObjectIndex].open();
         folderPositionArray[selectedObjectIndex].open();

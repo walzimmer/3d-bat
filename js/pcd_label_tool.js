@@ -51,7 +51,7 @@ let interpolateBtn;
 let guiAnnotationClasses = new dat.GUI({autoPlace: true, width: 90, resizable: false});
 let guiBoundingBoxAnnotationMap;
 let guiOptions = new dat.GUI({autoPlace: true, width: 350, resizable: false});
-let numGUIOptions = 12;
+let numGUIOptions = 13;
 let showProjectedPointsFlag = false;
 let showGridFlag = false;
 let filterGround = false;
@@ -862,6 +862,37 @@ function setHighestAvailableTrackId(label) {
     }
 }
 
+function getSmallestTrackId(classNameToFind) {
+    let trackIds = [];
+    for (let i = 0; i < annotationObjects.contents.length; i++) {
+        for (let j = 0; j < annotationObjects.contents[i].length; j++) {
+            let className = annotationObjects.contents[i][j]["class"];
+            if (className === classNameToFind) {
+                let trackId = annotationObjects.contents[i][j]["trackId"];
+                if ($.inArray(trackId, trackIds) === -1) {
+                    trackIds.push(trackId);
+                }
+            }
+
+        }
+    }
+    trackIds.sort();
+    for (let smallestAvailableTrackId = 1; smallestAvailableTrackId <= trackIds[trackIds.length - 1]; smallestAvailableTrackId++) {
+        let exist = false;
+        for (let j = 0; j < trackIds.length; j++) {
+            if (smallestAvailableTrackId === trackIds[j]) {
+                exist = true;
+                break;
+            }
+        }
+        if (exist === false) {
+            return smallestAvailableTrackId;
+        }
+    }
+    // return next highest track id
+    return trackIds[trackIds.length - 1] + 1;
+}
+
 //register new bounding box
 function addBoundingBoxGui(bbox, bboxEndParams) {
     let insertIndex = folderBoundingBox3DArray.length;
@@ -1043,9 +1074,17 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
 
     let textBoxTrackId = folderBoundingBox3DArray[insertIndex].add(bbox, 'trackId').min(0).step(1).name('Track ID');
     textBoxTrackId.onChange(function (value) {
-        if (value < 0) {
-            value = 0;
+        // check validity
+        // get smallest available track id for this class (look at all objects within that sequence)
+
+        let minTrackId = getSmallestTrackId(bbox.class);
+        if (value < 1) {
+            labelTool.logger.error("You have entered an invalid track ID.");
+        } else if (value !== minTrackId) {
+            labelTool.logger.error("You have entered an invalid track ID.");
         }
+        labelTool.logger.success("Track ID for class " + bbox.class + " was set to " + minTrackId + ".");
+        value = minTrackId;
         annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["trackId"] = Math.round(value);
         $("#bounding-box-3d-menu ul").children().eq(insertIndex + numGUIOptions).children().first().children().first().children().first().text(bbox.class + " " + Math.round(value));
     });
@@ -2553,12 +2592,9 @@ function mouseUpLogic(ev) {
                 }
                 let size = smallestSide / 2.0;
                 transformControls.size = size;
-                // add transform controls to scene
-                // scene.add(transformControls);
             } else {
                 labelTool.removeObject("transformControls");
             }
-
 
             // open folder of selected object
             for (let channelIdx in labelTool.camChannels) {
@@ -2590,7 +2626,6 @@ function mouseUpLogic(ev) {
                     folderSizeArray[interpolationObjIndexCurrentFile].domElement.firstChild.firstChild.innerText = "Interpolation Start Size (frame " + (labelTool.currentFileIndex + 1) + ")";
 
                     if (clickedObjectIndexPrevious !== -1) {
-                        // TODO: remove start position and size from previous selected object
                         folderPositionArray[clickedObjectIndexPrevious].domElement.firstChild.firstChild.innerText = "Position";
                         folderSizeArray[clickedObjectIndexPrevious].domElement.firstChild.firstChild.innerText = "Size";
                         // remove start position from previous selected object
@@ -2620,6 +2655,12 @@ function mouseUpLogic(ev) {
             }
             let interpolationModeCheckbox = document.getElementById("interpolation-checkbox");
             enableInterpolationModeCheckbox(interpolationModeCheckbox);
+            // TODO: select corresponding class in class menu
+            // get class name of selected object
+            // get index of selected object within 5 classes (using class name)
+            let classPickerElem = $('#class-picker ul li');
+            classPickerElem.css('background-color', '#353535');
+            $(classPickerElem[classesBoundingBox[obj["class"]].index]).css('background-color', '#525252');
 
 
         } else {
@@ -2824,7 +2865,6 @@ function mouseDownLogic(ev) {
     if (clickedObjects.length > 0) {
 
         if (ev.button === 0) {
-            // clickedObjectIndexPrevious = clickedObjectIndex;
             clickedObjectIndex = labelTool.cubeArray[labelTool.currentFileIndex].indexOf(clickedObjects[0].object);
             clickFlag = true;
             clickedPoint = clickedObjects[0].point;
@@ -2872,7 +2912,6 @@ function mouseDownLogic(ev) {
             if (transformControls !== undefined) {
                 transformControls.detach();
             }
-
             labelTool.removeObject("transformControls");
             let channels = annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex].channels;
             // iterate all channels and remove projection
