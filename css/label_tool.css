@@ -529,7 +529,7 @@ text {
     white-space: nowrap;
 }
 
-.close-button {
+#bounding-box-3d-menu .close-button {
     position: fixed !important;
     width: 480px !important;
 }
