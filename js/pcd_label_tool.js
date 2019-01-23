@@ -1220,83 +1220,97 @@ function updateObjectPosition() {
     }
 }
 
-function addTransformControls() {
-    labelTool.removeObject("transformControls");
-
-    // transformControls.detach();
-    // transformControls.position = [0, 0, 0];
-    // TODO: try detaching object instead of creating new transformcontrols object
-    transformControls = new THREE.TransformControls(currentCamera, renderer.domElement);
-    transformControls.addEventListener('change', function (event) {
-
-        useTransformControls = true;
-
-        // update 2d bounding box
-        if (dragControls === true) {
-            if (labelTool.selectedMesh !== undefined) {
-                updateObjectPosition();
-                let objectIndexByTrackId = getObjectIndexByName(labelTool.selectedMesh.name);
-                update2DBoundingBox(labelTool.currentFileIndex, objectIndexByTrackId);
-                render();
-            }
-        }
-
-
-        // dragObject = true;
-        // change type (e.g. from translate to scale)
-        // or a new bounding box object is created
-        // or hover over an arrow
-        // or dragging starts or draggin ends
-        // or mousedown or mouseup
-        render();
-
-        // console.log("change");
-        // console.log("mode: "+event.target.getMode());
-        // translating works (no object is created), problem: selection randomly works
-        // scaleRotateTranslate = true;
-        // selection works (clicking on background, current object will be unselected), problem: after translation an object is created
-        // scaleRotateTranslate = !scaleRotateTranslate;
-        // update bounding box in image
-        // console.log(event);
-    });
-    transformControls.addEventListener('dragging-changed', function (event) {
-        useTransformControls = true;
-        dragControls = true;
-        // update 2d bounding box
+function onChangeHandler(event) {
+    useTransformControls = true;
+    // update 2d bounding box
+    if (dragControls === true) {
         if (labelTool.selectedMesh !== undefined) {
             updateObjectPosition();
             let objectIndexByTrackId = getObjectIndexByName(labelTool.selectedMesh.name);
             update2DBoundingBox(labelTool.currentFileIndex, objectIndexByTrackId);
             render();
         }
-        // dragObject = false;
-        console.log("dragging-changed");
-        // executed after drag finished
-        // TODO: scale only on one side
-        if (transformControls.getMode() === "scale") {
-            // labelTool.selectedMesh.translateY(labelTool.selectedMesh.geometry.parameters.height / 2)
-        }
-        // orbitControls.enabled = !event.value;
-        // translating works (no object is created)
-        // scaleRotateTranslate = false;
-    });
-    transformControls.name = "transformControls";
-    // if in birdseyeview then find minimum of longitude and latitude
-    // otherwise find minimum of x, y and z
-    let smallestSide;
-    if (birdsEyeViewFlag === true) {
-        smallestSide = Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y);
-    } else {
-        smallestSide = Math.min(Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y), labelTool.selectedMesh.scale.z);
     }
 
-    let size = smallestSide / 2;
-    console.log("size controls addtransformcontrols: " + size);
+
+    // dragObject = true;
+    // change type (e.g. from translate to scale)
+    // or a new bounding box object is created
+    // or hover over an arrow
+    // or dragging starts or draggin ends
+    // or mousedown or mouseup
+    render();
+
+    // console.log("change");
+    // console.log("mode: "+event.target.getMode());
+    // translating works (no object is created), problem: selection randomly works
+    // scaleRotateTranslate = true;
+    // selection works (clicking on background, current object will be unselected), problem: after translation an object is created
+    // scaleRotateTranslate = !scaleRotateTranslate;
+    // update bounding box in image
+    // console.log(event);
+}
+
+function onDraggingChangedHandler(event) {
+    useTransformControls = true;
+    dragControls = true;
+    // update 2d bounding box
+    if (labelTool.selectedMesh !== undefined) {
+        updateObjectPosition();
+        let objectIndexByTrackId = getObjectIndexByName(labelTool.selectedMesh.name);
+        update2DBoundingBox(labelTool.currentFileIndex, objectIndexByTrackId);
+        render();
+    }
+    // dragObject = false;
+    console.log("dragging-changed");
+    // executed after drag finished
+    // TODO: scale only on one side
+    if (transformControls.getMode() === "scale") {
+        // labelTool.selectedMesh.translateY(labelTool.selectedMesh.geometry.parameters.height / 2)
+    }
+    // orbitControls.enabled = !event.value;
+    // translating works (no object is created)
+    // scaleRotateTranslate = false;
+}
+
+function addTransformControls() {
+    if (transformControls === undefined) {
+        // labelTool.removeObject("transformControls");
+        transformControls = new THREE.TransformControls(currentCamera, renderer.domElement);
+        transformControls.name = "transformControls";
+    } else {
+        if (transformControls.object !== labelTool.selectedMesh) {
+            transformControls.detach();
+        } else {
+            // transform controls are already defined and attached to selected object
+            return;
+        }
+    }
+    transformControls.removeEventListener('change', onChangeHandler);
+    transformControls.addEventListener('change', onChangeHandler);
+    transformControls.removeEventListener('dragging-changed', onDraggingChangedHandler);
+    transformControls.addEventListener('dragging-changed', onDraggingChangedHandler);
+
+
+    // if in birdseyeview then find minimum of longitude and latitude
+    // otherwise find minimum of x, y and z
+    // let smallestSide;
+    // if (birdsEyeViewFlag === true) {
+    //     smallestSide = Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y);
+    // } else {
+    //     smallestSide = Math.min(Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y), labelTool.selectedMesh.scale.z);
+    // }
+    //
+    // let size = smallestSide / 2;
+    // console.log("size controls addtransformcontrols: " + size);
     // transformControls.scale.x = size;
     // transformControls.scale.y = size;
     // transformControls.scale.z = size;
     transformControls.attach(labelTool.selectedMesh);
+    labelTool.removeObject("transformControls");
     scene.add(transformControls);
+
+
     window.removeEventListener('keydown', keyDownHandler);
     window.addEventListener('keydown', keyDownHandler);
     window.removeEventListener('keyup', keyUpHandler);
@@ -1339,12 +1353,18 @@ function keyDownHandler(event) {
             } else {
                 transformControls.showZ = false;
             }
+            // enable planes (translation, scaling)
+            transformControls.children[1].enabled = false;
             break;
         case 82: // R
             transformControls.setMode("rotate");
             transformControls.showX = false;
             transformControls.showY = false;
             transformControls.showZ = true;
+            // enable gizmo
+            transformControls.children[0].enabled = true;
+            // disable planes (translation, scaling)
+            transformControls.children[1].enabled = false;
             break;
         case 83: // S
             transformControls.setMode("scale");
@@ -1355,6 +1375,8 @@ function keyDownHandler(event) {
             } else {
                 transformControls.showZ = false;
             }
+            // enable planes (translation, scaling)
+            transformControls.children[1].enabled = false;
             break;
         case 187:
         case 107: // +, =, num+
@@ -2515,6 +2537,7 @@ function mouseUpLogic(ev) {
             labelTool.selectedMesh = labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex];
             if (labelTool.selectedMesh !== undefined) {
                 addTransformControls();
+
                 if (transformControls.position !== undefined) {
                     transformControls.detach();
                     transformControls.attach(labelTool.selectedMesh);
@@ -2531,7 +2554,7 @@ function mouseUpLogic(ev) {
                 let size = smallestSide / 2.0;
                 transformControls.size = size;
                 // add transform controls to scene
-                scene.add(transformControls);
+                // scene.add(transformControls);
             } else {
                 labelTool.removeObject("transformControls");
             }
