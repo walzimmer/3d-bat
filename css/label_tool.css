@@ -517,7 +517,7 @@ text {
     float: none;
     right: 0px;
     top: 290px;
-    width: 400px;
+    width: 480px !important;
 }
 
 #layout_layout_resizer_top {
@@ -531,7 +531,7 @@ text {
 
 .close-button {
     position: fixed !important;
-    width: 300px;
+    width: 480px !important;
 }
 
 .class-tooltip {
@@ -553,7 +553,7 @@ text {
     position: fixed;
     max-width: 100%;
     width: 250px;
-    right: 350px;
+    right: 480px;
     bottom: 0;
     padding: 0 10px;
     box-sizing: border-box;
