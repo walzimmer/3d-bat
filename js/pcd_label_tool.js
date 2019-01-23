@@ -3499,7 +3499,7 @@ function init() {
     classPickerElem.css('border-bottom', '0px');
 
 
-    $('#bounding-box-3d-menu').css('width', '350px');
+    $('#bounding-box-3d-menu').css('width', '480px');
     $('#bounding-box-3d-menu ul li').css('background-color', '#353535');
 
 
