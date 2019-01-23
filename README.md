@@ -19,9 +19,10 @@
 6. Step: Choose one of the 5 classes (Car, Pedestrian, Cyclist, Motorbike, Truck)
 7. Step: Interpolate if necessary
     1. Select Object to interpolate by clicking on a Bounding Box
-    2. Active Interpolation Mode in the menu (checkbox) -> start position will be saved
+    2. Activate 'Interpolation Mode' in the menu (checkbox) -> start position will be saved
     3. Move to desired frame by skipping x frames
-    4. Click on the 'Interpolate' button in the menu
+    4. Translate object to new position
+    5. Click on the 'Interpolate' button in the menu
 8. Step: Repeat steps 2-5 for all objects in the sequence
 9. Step: Download labels to your computer (JSON file)
 10. Step: Stop the time after labeling is done.
@@ -108,7 +109,6 @@ Hints:
  
 Bounding Box color convention in example images: 
  + **Green**: Objects like this should be annotated 
- + **Red**: Objects like this should not be annotated 
 
  
 ## Car
