@@ -1334,16 +1334,27 @@ function keyDownHandler(event) {
             transformControls.setMode("translate");
             transformControls.showX = true;
             transformControls.showY = true;
+            if (birdsEyeViewFlag === true) {
+                transformControls.showZ = true;
+            } else {
+                transformControls.showZ = false;
+            }
             break;
         case 82: // R
             transformControls.setMode("rotate");
             transformControls.showX = false;
             transformControls.showY = false;
+            transformControls.showZ = true;
             break;
         case 83: // S
             transformControls.setMode("scale");
             transformControls.showX = true;
             transformControls.showY = true;
+            if (birdsEyeViewFlag === true) {
+                transformControls.showZ = true;
+            } else {
+                transformControls.showZ = false;
+            }
             break;
         case 187:
         case 107: // +, =, num+
