@@ -1801,6 +1801,23 @@ function calculateAndDrawLineSegments(channelObj, className) {
     } else {
         lineArray.push(getLine(channelIdx, channelObj.projectedPoints[3], channelObj.projectedPoints[0], color));
     }
+
+
+    // draw line for orientation
+    let pointZero = channelObj.projectedPoints[0].clone();
+    let pointOne = channelObj.projectedPoints[1].clone();
+    let pointTwo = channelObj.projectedPoints[2].clone();
+    let pointThree = channelObj.projectedPoints[3].clone();
+    let startPoint = pointZero.add(pointThree.sub(pointZero).multiplyScalar(0.5));
+    pointZero = channelObj.projectedPoints[0].clone();
+    pointThree = channelObj.projectedPoints[3].clone();
+    let startPointCloned = startPoint.clone();
+    let helperPoint = pointOne.add(pointTwo.sub(pointOne).multiplyScalar(0.5));
+    let helperPointCloned = helperPoint.clone();
+    let endPoint = startPointCloned.add(helperPointCloned.sub(startPointCloned).multiplyScalar(0.2));
+    lineArray.push(getLine(channelIdx, startPoint, endPoint, color));
+
+
     // color = '#00ff00';
     // top four lines
     if ((channelObj.projectedPoints[4].x < 0 || channelObj.projectedPoints[4].x > 320) && (channelObj.projectedPoints[4].y < 0 || channelObj.projectedPoints[4].y > 240)
@@ -1854,5 +1871,6 @@ function calculateAndDrawLineSegments(channelObj, className) {
     } else {
         lineArray.push(getLine(channelIdx, channelObj.projectedPoints[3], channelObj.projectedPoints[7], color));
     }
+
     return lineArray;
 }

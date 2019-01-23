@@ -177,26 +177,22 @@ labelTool.onLoadData("CAM_BACK_LEFT", function () {
 
 function changeClass(bbIndex, newClass) {
     let notificationElem = $("#label-tool-log");
-    notificationElem.val("5. Repeat steps 1-5, download annotations and continue with next frame");
+    notificationElem.val("4. Repeat steps 1-3, download annotations and continue with next frame");
     notificationElem.css("color", "#969696");
     let annotation = annotationObjects.contents[labelTool.currentFileIndex][bbIndex];
     let color = classesBoundingBox[newClass].color;
-    if (annotation["channels"][0]["lines"] !== undefined && annotation["channels"][0]["lines"][0] !== undefined) {
-        for (let lineObj in annotation["channels"][0]["lines"]) {
-            if (annotation["channels"][0]["lines"].hasOwnProperty(lineObj)) {
-                let line = annotation["channels"][0]["lines"][lineObj];
-                line.attr({stroke: color});
+    // update color in all 6 channels
+    for (let i=0;i<annotation["channels"].length;i++){
+        if (annotation["channels"][i]["lines"] !== undefined && annotation["channels"][i]["lines"][0] !== undefined) {
+            for (let lineObj in annotation["channels"][i]["lines"]) {
+                if (annotation["channels"][i]["lines"].hasOwnProperty(lineObj)) {
+                    let line = annotation["channels"][i]["lines"][lineObj];
+                    line.attr({stroke: color});
+                }
             }
         }
     }
-    if (annotation["channels"][1]["lines"] !== undefined && annotation["channels"][1]["lines"][0] !== undefined) {
-        for (let lineObj in annotation["channels"][0]["lines"]) {
-            if (annotation["channels"][0]["lines"].hasOwnProperty(lineObj)) {
-                let line = annotation["channels"][0]["lines"][lineObj];
-                line.attr({stroke: color});
-            }
-        }
-    }
+
     let textBox;
     if (annotation["channels"][0]["textBox"] !== undefined) {
         textBox = annotation["channels"][0]["textBox"];
