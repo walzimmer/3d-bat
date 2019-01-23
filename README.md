@@ -12,19 +12,20 @@
  
 # 3D Boundingbox Annotation Instructions
 1. Step: Watch raw video (10 sec) to get familiar with the sequence and to see where interpolation makes sense
-2. Step: Start WhatPulse. Login with koyunujiju@braun4email.com and password: labeluser
-2. Step: Draw bounding box in the Bird's-Eye-View (BEV)
-3. Step: Move/Scale it in BEV using 3D arrows (drag and drop) or sliders
-4. Step: Choose one of the 5 classes (Car, Pedestrian, Cyclist, Motorbike, Truck)
-5. Step: Interpolate if necessary
+2. Step: Watch tutorial videos to get familiar with (translation/scaling/rotating objects, interpolation and how to use helper views)
+3. Step: Start WhatPulse. Login with koyunujiju@braun4email.com and password: labeluser
+4. Step: Draw bounding box in the Bird's-Eye-View (BEV)
+5. Step: Move/Scale it in BEV using 3D arrows (drag and drop) or sliders
+6. Step: Choose one of the 5 classes (Car, Pedestrian, Cyclist, Motorbike, Truck)
+7. Step: Interpolate if necessary
     1. Select Object to interpolate by clicking on a Bounding Box
     2. Active Interpolation Mode in the menu (checkbox) -> start position will be saved
     3. Move to desired frame by skipping x frames
     4. Click on the 'Interpolate' button in the menu
-6. Step: Repeat steps 2-5 for all objects in the sequence
-7. Step: Download labels to your computer (JSON file)
-8. Step: Stop the time after labeling is done.
-9. Step: Make screenshots of keyboard and mouse heat map, record number of clicks and keystrokes
+8. Step: Repeat steps 2-5 for all objects in the sequence
+9. Step: Download labels to your computer (JSON file)
+10. Step: Stop the time after labeling is done.
+11. Step: Make screenshots of keyboard and mouse heat map, record number of clicks and keystrokes
 
 # Keyboard Shortcuts
 | Key | Description   | |
