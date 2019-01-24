@@ -718,7 +718,7 @@ let labelTool = {
         }
     },
 
-    getAnnotations(currentFileIndex) {
+    getAnnotations() {
         let fileName;
         if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
             fileName = labelTool.currentDataset + "_" + labelTool.currentSequence + "_annotations.txt";
@@ -832,7 +832,7 @@ let labelTool = {
         labelTool.fileNames = this.getFileNames();
         this.initialize();
         this.showData();
-        this.getAnnotations(this.currentFileIndex);
+        this.getAnnotations();
     },
 
 
@@ -1361,7 +1361,40 @@ let labelTool = {
     },
 
     resetBoxes: function () {
-        this.getAnnotations(this.currentFileIndex);
+        for (let i = 0; i < annotationObjects.contents[this.currentFileIndex].length; i++) {
+            let obj = annotationObjects.contents[this.currentFileIndex][i];
+            let cubeObj = labelTool.cubeArray[this.currentFileIndex][i];
+            if (obj["original"] !== undefined) {
+                if (obj["original"]["x"] !== undefined) {
+                    obj["x"] = obj["original"]["x"];
+                    cubeObj["position"]["x"] = obj["original"]["x"];
+                }
+                if (obj["original"]["y"] !== undefined) {
+                    obj["y"] = obj["original"]["y"];
+                    cubeObj["position"]["y"] = obj["original"]["y"];
+                }
+                if (obj["original"]["z"] !== undefined) {
+                    obj["z"] = obj["original"]["z"];
+                    cubeObj["position"]["z"] = obj["original"]["z"];
+                }
+                if (obj["original"]["length"] !== undefined) {
+                    obj["length"] = obj["original"]["length"];
+                    cubeObj["scale"]["y"] = obj["original"]["length"];
+                }
+                if (obj["original"]["width"] !== undefined) {
+                    obj["width"] = obj["original"]["width"];
+                    cubeObj["scale"]["x"] = obj["original"]["width"];
+                }
+                if (obj["original"]["depth"] !== undefined) {
+                    obj["depth"] = obj["original"]["depth"];
+                    cubeObj["scale"]["z"] = obj["original"]["depth"];
+                }
+                if (obj["original"]["rotationY"] !== undefined) {
+                    obj["rotationY"] = obj["original"]["rotationY"];
+                    cubeObj["rotation"]["z"] = obj["original"]["rotationY"];
+                }
+            }
+        }
     },
 
 // selectYes() {

@@ -34,7 +34,7 @@
 |  N  | Next frame     ||
 |  P  | Previous frame   ||
 |  I  | Interpolate    ||
-|  CTRL+move bounding box  | Snap to grid in 0.5m steps   ||
+|  CTRL+drag bounding box | Snap to grid in 0.5m steps (floor alignment mode)  ||
 |  T  | Enable/Disable Translation mode||
 |     |  W  | Move selected object forward (TODO)|
 |     |  A  | Move selected object to left (TODO)|
@@ -57,7 +57,7 @@
 |  X  | Show/Hide X-axis ||
 |  Y  | Show/Hide Y-axis ||
 |  Z  | Show/Hide Z-axis (only in 3D mode)||
-|  Spacebar  | Enable/Disable Transform Controls ||
+|  Spacebar  | Switch between different operation modes (translate, rotate, scale) (TODO) ||
 |  TAB  | Select next object (TODO)||
 | DEL | Delete selected object (TODO)||
 |  M  | Marking mode (TODO)||
@@ -68,6 +68,18 @@
 |  3  | Select class Motorcycle (TODO)||
 |  4  | Select class Bicycle (TODO)||  
 |  5  | Select class Pedestrian (TODO)||
+| Left click | Show bounding box of current object ||
+| R| Reset selected bounding box (TODO)||
+| F11 | Full Screen Mode||
+| P | Switch into 3D Point Cloud View (TODO)||
+| L | Toggle Lighting (TODO)||
+| T | Show/Hide trajectory (TODO)||
+| SHIFT+S| Save current screen into file (requires request to server) (TODO)||
+| SHIFT+D| Download annotation file (TODO)||
+| CTRL+Z| Undo operation (TODO)||
+| CTRL+Y| Redo operation (TODO)||
+| CTRL+W| Close tab (exit)||
+| G | Show/Hide grid (TODO)||
 
 
 
@@ -79,6 +91,9 @@ Hints:
 + Label one object from start to end (using interpolation) and then continue with next object 
 + **Do not** apply more than one box to a single object.
 + Check every cuboid in every frame, to make sure all points are inside the cuboid and **look reasonable in the image view**.
++ The program has been quite stable in my use cases, but there is no guarantee that it won't crash. So please back up (download) your annotated scenes (~every 10 min). Saving to local storage (browser) is done automatically.
++ Download the annotation file into the following folder: 3D_BoundingBox_Annotation_Tool_3D_BAT/input/<DATASET>/<SEQUENCE>/annotations
++ Please open new issue tickets on Github for questions and bug reports or write me an email. Thanks!
 
 # Special Rules
 + **Minimum LIDAR Points** : 
