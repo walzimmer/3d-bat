@@ -173,7 +173,6 @@ let annotationObjects = {
         this.__selectionIndexCurrentFrame = selectionIndex;
         if (selectionIndex !== -1) {
             this.localOnSelect[channel](selectionIndex);
-            this.localOnSelect["PCD"](selectionIndex);
             return true;
         } else {
             return false;
@@ -184,6 +183,7 @@ let annotationObjects = {
         notificationElem.val("3. Draw label in Birds-Eye-View");
         notificationElem.css("color", "#969696");
         this.setSelectionIndex(objectIndex, channel);
+        this.localOnSelect["PCD"](objectIndex);
     },
     getSelectionIndex: function () {
         return this.__selectionIndexCurrentFrame;
