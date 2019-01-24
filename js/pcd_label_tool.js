@@ -1166,13 +1166,13 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
 //reset cube parameter and position
 function resetCube(index) {
     let reset_bbox = annotationObjects.contents[labelTool.currentFileIndex][index];
-    reset_bbox.x = reset_bbox.org.x;
-    reset_bbox.y = reset_bbox.org.y;
-    reset_bbox.z = reset_bbox.org.z;
-    reset_bbox.rotationY = reset_bbox.org.rotationY;
-    reset_bbox.width = reset_bbox.org.width;
-    reset_bbox.height = reset_bbox.org.height;
-    reset_bbox.depth = reset_bbox.org.depth;
+    reset_bbox.x = reset_bbox.original.x;
+    reset_bbox.y = reset_bbox.original.y;
+    reset_bbox.z = reset_bbox.original.z;
+    reset_bbox.rotationY = reset_bbox.original.rotationY;
+    reset_bbox.width = reset_bbox.original.width;
+    reset_bbox.height = reset_bbox.original.height;
+    reset_bbox.depth = reset_bbox.original.depth;
     labelTool.cubeArray[labelTool.currentFileIndex][index].position.x = reset_bbox.x;
     labelTool.cubeArray[labelTool.currentFileIndex][index].position.y = -reset_bbox.y;
     labelTool.cubeArray[labelTool.currentFileIndex][index].position.z = reset_bbox.z;

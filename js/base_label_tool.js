@@ -441,7 +441,7 @@ let labelTool = {
                 let params = getDefaultObject();
                 params.class = annotation.class;
                 params.rotationY = parseFloat(annotation.rotationY);
-                params.org.rotationY = parseFloat(annotation.rotationY);
+                params.original.rotationY = parseFloat(annotation.rotationY);
                 for (let i = 0; i < labelTool.camChannels.length; i++) {
                     params.channels[i].channel = labelTool.camChannels[i].channel;
                 }
@@ -462,16 +462,16 @@ let labelTool = {
                     params.x = parseFloat(annotation.x);
                     params.y = -parseFloat(annotation.y);
                     params.z = parseFloat(annotation.z);
-                    params.org.x = parseFloat(annotation.x);
-                    params.org.y = -parseFloat(annotation.y);
-                    params.org.z = parseFloat(annotation.z);
+                    params.original.x = parseFloat(annotation.x);
+                    params.original.y = -parseFloat(annotation.y);
+                    params.original.z = parseFloat(annotation.z);
                 } else {
                     params.x = parseFloat(annotation.x);
                     params.y = -parseFloat(annotation.y);
                     params.z = parseFloat(annotation.z);
-                    params.org.x = parseFloat(annotation.x);
-                    params.org.y = -parseFloat(annotation.y);
-                    params.org.z = parseFloat(annotation.z);
+                    params.original.x = parseFloat(annotation.x);
+                    params.original.y = -parseFloat(annotation.y);
+                    params.original.z = parseFloat(annotation.z);
                 }
                 let tmpWidth = parseFloat(annotation.width);
                 let tmpHeight = parseFloat(annotation.height);
@@ -486,9 +486,9 @@ let labelTool = {
                     params.width = tmpWidth;
                     params.height = tmpHeight;
                     params.depth = tmpDepth;
-                    params.org.width = tmpWidth;
-                    params.org.height = tmpHeight;
-                    params.org.depth = tmpDepth;
+                    params.original.width = tmpWidth;
+                    params.original.height = tmpHeight;
+                    params.original.depth = tmpDepth;
                 }
                 params.fileIndex = fileIndex;
                 // project 3D position into 2D camera image
@@ -517,7 +517,7 @@ let labelTool = {
                         let params = getDefaultObject();
                         params.class = annotation.class;
                         params.rotationY = parseFloat(annotation.rotationY);
-                        params.org.rotationY = parseFloat(annotation.rotationY);
+                        params.original.rotationY = parseFloat(annotation.rotationY);
                         for (let i = 0; i < labelTool.camChannels.length; i++) {
                             params.channels[i].channel = labelTool.camChannels[i].channel;
                         }
@@ -544,16 +544,16 @@ let labelTool = {
                             params.x = parseFloat(annotation.x);
                             params.y = parseFloat(annotation.y);
                             params.z = parseFloat(annotation.z);
-                            params.org.x = parseFloat(annotation.x);
-                            params.org.y = parseFloat(annotation.y);
-                            params.org.z = parseFloat(annotation.z);
+                            params.original.x = parseFloat(annotation.x);
+                            params.original.y = parseFloat(annotation.y);
+                            params.original.z = parseFloat(annotation.z);
                         } else {
                             params.x = parseFloat(annotation.x);
                             params.y = -parseFloat(annotation.y);
                             params.z = parseFloat(annotation.z);
-                            params.org.x = parseFloat(annotation.x);
-                            params.org.y = -parseFloat(annotation.y);
-                            params.org.z = parseFloat(annotation.z);
+                            params.original.x = parseFloat(annotation.x);
+                            params.original.y = -parseFloat(annotation.y);
+                            params.original.z = parseFloat(annotation.z);
                         }
                         let tmpWidth = parseFloat(annotation.width);
                         let tmpHeight = parseFloat(annotation.height);
@@ -568,9 +568,9 @@ let labelTool = {
                             params.width = tmpWidth;
                             params.height = tmpHeight;
                             params.depth = tmpDepth;
-                            params.org.width = tmpWidth;
-                            params.org.height = tmpHeight;
-                            params.org.depth = tmpDepth;
+                            params.original.width = tmpWidth;
+                            params.original.height = tmpHeight;
+                            params.original.depth = tmpDepth;
                         }
                         params.fileIndex = Number(frameAnnotationIdx);
                         // add new entry to contents array
@@ -1365,6 +1365,16 @@ let labelTool = {
             let obj = annotationObjects.contents[this.currentFileIndex][i];
             let cubeObj = labelTool.cubeArray[this.currentFileIndex][i];
             if (obj["original"] !== undefined) {
+                if (obj["original"]["class"] !== undefined) {
+                    if (obj["class"] !== obj["original"]["class"]) {
+                        obj["class"] = obj["original"]["class"];
+                        // TODO: update color in 6 cam images and in BEV
+
+                        if (labelTool.selectedMesh !== undefined) {
+                            // TODO: update class in classpicker if selected object not undefined
+                        }
+                    }
+                }
                 if (obj["original"]["x"] !== undefined) {
                     obj["x"] = obj["original"]["x"];
                     cubeObj["position"]["x"] = obj["original"]["x"];
@@ -1575,7 +1585,7 @@ function getDefaultObject() {
         height: -1,
         depth: -1,
         rotationY: -1,
-        org: {
+        original: {
             x: -1,
             y: -1,
             z: -1,
