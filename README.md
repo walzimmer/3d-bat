@@ -23,7 +23,7 @@
     3. Move to desired frame by skipping x frames
     4. Translate object to new position
     5. Click on the 'Interpolate' button in the menu
-8. Step: Repeat steps 2-5 for all objects in the sequence
+8. Step: Repeat steps 4-7 for all objects in the sequence
 9. Step: Download labels to your computer (JSON file)
 10. Step: Stop the time after labeling is done.
 11. Step: Make screenshots of keyboard and mouse heat map, record number of clicks and keystrokes
