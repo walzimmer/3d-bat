@@ -31,7 +31,7 @@
 # Keyboard Shortcuts
 | Key | Description   | |
 | --- | ------------- |---|
-|  N  | Next frame     ||
+|  ![N](https://raw.githubusercontent.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/master/assets/textures/keyboard/n.png)  | Next frame     ||
 |  P  | Previous frame   ||
 |  I  | Interpolate    ||
 |  CTRL+drag bounding box | Snap to grid in 0.5m steps (floor alignment mode)  ||
