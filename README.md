@@ -31,10 +31,18 @@
 # Keyboard Shortcuts
 | Key | Description   | |
 | --- | ------------- |---|
+|  ![V](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/c.png)  | Toggle view (3D view/Bird's-Eye-View)||
+|     |  ![W](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/w.png)  | Move forward in 3D view (TODO)|
+|     |  ![A](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/a.png)  | Move left in 3D view (TODO)|
+|     |  ![S](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/s.png)  | Move backward in 3D view (TODO)|
+|     |  ![D](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/d.png)  | Move right in 3D view (TODO)|
+|     |  ![Q](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/q.png)  | Move down in 3D view (TODO)|
+|     |  ![E](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/e.png)  | Move up in 3D view (TODO)|
+|  ![C](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/c.png)  | Enlarge camera image||
 |  ![N](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/n.png)  | Next frame     ||
 |  ![P](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/p.png)  | Previous frame   ||
 |  ![I](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/i.png)  | Interpolate    ||
-|  ![CTRL](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/ctrl.png)![LEFTMOUSE](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/leftmouse.png) | Snap to grid in 0.5m steps (floor alignment mode)  ||
+|  ![CTRL](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/ctrl.png)![MOUSELEFT](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/mouseleft.png) | Snap to grid in 0.5m steps (floor alignment mode)  ||
 |  ![T](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/t.png)  | Enable/Disable Translation mode||
 |     |  ![W](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/w.png)  | Move selected object forward (TODO)|
 |     |  ![A](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/a.png)  | Move selected object to left (TODO)|
@@ -59,7 +67,7 @@
 |  ![Z](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/z.png)  | Show/Hide Z-axis (only in 3D mode)||
 |  ![SPACE](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/space.png)  | Switch between different operation modes (translate, rotate, scale) (TODO) ||
 |  ![TAB](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/tab.png)  | Select next object (TODO)||
-| ![DEL](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/del.png) | Delete selected object (TODO)||
+| ![DEL](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/del.png) OR ![BACKSPACE](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/backspace.png) | Delete selected object (TODO)||
 |  ![M](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/m.png)  | Marking mode (TODO)||
 |     | ![LEFT](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/left.png) | Move orientation of object counter-clock-wise (TODO)|
 |     | ![RIGHT](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/right.png)| Move orientation of object clock-wise (TODO)|
@@ -74,8 +82,10 @@
 |            | ![LEFT](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/left.png)![RIGHT](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/right.png): Switch FOV to next channel||
 | ![R](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/r.png)| Reset all selected bounding boxes (TODO)||
 | ![F11](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/f11.png) | Full Screen Mode||
-| ![P](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/p.png) | Switch into 3D Point Cloud View (TODO)||
+| ![P](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/p.png) | Play video (TODO)||
 | ![L](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/l.png) | Toggle Lighting (TODO)||
+| ![L](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/l.png)![ONE](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/1.png) | Label random color (TODO)||
+| ![L](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/l.png)![TWO](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/2.png) | Label class color (TODO)|| 
 | ![T](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/t.png) | Show/Hide trajectory (TODO)||
 | ![SHIFT](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/shift.png)![S](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/s.png)| Save current screen into file (requires request to server) (TODO)||
 | ![SHIFT](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/shift.png)![D](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/d.png)| Download annotation file (TODO)||
@@ -83,7 +93,13 @@
 | ![CTRL](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/ctrl.png)![Y](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/y.png)| Redo operation (TODO)||
 | ![CTRL](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/ctrl.png)![W](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/w.png)| Close tab (exit)||
 | ![G](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/g.png) | Show/Hide grid (TODO)||
+| ![H](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/h.png) | Toggle aggregated pointcloud (TODO)||
+| ![J](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/j.png) | Hide all labels except selected object (Press again to show all labels) (TODO)||
 | ![QUESTIONMARK](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/questionmark.png) | Show keyboard shortcuts||
+| ![ESC](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/esc.png) | Unselect box (TODO)||
+|                                                                                                                               | Quit fullscreen cam image (TODO)||
+| ![ALT](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/alt.png)![MOUSELEFT](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/mouseleft.png) | Copy bounding box (by dragging) (TODO)||
+
 
 
 
