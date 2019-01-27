@@ -71,7 +71,7 @@
 | ![MOUSELEFT](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/mouseleft.png) | On a 2D/3D object: Show bounding box||
 |            | On a camera image: Enlarge/Shrink camera image (TODO)||
 |            | On ego vehicle: Show field-of-view (TODO)||
-|            | -> ![LEFT](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/left.png)![RIGHT](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/right.png): Switch FOV to next channel||
+|            | ![LEFT](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/left.png)![RIGHT](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/right.png): Switch FOV to next channel||
 | ![R](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/r.png)| Reset all selected bounding boxes (TODO)||
 | ![F11](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/f11.png) | Full Screen Mode||
 | ![P](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/p.png) | Switch into 3D Point Cloud View (TODO)||
