@@ -16,6 +16,8 @@ let currentOrbitControls;
 let controlsTarget = new THREE.Vector3(0, 0, 0);
 let orthographicOrbitControls;
 let perspectiveOrbitControls;
+let pointerLockControls;
+let pointerLockObject;
 let transformControls;
 let mapControlsBev;
 let mapControlsFrontView;
@@ -36,9 +38,18 @@ let moveForward = false;
 let moveBackward = false;
 let moveLeft = false;
 let moveRight = false;
+let moveUp = false;
+let moveDown = false;
+let rotateLeft = false;
+let rotateRight = false;
+let rotateUp = false;
+let rotateDown = false;
 let headerHeight = 50;
-// let velocity = new THREE.Vector3();
-// let direction = new THREE.Vector3();
+let translationVelocity = new THREE.Vector3();
+let rotationVelocity = new THREE.Vector3();
+let translationDirection = new THREE.Vector3();
+let rotationDirection = new THREE.Vector3();
+let prevTime = performance.now();
 
 // let stats;
 let cube;
@@ -87,6 +98,9 @@ let pointCloudFull;
 let pointCloudWithoutGround;
 let useTransformControls;
 let dragControls = false;
+let keyboardNavigation = false;
+let canvas3D;
+
 let parametersBoundingBox = {
     "Vehicle": function () {
         classesBoundingBox.select("Vehicle");
@@ -1468,6 +1482,104 @@ function keyDownHandler(event) {
     }
 }
 
+function setOrbitControls() {
+    document.removeEventListener('keydown', onKeyDown, false);
+    document.removeEventListener('keyup', onKeyUp, false);
+    scene.remove(pointerLockObject);
+
+
+    currentCamera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
+    currentCamera.position.set(0, 0, 5);
+    currentCamera.up.set(0, 0, 1);
+
+    currentOrbitControls = new THREE.OrbitControls(currentCamera, renderer.domElement);
+    currentOrbitControls.enablePan = true;
+    currentOrbitControls.enableRotate = true;
+    currentOrbitControls.autoRotate = false;// true for demo
+    currentOrbitControls.enableKeys = false;
+    currentOrbitControls.maxPolarAngle = Math.PI / 2;
+}
+
+function onKeyDown(event) {
+    switch (event.keyCode) {
+        case 38: // up
+            rotateUp = true;
+            break;
+        case 69: //E
+            moveUp = true;
+            break;
+        case 81: //Q
+            moveDown = true;
+            break;
+        case 87: // w
+            moveForward = true;
+            break;
+        case 37: // left
+            rotateLeft = true;
+            break;
+        case 65: // a
+            moveLeft = true;
+            break;
+        case 40: // down
+            rotateDown = true;
+            break;
+        case 83: // s
+            moveBackward = true;
+            break;
+        case 39: // right
+            rotateRight = true;
+            break;
+        case 68: // d
+            moveRight = true;
+            break;
+    }
+}
+
+function onKeyUp(event) {
+    switch (event.keyCode) {
+        case 38: // up
+            rotateUp = false;
+            break;
+        case 69: // E
+            moveUp = false;
+            break;
+        case 81: //Q
+            moveDown = false;
+            break;
+        case 87: // w
+            moveForward = false;
+            break;
+        case 37: // left
+            rotateLeft = false;
+            break;
+        case 65: // a
+            moveLeft = false;
+            break;
+        case 40: // down
+            rotateDown = false;
+            break;
+        case 83: // s
+            moveBackward = false;
+            break;
+        case 39: // right
+            rotateRight = false;
+            break;
+        case 68: // d
+            moveRight = false;
+            break;
+    }
+}
+
+function setPointerLockControls() {
+    pointerLockControls = new THREE.PointerLockControls(currentCamera, canvas3D);
+    pointerLockObject = pointerLockControls.getObject();
+    pointerLockObject.position.set(0, 0, 0);
+    pointerLockObject.rotation.set(Math.PI / 2, 0, 0);
+    scene.add(pointerLockObject);
+    window.addEventListener('keydown', onKeyDown, false);
+    window.addEventListener('keyup', onKeyUp, false);
+}
+
 //set camera type
 function setCamera() {
     if (birdsEyeViewFlag === false) {
@@ -1495,14 +1607,14 @@ function setCamera() {
         currentCamera.position.set(0, 0, 5);
         currentCamera.up.set(0, 0, 1);
 
+        canvas3D.removeEventListener('keydown', canvas3DKeyDownHandler);
+        canvas3D.addEventListener('keydown', canvas3DKeyDownHandler);
 
-        currentOrbitControls = new THREE.OrbitControls(currentCamera, renderer.domElement);
-        currentOrbitControls.enablePan = true;
-        currentOrbitControls.enableRotate = true;
-        currentOrbitControls.autoRotate = false;// true for demo
-        currentOrbitControls.enableKeys = false;
-        currentOrbitControls.maxPolarAngle = Math.PI / 2;
-        // currentOrbitControls = perspectiveOrbitControls;
+        if (keyboardNavigation === true) {
+            setPointerLockControls();
+        } else {
+            setOrbitControls();
+        }
 
         // TODO: enable to fly through the 3d scene using keys
         // let onKeyDown = function (event) {
@@ -1609,7 +1721,10 @@ function setCamera() {
     }
     // scene.add(camera);
     // currentOrbitControls.addEventListener('change', render);
-    currentOrbitControls.update();
+    if (keyboardNavigation === false) {
+        currentOrbitControls.update();
+    }
+
 }
 
 function render() {
@@ -1648,7 +1763,9 @@ function render() {
         updateAnnotationOpacity();
         updateScreenPosition();
     }
-    currentOrbitControls.update();
+    if (keyboardNavigation === false) {
+        currentOrbitControls.update();
+    }
 }
 
 function updateAnnotationOpacity() {
@@ -1762,6 +1879,44 @@ function update() {
         //  by setting current intersection object to "nothing"
         intersectedObject = null;
     }
+
+    keyboard.update();
+    let moveDistance = 50 * clock.getDelta();
+    // if (keyboardNavigation === true) {
+    //     if (keyboard.down("A")) {
+    //         // A MOVE LEFT
+    //         currentCamera.position.x = currentCamera.position.x - moveDistance;
+    //     }
+    //     if (keyboard.down("W")) {
+    //         // W MOVE FORWARD
+    //         currentCamera.position.y = currentCamera.position.y + moveDistance;
+    //     }
+    //     if (keyboard.down("D")) {
+    //         // D MOVE RIGHT
+    //         currentCamera.position.x = currentCamera.position.x + moveDistance;
+    //     }
+    //     if (keyboard.down("S")) {
+    //         // S MOVE BACKWARD
+    //         currentCamera.position.y = currentCamera.position.y - moveDistance;
+    //     }
+    //     if (keyboard.down("left")) {
+    //         // LEFT ROTATION (YAW)
+    //         currentCamera.rotation.y = currentCamera.rotation.y - moveDistance;
+    //     }
+    //     if (keyboard.down("up")) {
+    //         // UP ROTATION (PITCH)
+    //         currentCamera.rotation.x = currentCamera.rotation.x + moveDistance;
+    //     }
+    //     if (keyboard.down("right")) {
+    //         // RIGHT ROTATION (YAW)
+    //         currentCamera.rotation.y = currentCamera.rotation.y + moveDistance;
+    //     }
+    //     if (keyboard.down("down")) {
+    //         // DOWN ROTATION (PITCH)
+    //         currentCamera.rotation.x = currentCamera.rotation.x - moveDistance;
+    //     }
+    //     currentCamera.updateProjectionMatrix();
+    // }
 }
 
 //draw animation
@@ -1854,6 +2009,67 @@ function animate() {
     // }
     // cameraControls.update(camera, keyboard, clock);
     update();
+    if (keyboardNavigation === true && pointerLockControls !== undefined) {
+        let time = performance.now();
+        let delta = (time - prevTime) / 1000;
+        translationVelocity.x -= translationVelocity.x * 10.0 * delta;
+        translationVelocity.z -= translationVelocity.z * 10.0 * delta;
+        translationVelocity.y -= translationVelocity.y * 10.0 * delta;
+        rotationVelocity.x -= rotationVelocity.x * delta * 0.000000001;
+        rotationVelocity.z -= rotationVelocity.z * delta * 0.000000001;
+        rotationVelocity.y -= rotationVelocity.y * delta * 0.000000001;
+
+        translationDirection.x = Number(moveLeft) - Number(moveRight);
+        translationDirection.y = Number(moveForward) - Number(moveBackward);
+        translationDirection.z = Number(moveUp) - Number(moveDown);
+        translationDirection.normalize(); // this ensures consistent movements in all directions
+        rotationDirection.x = Number(rotateUp) - Number(rotateDown);
+        rotationDirection.y = Number(rotateRight) - Number(rotateLeft);
+        rotationDirection.z = 0; // roll not used
+        rotationDirection.normalize(); // this ensures consistent movements in all directions
+
+        if (moveForward || moveBackward) translationVelocity.z -= translationDirection.y * 400.0 * delta;
+        if (moveLeft || moveRight) translationVelocity.x -= translationDirection.x * 400.0 * delta;
+        if (moveUp || moveDown) translationVelocity.y += translationDirection.z * 400.0 * delta;
+        if (rotateUp || rotateDown) rotationVelocity.x += rotationDirection.x * delta;
+        if (rotateRight || rotateLeft) rotationVelocity.y -= rotationDirection.y * delta;
+
+        pointerLockControls.getObject().translateX(translationVelocity.x * delta);//lateral
+        pointerLockControls.getObject().translateY(translationVelocity.y * delta);//vertical
+        pointerLockControls.getObject().translateZ(translationVelocity.z * delta);//longitudinal
+
+        // pointerLockControls.getObject().rotateX(rotationVelocity.x * delta);//pitch
+        // pointerLockControls.getObject().rotateY(rotationVelocity.y * delta);//yaw
+        //pointerLockControls.getObject().rotateZ(rotationVelocity.z * delta);//roll not used
+
+
+        // TODO: do not allow to rotate up/down (pitch) because yaw will not work afterwards (because yaw rotation around local vertical axis)
+        // solution: yaw rotation around vertical WORLD axis!
+        // if (rotateUp) {
+        //     pointerLockObject.rotateX(0.01);//pitch
+        // } else {
+        //     pointerLockObject.rotateX(0);//pitch
+        // }
+        // if (rotateDown) {
+        //     pointerLockObject.rotateX(-0.01);//pitch
+        // } else {
+        //     pointerLockObject.rotateX(0);//pitch
+        // }
+
+        if (rotateLeft) {
+            pointerLockObject.rotateY(0.01);//pitch
+        } else {
+            pointerLockObject.rotateY(0);//pitch
+        }
+        if (rotateRight) {
+            pointerLockObject.rotateY(-0.01);//pitch
+        } else {
+            pointerLockObject.rotateY(0);//pitch
+        }
+
+        prevTime = time;
+    }
+
     render();
 
 }
@@ -3170,6 +3386,142 @@ function createGrid() {
     scene.add(grid);
 }
 
+function windowKeyDownHandler(event) {
+    switch (event.keyCode) {
+        case 67: // C
+            switchView();
+            break;
+    }
+    if (birdsEyeViewFlag === false) {
+        switch (event.keyCode) {
+            case 75: //K
+                toggleKeyboardNavigation();
+                break;
+        }
+        // if (keyboardNavigation === true) {
+        //     let delta = 1;
+        //     let rotationDelta = 0.1;
+        //     switch (event.keyCode) {
+        //         case 65: // A MOVE LEFT
+        //             currentCamera.position.x = currentCamera.position.x - delta;
+        //             break;
+        //         case 87: // W MOVE FORWARD
+        //             currentCamera.position.y = currentCamera.position.y + delta;
+        //             break;
+        //         case 68: // D MOVE RIGHT
+        //             currentCamera.position.x = currentCamera.position.x + delta;
+        //             break;
+        //         case 83: // S MOVE BACKWARD
+        //             currentCamera.position.y = currentCamera.position.y - delta;
+        //             break;
+        //         case 37:// LEFT ROTATION (YAW)
+        //             currentCamera.rotation.y = currentCamera.rotation.y - rotationDelta;
+        //             break;
+        //         case 38:// UP ROTATION (PITCH)
+        //             currentCamera.rotation.x = currentCamera.rotation.x + rotationDelta;
+        //             break;
+        //         case 39:// RIGHT ROTATION (YAW)
+        //             currentCamera.rotation.y = currentCamera.rotation.y + rotationDelta;
+        //             break;
+        //         case 40:// DOWN ROTATION (PITCH)
+        //             currentCamera.rotation.x = currentCamera.rotation.x - rotationDelta;
+        //             break;
+        //     }
+        //     currentCamera.updateProjectionMatrix();
+        // }
+    }
+}
+
+function toggleKeyboardNavigation() {
+    keyboardNavigation = !keyboardNavigation;
+    if (keyboardNavigation === true) {
+        setPointerLockControls();
+    } else {
+        setOrbitControls();
+    }
+}
+
+// function canvas3DKeyUpHandler(event) {
+//     if (keyboardNavigation === true) {
+//         switch (event.keyCode) {
+//             case 38: // up
+//                 break;
+//             case 87: // w
+//                 moveForward = false;
+//                 console.log("move forward false");
+//                 break;
+//             case 37: // left
+//                 break;
+//             case 65: // a
+//                 moveLeft = false;
+//                 console.log("move left false");
+//                 break;
+//             case 40: // down
+//                 break;
+//             case 83: // s
+//                 moveBackward = false;
+//                 break;
+//             case 39: // right
+//                 break;
+//             case 68: // d
+//                 moveRight = false;
+//                 break;
+//         }
+//     }
+// }
+
+function canvas3DKeyDownHandler(event) {
+    switch (event.keyCode) {
+        case 75: //K
+            toggleKeyboardNavigation();
+            break;
+    }
+    // if (keyboardNavigation === true) {
+    //     switch (event.keyCode) {
+    //         case 38: // up
+    //             break;
+    //         case 87: // w
+    //             moveForward = true;
+    //             console.log("move forward true");
+    //             break;
+    //         case 37: // left
+    //             break;
+    //         case 65: // a
+    //             moveLeft = true;
+    //             console.log("move left true");
+    //             break;
+    //         case 40: // down
+    //             break;
+    //         case 83: // s
+    //             moveBackward = true;
+    //             break;
+    //         case 39: // right
+    //             break;
+    //         case 68: // d
+    //             moveRight = true;
+    //             break;
+    //     }
+    // }
+    // if (keyboardNavigation === true) {
+    //     let delta = 1;
+    //     switch (event.keyCode) {
+    //         case 37: // LEFT
+    //             currentCamera.position.x = currentCamera.position.x - delta;
+    //             break;
+    //         case 38: // UP
+    //             currentCamera.position.z = currentCamera.position.z - delta;
+    //             break;
+    //         case 39: // RIGHT
+    //             currentCamera.position.x = currentCamera.position.x + delta;
+    //             break;
+    //         case 40: // DOWN
+    //             currentCamera.position.z = currentCamera.position.z + delta;
+    //             break;
+    //     }
+    //     currentCamera.updateProjectionMatrix();
+    // }
+}
+
 function init() {
     if (WEBGL.isWebGLAvailable() === false) {
         document.body.appendChild(WEBGL.getWebGLErrorMessage());
@@ -3236,7 +3588,8 @@ function init() {
     //
     // cameraControls = new CameraControls();
     // keyboard = new THREEx.KeyboardState();
-    // clock = new THREE.Clock();
+    keyboard = new KeyboardState();
+    clock = new THREE.Clock();
     // container = document.createElement('div');
     // document.body.appendChild(container);
 
@@ -3254,7 +3607,18 @@ function init() {
     light.position.set(0, 0, 0);
     scene.add(light);
 
-    let canvas3D = document.getElementById('canvas3d');
+    canvas3D = document.getElementById('canvas3d');
+
+    if (birdsEyeViewFlag === false) {
+        canvas3D.removeEventListener('keydown', canvas3DKeyDownHandler);
+        canvas3D.addEventListener('keydown', canvas3DKeyDownHandler);
+        // canvas3D.removeEventListener('keyup', canvas3DKeyUpHandler);
+        // canvas3D.addEventListener('keyup', canvas3DKeyUpHandler);
+    }
+
+
+    window.removeEventListener('keydown', windowKeyDownHandler);
+    window.addEventListener('keydown', windowKeyDownHandler);
     // controls.domElement = container;
 
     renderer = new THREE.WebGLRenderer({antialias: true});

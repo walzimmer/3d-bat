@@ -83,6 +83,7 @@
 | ![R](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/r.png)| Reset all selected bounding boxes (TODO)||
 | ![F11](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/f11.png) | Full Screen Mode||
 | ![P](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/p.png) | Play video (TODO)||
+| ![K](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/k.png) | Keyboard navigation (only in 3D view) (TODO)||
 | ![L](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/l.png) | Toggle Lighting (TODO)||
 | ![L](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/l.png)![ONE](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/1.png) | Label random color (TODO)||
 | ![L](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/l.png)![TWO](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/2.png) | Label class color (TODO)|| 
