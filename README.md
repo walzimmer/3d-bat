@@ -68,8 +68,11 @@
 |  3  | Select class Motorcycle (TODO)||
 |  4  | Select class Bicycle (TODO)||  
 |  5  | Select class Pedestrian (TODO)||
-| Left click | Show bounding box of current object ||
-| R| Reset selected bounding box (TODO)||
+| Left click | On a 2D/3D object: Show bounding box||
+|            | On a camera image: Enlarge/Shrink camera image (TODO)||
+|            | On ego vehicle: Show field-of-view (TODO)||
+|            | -> LEFT/RIGHT: Switch FOV to next channel||
+| R| Reset all selected bounding boxes (TODO)||
 | F11 | Full Screen Mode||
 | P | Switch into 3D Point Cloud View (TODO)||
 | L | Toggle Lighting (TODO)||
@@ -80,7 +83,7 @@
 | CTRL+Y| Redo operation (TODO)||
 | CTRL+W| Close tab (exit)||
 | G | Show/Hide grid (TODO)||
-
+| ? or / | Show keyboard shortcuts||
 
 
 
