@@ -34,7 +34,7 @@
 |  ![N](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/n.png)  | Next frame     ||
 |  ![P](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/p.png)  | Previous frame   ||
 |  ![I](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/i.png)  | Interpolate    ||
-|  ![CTRL](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/ctrl.png)+![LEFTMOUSE](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/leftmouse.png) bounding box | Snap to grid in 0.5m steps (floor alignment mode)  ||
+|  ![CTRL](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/ctrl.png)![LEFTMOUSE](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/leftmouse.png) | Snap to grid in 0.5m steps (floor alignment mode)  ||
 |  ![T](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/t.png)  | Enable/Disable Translation mode||
 |     |  ![W](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/w.png)  | Move selected object forward (TODO)|
 |     |  ![A](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/a.png)  | Move selected object to left (TODO)|
@@ -50,8 +50,8 @@
 |     | ![DOWN](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/down.png) | Decrease length along longitudinal axis (y-axis) (TODO)|
 |     | ![LEFT](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/left.png)  | Decrease width along lateral axis (x-axis) (TODO)|
 |     | ![RIGHT](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/right.png)  | Increase width along lateral axis (x-axis) (TODO)|
-|     | ![SHIFT](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/shift.png)+![RIGHT](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/right.png)  | Increase height along vertical axis (z-axis) (TODO)|
-|     | ![CTRL](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/ctrl.png)+![RIGHT](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/right.png) | Decrease height along vertical axis (z-axis) (TODO)|
+|     | ![SHIFT](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/shift.png)![RIGHT](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/right.png)  | Increase height along vertical axis (z-axis) (TODO)|
+|     | ![CTRL](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/ctrl.png)![RIGHT](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/right.png) | Decrease height along vertical axis (z-axis) (TODO)|
 |  ![PLUS](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/plus.png)  | Increase arrow size ||
 |  ![MINUS](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/minus.png)  | Decrease arrow size ||
 |  ![X](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/textures/keyboard_small/x.png)  | Show/Hide X-axis ||
