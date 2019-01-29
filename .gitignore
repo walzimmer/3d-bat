@@ -18,10 +18,10 @@ doc
 .project
 .pydevproject
 _ext
-input/NuScenes/*
-input/NuScenes/pointclouds/all_scenes
-input/NuScenes/pointclouds_without_ground/all_scenes
-input/NuScenes/images
+input/NuScenes_full/*
+input/NuScenes_full/pointclouds/all_scenes
+input/NuScenes_full/pointclouds_without_ground/all_scenes
+input/NuScenes_full/images
 input/LISA_T/2018-05-23-001-frame-00042917-00043816/annotations
 input/LISA_T/2018-05-23-001-frame-00042917-00043816/pointclouds
 input/LISA_T/2018-05-23-001-frame-00042917-00043816/pointclouds_without_ground
