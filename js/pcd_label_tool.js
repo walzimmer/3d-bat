@@ -860,17 +860,17 @@ function setHighestAvailableTrackId(label) {
         }
         if (exist === false) {
             // track id was not used yet
-            if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-                classesBoundingBox[label].nextTrackId = newTrackId;
-            } else {
+            if (labelTool.showOriginalNuScenesLabels === true) {
                 classesBoundingBox.content[label].nextTrackId = newTrackId;
+            } else {
+                classesBoundingBox[label].nextTrackId = newTrackId;
             }
             break;
         }
-        if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-            classesBoundingBox[label].nextTrackId = annotationObjects.contents[labelTool.currentFileIndex].length + 1;
-        } else {
+        if (labelTool.showOriginalNuScenesLabels === true) {
             classesBoundingBox.content[label].nextTrackId = annotationObjects.contents[labelTool.currentFileIndex].length + 1;
+        } else {
+            classesBoundingBox[label].nextTrackId = annotationObjects.contents[labelTool.currentFileIndex].length + 1;
         }
 
     }
@@ -2168,8 +2168,9 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
     let longitudeOffset = 0;
     let imagePanelHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
     if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
-        streetVerticalOffset = 0;
-        imageScalingFactor = 1600 / imagePanelHeight;//5
+        streetVerticalOffset = 0;//[0,labelTool.positionLidarNuscenes[2],1]
+        //imageScalingFactor = 1600 / imagePanelHeight;//5
+        imageScalingFactor = 5;
         dimensionScalingFactor = 1;
         longitudeOffset = 0;
         xPos = xPos + labelTool.translationVectorLidarToCamFront[1];//lat
@@ -3361,8 +3362,8 @@ function enableChooseSequenceDropDown(chooseSequenceDropDown) {
 }
 
 function disableChooseSequenceDropDown(chooseSequenceDropDown) {
-    chooseSequenceDropDown.parentElement.parentElement.parentElement.style.pointerEvents = "none";
-    chooseSequenceDropDown.parentElement.parentElement.parentElement.style.opacity = 0.2;
+    chooseSequenceDropDown.parentElement.parentElement.style.pointerEvents = "none";
+    chooseSequenceDropDown.parentElement.parentElement.style.opacity = 0.2;
     chooseSequenceDropDown.tabIndex = -1;
 }
 
@@ -3756,10 +3757,10 @@ function init() {
                 let showNuScenesLabelsCheckbox = allCheckboxes[0];
                 if (value === labelTool.datasets.LISA_T) {
                     disableShowNuscenesLabelsCheckbox(showNuScenesLabelsCheckbox);
-                    enableChooseSequenceDropDown(chooseSequenceDropDown);
+                    enableChooseSequenceDropDown(chooseSequenceDropDown.domElement);
                 } else {
                     enableShowNuscenesLabelsCheckbox(showNuScenesLabelsCheckbox);
-                    disableChooseSequenceDropDown(chooseSequenceDropDown);
+                    disableChooseSequenceDropDown(chooseSequenceDropDown.domElement);
                 }
             });
         chooseSequenceDropDown = guiOptions.add(parameters, 'sequences', [
