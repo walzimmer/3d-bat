@@ -27,9 +27,9 @@ let labelTool = {
     }),
     sequencesNuScenes: [],
     currentDataset: 'LISA_T',
-    currentSequence: '2018-05-23-001-frame-00042917-00043816_small',
+    currentSequence: '2018-05-23-001-frame-00042917-00043816_small',//[2018-05-23-001-frame-00042917-00043816_small, One]
     numFramesLISAT: 900,
-    numFramesNuScenes: 3962,
+    numFramesNuScenes: 120,//[3962,120]
     numFrames: 0,
     dataTypes: [],
     currentFileIndex: 0,
@@ -457,22 +457,12 @@ let labelTool = {
 
                 // Nuscenes labels are stored in global frame in the database
                 // Nuscenes: labels (3d positions) are transformed from global frame to point cloud (global -> ego, ego -> point cloud) before exporting them
-                // LISAT: labels are stored in ego frame which is also the point cloud frame (no transformation needed)
-                if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-                    params.x = parseFloat(annotation.x);
-                    params.y = -parseFloat(annotation.y);
-                    params.z = parseFloat(annotation.z);
-                    params.original.x = parseFloat(annotation.x);
-                    params.original.y = -parseFloat(annotation.y);
-                    params.original.z = parseFloat(annotation.z);
-                } else {
-                    params.x = parseFloat(annotation.x);
-                    params.y = -parseFloat(annotation.y);
-                    params.z = parseFloat(annotation.z);
-                    params.original.x = parseFloat(annotation.x);
-                    params.original.y = -parseFloat(annotation.y);
-                    params.original.z = parseFloat(annotation.z);
-                }
+                params.x = parseFloat(annotation.x);
+                params.y = -parseFloat(annotation.y);
+                params.z = parseFloat(annotation.z);
+                params.original.x = parseFloat(annotation.x);
+                params.original.y = -parseFloat(annotation.y);
+                params.original.z = parseFloat(annotation.z);
                 let tmpWidth = parseFloat(annotation.width);
                 let tmpHeight = parseFloat(annotation.height);
                 let tmpDepth = parseFloat(annotation.length);
@@ -500,8 +490,8 @@ let labelTool = {
             }
         }
     },
-    // Set values to this.annotationObjects from annotations
-    loadAnnotationsLISAT: function (allAnnotations) {
+    // Set values to this.annotationObjects from allAnnotations
+    loadAnnotationsJSON: function (allAnnotations) {
         // Remove old bounding boxes of current frame.
         annotationObjects.clear();
         let maxTrackIds = [0, 0, 0, 0, 0];// vehicle, truck, motorcycle, bicycle, pedestrian
@@ -522,17 +512,19 @@ let labelTool = {
                             params.channels[i].channel = labelTool.camChannels[i].channel;
                         }
                         let classIdx;
-                        if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
-                            classesBoundingBox.addNuSceneLabel(annotation.class);
-                            classesBoundingBox.__target = Object.keys(classesBoundingBox.content)[0];
-                            params.trackId = classesBoundingBox.content[annotation.class].nextTrackId;
-                            classesBoundingBox.content[annotation.class].nextTrackId++;
-                            classIdx = classesBoundingBox.content[annotation.class].index;
 
-                        } else {
-                            params.trackId = annotation.trackId;
-                            classIdx = classesBoundingBox[annotation.class].index;
-                        }
+
+                        // if (labelTool.showOriginalNuScenesLabel ===true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
+                        //     classesBoundingBox.addNuSceneLabel(annotation.class);
+                        //     classesBoundingBox.__target = Object.keys(classesBoundingBox.content)[0];
+                        //     params.trackId = classesBoundingBox.content[annotation.class].nextTrackId;
+                        //     classesBoundingBox.content[annotation.class].nextTrackId++;
+                        //     classIdx = classesBoundingBox.content[annotation.class].index;
+                        // }
+
+                        params.trackId = annotation.trackId;
+                        classIdx = classesBoundingBox[annotation.class].index;
+
                         if (params.trackId > maxTrackIds[classIdx]) {
                             maxTrackIds[classIdx] = params.trackId;
                         }
@@ -576,7 +568,12 @@ let labelTool = {
                         // add new entry to contents array
                         annotationObjects.set(annotationObjects.__insertIndex, params);
                         annotationObjects.__insertIndex++;
-                        classesBoundingBox.target().nextTrackId++;
+                        if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+                            classesBoundingBox.target().nextTrackId++;
+                        }else{
+                            classesBoundingBox.content[classesBoundingBox.targetName()].nextTrackId++;
+                        }
+
 
                     }
                 }//end for loop frame annotations
@@ -594,6 +591,13 @@ let labelTool = {
             let keys = Object.keys(classesBoundingBox);
             for (let i = 0; i < maxTrackIds.length; i++) {
                 classesBoundingBox[keys[i]].nextTrackId = maxTrackIds[i] + 1;
+            }
+        }else{
+            if(labelTool.showOriginalNuScenesLabels===false){
+                let keys = Object.keys(classesBoundingBox.content);
+                for (let i = 0; i < maxTrackIds.length; i++) {
+                    classesBoundingBox.content[keys[i]].nextTrackId = maxTrackIds[i] + 1;
+                }
             }
         }
         // project 3D positions of current frame into 2D camera images
@@ -730,13 +734,31 @@ let labelTool = {
                     file_name: fileName
                 },
                 success: function (res) {
-                    this.loadAnnotationsLISAT(res);
+                    this.loadAnnotationsJSON(res);
                 }.bind(this),
                 error: function (res) {
                 }.bind(this)
             });
         } else {
-            for (let i = 0; i < this.fileNames.length; i++) {
+            if (labelTool.showOriginalNuScenesLabels === true) {
+                for (let i = 0; i < this.fileNames.length; i++) {
+                    fileName = this.fileNames[i] + ".txt";
+                    request({
+                        url: '/label/annotations/',
+                        type: 'GET',
+                        dataType: 'json',
+                        data: {
+                            file_name: fileName
+                        },
+                        success: function (res) {
+                            this.loadAnnotationsNuscenes(res, i);
+                        }.bind(this),
+                        error: function (res) {
+                        }.bind(this)
+                    });
+                }
+            } else {
+                fileName = labelTool.currentDataset + "_" + labelTool.currentSequence + "_annotations.txt";
                 request({
                     url: '/label/annotations/',
                     type: 'GET',
@@ -745,7 +767,7 @@ let labelTool = {
                         file_name: fileName
                     },
                     success: function (res) {
-                        this.loadAnnotationsNuscenes(res, i);
+                        this.loadAnnotationsNuscenes(res, fileName);
                     }.bind(this),
                     error: function (res) {
                     }.bind(this)
@@ -852,7 +874,7 @@ let labelTool = {
             labelTool.numFrames = labelTool.numFramesNuScenes;
             setSequences();
             labelTool.currentSequence = labelTool.sequencesNuScenes[0];
-            numFiles = 3962;
+            numFiles = 120;//[3962, 120]
         }
         for (let i = 0; i < numFiles; i++) {
             fileNameArray.push(pad(i, 6))
