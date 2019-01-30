@@ -1139,7 +1139,9 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
             $("#class-" + bbox.class.charAt(0) + bbox.trackId).remove();
             labelTool.selectedMesh = undefined;
             // reduce track id by 1 for this class
-            if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+            if (labelTool.showOriginalNuScenesLabels) {
+                classesBoundingBox.content[label].nextTrackId--;
+            } else {
                 if (insertIndex === annotationObjects.contents[labelTool.currentFileIndex].length) {
                     // decrement track id if the last object in the list was deleted
                     classesBoundingBox[label].nextTrackId--;
@@ -1147,8 +1149,6 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
                     // otherwise not last object was deleted -> find out the highest possible track id
                     setHighestAvailableTrackId(label);
                 }
-            } else {
-                classesBoundingBox.content[label].nextTrackId--;
             }
             // if last object in current frame was deleted than disable interpolation mode
             if (annotationObjects.contents[labelTool.currentFileIndex].length === 0) {
@@ -1163,6 +1163,7 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
                 let elem = document.getElementById(idToChange);
                 elem.id = "copy-label-to-next-frame-checkbox-" + (i - 1);
             }
+            annotationObjects.__selectionIndexCurrentFrame = -1;
         }
     };
     let copyLabelToNextFrameCheckbox = folderBoundingBox3DArray[folderBoundingBox3DArray.length - 1].add(labelAttributes, 'copy_label_to_next_frame').name("Copy label to next frame");
@@ -3205,7 +3206,7 @@ function mouseDownLogic(ev) {
                 let elem = document.getElementById(idToChange);
                 elem.id = "copy-label-to-next-frame-checkbox-" + (i - 1);
             }
-
+            annotationObjects.__selectionIndexCurrentFrame = -1;
         }//end right click
     } else {
         // labelTool.selectedMesh = undefined;
