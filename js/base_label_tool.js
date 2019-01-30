@@ -535,21 +535,21 @@ let labelTool = {
                         // Nuscenes labels are stored in global frame in the database
                         // Nuscenes: labels (3d positions) are transformed from global frame to point cloud (global -> ego, ego -> point cloud) before exporting them
                         // LISAT: labels are stored in ego frame which is also the point cloud frame (no transformation needed)
-                        if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-                            params.x = parseFloat(annotation.x);
-                            params.y = parseFloat(annotation.y);
-                            params.z = parseFloat(annotation.z);
-                            params.original.x = parseFloat(annotation.x);
-                            params.original.y = parseFloat(annotation.y);
-                            params.original.z = parseFloat(annotation.z);
-                        } else {
-                            params.x = parseFloat(annotation.x);
-                            params.y = -parseFloat(annotation.y);
-                            params.z = parseFloat(annotation.z);
-                            params.original.x = parseFloat(annotation.x);
-                            params.original.y = -parseFloat(annotation.y);
-                            params.original.z = parseFloat(annotation.z);
-                        }
+                        // if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+                        params.x = parseFloat(annotation.x);
+                        params.y = parseFloat(annotation.y);
+                        params.z = parseFloat(annotation.z);
+                        params.original.x = parseFloat(annotation.x);
+                        params.original.y = parseFloat(annotation.y);
+                        params.original.z = parseFloat(annotation.z);
+                        // } else {
+                        //     params.x = parseFloat(annotation.x);
+                        //     params.y = -parseFloat(annotation.y);
+                        //     params.z = parseFloat(annotation.z);
+                        //     params.original.x = parseFloat(annotation.x);
+                        //     params.original.y = -parseFloat(annotation.y);
+                        //     params.original.z = parseFloat(annotation.z);
+                        // }
                         let tmpWidth = parseFloat(annotation.width);
                         let tmpHeight = parseFloat(annotation.height);
                         let tmpDepth = parseFloat(annotation.length);
