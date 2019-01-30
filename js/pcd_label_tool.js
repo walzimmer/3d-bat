@@ -3154,6 +3154,8 @@ function mouseDownLogic(ev) {
             labelTool.selectedMesh = undefined;
             // reduce track id by 1 for this class
             if (labelTool.showOriginalNuScenesLabels===true) {
+                classesBoundingBox.content[label].nextTrackId--;
+            } else {
                 if (clickedObjectIndex === annotationObjects.contents[labelTool.currentFileIndex].length) {
                     // decrement track id if the last object in the list was deleted
                     classesBoundingBox[label].nextTrackId--;
@@ -3174,8 +3176,7 @@ function mouseDownLogic(ev) {
                         }
                     }
                 }
-            } else {
-                classesBoundingBox.content[label].nextTrackId--;
+
             }
             $("#canvasSideView").remove();
             $("#canvasFrontView").remove();
