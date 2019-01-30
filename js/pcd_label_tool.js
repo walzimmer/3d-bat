@@ -3153,7 +3153,7 @@ function mouseDownLogic(ev) {
             $("#class-" + label.charAt(0) + trackId).remove();
             labelTool.selectedMesh = undefined;
             // reduce track id by 1 for this class
-            if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+            if (labelTool.showOriginalNuScenesLabels===true) {
                 if (clickedObjectIndex === annotationObjects.contents[labelTool.currentFileIndex].length) {
                     // decrement track id if the last object in the list was deleted
                     classesBoundingBox[label].nextTrackId--;

@@ -9,6 +9,9 @@ function initTimer() {
         labelTool.timeElapsed = labelTool.timeElapsed + 1;
         seconds = labelTool.timeElapsed % 60;
         minutes = Math.floor(labelTool.timeElapsed / 60);
+        if (minutes > 59) {
+            minutes = 0;
+        }
         hours = Math.floor(labelTool.timeElapsed / (60 * 60));
         timeString = pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2);
         $("#time-elapsed").text(timeString);
@@ -568,9 +571,9 @@ let labelTool = {
                         // add new entry to contents array
                         annotationObjects.set(annotationObjects.__insertIndex, params);
                         annotationObjects.__insertIndex++;
-                        if (labelTool.showOriginalNuScenesLabels===true) {
+                        if (labelTool.showOriginalNuScenesLabels === true) {
                             classesBoundingBox.content[classesBoundingBox.targetName()].nextTrackId++;
-                        }else{
+                        } else {
                             classesBoundingBox.target().nextTrackId++;
                         }
 
@@ -592,8 +595,8 @@ let labelTool = {
             for (let i = 0; i < maxTrackIds.length; i++) {
                 classesBoundingBox[keys[i]].nextTrackId = maxTrackIds[i] + 1;
             }
-        }else{
-            if(labelTool.showOriginalNuScenesLabels===false){
+        } else {
+            if (labelTool.showOriginalNuScenesLabels === false) {
                 let keys = Object.keys(classesBoundingBox.content);
                 for (let i = 0; i < maxTrackIds.length; i++) {
                     classesBoundingBox.content[keys[i]].nextTrackId = maxTrackIds[i] + 1;
