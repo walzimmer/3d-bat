@@ -1104,6 +1104,8 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
             resetCube(insertIndex);
         },
         delete: function () {
+            let copyIdList = document.querySelectorAll('[id^="copy-label-to-next-frame-checkbox-"]'); // e.g. 0,1
+
             guiOptions.removeFolder(bbox.class + ' ' + bbox.trackId);
             // hide 3D bounding box instead of removing it (in case redo button will be pressed)
             transformControls.detach();
@@ -1153,6 +1155,13 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
                 interpolationMode = false;
                 $("#interpolation-checkbox").children().first().prop("checked", false);
                 $("#interpolation-checkbox").children().first().removeAttr("checked");
+            }
+            //rename all ids following after insertIndexof
+            // e.g. rename copy-label-to-next-frame-checkbox-1 to copy-label-to-next-frame-checkbox-0 if deleting first element
+            for (let i = insertIndex + 1; i <= annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
+                let idToChange = copyIdList[i].id;
+                let elem = document.getElementById(idToChange);
+                elem.id = "copy-label-to-next-frame-checkbox-" + (i - 1);
             }
         }
     };
@@ -3117,6 +3126,7 @@ function mouseDownLogic(ev) {
             clickedPlaneArray.push(clickedPlane);
         } else if (ev.button === 2) {
             // rightclick
+            let copyIdList = document.querySelectorAll('[id^="copy-label-to-next-frame-checkbox-"]'); // e.g. 0,1
             clickedObjectIndex = labelTool.cubeArray[labelTool.currentFileIndex].indexOf(clickedObjects[0].object);
             let label = annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex]["class"];
             let trackId = annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex]["trackId"];
@@ -3153,7 +3163,7 @@ function mouseDownLogic(ev) {
             $("#class-" + label.charAt(0) + trackId).remove();
             labelTool.selectedMesh = undefined;
             // reduce track id by 1 for this class
-            if (labelTool.showOriginalNuScenesLabels===true) {
+            if (labelTool.showOriginalNuScenesLabels === true) {
                 classesBoundingBox.content[label].nextTrackId--;
             } else {
                 if (clickedObjectIndex === annotationObjects.contents[labelTool.currentFileIndex].length) {
@@ -3187,6 +3197,13 @@ function mouseDownLogic(ev) {
                 interpolationMode = false;
                 $("#interpolation-checkbox").children().first().prop("checked", false);
                 $("#interpolation-checkbox").children().first().removeAttr("checked");
+            }
+            //rename all ids following after insertIndexof
+            // e.g. rename copy-label-to-next-frame-checkbox-1 to copy-label-to-next-frame-checkbox-0 if deleting first element
+            for (let i = clickedObjectIndex + 1; i <= annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
+                let idToChange = copyIdList[i].id;
+                let elem = document.getElementById(idToChange);
+                elem.id = "copy-label-to-next-frame-checkbox-" + (i - 1);
             }
 
         }//end right click
