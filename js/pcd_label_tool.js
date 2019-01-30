@@ -867,7 +867,6 @@ function setHighestAvailableTrackId(label) {
         } else {
             classesBoundingBox[label].nextTrackId = annotationObjects.contents[labelTool.currentFileIndex].length + 1;
         }
-
     }
 }
 
@@ -1087,15 +1086,18 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
         // get smallest available track id for this class (look at all objects within that sequence)
 
         let minTrackId = getSmallestTrackId(bbox.class);
-        if (value < 1) {
-            labelTool.logger.error("You have entered an invalid track ID.");
-        } else if (value !== minTrackId) {
+        if (value < 1 || value !== minTrackId) {
             labelTool.logger.error("You have entered an invalid track ID.");
         }
         labelTool.logger.success("Track ID for class " + bbox.class + " was set to " + minTrackId + ".");
-        value = minTrackId;
-        annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["trackId"] = Math.round(value);
-        $("#bounding-box-3d-menu ul").children().eq(insertIndex + numGUIOptions).children().first().children().first().children().first().text(bbox.class + " " + Math.round(value));
+        value = Math.round(minTrackId);
+        // update cube name
+        labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].name = 'cube-' + bbox.class.charAt(0) + value;
+        annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["trackId"] = value;
+        if (labelTool.selectedMesh !== undefined) {
+            labelTool.selectedMesh.name = 'cube-' + bbox.class.charAt(0) + value;
+        }
+        $("#bounding-box-3d-menu ul").children().eq(insertIndex + numGUIOptions).children().first().children().first().children().first().text(bbox.class + " " + value);
     });
 
     let labelAttributes = {
