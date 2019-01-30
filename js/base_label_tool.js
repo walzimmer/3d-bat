@@ -590,17 +590,16 @@ let labelTool = {
                 annotationObjects.__insertIndex = 0;
             }
         }// end for loop all annotations
-        if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+
+        if (labelTool.showOriginalNuScenesLabels === true) {
+            let keys = Object.keys(classesBoundingBox.content);
+            for (let i = 0; i < maxTrackIds.length; i++) {
+                classesBoundingBox.content[keys[i]].nextTrackId = maxTrackIds[i] + 1;
+            }
+        } else {
             let keys = Object.keys(classesBoundingBox);
             for (let i = 0; i < maxTrackIds.length; i++) {
                 classesBoundingBox[keys[i]].nextTrackId = maxTrackIds[i] + 1;
-            }
-        } else {
-            if (labelTool.showOriginalNuScenesLabels === false) {
-                let keys = Object.keys(classesBoundingBox.content);
-                for (let i = 0; i < maxTrackIds.length; i++) {
-                    classesBoundingBox.content[keys[i]].nextTrackId = maxTrackIds[i] + 1;
-                }
             }
         }
         // project 3D positions of current frame into 2D camera images
