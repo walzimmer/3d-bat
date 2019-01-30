@@ -1256,7 +1256,10 @@ let labelTool = {
             if (interpolationMode === true) {
                 selectionIndexNextFile = getObjectIndexByTrackIdAndClass(annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["trackId"], annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["class"], newFileIndex);
             } else {
-                selectionIndexNextFile = getObjectIndexByTrackIdAndClass(annotationObjects.contents[this.currentFileIndex][annotationObjects.getSelectionIndex()]["trackId"], annotationObjects.contents[this.currentFileIndex][annotationObjects.getSelectionIndex()]["class"], newFileIndex);
+                if (annotationObjects.getSelectionIndex() !== -1 && annotationObjects.contents[this.currentFileIndex][annotationObjects.getSelectionIndex()] !== undefined) {
+                    selectionIndexNextFile = getObjectIndexByTrackIdAndClass(annotationObjects.contents[this.currentFileIndex][annotationObjects.getSelectionIndex()]["trackId"], annotationObjects.contents[this.currentFileIndex][annotationObjects.getSelectionIndex()]["class"], newFileIndex);
+                }
+
             }
         }
         // update folders with values of next/previous frame
