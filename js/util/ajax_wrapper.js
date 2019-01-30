@@ -20,16 +20,12 @@ function request(options) {
 
 function annotationFileExist(fileIndex, channel) {
     let url;
-    if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-        url = 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/annotations/' + labelTool.currentDataset + "_" + labelTool.currentSequence + '_annotations.txt';
+    if (labelTool.showOriginalNuScenesLabels === true) {
+        url = 'input/' + labelTool.currentDataset + '/Annotations/' + channel + '/' + labelTool.fileNames[fileIndex] + '.txt';
+
     } else {
-        if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
-            // load already created annotations provided by NuScenes
-            url = 'input/' + labelTool.currentDataset + '/Annotations/' + channel + '/' + labelTool.fileNames[fileIndex] + '.txt';
-        } else {
-            // load annotations from user
-            url = 'input/' + labelTool.currentDataset + '/Annotations_test/' + labelTool.fileNames[fileIndex] + '.txt';
-        }
+        url = 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/annotations/' + labelTool.currentDataset + "_" + labelTool.currentSequence + '_annotations.txt';
+
     }
 
 
@@ -50,7 +46,7 @@ function parseAnnotationFile(fileName) {
             if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
                 rawFile.open("GET", 'input/' + labelTool.currentDataset + '/annotations_original/LIDAR_TOP/' + fileName, false);
             } else {
-                rawFile.open("GET", 'input/' + labelTool.currentDataset + '/annotations/LIDAR_TOP/' + fileName, false);
+                rawFile.open("GET", 'input/' + labelTool.currentDataset +'/'+labelTool.currentSequence+ '/annotations/LIDAR_TOP/' + fileName, false);
             }
         }
 
@@ -63,11 +59,11 @@ function parseAnnotationFile(fileName) {
     rawFile.onreadystatechange = function () {
         if (rawFile.readyState === 4) {
             if (rawFile.status === 200 || rawFile.status === 0) {
-                if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
+                if (labelTool.currentDataset === labelTool.datasets.NuScenes && labelTool.showOriginalNuScenesLabels===true) {
                     let str_list = rawFile.responseText.split("\n");
                     for (let i = 0; i < str_list.length; i++) {
                         let str = str_list[i].split(" ");
-                        if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes && str.length === 16) {
+                        if (str.length === 16) {
                             frameAnnotations.push({
                                 class: str[0],
                                 truncated: str[1],
@@ -86,7 +82,7 @@ function parseAnnotationFile(fileName) {
                                 rotationY: str[14],
                                 score: str[15]
                             });
-                        } else if (labelTool.showOriginalNuScenesLabels === false && labelTool.currentDataset === labelTool.datasets.NuScenes && str.length === 18) {
+                        } else if (str.length === 18) {
                             frameAnnotations.push({
                                 class: str[0],
                                 truncated: str[1],
@@ -121,7 +117,7 @@ function parseAnnotationFile(fileName) {
         }
     };
     rawFile.send(null);
-    if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
+    if (labelTool.showOriginalNuScenesLabels===true) {
         return frameAnnotations;
     } else {
         return annotationsJSONArray;

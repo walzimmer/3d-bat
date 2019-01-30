@@ -367,13 +367,8 @@ labelTool.onLoadData("PCD", function () {
     let pcdLoader = new THREE.PCDLoader();
     let pointCloudFullURL;
     let pointCloudWithoutGroundURL;
-    if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-        pointCloudFullURL = 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/' + 'pointclouds/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
-        pointCloudWithoutGroundURL = 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/' + 'pointclouds_without_ground/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
-    } else {
-        pointCloudFullURL = 'input/' + labelTool.currentDataset + '/pointclouds/all_scenes/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
-        pointCloudWithoutGroundURL = 'input/' + labelTool.currentDataset + '/pointclouds_without_ground/all_scenes/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
-    }
+    pointCloudFullURL = 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/' + 'pointclouds/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
+    pointCloudWithoutGroundURL = 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/' + 'pointclouds_without_ground/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
 
     pcdLoader.load(pointCloudFullURL, function (mesh) {
         mesh.name = 'pointcloud_full';

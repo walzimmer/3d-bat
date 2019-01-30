@@ -568,10 +568,10 @@ let labelTool = {
                         // add new entry to contents array
                         annotationObjects.set(annotationObjects.__insertIndex, params);
                         annotationObjects.__insertIndex++;
-                        if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-                            classesBoundingBox.target().nextTrackId++;
-                        }else{
+                        if (labelTool.showOriginalNuScenesLabels===true) {
                             classesBoundingBox.content[classesBoundingBox.targetName()].nextTrackId++;
+                        }else{
+                            classesBoundingBox.target().nextTrackId++;
                         }
 
 
@@ -767,7 +767,7 @@ let labelTool = {
                         file_name: fileName
                     },
                     success: function (res) {
-                        this.loadAnnotationsNuscenes(res, fileName);
+                        this.loadAnnotationsJSON(res);
                     }.bind(this),
                     error: function (res) {
                     }.bind(this)

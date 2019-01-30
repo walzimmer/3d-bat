@@ -134,11 +134,7 @@ labelTool.onInitialize("CAM_BACK_LEFT", function () {
 
 function loadData(camChannel) {
     let imgURL;
-    if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-        imgURL = "input/" + labelTool.currentDataset + "/" + labelTool.currentSequence + "/images/" + camChannel + "/" + labelTool.getTargetFileName() + ".jpg";
-    } else {
-        imgURL = "input/" + labelTool.currentDataset + "/images/" + camChannel + "/" + labelTool.getTargetFileName() + ".jpg";
-    }
+    imgURL = "input/" + labelTool.currentDataset + "/" + labelTool.currentSequence + "/images/" + camChannel + "/" + labelTool.getTargetFileName() + ".jpg";
 
     let channelIdx = getChannelIndexByName(camChannel);
     let img = imageArray[channelIdx];
