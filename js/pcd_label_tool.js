@@ -1107,14 +1107,18 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
         },
         delete: function () {
             let copyIdList = document.querySelectorAll('[id^="copy-label-to-next-frame-checkbox-"]'); // e.g. 0,1
-
+            let labelIndex = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
             guiOptions.removeFolder(bbox.class + ' ' + bbox.trackId);
             // hide 3D bounding box instead of removing it (in case redo button will be pressed)
-            transformControls.detach();
+            if (transformControls !== undefined) {
+                transformControls.detach();
+            }
+
             labelTool.removeObject("transformControls");
-            labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].visible = false;
-            let label = annotationObjects.contents[labelTool.currentFileIndex][insertIndex].class;
-            let channels = annotationObjects.contents[labelTool.currentFileIndex][insertIndex].channels;
+            labelTool.cubeArray[labelTool.currentFileIndex][labelIndex].visible = false;
+            labelTool.cubeArray[labelTool.currentFileIndex].splice(labelIndex, 1);
+            let label = annotationObjects.contents[labelTool.currentFileIndex][labelIndex].class;
+            let channels = annotationObjects.contents[labelTool.currentFileIndex][labelIndex].channels;
             // iterate all channels and remove projection
             for (let channelIdx in channels) {
                 if (channels.hasOwnProperty(channelIdx)) {
@@ -1130,12 +1134,12 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
                     }
                 }
             }
-            annotationObjects.remove(insertIndex);
-            folderBoundingBox3DArray.splice(insertIndex, 1);
-            folderPositionArray.splice(insertIndex, 1);
-            folderSizeArray.splice(insertIndex, 1);
+            annotationObjects.remove(labelIndex);
+            folderBoundingBox3DArray.splice(labelIndex, 1);
+            folderPositionArray.splice(labelIndex, 1);
+            folderSizeArray.splice(labelIndex, 1);
             annotationObjects.selectEmpty();
-            labelTool.spriteArray[labelTool.currentFileIndex].splice(insertIndex, 1);
+            labelTool.spriteArray[labelTool.currentFileIndex].splice(labelIndex, 1);
             labelTool.removeObject("sprite-" + bbox.class.charAt(0) + bbox.trackId);
             // remove sprite from DOM tree
             $("#class-" + bbox.class.charAt(0) + bbox.trackId).remove();
@@ -1160,7 +1164,7 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
             }
             //rename all ids following after insertIndexof
             // e.g. rename copy-label-to-next-frame-checkbox-1 to copy-label-to-next-frame-checkbox-0 if deleting first element
-            for (let i = insertIndex + 1; i <= annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
+            for (let i = labelIndex + 1; i <= annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
                 let idToChange = copyIdList[i].id;
                 let elem = document.getElementById(idToChange);
                 elem.id = "copy-label-to-next-frame-checkbox-" + (i - 1);
@@ -2345,11 +2349,10 @@ function changeSequence(sequence) {
 function readPointCloud() {
     let rawFile = new XMLHttpRequest();
     try {
-        if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-
-            rawFile.open("GET", 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/pointclouds/' + pad(labelTool.currentFileIndex, 6) + '.pcd', false);
-        } else {
+        if (labelTool.showOriginalNuScenesLabels===true) {
             rawFile.open("GET", 'input/' + labelTool.currentDataset + '/pointclouds/all_scenes/' + pad(labelTool.currentFileIndex, 6) + '.pcd', false);
+        } else {
+            rawFile.open("GET", 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/pointclouds/' + pad(labelTool.currentFileIndex, 6) + '.pcd', false);
         }
     } catch (error) {
         // no labels available for this camera image
@@ -3156,6 +3159,7 @@ function mouseDownLogic(ev) {
 
             }
             annotationObjects.remove(clickedObjectIndex);
+            labelTool.cubeArray[labelTool.currentFileIndex].splice(clickedObjectIndex, 1);
             folderBoundingBox3DArray.splice(clickedObjectIndex, 1);
             folderPositionArray.splice(clickedObjectIndex, 1);
             folderSizeArray.splice(clickedObjectIndex, 1);
