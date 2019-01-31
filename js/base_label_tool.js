@@ -409,13 +409,15 @@ let labelTool = {
         }
         // draw 2D bb for all objects
         // note that last element is the 'insertIndex' -> iterate until length-1
-        for (let j = 0; j < annotationObjects.contents[this.currentFileIndex].length - 1; j++) {
-            let annotationObj = annotationObjects.contents[this.currentFileIndex][j];
-            let params = setObjectParameters(annotationObj);
-            draw2DProjections(params);
-            // set new params
-            for (let i = 0; i < annotationObj["channels"].length; i++) {
-                annotationObjects.contents[this.currentFileIndex][j]["channels"][i]["lines"] = params["channels"][i]["lines"];
+        if (annotationObjects.contents !== undefined && annotationObjects.contents.length > 0) {
+            for (let j = 0; j < annotationObjects.contents[this.currentFileIndex].length - 1; j++) {
+                let annotationObj = annotationObjects.contents[this.currentFileIndex][j];
+                let params = setObjectParameters(annotationObj);
+                draw2DProjections(params);
+                // set new params
+                for (let i = 0; i < annotationObj["channels"].length; i++) {
+                    annotationObjects.contents[this.currentFileIndex][j]["channels"][i]["lines"] = params["channels"][i]["lines"];
+                }
             }
         }
 
@@ -736,7 +738,9 @@ let labelTool = {
                     file_name: fileName
                 },
                 success: function (res) {
-                    this.loadAnnotationsJSON(res);
+                    if (res !== undefined && res.length > 0) {
+                        this.loadAnnotationsJSON(res);
+                    }
                 }.bind(this),
                 error: function (res) {
                 }.bind(this)
@@ -1155,7 +1159,9 @@ let labelTool = {
         // remove all folders
         for (let i = 0; i < annotationObjects.contents[this.currentFileIndex].length; i++) {
             let checkboxElem = document.getElementById("copy-label-to-next-frame-checkbox-" + i);
-            copyFlags.push(checkboxElem.firstChild.checked);
+            if (checkboxElem !== null) {
+                copyFlags.push(checkboxElem.firstChild.checked);
+            }
             guiOptions.removeFolder(annotationObjects.contents[this.currentFileIndex][i]["class"] + ' ' + annotationObjects.contents[this.currentFileIndex][i]["trackId"]);
         }
         // empty all folder arrays
@@ -1333,7 +1339,7 @@ let labelTool = {
             }
 
         } else {
-            if (annotationObjects.getSelectionIndex() !== -1) {
+            if (annotationObjects.getSelectionIndex() !== -1 && annotationObjects.contents[this.currentFileIndex][annotationObjects.getSelectionIndex()] !== undefined) {
                 let objectIndexNextFrame = getObjectIndexByTrackIdAndClass(annotationObjects.contents[this.currentFileIndex][annotationObjects.getSelectionIndex()]["trackId"], annotationObjects.contents[this.currentFileIndex][annotationObjects.getSelectionIndex()]["class"], newFileIndex);
                 annotationObjects.__selectionIndexNextFrame = objectIndexNextFrame;
             }
