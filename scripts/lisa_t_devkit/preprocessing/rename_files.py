@@ -8,10 +8,8 @@ import os
 #         os.rename(path + file, path + str(i).zfill(6) + '.jpg')
 #         i = i + 1
 
-pointcloud_folders = ['pointclouds', 'pointclouds_without_ground']
-for folder in pointcloud_folders:
-    path = '/media/cvrr/data/sandbox/3D_BoundingBox_Annotation_Tool_3D_BAT/input/LISA_T/2018-05-23-001-frame-00042917-00043816_small/' + folder + '/'
-    i = 0
-    for file in sorted(os.listdir(path)):
-        os.rename(path + file, path + str(i).zfill(6) + '.pcd')
-        i = i + 1
+path = '/media/cvrr/data/sandbox/datasets/lisat/data/drives/2018-07-02/detections/images/'
+i = 0
+for file in sorted(os.listdir(path)):
+    os.rename(path + file, path + str(i).zfill(6) + '.png')
+    i = i + 1
