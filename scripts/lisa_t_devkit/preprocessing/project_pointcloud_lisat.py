@@ -3,8 +3,9 @@ import numpy as np
 import cv2
 
 # 2D points were calculated and exported in matlab
-points_path = '/media/cvrr/161d15ca-26dc-4d36-b085-945b15ce24b8/sandbox/datasets/lisat/data/sequences/2018-05-23-001-frame-00042917-00043816/undistorted/projected_points/CAM_FRONT/'
-image_in_path = 'CAM_FRONT_000000.jpg'
+root_path = '/media/cvrr/data/sandbox/datasets/lisat/data/sequences/2018-05-23-001-frame-00042917-00043816/undistorted/'
+points_path = root_path+'projected_points/CAM_BACK_LEFT/'
+image_in_path = root_path+'CAM_BACK_LEFT/000000.jpg'
 with open(points_path + '000000.txt') as file_reader:
     lines = file_reader.readlines()
     points2D = []
@@ -22,4 +23,4 @@ for i in range(len(points2D)):
     x = int(float(points2D[i][0]))
     y = int(float(points2D[i][1]))
     cv2.circle(img, (x, y), 4, (0, 255, 0))
-cv2.imwrite('CAM_FRONT_000000_projected_3.jpg', img)
+cv2.imwrite('CAM_BACK_LEFT_000000_projected.jpg', img)

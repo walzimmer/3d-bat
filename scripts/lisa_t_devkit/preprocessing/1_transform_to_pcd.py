@@ -1,10 +1,12 @@
 import os
-import random
 
 # sequence = '2018-05-23-001-frame-00042917-00043816'# DONE
 # sequence = '2018-05-23-001-frame-00077323-00078222'# DONE
 # sequence = '2018-05-23-001-frame-00080020-00080919'# DONE
-sequence = '2018-05-23-001-frame-00106993-00107892'
+# sequence = '2018-05-23-001-frame-00106993-00107892'# DONE
+# sequence = '2018-07-02-005-frame-00000000-00000900' # DONE
+# sequence = '2018-07-02-005-frame-00000900-00001800'  # DONE
+sequence = '2018-07-02-005-frame-00001800-00002700'
 
 path_in = '/media/cvrr/data/sandbox/datasets/lisat/data/sequences/' + sequence + '/undistorted/velodyne/'
 path_out = '/media/cvrr/data/sandbox/3D_BoundingBox_Annotation_Tool_3D_BAT/input/LISA_T/' + sequence + '/pointclouds/'
