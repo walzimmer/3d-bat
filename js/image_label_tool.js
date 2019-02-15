@@ -50,11 +50,11 @@ function select(newIndex, channel) {
     // unhighlight bb in BEV
     for (let mesh in labelTool.cubeArray[labelTool.currentFileIndex]) {
         let meshObject = labelTool.cubeArray[labelTool.currentFileIndex][mesh];
-        meshObject.material.opacity = 0.4;
+        meshObject.material.opacity = 0.9;
     }
     // highlight selected bb in BEV
     if (labelTool.cubeArray[labelTool.currentFileIndex][newIndex] !== undefined) {
-        labelTool.cubeArray[labelTool.currentFileIndex][newIndex].material.opacity = 0.8;
+        labelTool.cubeArray[labelTool.currentFileIndex][newIndex].material.opacity = 0.1;
     }
 }
 

@@ -18,29 +18,17 @@ doc
 .project
 .pydevproject
 _ext
+
 input/NuScenes_full/*
-input/NuScenes_full/pointclouds/all_scenes
-input/NuScenes_full/pointclouds_without_ground/all_scenes
-input/NuScenes_full/images
-input/LISA_T/2018-05-23-001-frame-00042917-00043816/annotations
-input/LISA_T/2018-05-23-001-frame-00042917-00043816/pointclouds
-input/LISA_T/2018-05-23-001-frame-00042917-00043816/pointclouds_without_ground
-input/LISA_T/2018-05-23-001-frame-00042917-00043816/images
+input/LISA_T/2018-05-23-001-frame-00042917-00043816/*
+input/LISA_T/2018-05-23-001-frame-00077323-00078222/*
+input/LISA_T/2018-05-23-001-frame-00080020-00080919/*
+input/LISA_T/2018-05-23-001-frame-00106993-00107892/*
 
-input/LISA_T/2018-05-23-001-frame-00077323-00078222/annotations
-input/LISA_T/2018-05-23-001-frame-00077323-00078222/pointclouds
-input/LISA_T/2018-05-23-001-frame-00077323-00078222/pointclouds_without_ground
-input/LISA_T/2018-05-23-001-frame-00077323-00078222/images
+input/LISA_T/2018-07-02-005-frame-00000000-00000900/*
+input/LISA_T/2018-07-02-005-frame-00000900-00001800/*
+input/LISA_T/2018-07-02-005-frame-00001800-00002700/*
 
-input/LISA_T/2018-05-23-001-frame-00080020-00080919/annotations
-input/LISA_T/2018-05-23-001-frame-00080020-00080919/pointclouds
-input/LISA_T/2018-05-23-001-frame-00080020-00080919/pointclouds_without_ground
-input/LISA_T/2018-05-23-001-frame-00080020-00080919/images
-
-input/LISA_T/2018-05-23-001-frame-00106993-00107892/annotations
-input/LISA_T/2018-05-23-001-frame-00106993-00107892/pointclouds
-input/LISA_T/2018-05-23-001-frame-00106993-00107892/pointclouds_without_ground
-input/LISA_T/2018-05-23-001-frame-00106993-00107892/images
 
 
 # Logs
