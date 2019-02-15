@@ -595,7 +595,7 @@ text {
     /*height: 311px;*/
     z-index: 102;
     left: 0px;
-    top: 290px;
+    /*top: 290px;*/
     border: 1px;
     border-style: outset;
 }
@@ -606,7 +606,7 @@ text {
     /*height: 311px;*/
     z-index: 102;
     left: 0px;
-    top: 600px;
+    /*top: 600px;*/
     border: 1px;
     border-style: outset;
 }
@@ -617,7 +617,7 @@ text {
     /*height: 311px;*/
     z-index: 102;
     left: 0px;
-    top: 910px;
+    /*top: 910px;*/
     border: 1px;
     border-style: outset;
 }
