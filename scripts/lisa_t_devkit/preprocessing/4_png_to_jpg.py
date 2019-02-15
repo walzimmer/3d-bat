@@ -3,9 +3,9 @@ import cv2
 
 from PIL import Image
 
-# sequence = '2018-05-23-001-frame-00042917-00043816'# DONE
-# sequence = '2018-05-23-001-frame-00077323-00078222' DONE
-sequence = '2018-05-23-001-frame-00080020-00080919'
+# sequence = '2018-05-23-001-frame-00042917-00043816' # DONE
+# sequence = '2018-05-23-001-frame-00077323-00078222' # DONE
+# sequence = '2018-05-23-001-frame-00080020-00080919' # DONE
 # sequence = '2018-05-23-001-frame-00106993-00107892' DONE already jpg
 
 

@@ -25,7 +25,10 @@ let labelTool = {
         "date_2018_05_23_001_frame_00042917_00043816": "2018-05-23-001-frame-00042917-00043816",
         "date_2018_05_23_001_frame_00077323_00078222": "2018-05-23-001-frame-00077323-00078222",
         "date_2018_05_23_001_frame_00080020_00080919": "2018-05-23-001-frame-00080020-00080919",
-        "date_2018_05_23_001_frame_00106993_00107892": "2018-05-23-001-frame-00106993-00107892"
+        "date_2018_05_23_001_frame_00106993_00107892": "2018-05-23-001-frame-00106993-00107892",
+        "date_2018_07_02_005_frame_00000000_00000900": "2018-07-02-005-frame-00000000-00000900",
+        "date_2018_07_02_005_frame_00000900_00001800": "2018-07-02-005-frame-00000900-00001800",
+        "date_2018_07_02_005_frame_00001800_00002700": "2018-07-02-005-frame-00001800-00002700"
 
     }),
     sequencesNuScenes: [],
@@ -64,12 +67,22 @@ let labelTool = {
         projectionMatrixLISAT: [[-251.25471266126286, 1271.4131017512532, -94.08147145637669, -82230.40765539104],
             [-480.6212728089816, 371.7218954940578, -912.1641583067685, -58976.298755304604],
             [-0.7873, 0.6091, -0.0958, -82.9684]],
+        projectionMatrixLISATUni: [[851.809297551590, 0, 981.172134933419, 0],
+            [0, 849.762831114839, 692.173655689540, 0],
+            [0, 0, 1, 0]],
+        intrinsicMatrixLISAT: [[851.809297551590, 0, 981.172134933419, 0],
+            [0, 849.762831114839, 692.173655689540, 0],
+            [0, 0, 1, 0]],
         // projectionMatrixLISAT: [[-215.2526681977112, 1310.3693441729433, -93.64018907169996, -81894.77674601768],
         //     [-491.1015539416495, 379.8210484742729, -980.7314142419619, -60737.10982639055],
         //     [-0.7873, 0.6091, -0.0958, -82.9684]],
         transformationMatrixEgoToCamLISAT: [[0.6119, 0.791, -0.0001, -0.9675],
             [0.0757, -0.0587, -0.9954, -1.8214],
             [-0.7873, 0.6091, -0.0958, -82.9684],
+            [0, 0, 0, 1]],
+        transformationMatrixCamToLidar: [[0.611885708104161, 0.0757328996740149, -0.787314493117665, -0.645924850428946],
+            [0.790958342977185, -0.0587080682108027, 0.609070023716074, -0.511902726095409],
+            [-9.94618314704501e-05, -0.995431173227924, -0.0958096818561450, -0.0976217092625083],
             [0, 0, 0, 1]],
         rotation: 305
     }, {
@@ -92,6 +105,12 @@ let labelTool = {
         projectionMatrixLISAT: [[922.0309695035186, 914.7246439533986, 37.20014817055355, -13131.578714839563],
             [43.23307990854648, 731.8931026225239, -814.6031955744643, 44372.80515324952],
             [0.074, 0.996, 0.0492, -10.4301]],
+        projectionMatrixLISATUni: [[851.809297551590, 0, 981.172134933419, 0],
+            [0, 849.762831114839, 692.173655689540, 0],
+            [0, 0, 1, 0]],
+        intrinsicMatrixLISAT: [[851.809297551590, 0, 981.172134933419, 0],
+            [0, 849.762831114839, 692.173655689540, 0],
+            [0, 0, 1, 0]],
         // new intrinsic
         // projectionMatrixLISAT: [[1032.0809269597441, 983.234693051346, 39.603066911575674, 55773.41899194405],
         //     [46.91969034275177, 800.4238080880446, -918.475825334129, 58018.158075382664],
@@ -99,6 +118,10 @@ let labelTool = {
         transformationMatrixEgoToCamLISAT: [[9.97200e-01, -9.40000e-03, 7.40000e-02, -7.71510e+00],
             [-7.34000e-02, 5.00000e-02, 9.96000e-01, 1.34829e+01],
             [-1.30000e-02, -9.98700e-01, 4.92000e-02, 5.97093e+01]],
+        transformationMatrixCamToLidar: [[0.997215031568529, -0.00936548076240627, 0.0739896518701493, -0.0340200000000000],
+            [-0.0734336035104482, 0.0499789540314553, 0.996046991878090, -0.607137000000000],
+            [-0.0130263843505084, -0.998706359208757, 0.0491520232212485, -0.104301000000000],
+            [0, 0, 0, 1]],
         rotation: 0
     }, {
         channel: 'CAM_FRONT_RIGHT',
@@ -116,6 +139,12 @@ let labelTool = {
         projectionMatrixLISAT: [[1271.3136011165718, -264.8077615167896, -42.35337418192368, -58914.95130031767],
             [561.3394288862174, 273.6681408112988, -900.78438804512, -49758.5316810427],
             [0.8704, 0.4861, -0.0785, -68.6021]],
+        projectionMatrixLISATUni: [[851.809297551590, 0, 981.172134933419, 0],
+            [0, 849.762831114839, 692.173655689540, 0],
+            [0, 0, 1, 0]],
+        intrinsicMatrixLISAT: [[851.809297551590, 0, 981.172134933419, 0],
+            [0, 849.762831114839, 692.173655689540, 0],
+            [0, 0, 1, 0]],
         // new intrinsic
         // projectionMatrixLISAT: [[1271.6922710846952, -304.99836406619386, -39.3907887583833, -57233.65791384971],
         //     [583.4133290049833, 284.0465837849785, -944.3857374439146, -51768.28201250383],
@@ -123,6 +152,10 @@ let labelTool = {
         transformationMatrixEgoToCamLISAT: [[4.89900e-01, -8.70800e-01, 4.07000e-02, 9.85610e+00],
             [-4.84000e-02, -7.39000e-02, -9.96100e-01, -2.67600e+00],
             [8.70400e-01, 4.86100e-01, -7.85000e-02, -6.86021e+01],
+            [0, 0, 0, 1]],
+        transformationMatrixCamToLidar: [[0.489949531751989, -0.0484410342339139, 0.870396411247678, 0.547505822207358],
+            [-0.870796041221885, -0.0739463348124615, 0.486077585826712, -0.417296775245384],
+            [0.0407426180835198, -0.996130722229845, -0.0784595299758922, -0.0845163336838742],
             [0, 0, 0, 1]],
         rotation: 55
     }, {
@@ -140,12 +173,22 @@ let labelTool = {
         projectionMatrixLISAT: [[794.0356195429831, -1012.8849095439483, -179.07770087021203, -128602.00570706779],
             [599.7750068083451, -38.26710841555636, -916.4982974817447, -43877.90381297301],
             [0.977, -0.1837, -0.1082, -60.6184]],
+        projectionMatrixLISATUni: [[851.809297551590, 0, 981.172134933419, 0],
+            [0, 849.762831114839, 692.173655689540, 0],
+            [0, 0, 1, 0]],
+        intrinsicMatrixLISAT: [[851.809297551590, 0, 981.172134933419, 0],
+            [0, 849.762831114839, 692.173655689540, 0],
+            [0, 0, 1, 0]],
         // projectionMatrixLISAT: [[848.5512598840686,-1129.2646483996264,-196.315756621337,-141734.32068581556],
         // [652.1020273778403,-38.71272862691212,-1029.46526109555,-47964.78590957537],
         // [0.977,-0.1837,-0.1082,-60.6184]],
         transformationMatrixEgoToCamLISAT: [[-0.1932, -0.9775, -0.0856, -81.1507],
             [-0.09, 0.1046, -0.9904, -2.2588],
             [0.977, -0.1837, -0.1082, -60.6184],
+            [0, 0, 0, 1]],
+        transformationMatrixCamToLidar: [[-0.193231128863561, -0.0899745016110242, 0.977022225986264, 0.433415648129604],
+            [-0.977461683106893, 0.104551287752388, -0.183698859473772, 0.902282239760038],
+            [-0.0855534855862260, -0.990413220473740, -0.108171294514213, -0.157346593607020],
             [0, 0, 0, 1]],
         rotation: 110
 
@@ -164,12 +207,22 @@ let labelTool = {
         projectionMatrixLISAT: [[-895.4304585339987, -938.871846096237, -71.02888985836256, -5982.317869225711],
             [-44.155367517485175, -612.6590140263143, -907.7438241324993, -84384.88883048057],
             [-0.0455, -0.995, -0.0888, -4.2963]],
+        projectionMatrixLISATUni: [[851.809297551590, 0, 981.172134933419, 0],
+            [0, 849.762831114839, 692.173655689540, 0],
+            [0, 0, 1, 0]],
+        intrinsicMatrixLISAT: [[851.809297551590, 0, 981.172134933419, 0],
+            [0, 849.762831114839, 692.173655689540, 0],
+            [0, 0, 1, 0]],
         // projectionMatrixLISAT: [[-986.505781537663,-883.3532006027316,-64.67265646137503,-93111.9226453282],
         // [-47.88317051477141,-651.6533925460091,-1014.0108621580484,-72925.35490935268],
         // [-0.0455,-0.995,-0.0888,-95.8045]],
         transformationMatrixEgoToCamLISAT: [[-0.9988, 0.0439, 0.0189, -2.0743],
             [-0.0149, 0.0895, -0.9959, -95.8045],
             [-0.0455, -0.995, -0.0888, -4.2963],
+            [0, 0, 0, 1]],
+        transformationMatrixCamToLidar: [[-0.998808553877788, -0.0149413207580060, -0.0454503498176134, -0.0867564508770912],
+            [0.0439474681814231, 0.0895085938805023, -0.995004795840449, 0.949494752014195],
+            [0.0188751885024967, -0.995874825746460, -0.0888185338539377, -0.104974405626315],
             [0, 0, 0, 1]],
         rotation: 180
     }, {
@@ -188,6 +241,9 @@ let labelTool = {
         projectionMatrixLISAT: [[-1034.7887558860443, 785.54017213604, 19.44397266029749, -22415.14333034558],
             [-656.3615503272123, 21.601386673152174, -877.404677400356, -57939.50633439972],
             [-0.997, -0.0632, -0.0446, -84.9344]],
+        intrinsicMatrixLISAT: [[851.809297551590, 0, 981.172134933419, 0],
+            [0, 849.762831114839, 692.173655689540, 0],
+            [0, 0, 1, 0]],
         // new intrinsic
         // projectionMatrixLISAT: [[-1017.8956117124864, 947.0278929555594, 32.58889806014775, -8586.028158741105],
         //     [-750.7556140821051, 27.649591167257046, -1043.054541250592, -66366.2238780424],
@@ -196,12 +252,16 @@ let labelTool = {
             [0.0397, 0.0769, -0.9962, 1.0001],
             [-0.997, -0.0632, -0.0446, -84.9344],
             [0, 0, 0, 1]],
+        transformationMatrixCamToLidar: [[-0.0663516915626888, 0.0396829723346042, -0.996997658740693, -0.799760186924911],
+            [0.994993204667150, 0.0769339896518345, -0.0631911603306386, 0.765992406314240],
+            [0.0742461830195015, -0.996215314549491, -0.0445785343146626, -0.0810346195489563],
+            [0, 0, 0, 1]],
         rotation: 305
     }],
     currentChannelLabel: document.getElementById('cam_channel'),
     // position of the lidar sensor in ego vehicle space
     positionLidarNuscenes: [0.891067, 0.0, 1.84292],//(long, lat, vert)
-    positionLidarLISAT: [0, 0, 60.7137000000000 / 100],
+    positionLidarLISAT: [0, 0, 1.607137],
     translationVectorLidarToCamFront: [0.77, -0.02, -0.3],
     // positionLidarNuscenes: [1.84, 0.0, 1.84292],//(long, lat, vert)
     showOriginalNuScenesLabels: false,
@@ -625,13 +685,6 @@ let labelTool = {
                     // [optional] Nuscenes: transform 3d positions from point cloud to global frame (point cloud-> ego, ego -> global)
                     let annotation = {
                         class: annotationObj["class"],
-                        // truncated: 0,
-                        // occluded: 3,
-                        // alpha: 0,
-                        // left: minPos[0],
-                        // top: minPos[1],
-                        // right: maxPos[0],
-                        // bottom: maxPos[1],
                         // TODO: store information of 3D objects also in annotationObjects.contents instead of cubeArray
                         height: this.cubeArray[j][i].scale.y,
                         width: this.cubeArray[j][i].scale.x,
@@ -640,8 +693,8 @@ let labelTool = {
                         y: this.cubeArray[j][i].position.y,
                         z: this.cubeArray[j][i].position.z,
                         rotationY: this.cubeArray[j][i].rotation.z,
-                        // score: 1,
-                        trackId: annotationObj["trackId"]
+                        trackId: annotationObj["trackId"],
+                        frameIdx: j
                     };
                     annotationsInFrame.push(annotation);
                 }
@@ -1567,8 +1620,10 @@ function draw2DProjections(params) {
     for (let i = 0; i < params.channels.length; i++) {
         if (params.channels[i].channel !== undefined && params.channels[i].channel !== "") {
             // working for LISA_T
-            params.channels[i].projectedPoints = calculateProjectedBoundingBox(-params.x, -params.y, -params.z, params.width, params.height, params.depth, params.channels[i].channel, params.rotationY);
-            // params.channels[i].projectedPoints = calculateProjectedBoundingBox(params.x, params.y, -params.z, params.width, params.height, params.depth, params.channels[i].channel);
+            //params.channels[i].projectedPoints = calculateProjectedBoundingBox(-params.x, -params.y, -params.z, params.width, params.height, params.depth, params.channels[i].channel, params.rotationY);
+            // new transformation matrices
+            params.channels[i].projectedPoints = calculateProjectedBoundingBox(-params.x, -params.z, -params.y, params.width, params.depth, params.height, params.channels[i].channel, params.rotationY);
+
             // calculate line segments
             let channelObj = params.channels[i];
             if (params.channels[i].projectedPoints !== undefined && params.channels[i].projectedPoints.length === 8) {
@@ -1688,7 +1743,7 @@ function getDefaultObject() {
         }],
         fromFile: true,
         fileIndex: -1,
-        copyLabelToNextFrame: true
+        copyLabelToNextFrame: false
     };
     return params;
 }
@@ -1852,27 +1907,36 @@ function calculateAndDrawLineSegments(channelObj, className) {
     } else {
         color = classesBoundingBox[className].color;
     }
+
+    let imageHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
+    let imageWidth;
+    if (labelTool.currentDataset === labelTool.datasets.LISA_T && (channel === "CAM_FRONT" || channel === "CAM_BACK")) {
+        imageWidth = imageHeight * labelTool.imageAspectRatioFrontBackLISAT;
+    } else {
+        imageWidth = imageHeight * labelTool.imageAspectRatioLISAT;
+    }
+
     // bottom four lines
-    if ((channelObj.projectedPoints[0].x < 0 || channelObj.projectedPoints[0].x > 320) && (channelObj.projectedPoints[0].y < 0 || channelObj.projectedPoints[0].y > 240)
-        && (channelObj.projectedPoints[1].x < 0 || channelObj.projectedPoints[1].x > 320) && (channelObj.projectedPoints[1].y < 0 || channelObj.projectedPoints[1].y > 240)) {
+    if ((channelObj.projectedPoints[0].x < 0 || channelObj.projectedPoints[0].x > imageWidth) && (channelObj.projectedPoints[0].y < 0 || channelObj.projectedPoints[0].y > imageHeight)
+        && (channelObj.projectedPoints[1].x < 0 || channelObj.projectedPoints[1].x > imageWidth) && (channelObj.projectedPoints[1].y < 0 || channelObj.projectedPoints[1].y > imageHeight)) {
         // continue with next line
     } else {
         lineArray.push(getLine(channelIdx, channelObj.projectedPoints[0], channelObj.projectedPoints[1], color));
     }
-    if ((channelObj.projectedPoints[1].x < 0 || channelObj.projectedPoints[1].x > 320) && (channelObj.projectedPoints[1].y < 0 || channelObj.projectedPoints[1].y > 240)
-        && (channelObj.projectedPoints[2].x < 0 || channelObj.projectedPoints[2].x > 320) && (channelObj.projectedPoints[2].y < 0 || channelObj.projectedPoints[2].y > 240)) {
+    if ((channelObj.projectedPoints[1].x < 0 || channelObj.projectedPoints[1].x > imageWidth) && (channelObj.projectedPoints[1].y < 0 || channelObj.projectedPoints[1].y > imageHeight)
+        && (channelObj.projectedPoints[2].x < 0 || channelObj.projectedPoints[2].x > imageWidth) && (channelObj.projectedPoints[2].y < 0 || channelObj.projectedPoints[2].y > imageHeight)) {
         // continue with next line
     } else {
         lineArray.push(getLine(channelIdx, channelObj.projectedPoints[1], channelObj.projectedPoints[2], color));
     }
-    if ((channelObj.projectedPoints[2].x < 0 || channelObj.projectedPoints[2].x > 320) && (channelObj.projectedPoints[2].y < 0 || channelObj.projectedPoints[2].y > 240)
-        && (channelObj.projectedPoints[3].x < 0 || channelObj.projectedPoints[3].x > 320) && (channelObj.projectedPoints[3].y < 0 || channelObj.projectedPoints[3].y > 240)) {
+    if ((channelObj.projectedPoints[2].x < 0 || channelObj.projectedPoints[2].x > imageWidth) && (channelObj.projectedPoints[2].y < 0 || channelObj.projectedPoints[2].y > imageHeight)
+        && (channelObj.projectedPoints[3].x < 0 || channelObj.projectedPoints[3].x > imageWidth) && (channelObj.projectedPoints[3].y < 0 || channelObj.projectedPoints[3].y > imageHeight)) {
         // continue with next line
     } else {
         lineArray.push(getLine(channelIdx, channelObj.projectedPoints[2], channelObj.projectedPoints[3], color));
     }
-    if ((channelObj.projectedPoints[3].x < 0 || channelObj.projectedPoints[3].x > 320) && (channelObj.projectedPoints[3].y < 0 || channelObj.projectedPoints[3].y > 240)
-        && (channelObj.projectedPoints[0].x < 0 || channelObj.projectedPoints[0].x > 320) && (channelObj.projectedPoints[0].y < 0 || channelObj.projectedPoints[0].y > 240)) {
+    if ((channelObj.projectedPoints[3].x < 0 || channelObj.projectedPoints[3].x > imageWidth) && (channelObj.projectedPoints[3].y < 0 || channelObj.projectedPoints[3].y > imageHeight)
+        && (channelObj.projectedPoints[0].x < 0 || channelObj.projectedPoints[0].x > imageWidth) && (channelObj.projectedPoints[0].y < 0 || channelObj.projectedPoints[0].y > imageHeight)) {
         // continue with next line
     } else {
         lineArray.push(getLine(channelIdx, channelObj.projectedPoints[3], channelObj.projectedPoints[0], color));

@@ -664,34 +664,27 @@ function download() {
     // download annotations from all frames of current dataset
     let annotations = labelTool.createAnnotations();
     let outputString = JSON.stringify(annotations);
-    // for (let i = 0; i < annotations.length; i++) {
-    //     outputString += annotations[i].class + " ";
-    //     // outputString += annotations[i].alpha + " ";
-    //     // outputString += annotations[i].occluded + " ";
-    //     // outputString += annotations[i].truncated + " ";
-    //     // outputString += annotations[i].left + " ";
-    //     // outputString += annotations[i].top + " ";
-    //     // outputString += annotations[i].right + " ";
-    //     // outputString += annotations[i].bottom + " ";
-    //     outputString += (annotations[i].height).toFixed(6) + " ";//length
-    //     outputString += (annotations[i].width).toFixed(6) + " ";//height
-    //     outputString += (annotations[i].length).toFixed(6) + " ";//width
-    //     outputString += (annotations[i].x).toFixed(6) + " ";//lateral x
-    //     outputString += (annotations[i].y).toFixed(6) + " ";
-    //     outputString += (annotations[i].z).toFixed(6) + " ";
-    //     outputString += (annotations[i].rotationYaw).toFixed(6) + " ";
-    //     // outputString += annotations[i].score + " ";
-    //     outputString += annotations[i].trackId + "\n";
-    // }
     outputString = b64EncodeUnicode(outputString);
-    let fileName = labelTool.currentFileIndex.toString().padStart(6, '0');
     $($('#bounding-box-3d-menu ul li')[0]).children().first().attr('href', 'data:application/octet-stream;base64,' + outputString).attr('download', labelTool.currentDataset + "_" + labelTool.currentSequence + '_annotations.txt');
+}
+
+function hideMasterView() {
+    $("#canvasSideView").hide();
+    $("#canvasFrontView").hide();
+    $("#canvasBev").hide();
 }
 
 //change camera position to bird view position
 function switchView() {
     birdsEyeViewFlag = !birdsEyeViewFlag;
+    if (transformControls !== undefined) {
+        labelTool.selectedMesh = undefined;
+        transformControls.detach();
+        transformControls = undefined;
+        hideMasterView();
+    }
     setCamera();
+    labelTool.removeObject("planeObject");
 }
 
 function increaseBrightness(hex, percent) {
@@ -741,7 +734,6 @@ function addClassTooltip(fileIndex, className, trackId, color, bbox) {
 
 function get3DLabel(parameters) {
     let bbox = parameters;
-    //let cubeGeometry = new THREE.CubeGeometry(1.0, 1.0, 1.0);//width, height, depth
     let cubeGeometry = new THREE.BoxBufferGeometry(1.0, 1.0, 1.0);//width, height, depth
     let color;
     if (parameters.fromFile === true) {
@@ -757,7 +749,7 @@ function get3DLabel(parameters) {
     let cubeMaterial = new THREE.MeshBasicMaterial({
         color: color,
         transparent: true,
-        opacity: 0.4,
+        opacity: 0.9,
         side: THREE.DoubleSide
     });
 
@@ -797,12 +789,13 @@ function update2DBoundingBox(fileIndex, objectIndex) {
                 let width = annotationObjects.contents[fileIndex][objectIndex]["width"];
                 let height = annotationObjects.contents[fileIndex][objectIndex]["height"];
                 let depth = annotationObjects.contents[fileIndex][objectIndex]["depth"];
-                // TODO: rotation
                 let rotationY = annotationObjects.contents[fileIndex][objectIndex]["rotationY"];
                 let channel = channelObj.channel;
                 // working for LISA_T
-                channelObj.projectedPoints = calculateProjectedBoundingBox(-x, -y, -z, width, height, depth, channel, rotationY);
-                // channelObj.projectedPoints = calculateProjectedBoundingBox(-x, -y, z, width, height, depth, channel);
+                // channelObj.projectedPoints = calculateProjectedBoundingBox(-x, -y, -z, width, height, depth, channel, rotationY);
+                // new transformation matrices
+                channelObj.projectedPoints = calculateProjectedBoundingBox(-x, -z, -y, width, depth, height, channel, rotationY);
+
                 // remove previous drawn lines
                 for (let lineObj in channelObj.lines) {
                     if (channelObj.lines.hasOwnProperty(lineObj)) {
@@ -907,38 +900,51 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
     let bb = guiOptions.addFolder(bbox.class + ' ' + bbox.trackId);
     folderBoundingBox3DArray.push(bb);
 
+    let minXPos = -100;
+    let minYPos = -100;
+    let minZPos = -3;
+    let maxXPos = 100;
+    let maxYPos = 100;
+    let maxZPos = 3;
+
     let folderPosition = folderBoundingBox3DArray[insertIndex].addFolder('Position');
-    let cubeX = folderPosition.add(bbox, 'x').name("x (lateral)").min(-100).max(100).step(0.01).listen();
-    let cubeY = folderPosition.add(bbox, 'y').name("y (longitudinal)").min(-100).max(100).step(0.01).listen();
-    let cubeZ = folderPosition.add(bbox, 'z').name("z (vertical)").min(-3).max(10).step(0.01).listen();
-    let cubeYaw = folderPosition.add(bbox, 'rotationY').name("rotation (yaw)").min(-Math.PI).max(Math.PI).step(0.01).listen();
+    let cubeX = folderPosition.add(bbox, 'x').name("x").min(minXPos).max(maxXPos).step(0.01).listen();
+    let cubeY = folderPosition.add(bbox, 'y').name("y").min(minYPos).max(maxYPos).step(0.01).listen();
+    let cubeZ = folderPosition.add(bbox, 'z').name("z").min(minZPos).max(maxZPos).step(0.01).listen();
+    let cubeYaw = folderPosition.add(bbox, 'rotationY').name("rotation").min(-Math.PI).max(Math.PI).step(0.01).listen();
     folderPosition.close();
     folderPositionArray.push(folderPosition);
 
     let folderSize = folderBoundingBox3DArray[insertIndex].addFolder('Size');
-    let cubeW = folderSize.add(bbox, 'width').name("width (lateral)").min(0).max(20).step(0.01).listen();
-    let cubeH = folderSize.add(bbox, 'height').name("length (longitudinal)").min(0).max(20).step(0.01).listen();
-    let cubeD = folderSize.add(bbox, 'depth').name("height (vertical)").min(0).max(20).step(0.01).listen();
+    let cubeW = folderSize.add(bbox, 'width').name("width").min(0.3).max(20).step(0.01).listen();
+    let cubeH = folderSize.add(bbox, 'height').name("length").min(0.3).max(20).step(0.01).listen();
+    let cubeD = folderSize.add(bbox, 'depth').name("height").min(0.3).max(20).step(0.01).listen();
     folderSize.close();
     folderSizeArray.push(folderSize);
 
     cubeX.onChange(function (value) {
-        labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].position.x = value;
-        annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["x"] = value;
-        // update bounding box
-        update2DBoundingBox(labelTool.currentFileIndex, insertIndex);
+        if (value >= minXPos && value < maxXPos) {
+            labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].position.x = value;
+            annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["x"] = value;
+            // update bounding box
+            update2DBoundingBox(labelTool.currentFileIndex, insertIndex);
+        }
     });
     cubeY.onChange(function (value) {
-        labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].position.y = value;
-        annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["y"] = value;
-        // update bounding box
-        update2DBoundingBox(labelTool.currentFileIndex, insertIndex);
+        if (value >= minYPos && value < maxYPos) {
+            labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].position.y = value;
+            annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["y"] = value;
+            // update bounding box
+            update2DBoundingBox(labelTool.currentFileIndex, insertIndex);
+        }
     });
     cubeZ.onChange(function (value) {
-        labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].position.z = value;
-        annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["z"] = value;
-        // update bounding box
-        update2DBoundingBox(labelTool.currentFileIndex, insertIndex);
+        if (value >= minZPos && value < maxZPos) {
+            labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].position.z = value;
+            annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["z"] = value;
+            // update bounding box
+            update2DBoundingBox(labelTool.currentFileIndex, insertIndex);
+        }
     });
     cubeYaw.onChange(function (value) {
         labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].rotation.z = value;
@@ -993,36 +999,42 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
             disableStartPositionAndSize();
             // add folders for end position and end size
             labelTool.folderEndPosition = folderBoundingBox3DArray[interpolationObjIndexNextFile].addFolder("Interpolation End Position (frame " + (labelTool.currentFileIndex + 1) + ")");
-            let cubeEndX = labelTool.folderEndPosition.add(bboxEndParams, 'x').name("x (lateral)").min(-100).max(100).step(0.01).listen();
-            let cubeEndY = labelTool.folderEndPosition.add(bboxEndParams, 'y').name("y (longitudinal)").min(-100).max(100).step(0.01).listen();
-            let cubeEndZ = labelTool.folderEndPosition.add(bboxEndParams, 'z').name("z (vertical)").min(-3).max(10).step(0.01).listen();
-            let cubeEndYaw = labelTool.folderEndPosition.add(bboxEndParams, 'rotationY').name("rotation (yaw)").min(-Math.PI).max(Math.PI).step(0.01).listen();
+            let cubeEndX = labelTool.folderEndPosition.add(bboxEndParams, 'x').name("x").min(minXPos).max(maxXPos).step(0.01).listen();
+            let cubeEndY = labelTool.folderEndPosition.add(bboxEndParams, 'y').name("y").min(minYPos).max(maxYPos).step(0.01).listen();
+            let cubeEndZ = labelTool.folderEndPosition.add(bboxEndParams, 'z').name("z)").min(minZPos).max(maxZPos).step(0.01).listen();
+            let cubeEndYaw = labelTool.folderEndPosition.add(bboxEndParams, 'rotationY').name("rotation").min(-Math.PI).max(Math.PI).step(0.01).listen();
             labelTool.folderEndPosition.domElement.id = 'interpolation-end-position-folder';
             labelTool.folderEndPosition.open();
             labelTool.folderEndSize = folderBoundingBox3DArray[interpolationObjIndexNextFile].addFolder("Interpolation End Size (frame " + (labelTool.currentFileIndex + 1) + ")");
-            let cubeEndW = labelTool.folderEndSize.add(bboxEndParams, 'width').name("width (lateral)").min(0).max(20).step(0.01).listen();
-            let cubeEndH = labelTool.folderEndSize.add(bboxEndParams, 'height').name("length (longitudinal)").min(0).max(20).step(0.01).listen();
-            let cubeEndD = labelTool.folderEndSize.add(bboxEndParams, 'depth').name("height (vertical)").min(0).max(20).step(0.01).listen();
+            let cubeEndW = labelTool.folderEndSize.add(bboxEndParams, 'width').name("width").min(0.3).max(20).step(0.01).listen();
+            let cubeEndH = labelTool.folderEndSize.add(bboxEndParams, 'height').name("length").min(0.3).max(20).step(0.01).listen();
+            let cubeEndD = labelTool.folderEndSize.add(bboxEndParams, 'depth').name("height").min(0.3).max(20).step(0.01).listen();
             labelTool.folderEndPosition.domElement.id = 'interpolation-end-size-folder';
             labelTool.folderEndSize.open();
             let newFileIndex = bboxEndParams.newFileIndex;
 
             cubeEndX.onChange(function (value) {
-                updateXPos(newFileIndex, value);
+                if (value >= minXPos && value < maxXPos) {
+                    updateXPos(newFileIndex, value);
+                }
             });
             cubeEndY.onChange(function (value) {
-                labelTool.cubeArray[newFileIndex][interpolationObjIndexNextFile].position.y = value;
-                annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["interpolationEnd"]["position"]["y"] = value;
-                annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["y"] = value;
-                // update bounding box
-                update2DBoundingBox(labelTool.currentFileIndex, interpolationObjIndexCurrentFile);
+                if (value >= minYPos && value < maxYPos) {
+                    labelTool.cubeArray[newFileIndex][interpolationObjIndexNextFile].position.y = value;
+                    annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["interpolationEnd"]["position"]["y"] = value;
+                    annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["y"] = value;
+                    // update bounding box
+                    update2DBoundingBox(labelTool.currentFileIndex, interpolationObjIndexCurrentFile);
+                }
             });
             cubeEndZ.onChange(function (value) {
-                labelTool.cubeArray[newFileIndex][interpolationObjIndexNextFile].position.z = value;
-                annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["interpolationEnd"]["position"]["z"] = value;
-                annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["z"] = value;
-                // update bounding box
-                update2DBoundingBox(labelTool.currentFileIndex, interpolationObjIndexCurrentFile);
+                if (value >= minZPos && value < maxZPos) {
+                    labelTool.cubeArray[newFileIndex][interpolationObjIndexNextFile].position.z = value;
+                    annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["interpolationEnd"]["position"]["z"] = value;
+                    annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["z"] = value;
+                    // update bounding box
+                    update2DBoundingBox(labelTool.currentFileIndex, interpolationObjIndexCurrentFile);
+                }
             });
             cubeEndYaw.onChange(function (value) {
                 labelTool.cubeArray[newFileIndex][interpolationObjIndexNextFile].rotation.z = value;
@@ -1199,7 +1211,7 @@ function resetCube(index) {
     reset_bbox.height = reset_bbox.original.height;
     reset_bbox.depth = reset_bbox.original.depth;
     labelTool.cubeArray[labelTool.currentFileIndex][index].position.x = reset_bbox.x;
-    labelTool.cubeArray[labelTool.currentFileIndex][index].position.y = -reset_bbox.y;
+    labelTool.cubeArray[labelTool.currentFileIndex][index].position.y = reset_bbox.y;
     labelTool.cubeArray[labelTool.currentFileIndex][index].position.z = reset_bbox.z;
     labelTool.cubeArray[labelTool.currentFileIndex][index].rotation.z = reset_bbox.rotationY;
     labelTool.cubeArray[labelTool.currentFileIndex][index].scale.x = reset_bbox.width;
@@ -1326,7 +1338,6 @@ function onDraggingChangedHandler(event) {
         render();
     }
     // dragObject = false;
-    console.log("dragging-changed");
     // executed after drag finished
     // TODO: scale only on one side
     if (transformControls.getMode() === "scale") {
@@ -1444,7 +1455,7 @@ function keyDownHandler(event) {
             break;
         case 187:
         case 107: // +, =, num+
-            transformControls.setSize(transformControls.size + 0.1);
+            transformControls.setSize(Math.min(transformControls.size + 0.1, 10));
             break;
         case 189:
         case 109: // -, _, num-
@@ -1602,13 +1613,13 @@ function setCamera() {
                 addTransformControls();
                 // if in birdseyeview then find minimum of longitude and latitude
                 // otherwise find minimum of x, y and z
-                let smallestSide;
-                if (birdsEyeViewFlag === true) {
-                    smallestSide = Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y);
-                } else {
-                    smallestSide = Math.min(Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y), labelTool.selectedMesh.scale.z);
-                }
-                transformControls.size = smallestSide / 2.0;
+                // let smallestSide;
+                // if (birdsEyeViewFlag === true) {
+                //     smallestSide = Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y);
+                // } else {
+                //     smallestSide = Math.min(Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y), labelTool.selectedMesh.scale.z);
+                // }
+                transformControls.size = 2;
                 transformControls.showZ = true;
             } else {
                 labelTool.removeObject("transformControls");
@@ -1739,9 +1750,9 @@ function setCamera() {
 }
 
 function render() {
-    renderer.clear();
-    renderer.clearColor(22, 22, 22);
-    renderer.setClearColor(new THREE.Color(22 / 256.0, 22 / 256.0, 22 / 256.0));
+    // renderer.clear();
+    // renderer.clearColor(22, 22, 22);
+    // renderer.setClearColor(new THREE.Color(22 / 256.0, 22 / 256.0, 22 / 256.0));
     // render main window
     let mainView = views[0];
     renderer.setViewport(mainView.left, mainView.top, mainView.width, mainView.height);
@@ -1821,10 +1832,8 @@ function update() {
     // disable rotation of orbit controls if object selected
     if (birdsEyeViewFlag === false) {
         if (labelTool.selectedMesh !== undefined) {
-            console.log("disabled");
             currentOrbitControls.enableRotate = false;
         } else {
-            console.log("enabled");
             currentOrbitControls.enableRotate = true;
         }
     }
@@ -2162,6 +2171,12 @@ function rotatePoint(pointX, pointY, originX, originY, angle) {
 
 
 function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, channel, rotationY) {
+    // xPos = 2.8725;
+    // yPos = 12.4287;
+    // zPos = -0.1678;
+    // width = 1.9793;
+    // height = 1.2933;
+    // depth = 4.2928;// longitudinal
     let idx = getChannelIndexByName(channel);
     // LIDAR uses long, lat, vert
     // pos_long = pos_long - labelTool.positionLidarNuscenes[1];
@@ -2175,13 +2190,13 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
     // TODO: calculate scaling factor dynamically (based on top position of slider)
     let imageScalingFactor;
     let dimensionScalingFactor;
-    let streetVerticalOffset;
+    let streetVerticalOffset = 0;
     let longitudeOffset = 0;
     let imagePanelHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
     if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
         streetVerticalOffset = 0;//[0,labelTool.positionLidarNuscenes[2],1]
-        //imageScalingFactor = 1600 / imagePanelHeight;//5
-        imageScalingFactor = 5;
+        imageScalingFactor = 1600 / imagePanelHeight;//5
+        //imageScalingFactor = 5;
         dimensionScalingFactor = 1;
         longitudeOffset = 0;
         xPos = xPos + labelTool.translationVectorLidarToCamFront[1];//lat
@@ -2190,67 +2205,99 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
     } else {
         if (channel === "CAM_FRONT") {
             imageScalingFactor = 960 / imagePanelHeight;
-            // TODO: height should be 1.4478m but 0.6m is working
-            streetVerticalOffset = 60.7137000000000 / 100;//height of lidar; scene1: 60.7137000000000 / 100; scene4: 0
-            //streetVerticalOffset = 1.4478; //height of lidar
+            // TODO: height should be 1.4478m (1.6 m) but 0.6m is working
+            //streetVerticalOffset = 60.7137000000000 / 100;//height of lidar; scene1: 60.7137000000000 / 100; scene4: 0
         } else if (channel === "CAM_BACK") {
             imageScalingFactor = 960 / imagePanelHeight;//960
-            streetVerticalOffset = -130 / 100;// scene1:-100 / 100; scene4: 0
+            //streetVerticalOffset = -130 / 100;// scene1:-100 / 100; scene4: 0
         } else {
             imageScalingFactor = 1440 / imagePanelHeight;//6
-            streetVerticalOffset = 0;
+            //streetVerticalOffset = 0;
         }
 
         if (channel === "CAM_BACK_LEFT" || channel === "CAM_BACK_RIGHT") {
-            longitudeOffset = -100 / 100;// sequence1 -100/100, sequence4: 0
+            //longitudeOffset = -100 / 100;// sequence1 -100/100, sequence4: 0
         } else {
-            longitudeOffset = 0;
+            //longitudeOffset = 0;
         }
-        dimensionScalingFactor = 100;// multiply by 100 to transform from cm to m
+        //dimensionScalingFactor = 100;// multiply by 100 to transform from m to cm
+        // with new transformation matrix
+        dimensionScalingFactor = 1;
     }
     let cornerPoints = [];
 
-    // temporary
-    // xPos = 0;
-    // yPos = 0;
-    // zPos = 0;
-    // width = 1.0;
-    // height = 1.0;
-    // depth = 1.0;
-    // rotationYaw = Math.PI / 4;
+    if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+        // working
+        cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos - height / 2, zPos + depth / 2));
+        cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos - height / 2, zPos + depth / 2));
+        cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos + height / 2, zPos + depth / 2));
+        cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos + height / 2, zPos + depth / 2));
+        cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos - height / 2, zPos - depth / 2));
+        cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos - height / 2, zPos - depth / 2));
+        cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos + height / 2, zPos - depth / 2));
+        cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos + height / 2, zPos - depth / 2));
+        // cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos - height / 2, zPos));
+        // cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos - height / 2, zPos));
+        // cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos + height / 2, zPos));
+        // cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos + height / 2, zPos));
+        // cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos - height / 2, zPos + depth));
+        // cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos - height / 2, zPos + depth));
+        // cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos + height / 2, zPos + depth));
+        // cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos + height / 2, zPos + depth));
+    } else {
+        cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos - height / 2, zPos + depth / 2));
+        cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos - height / 2, zPos + depth / 2));
+        cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos + height / 2, zPos + depth / 2));
+        cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos + height / 2, zPos + depth / 2));
+        cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos - height / 2, zPos - depth / 2));
+        cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos - height / 2, zPos - depth / 2));
+        cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos + height / 2, zPos - depth / 2));
+        cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos + height / 2, zPos - depth / 2));
+    }
 
-
-    cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos - height / 2, zPos + depth / 2));
-    cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos - height / 2, zPos + depth / 2));
-    cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos + height / 2, zPos + depth / 2));
-    cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos + height / 2, zPos + depth / 2));
-    cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos - height / 2, zPos - depth / 2));
-    cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos - height / 2, zPos - depth / 2));
-    cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos + height / 2, zPos - depth / 2));
-    cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos + height / 2, zPos - depth / 2));
 
     let projectedPoints = [];
     for (let cornerPoint in cornerPoints) {
         let point = cornerPoints[cornerPoint];
-        // TODO: rotate all 8 corner points before projection
-        pointRotated = rotatePoint(point.x, point.y, xPos, yPos, rotationY * 360 / (2 * Math.PI));
-        point.x = pointRotated.x;
-        point.y = pointRotated.y;
-        // let hypothenuse = Math.sqrt(Math.pow(width / 2.0, 2) + Math.pow(height / 2.0, 2));
-        // point.x = point.x + Math.cos(rotationYaw * 360 / (2 * Math.PI)) * hypothenuse;
-        // point.y = point.y + Math.sin(rotationYaw * 360 / (2 * Math.PI)) * hypothenuse;
 
-        // working for LISA_T
-        let point3D = [point.x * dimensionScalingFactor, (point.y + longitudeOffset) * dimensionScalingFactor, (point.z + streetVerticalOffset) * dimensionScalingFactor, 1];
-        // let point3D = [point.x * dimensionScalingFactor, (point.y + longitudeOffset) * dimensionScalingFactor, (-point.z + streetVerticalOffset) * dimensionScalingFactor, 1];
+        // swap vertical and long before projection
+        let tmp = point[1];
+        point[1] = point[2];
+        point[2] = tmp;
+
+        // rotate all 8 corner points before projection
+        // TMP: commented out
+        // let pointRotated = rotatePoint(point.x, point.y, xPos, yPos, rotationY * 360 / (2 * Math.PI));
+        // point.x = pointRotated.x;
+        // point.y = pointRotated.y;
+
+        //let point3D = [point.x * dimensionScalingFactor, (point.y + longitudeOffset) * dimensionScalingFactor, (point.z + streetVerticalOffset) * dimensionScalingFactor, 1];
+        let point3D = [point.x * dimensionScalingFactor, point.y * dimensionScalingFactor, point.z * dimensionScalingFactor, 1];
         let projectionMatrix;
+        let point2D;
         if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-            projectionMatrix = labelTool.camChannels[idx].projectionMatrixLISAT;
+            let transformationMatrixLidarToCam = matrixInvert(labelTool.camChannels[idx].transformationMatrixCamToLidar);
+
+            // swap vert with long before projection
+            let tmp = point3D[1];
+            point3D[1] = point3D[2];
+            point3D[2] = tmp;
+            let transformedPoint = matrixProduct4x4(transformationMatrixLidarToCam, point3D);//result will be 4x1
+
+            let pointRotated = rotatePoint(transformedPoint.x, transformedPoint.y, xPos, yPos, rotationY * 360 / (2 * Math.PI));
+            transformedPoint.x = pointRotated.x;
+            transformedPoint.y = pointRotated.y;
+
+            point2D = matrixProduct3x4(labelTool.camChannels[idx].intrinsicMatrixLISAT, transformedPoint);
+
+            // projectionMatrix = labelTool.camChannels[idx].projectionMatrixLISAT;
+            // point2D = matrixProduct3x4(projectionMatrix, point3D);
         } else {
             projectionMatrix = labelTool.camChannels[idx].projectionMatrixNuScenes;
+            point2D = matrixProduct3x4(projectionMatrix, point3D);
         }
 
-        let point2D = matrixProduct3x4(projectionMatrix, point3D);
+
         // lisat and old projection matrix: <
         if (point2D[2] < 0) {
             // add only points that are in front of camera
@@ -2349,7 +2396,7 @@ function changeSequence(sequence) {
 function readPointCloud() {
     let rawFile = new XMLHttpRequest();
     try {
-        if (labelTool.showOriginalNuScenesLabels===true) {
+        if (labelTool.showOriginalNuScenesLabels === true) {
             rawFile.open("GET", 'input/' + labelTool.currentDataset + '/pointclouds/all_scenes/' + pad(labelTool.currentFileIndex, 6) + '.pcd', false);
         } else {
             rawFile.open("GET", 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/pointclouds/' + pad(labelTool.currentFileIndex, 6) + '.pcd', false);
@@ -2402,17 +2449,19 @@ function projectPoints(points3D, channelIdx) {
     currentDistances = [];
     let projectionMatrix;
     let scalingFactor;
+    let imagePanelHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
     if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+
         if (channelIdx === 1 || channelIdx === 4) {
             // back and front camera image have a width of 480 px
-            scalingFactor = 4;//1920/480 =4
+            scalingFactor = 960 / imagePanelHeight;
         } else {
-            scalingFactor = 6;//1920/320 =6
+            scalingFactor = 1440 / imagePanelHeight;
         }
 
         projectionMatrix = labelTool.camChannels[channelIdx].projectionMatrixLISAT;
     } else {
-        scalingFactor = 5;//1600/320=5
+        scalingFactor = 900 / imagePanelHeight;
         projectionMatrix = labelTool.camChannels[channelIdx].projectionMatrixNuScenes;
     }
 
@@ -2530,9 +2579,6 @@ function onDocumentMouseMove(event) {
     // update the mouse variable
     mousePos.x = (event.clientX / window.innerWidth) * 2 - 1;
     mousePos.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    // controlsTarget.x = mousePos.x;
-    // controlsTarget.y = mousePos.y;
-    // currentOrbitControls.target = controlsTarget;
 }
 
 function increaseTrackId(label, dataset) {
@@ -2699,10 +2745,21 @@ function initSideView() {
     canvasSideView.offsetTop = 0;
     $("body").append(canvasSideView);
 
-    // cameraSideView = new THREE.OrthographicCamera();
     cameraSideView = new THREE.OrthographicCamera(window.innerWidth / -4, window.innerWidth / 4, window.innerHeight / 4, window.innerHeight / -4, -5000, 10000);
-    // cameraSideView.up = new THREE.Vector3(0, 0, -1);
     cameraSideView.lookAt(new THREE.Vector3(1, 0, 0));
+
+    // TODO: let user move bounding box also in helperviews (master view)
+    // canvasSideView.addEventListener('mousemove', onDocumentMouseMove, false);
+    //
+    // canvasSideView.onmousedown = function (ev) {
+    //     console.log("mouse down");
+    //     handleMouseDown(ev);
+    // };
+    //
+    // canvasSideView.onmouseup = function (ev) {
+    //     handleMouseUp(ev);
+    // };
+
     scene.add(cameraSideView);
     // cameraSideView.up.set(0, 0, -1);
     // cameraSideView.position.set(xPos - 10, yPos, zPos);
@@ -2780,7 +2837,13 @@ function mouseUpLogic(ev) {
             mouse.y = mouseUp.y;
             ray.setFromCamera(mouse, currentCamera);
         }
-        let clickedObjects = ray.intersectObjects(clickedPlaneArray);
+        let clickedObjects;
+        if (birdsEyeViewFlag === true) {
+            clickedObjects = ray.intersectObjects(clickedPlaneArray);
+        } else {
+            clickedObjects = ray.intersectObjects(labelTool.cubeArray[labelTool.currentFileIndex]);
+        }
+
 
         // close folders
         for (let i = 0; i < folderBoundingBox3DArray.length; i++) {
@@ -2791,11 +2854,11 @@ function mouseUpLogic(ev) {
 
         if (clickedObjects.length > 0 && clickedObjectIndex !== -1) {
             // one object was selected
-            for (let mesh in labelTool.cubeArray[labelTool.currentFileIndex]) {
-                let meshObject = labelTool.cubeArray[labelTool.currentFileIndex][mesh];
-                meshObject.material.opacity = 0.4;
-            }
-            labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].material.opacity = 0.8;
+            // for (let mesh in labelTool.cubeArray[labelTool.currentFileIndex]) {
+            //     let meshObject = labelTool.cubeArray[labelTool.currentFileIndex][mesh];
+            // meshObject.material.opacity = 0.1;
+            // }
+            // labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].material.opacity = 0.9;
             // open folder of selected object
             annotationObjects.localOnSelect["PCD"](clickedObjectIndex);
             // set selected object
@@ -2811,14 +2874,14 @@ function mouseUpLogic(ev) {
 
                 // if in birdseyeview then find minimum of longitude and latitude
                 // otherwise find minimum of x, y and z
-                let smallestSide;
-                if (birdsEyeViewFlag === true) {
-                    smallestSide = Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y);
-                } else {
-                    smallestSide = Math.min(Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y), labelTool.selectedMesh.scale.z);
-                }
-                let size = smallestSide / 2.0;
-                transformControls.size = size;
+                // let smallestSide;
+                // if (birdsEyeViewFlag === true) {
+                //     smallestSide = Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y);
+                // } else {
+                //     smallestSide = Math.min(Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y), labelTool.selectedMesh.scale.z);
+                // }
+                // let size = smallestSide / 2.0;
+                transformControls.size = 2;
             } else {
                 labelTool.removeObject("transformControls");
             }
@@ -2882,7 +2945,7 @@ function mouseUpLogic(ev) {
             }
             let interpolationModeCheckbox = document.getElementById("interpolation-checkbox");
             enableInterpolationModeCheckbox(interpolationModeCheckbox);
-            // TODO: select corresponding class in class menu
+            // select corresponding class in class menu
             // get class name of selected object
             // get index of selected object within 5 classes (using class name)
             let classPickerElem = $('#class-picker ul li');
@@ -2902,7 +2965,7 @@ function mouseUpLogic(ev) {
             // remove selection in birds eye view (lower opacity)
             for (let mesh in labelTool.cubeArray[labelTool.currentFileIndex]) {
                 let meshObject = labelTool.cubeArray[labelTool.currentFileIndex][mesh];
-                meshObject.material.opacity = 0.4;
+                meshObject.material.opacity = 0.9;
             }
 
             // remove arrows (transform controls)
@@ -2972,32 +3035,35 @@ function mouseUpLogic(ev) {
                 let xPos = (groundPointMouseUp.x + groundPointMouseDown.x) / 2;
                 let yPos = (groundPointMouseUp.y + groundPointMouseDown.y) / 2;
                 //let zPos = -100 / 100; // height of lidar sensor. Use it to put object on street
-                let zPos = -60.7137000000000 / 100;
+                //let zPos = -60.7137000000000 / 100;
+                let zPos = 0;
 
+                // average car height in meters (ref: https://www.carfinderservice.com/car-advice/a-careful-look-at-different-sedan-dimensions)
+                let defaultDepth = 1.468628;
                 let addBboxParameters = getDefaultObject();
                 addBboxParameters.class = classesBoundingBox.targetName();
                 addBboxParameters.x = xPos;
                 addBboxParameters.y = yPos;
-                addBboxParameters.z = zPos;
+                addBboxParameters.z = zPos + defaultDepth / 2 - labelTool.positionLidarLISAT[2];
                 addBboxParameters.width = Math.abs(groundPointMouseUp.x - groundPointMouseDown.x);
                 addBboxParameters.height = Math.abs(groundPointMouseUp.y - groundPointMouseDown.y);
-                addBboxParameters.depth = 2.0;
+                addBboxParameters.depth = defaultDepth;
                 addBboxParameters.rotationY = 0;
                 addBboxParameters.original = {
                     class: classesBoundingBox.targetName(),
                     x: (groundPointMouseUp.x + groundPointMouseDown.x) / 2,
                     y: (groundPointMouseUp.y + groundPointMouseDown.y) / 2,
-                    z: zPos,
+                    z: zPos + defaultDepth / 2 - labelTool.positionLidarLISAT[2],
                     width: Math.abs(groundPointMouseUp.x - groundPointMouseDown.x),
                     height: Math.abs(groundPointMouseUp.y - groundPointMouseDown.y),
-                    depth: 2.0,
+                    depth: defaultDepth,
                     rotationY: 0,
                     trackId: trackId
                 };
                 addBboxParameters.trackId = trackId;
                 addBboxParameters.fromFile = false;
                 addBboxParameters.fileIndex = labelTool.currentFileIndex;
-                addBboxParameters.copyLabelToNextFrame = true;
+                addBboxParameters.copyLabelToNextFrame = false;
 
                 if (interpolationMode === true) {
                     addBboxParameters["interpolationStart"]["position"]["x"] = addBboxParameters["x"];
@@ -3016,7 +3082,9 @@ function mouseUpLogic(ev) {
                     let channel = labelTool.camChannels[i].channel;
                     addBboxParameters.channels[i].channel = channel;
                     // working for LISA_T
-                    let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -yPos, -zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth, channel, addBboxParameters.rotationY);
+                    // let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -yPos, -zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth, channel, addBboxParameters.rotationY);
+                    // new transformation matrices
+                    let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -zPos, -yPos, addBboxParameters.width, addBboxParameters.depth, addBboxParameters.height, channel, addBboxParameters.rotationY);
                     addBboxParameters.channels[i].projectedPoints = projectedBoundingBox;
                 }
                 // calculate line segments
@@ -3063,10 +3131,12 @@ function mouseUpLogic(ev) {
 }
 
 function handleMouseUp(ev) {
-    if (ev.target === renderer.domElement) {
+    if (rendererBev === undefined) {
         mouseUpLogic(ev);
-    } else if (ev.target === rendererBev.domElement) {
-        mouseUpLogic(ev);
+    } else {
+        if (ev.target !== rendererBev.domElement) {
+            mouseUpLogic(ev);
+        }
     }
 
 }
@@ -3096,40 +3166,45 @@ function mouseDownLogic(ev) {
             clickFlag = true;
             clickedPoint = clickedObjects[0].point;
             clickedCube = labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex];
-            let material = new THREE.MeshBasicMaterial({
-                color: 0x000000,
-                wireframe: false,
-                transparent: true,
-                opacity: 0.0,
-                side: THREE.DoubleSide
-            });
-            let geometry = new THREE.PlaneGeometry(200, 200);
-            let clickedPlane = new THREE.Mesh(geometry, material);
-            clickedPlane.position.x = clickedPoint.x;
-            clickedPlane.position.y = clickedPoint.y;
-            clickedPlane.position.z = clickedPoint.z;
-            let normal = clickedObjects[0].face;
-            if ([normal.a, normal.b, normal.c].toString() == [6, 3, 2].toString() || [normal.a, normal.b, normal.c].toString() == [7, 6, 2].toString()) {
-                clickedPlane.rotation.x = Math.PI / 2;
-                clickedPlane.rotation.y = labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z;
+
+            if (birdsEyeViewFlag === true) {
+                let material = new THREE.MeshBasicMaterial({
+                    color: 0x000000,
+                    wireframe: false,
+                    transparent: true,
+                    opacity: 0.0,
+                    side: THREE.DoubleSide
+                });
+                let geometry = new THREE.PlaneGeometry(200, 200);
+                let clickedPlane = new THREE.Mesh(geometry, material);
+                clickedPlane.position.x = clickedPoint.x;
+                clickedPlane.position.y = clickedPoint.y;
+                clickedPlane.position.z = clickedPoint.z;
+                let normal = clickedObjects[0].face;
+                if ([normal.a, normal.b, normal.c].toString() == [6, 3, 2].toString() || [normal.a, normal.b, normal.c].toString() == [7, 6, 2].toString()) {
+                    clickedPlane.rotation.x = Math.PI / 2;
+                    clickedPlane.rotation.y = labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z;
+                }
+                else if ([normal.a, normal.b, normal.c].toString() == [6, 7, 5].toString() || [normal.a, normal.b, normal.c].toString() == [4, 6, 5].toString()) {
+                    clickedPlane.rotation.x = -Math.PI / 2;
+                    clickedPlane.rotation.y = -Math.PI / 2 - labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z;
+                }
+                else if ([normal.a, normal.b, normal.c].toString() == [0, 2, 1].toString() || [normal.a, normal.b, normal.c].toString() == [2, 3, 1].toString()) {
+                    clickedPlane.rotation.x = Math.PI / 2;
+                    clickedPlane.rotation.y = Math.PI / 2 + labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z;
+                }
+                else if ([normal.a, normal.b, normal.c].toString() == [5, 0, 1].toString() || [normal.a, normal.b, normal.c].toString() == [4, 5, 1].toString()) {
+                    clickedPlane.rotation.x = -Math.PI / 2;
+                    clickedPlane.rotation.y = -labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z;
+                }
+                else if ([normal.a, normal.b, normal.c].toString() == [3, 6, 4].toString() || [normal.a, normal.b, normal.c].toString() == [1, 3, 4].toString()) {
+                    clickedPlane.rotation.y = -Math.PI
+                }
+                clickedPlane.name = "planeObject";
+                scene.add(clickedPlane);
+                clickedPlaneArray.push(clickedPlane);
             }
-            else if ([normal.a, normal.b, normal.c].toString() == [6, 7, 5].toString() || [normal.a, normal.b, normal.c].toString() == [4, 6, 5].toString()) {
-                clickedPlane.rotation.x = -Math.PI / 2;
-                clickedPlane.rotation.y = -Math.PI / 2 - labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z;
-            }
-            else if ([normal.a, normal.b, normal.c].toString() == [0, 2, 1].toString() || [normal.a, normal.b, normal.c].toString() == [2, 3, 1].toString()) {
-                clickedPlane.rotation.x = Math.PI / 2;
-                clickedPlane.rotation.y = Math.PI / 2 + labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z;
-            }
-            else if ([normal.a, normal.b, normal.c].toString() == [5, 0, 1].toString() || [normal.a, normal.b, normal.c].toString() == [4, 5, 1].toString()) {
-                clickedPlane.rotation.x = -Math.PI / 2;
-                clickedPlane.rotation.y = -labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z;
-            }
-            else if ([normal.a, normal.b, normal.c].toString() == [3, 6, 4].toString() || [normal.a, normal.b, normal.c].toString() == [1, 3, 4].toString()) {
-                clickedPlane.rotation.y = -Math.PI
-            }
-            scene.add(clickedPlane);
-            clickedPlaneArray.push(clickedPlane);
+
         } else if (ev.button === 2) {
             // rightclick
             let copyIdList = document.querySelectorAll('[id^="copy-label-to-next-frame-checkbox-"]'); // e.g. 0,1
@@ -3215,7 +3290,6 @@ function mouseDownLogic(ev) {
             annotationObjects.__selectionIndexCurrentFrame = -1;
         }//end right click
     } else {
-        // labelTool.selectedMesh = undefined;
         if (birdsEyeViewFlag === true) {
             clickedObjectIndex = -1;
             groundPlaneArray = [];
@@ -3239,10 +3313,12 @@ function mouseDownLogic(ev) {
 }
 
 function handleMouseDown(ev) {
-    if (ev.target === renderer.domElement) {
+    if (rendererBev === undefined) {
         mouseDownLogic(ev);
-    } else if (ev.target = rendererBev.domElement) {
-        mouseDownLogic(ev);
+    } else {
+        if (ev.target !== rendererBev.domElement) {
+            mouseDownLogic(ev);
+        }
     }
 }
 
@@ -3328,12 +3404,12 @@ function initViews() {
     mainView.camera = mainCamera;
     for (let i = 1; i < views.length; i++) {
         let view = views[i];
-        var top = 4;
-        var bottom = -4;
-        var aspectRatio = view.width / view.height;
-        var left = bottom * aspectRatio;
-        var right = top * aspectRatio;
-        var camera = new THREE.OrthographicCamera(left, right, top, bottom, 0.001, 2000);
+        let top = 4;
+        let bottom = -4;
+        let aspectRatio = view.width / view.height;
+        let left = bottom * aspectRatio;
+        let right = top * aspectRatio;
+        let camera = new THREE.OrthographicCamera(left, right, top, bottom, 0.001, 2000);
         camera.position.set(0, 0, 0);//default
         camera.up.fromArray(view.up);
         view.camera = camera;
@@ -3633,8 +3709,6 @@ function init() {
     if (birdsEyeViewFlag === false) {
         canvas3D.removeEventListener('keydown', canvas3DKeyDownHandler);
         canvas3D.addEventListener('keydown', canvas3DKeyDownHandler);
-        // canvas3D.removeEventListener('keyup', canvas3DKeyUpHandler);
-        // canvas3D.addEventListener('keyup', canvas3DKeyUpHandler);
     }
 
 
@@ -3645,20 +3719,6 @@ function init() {
     renderer = new THREE.WebGLRenderer({antialias: true});
     // renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
-    // renderer.setClearColor(0x161616);
-    // renderer.autoClear = false;
-
-    // 3d
-    // perspectiveCamera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
-    // perspectiveOrbitControls = new THREE.OrbitControls(perspectiveCamera, renderer.domElement);
-    // perspectiveOrbitControls.enablePan = true;
-    // perspectiveOrbitControls.enableRotate = true;
-
-    // BEV
-    // orthographicCamera = new THREE.OrthographicCamera(-40, 40, 20, -20, 0.0001, 2000);
-    // orthographicOrbitControls = new THREE.OrbitControls(orthographicCamera, renderer.domElement);
-    // orthographicOrbitControls.enablePan = true;
-    // orthographicOrbitControls.enableRotate = false;
 
     setCamera();
     createGrid();
@@ -3782,15 +3842,20 @@ function init() {
                     enableShowNuscenesLabelsCheckbox(showNuScenesLabelsCheckbox);
                     disableChooseSequenceDropDown(chooseSequenceDropDown.domElement);
                 }
+                hideMasterView();
             });
         chooseSequenceDropDown = guiOptions.add(parameters, 'sequences', [
             labelTool.sequencesLISAT.date_2018_05_23_001_frame_00042917_00043816_small,
             labelTool.sequencesLISAT.date_2018_05_23_001_frame_00042917_00043816,
             labelTool.sequencesLISAT.date_2018_05_23_001_frame_00077323_00078222,
             labelTool.sequencesLISAT.date_2018_05_23_001_frame_00080020_00080919,
-            labelTool.sequencesLISAT.date_2018_05_23_001_frame_00106993_00107892]).name("Choose Sequence")
+            labelTool.sequencesLISAT.date_2018_05_23_001_frame_00106993_00107892,
+            labelTool.sequencesLISAT.date_2018_07_02_005_frame_00000000_00000900,
+            labelTool.sequencesLISAT.date_2018_07_02_005_frame_00000900_00001800,
+            labelTool.sequencesLISAT.date_2018_07_02_005_frame_00001800_00002700]).name("Choose Sequence")
             .onChange(function (value) {
                 changeSequence(value);
+                hideMasterView();
             });
 
         let showFieldOfViewCheckbox = guiOptions.add(parameters, 'show_field_of_view').name('Field-Of-View').listen();
