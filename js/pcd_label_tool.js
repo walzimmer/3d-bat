@@ -1227,6 +1227,7 @@ function onWindowResize() {
     let newHeight = Math.round((window.innerHeight - headerHeight - imagePanelHeight) / 3.0);
     $("#canvasSideView").css("height", newHeight);
     $("#canvasSideView").css("top", headerHeight + imagePanelHeight);
+    console.log("window resize: top: " + headerHeight + imagePanelHeight);
     views[1].height = newHeight;
     views[1].top = 0;
     $("#canvasFrontView").css("height", newHeight);
@@ -2661,11 +2662,7 @@ function initBev() {
     canvasBEV.width = wBev;
     let imagePaneHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
     let hBev;
-    if (isFullscreen() === true) {
-        hBev = (window.innerHeight - imagePaneHeight - headerHeight) / 3;
-    } else {
-        hBev = (screen.height + 24 - imagePaneHeight - headerHeight) / 3;
-    }
+    hBev = (window.innerHeight - imagePaneHeight - headerHeight) / 3;
     canvasBEV.height = hBev;
     $("body").append(canvasBEV);
     $("#canvasBev").css("top", headerHeight + imagePaneHeight + 2 * hBev);
@@ -2691,11 +2688,7 @@ function initFrontView() {
     canvasFrontView.width = widthFrontView;
     let imagePanelTopPos = parseInt($("#layout_layout_resizer_top").css("top"), 10);
     let heightFrontView;
-    if (isFullscreen() === true) {
-        heightFrontView = (window.innerHeight - imagePanelTopPos - headerHeight) / 3;
-    } else {
-        heightFrontView = (screen.height + 24 - imagePanelTopPos - headerHeight) / 3;
-    }
+    heightFrontView = (window.innerHeight - imagePanelTopPos - headerHeight) / 3;
     canvasFrontView.height = heightFrontView;
 
     $("body").append(canvasFrontView);
@@ -2734,16 +2727,11 @@ function initSideView() {
     let widthSideView = window.innerWidth / 3;
     let imagePaneHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
     let heightSideView;
-    if (isFullscreen() === true) {
-        heightSideView = (window.innerHeight - imagePaneHeight - headerHeight) / 3;
-    } else {
-        heightSideView = (screen.height + 24 - imagePaneHeight - headerHeight) / 3;
-    }
-
+    heightSideView = (window.innerHeight - imagePaneHeight - headerHeight) / 3;
     canvasSideView.width = widthSideView;
     canvasSideView.height = heightSideView;
-    canvasSideView.offsetTop = 0;
     $("body").append(canvasSideView);
+    $("#canvasSideView").css({top: imagePaneHeight + headerHeight + 'px'});
 
     cameraSideView = new THREE.OrthographicCamera(window.innerWidth / -4, window.innerWidth / 4, window.innerHeight / 4, window.innerHeight / -4, -5000, 10000);
     cameraSideView.lookAt(new THREE.Vector3(1, 0, 0));
@@ -3332,7 +3320,7 @@ function initViews() {
     if (isFullscreen() === true) {
         viewHeight = Math.round((window.innerHeight - headerHeight - imagePanelTopPos) / 3);
     } else {
-        viewHeight = Math.round((screen.height + 24 - headerHeight - imagePanelTopPos) / 3);
+        viewHeight = Math.round((screen.height + 24 - headerHeight - imagePanelTopPos) / 3) - 40;
     }
 
     views = [
@@ -3390,6 +3378,7 @@ function initViews() {
         }
     ];
     $("#canvasSideView").css("height", viewHeight);
+    console.log("init view: " + viewHeight);
     $("#canvasSideView").css("top", headerHeight + imagePanelTopPos);
     $("#canvasFrontView").css("height", viewHeight);
     $("#canvasFrontView").css("top", headerHeight + imagePanelTopPos + viewHeight);
