@@ -67,6 +67,7 @@ let showProjectedPointsFlag = false;
 let showGridFlag = false;
 let filterGround = false;
 let interpolationMode = false;
+let showDetections = false;
 let folderBoundingBox3DArray = [];
 let folderPositionArray = [];
 let folderSizeArray = [];
@@ -273,6 +274,7 @@ let parameters = {
             }
         }
     },
+    show_detections: false,
     interpolation_mode: false,
     interpolate: function () {
         if (interpolationMode === true) {
@@ -894,6 +896,78 @@ function getSmallestTrackId(classNameToFind) {
     return trackIds[trackIds.length - 1] + 1;
 }
 
+function deleteObject(bboxClass, trackId, labelIndex) {
+    guiOptions.removeFolder(bboxClass + ' ' + trackId);
+    // hide 3D bounding box instead of removing it (in case redo button will be pressed)
+    if (transformControls !== undefined) {
+        transformControls.detach();
+    }
+
+    labelTool.removeObject("transformControls");
+    // NOTE: already removed in annotationObjects.remove()
+    //labelTool.cubeArray[labelTool.currentFileIndex].splice(labelIndex, 1);
+    let channels = annotationObjects.contents[labelTool.currentFileIndex][labelIndex].channels;
+    // iterate all channels and remove projection
+    for (let channelIdx in channels) {
+        if (channels.hasOwnProperty(channelIdx)) {
+            let channelObj = channels[channelIdx];
+            for (let lineObj in channelObj.lines) {
+                if (channelObj.lines.hasOwnProperty(lineObj)) {
+                    let line = channelObj.lines[lineObj];
+                    if (line !== undefined) {
+                        line.remove();
+                    }
+                }
+            }
+        }
+    }
+    annotationObjects.remove(labelIndex);
+    folderBoundingBox3DArray.splice(labelIndex, 1);
+    folderPositionArray.splice(labelIndex, 1);
+    folderSizeArray.splice(labelIndex, 1);
+    annotationObjects.selectEmpty();
+    labelTool.spriteArray[labelTool.currentFileIndex].splice(labelIndex, 1);
+    labelTool.removeObject("sprite-" + bboxClass.charAt(0) + trackId);
+    // NOTE: already removed in annotationObjects.remove()
+    //labelTool.removeObject("cube-" + bboxClass.charAt(0) + trackId);
+    // remove sprite from DOM tree
+    $("#class-" + bboxClass.charAt(0) + trackId).remove();
+    labelTool.selectedMesh = undefined;
+    // reduce track id by 1 for this class
+    if (labelTool.showOriginalNuScenesLabels) {
+        classesBoundingBox.content[bboxClass].nextTrackId--;
+    } else {
+        if (labelIndex === annotationObjects.contents[labelTool.currentFileIndex].length) {
+            // decrement track id if the last object in the list was deleted
+            classesBoundingBox[bboxClass].nextTrackId--;
+        } else {
+            // otherwise not last object was deleted -> find out the highest possible track id
+            setHighestAvailableTrackId(bboxClass);
+        }
+    }
+    // if last object in current frame was deleted than disable interpolation mode
+    if (annotationObjects.contents[labelTool.currentFileIndex].length === 0) {
+        interpolationMode = false;
+        $("#interpolation-checkbox").children().first().prop("checked", false);
+        $("#interpolation-checkbox").children().first().removeAttr("checked");
+    }
+    //rename all ids following after insertIndexof
+    // e.g. rename copy-label-to-next-frame-checkbox-1 to copy-label-to-next-frame-checkbox-0 if deleting first element
+    let copyIdList = document.querySelectorAll('[id^="copy-label-to-next-frame-checkbox-"]'); // e.g. 0,1
+    for (let i = labelIndex; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
+        let idToChange = copyIdList[i].id;
+        let elem = document.getElementById(idToChange);
+        elem.id = "copy-label-to-next-frame-checkbox-" + (i);
+    }
+    // hide master view
+    $("#canvasBev").hide();
+    $("#canvasSideView").hide();
+    $("#canvasFrontView").hide();
+    // move class picker to left
+    $("#class-picker").css("left", 10);
+    annotationObjects.__selectionIndexCurrentFrame = -1;
+}
+
 //register new bounding box
 function addBoundingBoxGui(bbox, bboxEndParams) {
     let insertIndex = folderBoundingBox3DArray.length;
@@ -924,67 +998,76 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
 
     cubeX.onChange(function (value) {
         if (value >= minXPos && value < maxXPos) {
-            labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].position.x = value;
-            annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["x"] = value;
+            // Note: Do not use insertIndex because it might change (if deleting e.g. an object in between)
+            // use track id and class to calculate selection index
+            let selectionIndex = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
+            labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].position.x = value;
+            annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["x"] = value;
             // update bounding box
-            update2DBoundingBox(labelTool.currentFileIndex, insertIndex);
+            update2DBoundingBox(labelTool.currentFileIndex, selectionIndex);
         }
     });
     cubeY.onChange(function (value) {
         if (value >= minYPos && value < maxYPos) {
-            labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].position.y = value;
-            annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["y"] = value;
+            let selectionIndex = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
+            labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].position.y = value;
+            annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["y"] = value;
             // update bounding box
-            update2DBoundingBox(labelTool.currentFileIndex, insertIndex);
+            update2DBoundingBox(labelTool.currentFileIndex, selectionIndex);
         }
     });
     cubeZ.onChange(function (value) {
         if (value >= minZPos && value < maxZPos) {
-            labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].position.z = value;
-            annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["z"] = value;
+            let selectionIndex = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
+            labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].position.z = value;
+            annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["z"] = value;
             // update bounding box
-            update2DBoundingBox(labelTool.currentFileIndex, insertIndex);
+            update2DBoundingBox(labelTool.currentFileIndex, selectionIndex);
         }
     });
     cubeYaw.onChange(function (value) {
-        labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].rotation.z = value;
-        annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["rotationY"] = value;
+        let selectionIndex = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
+        labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].rotation.z = value;
+        annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["rotationY"] = value;
         // update bounding box
-        update2DBoundingBox(labelTool.currentFileIndex, insertIndex);
+        update2DBoundingBox(labelTool.currentFileIndex, selectionIndex);
     });
     cubeW.onChange(function (value) {
-        let newXPos = labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].position.x + (value - labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].scale.x) * Math.cos(labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].rotation.z) / 2;
-        labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].position.x = newXPos;
+        let selectionIndex = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
+        let newXPos = labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].position.x + (value - labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].scale.x) * Math.cos(labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].rotation.z) / 2;
+        labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].position.x = newXPos;
         bbox.x = newXPos;
-        annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["x"] = newXPos;
-        let newYPos = labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].position.y + (value - labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].scale.x) * Math.sin(labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].rotation.z) / 2;
-        labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].position.y = newYPos;
+        annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["x"] = newXPos;
+        let newYPos = labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].position.y + (value - labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].scale.x) * Math.sin(labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].rotation.z) / 2;
+        labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].position.y = newYPos;
         bbox.y = -newYPos;
-        annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["y"] = newYPos;
-        labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].scale.x = value;
-        annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["width"] = value;
-        update2DBoundingBox(labelTool.currentFileIndex, insertIndex);
+        annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["y"] = newYPos;
+        labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].scale.x = value;
+        annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["width"] = value;
+        update2DBoundingBox(labelTool.currentFileIndex, selectionIndex);
     });
     cubeH.onChange(function (value) {
-        let newXPos = labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].position.x + (value - labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].scale.y) * Math.sin(labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].rotation.z) / 2;
-        labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].position.x = newXPos;
+        let selectionIndex = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
+        let newXPos = labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].position.x + (value - labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].scale.y) * Math.sin(labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].rotation.z) / 2;
+        labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].position.x = newXPos;
         bbox.x = newXPos;
-        annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["x"] = newXPos;
-        let newYPos = labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].position.y - (value - labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].scale.y) * Math.cos(labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].rotation.z) / 2;
-        labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].position.y = newYPos;
+        annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["x"] = newXPos;
+        let newYPos = labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].position.y - (value - labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].scale.y) * Math.cos(labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].rotation.z) / 2;
+        labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].position.y = newYPos;
         bbox.y = -newYPos;
-        annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["y"] = newYPos;
-        labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].scale.y = value;
-        annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["height"] = value;
-        update2DBoundingBox(labelTool.currentFileIndex, insertIndex);
+        annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["y"] = newYPos;
+        labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].scale.y = value;
+        annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["height"] = value;
+        update2DBoundingBox(labelTool.currentFileIndex, selectionIndex);
     });
     cubeD.onChange(function (value) {
-        let newZPos = labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].position.z + (value - labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].scale.z) / 2;
-        labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].position.z = newZPos;
+        let selectionIndex = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
+        let newZPos = labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].position.z + (value - labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].scale.z) / 2;
+        labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].position.z = newZPos;
         bbox.z = newZPos;
-        labelTool.cubeArray[labelTool.currentFileIndex][insertIndex].scale.z = value;
-        annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["depth"] = value;
-        update2DBoundingBox(labelTool.currentFileIndex, insertIndex);
+        labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].scale.z = value;
+        annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["depth"] = value;
+        update2DBoundingBox(labelTool.currentFileIndex, selectionIndex);
     });
 
     if (bboxEndParams !== undefined && interpolationMode === true) {
@@ -1118,70 +1201,8 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
             resetCube(insertIndex);
         },
         delete: function () {
-            let copyIdList = document.querySelectorAll('[id^="copy-label-to-next-frame-checkbox-"]'); // e.g. 0,1
             let labelIndex = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
-            guiOptions.removeFolder(bbox.class + ' ' + bbox.trackId);
-            // hide 3D bounding box instead of removing it (in case redo button will be pressed)
-            if (transformControls !== undefined) {
-                transformControls.detach();
-            }
-
-            labelTool.removeObject("transformControls");
-            labelTool.cubeArray[labelTool.currentFileIndex][labelIndex].visible = false;
-            labelTool.cubeArray[labelTool.currentFileIndex].splice(labelIndex, 1);
-            let label = annotationObjects.contents[labelTool.currentFileIndex][labelIndex].class;
-            let channels = annotationObjects.contents[labelTool.currentFileIndex][labelIndex].channels;
-            // iterate all channels and remove projection
-            for (let channelIdx in channels) {
-                if (channels.hasOwnProperty(channelIdx)) {
-                    let channelObj = channels[channelIdx];
-                    for (let lineObj in channelObj.lines) {
-                        if (channelObj.lines.hasOwnProperty(lineObj)) {
-                            let line = channelObj.lines[lineObj];
-                            if (line !== undefined) {
-                                line.remove();
-                            }
-
-                        }
-                    }
-                }
-            }
-            annotationObjects.remove(labelIndex);
-            folderBoundingBox3DArray.splice(labelIndex, 1);
-            folderPositionArray.splice(labelIndex, 1);
-            folderSizeArray.splice(labelIndex, 1);
-            annotationObjects.selectEmpty();
-            labelTool.spriteArray[labelTool.currentFileIndex].splice(labelIndex, 1);
-            labelTool.removeObject("sprite-" + bbox.class.charAt(0) + bbox.trackId);
-            // remove sprite from DOM tree
-            $("#class-" + bbox.class.charAt(0) + bbox.trackId).remove();
-            labelTool.selectedMesh = undefined;
-            // reduce track id by 1 for this class
-            if (labelTool.showOriginalNuScenesLabels) {
-                classesBoundingBox.content[label].nextTrackId--;
-            } else {
-                if (insertIndex === annotationObjects.contents[labelTool.currentFileIndex].length) {
-                    // decrement track id if the last object in the list was deleted
-                    classesBoundingBox[label].nextTrackId--;
-                } else {
-                    // otherwise not last object was deleted -> find out the highest possible track id
-                    setHighestAvailableTrackId(label);
-                }
-            }
-            // if last object in current frame was deleted than disable interpolation mode
-            if (annotationObjects.contents[labelTool.currentFileIndex].length === 0) {
-                interpolationMode = false;
-                $("#interpolation-checkbox").children().first().prop("checked", false);
-                $("#interpolation-checkbox").children().first().removeAttr("checked");
-            }
-            //rename all ids following after insertIndexof
-            // e.g. rename copy-label-to-next-frame-checkbox-1 to copy-label-to-next-frame-checkbox-0 if deleting first element
-            for (let i = labelIndex + 1; i <= annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
-                let idToChange = copyIdList[i].id;
-                let elem = document.getElementById(idToChange);
-                elem.id = "copy-label-to-next-frame-checkbox-" + (i - 1);
-            }
-            annotationObjects.__selectionIndexCurrentFrame = -1;
+            deleteObject(bbox.class, bbox.trackId, labelIndex);
         }
     };
     let copyLabelToNextFrameCheckbox = folderBoundingBox3DArray[folderBoundingBox3DArray.length - 1].add(labelAttributes, 'copy_label_to_next_frame').name("Copy label to next frame");
@@ -3068,7 +3089,6 @@ function mouseUpLogic(ev) {
                 // for (let i = 0; i < channels.length; i++) {
                 for (let i = 0; i < labelTool.camChannels.length; i++) {
                     let channel = labelTool.camChannels[i].channel;
-                    addBboxParameters.channels[i].channel = channel;
                     // working for LISA_T
                     // let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -yPos, -zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth, channel, addBboxParameters.rotationY);
                     // new transformation matrices
@@ -3195,87 +3215,10 @@ function mouseDownLogic(ev) {
 
         } else if (ev.button === 2) {
             // rightclick
-            let copyIdList = document.querySelectorAll('[id^="copy-label-to-next-frame-checkbox-"]'); // e.g. 0,1
             clickedObjectIndex = labelTool.cubeArray[labelTool.currentFileIndex].indexOf(clickedObjects[0].object);
-            let label = annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex]["class"];
+            let bboxClass = annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex]["class"];
             let trackId = annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex]["trackId"];
-            guiOptions.removeFolder(label + ' ' + trackId);
-            if (transformControls !== undefined) {
-                transformControls.detach();
-            }
-            labelTool.removeObject("transformControls");
-            let channels = annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex].channels;
-            // iterate all channels and remove projection
-            for (let channelIdx in channels) {
-                if (channels.hasOwnProperty(channelIdx)) {
-                    let channelObj = channels[channelIdx];
-                    for (let lineObj in channelObj.lines) {
-                        if (channelObj.lines.hasOwnProperty(lineObj)) {
-                            let line = channelObj.lines[lineObj];
-                            if (line !== undefined) {
-                                line.remove();
-                            }
-
-                        }
-                    }
-                }
-
-            }
-            annotationObjects.remove(clickedObjectIndex);
-            labelTool.cubeArray[labelTool.currentFileIndex].splice(clickedObjectIndex, 1);
-            folderBoundingBox3DArray.splice(clickedObjectIndex, 1);
-            folderPositionArray.splice(clickedObjectIndex, 1);
-            folderSizeArray.splice(clickedObjectIndex, 1);
-            annotationObjects.selectEmpty();
-            labelTool.spriteArray[labelTool.currentFileIndex].splice(clickedObjectIndex, 1);
-            labelTool.removeObject("sprite-" + label.charAt(0) + trackId);
-            // remove sprite from DOM tree
-            $("#class-" + label.charAt(0) + trackId).remove();
-            labelTool.selectedMesh = undefined;
-            // reduce track id by 1 for this class
-            if (labelTool.showOriginalNuScenesLabels === true) {
-                classesBoundingBox.content[label].nextTrackId--;
-            } else {
-                if (clickedObjectIndex === annotationObjects.contents[labelTool.currentFileIndex].length) {
-                    // decrement track id if the last object in the list was deleted
-                    classesBoundingBox[label].nextTrackId--;
-                } else {
-                    // otherwise not last object was deleted -> find out the highest possible track id
-                    for (let newTrackId = 1; newTrackId <= annotationObjects.contents[labelTool.currentFileIndex].length; newTrackId++) {
-                        let exist = false;
-                        for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
-                            if (newTrackId === annotationObjects.contents[labelTool.currentFileIndex][i]["trackId"]) {
-                                exist = true;
-                                break;
-                            }
-                        }
-                        if (exist === false) {
-                            // track id was not used yet
-                            classesBoundingBox[label].nextTrackId = newTrackId;
-                            break;
-                        }
-                    }
-                }
-
-            }
-            $("#canvasSideView").remove();
-            $("#canvasFrontView").remove();
-            $("#canvasBev").remove();
-
-            // if last object in current frame was deleted than disable interpolation mode
-            if (annotationObjects.contents[labelTool.currentFileIndex].length === 0) {
-                interpolationMode = false;
-                $("#interpolation-checkbox").children().first().prop("checked", false);
-                $("#interpolation-checkbox").children().first().removeAttr("checked");
-            }
-            //rename all ids following after insertIndexof
-            // e.g. rename copy-label-to-next-frame-checkbox-1 to copy-label-to-next-frame-checkbox-0 if deleting first element
-            for (let i = clickedObjectIndex + 1; i <= annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
-                let idToChange = copyIdList[i].id;
-                let elem = document.getElementById(idToChange);
-                elem.id = "copy-label-to-next-frame-checkbox-" + (i - 1);
-            }
-            annotationObjects.__selectionIndexCurrentFrame = -1;
+            deleteObject(bboxClass, trackId, clickedObjectIndex);
         }//end right click
     } else {
         if (birdsEyeViewFlag === true) {
@@ -3608,6 +3551,70 @@ function canvas3DKeyDownHandler(event) {
     // }
 }
 
+function loadDetectedBoxes() {
+    let rawFile = new XMLHttpRequest();
+    try {
+        rawFile.open("GET", 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/detections/detections.txt', false);
+    } catch (error) {
+    }
+
+    rawFile.onreadystatechange = function () {
+        if (rawFile.readyState === 4) {
+            if (rawFile.status === 200 || rawFile.status === 0) {
+                let allText = rawFile.responseText;
+                let allLines = allText.replace(/"/g, '').split("\n");
+                let objectIndexWithinFrame = 0;
+                let frameNumber = 1;
+                let frameNumberPrevious = -1;
+                for (let i = 0; i < allLines.length; i++) {
+                    let line = allLines[i];
+                    if (line === "") {
+                        continue;
+                    }
+                    let params = getDefaultObject();
+                    let attributes = line.split(",");
+                    frameNumber = parseFloat(attributes[0].trim().split(" ")[1]);
+                    if (frameNumber === frameNumberPrevious) {
+                        objectIndexWithinFrame = objectIndexWithinFrame + 1;
+                    } else {
+                        objectIndexWithinFrame = 0;
+                    }
+                    frameNumberPrevious = frameNumber;
+                    params.x = parseFloat(attributes[1].trim().split(" ")[2]);
+                    params.y = parseFloat(attributes[2].trim().split(" ")[2]);
+                    params.z = parseFloat(attributes[3].trim().split(" ")[2]);
+                    params.original.x = params.x;
+                    params.original.y = params.y;
+                    params.original.z = params.z;
+                    let tmpDepth = parseFloat(attributes[4].trim().split(" ")[2]);
+                    let tmpHeight = parseFloat(attributes[5].trim().split(" ")[2]);
+                    let tmpWidth = parseFloat(attributes[6].trim().split(" ")[2]);//long
+                    let rotationY = parseFloat(attributes[7].trim().split(" ")[1]);
+                    params.class = "Vehicle";
+                    params.rotationY = rotationY;
+                    params.original.rotationY = rotationY;
+                    params.trackId = classesBoundingBox["Vehicle"]["nextTrackId"];
+                    if (tmpWidth !== 0.0 && tmpHeight !== 0.0 && tmpDepth !== 0.0) {
+                        tmpWidth = Math.max(tmpWidth, 0.0001);
+                        tmpHeight = Math.max(tmpHeight, 0.0001);
+                        tmpDepth = Math.max(tmpDepth, 0.0001);
+                        params.width = tmpWidth;
+                        params.height = tmpHeight;
+                        params.depth = tmpDepth;
+                        params.original.width = tmpWidth;
+                        params.original.height = tmpHeight;
+                        params.original.depth = tmpDepth;
+                    }
+                    params.fileIndex = frameNumber - 1;
+                    annotationObjects.set(objectIndexWithinFrame, params);
+                    classesBoundingBox.target().nextTrackId++;
+                }
+            }
+        }
+    };
+    rawFile.send(null);
+}
+
 function init() {
     if (WEBGL.isWebGLAvailable() === false) {
         document.body.appendChild(WEBGL.getWebGLErrorMessage());
@@ -3896,6 +3903,22 @@ function init() {
         });
         guiOptions.add(parameters, 'select_all_copy_label_to_next_frame').name("Select all 'Copy label to next frame'");
         guiOptions.add(parameters, 'unselect_all_copy_label_to_next_frame').name("Unselect all 'Copy label to next frame'");
+
+        let showDetectionsCheckbox = guiOptions.add(parameters, 'show_detections').name('Show Detections').listen();
+        showDetectionsCheckbox.domElement.id = 'show-detections-checkbox';
+        showDetectionsCheckbox.onChange(function (value) {
+            if (showDetections === true) {
+                if (labelTool.currentDataset === labelTool.datasets.LISA_T && labelTool.currentSequence === labelTool.sequencesLISAT.date_2018_07_02_005_frame_00000000_00000900) {
+                    // TODO
+                    //showDetectedBoxes();
+                } else {
+                    labelTool.logger.error("Detections are only available for the LISA sequence: date_2018_07_02_005_frame_00000000_00000900");
+                }
+            } else {
+                hideDetectedBoxes();
+            }
+        });
+
         let interpolationModeCheckbox = guiOptions.add(parameters, 'interpolation_mode').name('Interpolation Mode');
         interpolationModeCheckbox.domElement.id = 'interpolation-checkbox';
         // if scene contains no objects then deactivate checkbox
@@ -3995,5 +4018,7 @@ function init() {
     elem.css("color", "#969696");
 
     initViews();
+
+    loadDetectedBoxes();
 
 }
