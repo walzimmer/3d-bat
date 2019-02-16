@@ -180,8 +180,6 @@ let annotationObjects = {
     },
     select: function (objectIndex, channel) {
         let notificationElem = $("#label-tool-log");
-        notificationElem.val("3. Draw label in Birds-Eye-View");
-        notificationElem.css("color", "#969696");
         this.setSelectionIndex(objectIndex, channel);
         this.localOnSelect["PCD"](objectIndex);
     },
@@ -198,8 +196,6 @@ let annotationObjects = {
         remove(index);
         delete this.contents[labelTool.currentFileIndex][index];
         this.contents[labelTool.currentFileIndex].splice(index, 1);
-        // delete labelTool.bboxIndexArray[labelTool.currentFileIndex][index];
-        // labelTool.bboxIndexArray[labelTool.currentFileIndex].splice(index, 1);
         delete labelTool.cubeArray[labelTool.currentFileIndex][index];
         labelTool.cubeArray[labelTool.currentFileIndex].splice(index, 1);
         this.__insertIndex--;

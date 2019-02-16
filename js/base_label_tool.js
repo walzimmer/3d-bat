@@ -33,7 +33,7 @@ let labelTool = {
     }),
     sequencesNuScenes: [],
     currentDataset: 'LISA_T',
-    currentSequence: '2018-05-23-001-frame-00042917-00043816_small',//[2018-05-23-001-frame-00042917-00043816_small, One]
+    currentSequence: '2018-07-02-005-frame-00000000-00000900',//[2018-05-23-001-frame-00042917-00043816_small, One]
     numFramesLISAT: 900,
     numFramesNuScenes: 120,//[3962,120]
     numFrames: 0,
@@ -507,9 +507,6 @@ let labelTool = {
                 params.class = annotation.class;
                 params.rotationY = parseFloat(annotation.rotationY);
                 params.original.rotationY = parseFloat(annotation.rotationY);
-                for (let i = 0; i < labelTool.camChannels.length; i++) {
-                    params.channels[i].channel = labelTool.camChannels[i].channel;
-                }
                 if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
                     classesBoundingBox.addNuSceneLabel(annotation.class);
                     classesBoundingBox.__target = Object.keys(classesBoundingBox.content)[0];
@@ -535,9 +532,6 @@ let labelTool = {
                     tmpWidth = Math.max(tmpWidth, 0.0001);
                     tmpHeight = Math.max(tmpHeight, 0.0001);
                     tmpDepth = Math.max(tmpDepth, 0.0001);
-                    params.delta_x = 0;
-                    params.delta_y = 0;
-                    params.delta_z = 0;
                     params.width = tmpWidth;
                     params.height = tmpHeight;
                     params.depth = tmpDepth;
@@ -573,27 +567,12 @@ let labelTool = {
                         params.class = annotation.class;
                         params.rotationY = parseFloat(annotation.rotationY);
                         params.original.rotationY = parseFloat(annotation.rotationY);
-                        for (let i = 0; i < labelTool.camChannels.length; i++) {
-                            params.channels[i].channel = labelTool.camChannels[i].channel;
-                        }
                         let classIdx;
-
-
-                        // if (labelTool.showOriginalNuScenesLabel ===true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
-                        //     classesBoundingBox.addNuSceneLabel(annotation.class);
-                        //     classesBoundingBox.__target = Object.keys(classesBoundingBox.content)[0];
-                        //     params.trackId = classesBoundingBox.content[annotation.class].nextTrackId;
-                        //     classesBoundingBox.content[annotation.class].nextTrackId++;
-                        //     classIdx = classesBoundingBox.content[annotation.class].index;
-                        // }
-
                         params.trackId = annotation.trackId;
                         classIdx = classesBoundingBox[annotation.class].index;
-
                         if (params.trackId > maxTrackIds[classIdx]) {
                             maxTrackIds[classIdx] = params.trackId;
                         }
-
                         // Nuscenes labels are stored in global frame in the database
                         // Nuscenes: labels (3d positions) are transformed from global frame to point cloud (global -> ego, ego -> point cloud) before exporting them
                         // LISAT: labels are stored in ego frame which is also the point cloud frame (no transformation needed)
@@ -604,18 +583,10 @@ let labelTool = {
                         params.original.x = parseFloat(annotation.x);
                         params.original.y = parseFloat(annotation.y);
                         params.original.z = parseFloat(annotation.z);
-                        // } else {
-                        //     params.x = parseFloat(annotation.x);
-                        //     params.y = -parseFloat(annotation.y);
-                        //     params.z = parseFloat(annotation.z);
-                        //     params.original.x = parseFloat(annotation.x);
-                        //     params.original.y = -parseFloat(annotation.y);
-                        //     params.original.z = parseFloat(annotation.z);
-                        // }
                         let tmpWidth = parseFloat(annotation.width);
                         let tmpHeight = parseFloat(annotation.height);
                         let tmpDepth = parseFloat(annotation.length);
-                        if (tmpWidth !== 0.0 && tmpHeight !== 0.0 && tmpDepth !== 0.0) {
+                        if (tmpWidth > 0.3 && tmpHeight > 0.3 && tmpDepth > 0.3) {
                             tmpWidth = Math.max(tmpWidth, 0.0001);
                             tmpHeight = Math.max(tmpHeight, 0.0001);
                             tmpDepth = Math.max(tmpDepth, 0.0001);
@@ -1666,9 +1637,9 @@ function getDefaultObject() {
         x: -1,
         y: -1,
         z: -1,
-        delta_x: -1,
-        delta_y: -1,
-        delta_z: -1,
+        delta_x: 0,
+        delta_y: 0,
+        delta_z: 0,
         width: -1,
         height: -1,
         depth: -1,
@@ -1714,32 +1685,32 @@ function getDefaultObject() {
             rect: [],
             projectedPoints: [],
             lines: [],
-            channel: ''
+            channel: 'CAM_FRONT_LEFT'
         }, {
             rect: [],
             projectedPoints: [],
             lines: [],
-            channel: ''
+            channel: 'CAM_FRONT'
         }, {
             rect: [],
             projectedPoints: [],
             lines: [],
-            channel: ''
+            channel: 'CAM_FRONT_RIGHT'
         }, {
             rect: [],
             projectedPoints: [],
             lines: [],
-            channel: ''
+            channel: 'CAM_BACK_RIGHT'
         }, {
             rect: [],
             projectedPoints: [],
             lines: [],
-            channel: ''
+            channel: 'CAM_BACK'
         }, {
             rect: [],
             projectedPoints: [],
             lines: [],
-            channel: ''
+            channel: 'CAM_BACK_LEFT'
         }],
         fromFile: true,
         fileIndex: -1,
