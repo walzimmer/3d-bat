@@ -7,6 +7,7 @@
   "dependencies": {
     "colormap": "^2.3.0",
     "dragscroll": "^0.0.8",
+    "file-saver": "^2.0.0",
     "material-design-icons": "^3.0.1",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
