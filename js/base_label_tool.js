@@ -15,7 +15,16 @@ function initTimer() {
         hours = Math.floor(labelTool.timeElapsed / (60 * 60));
         timeString = pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2);
         $("#time-elapsed").text(timeString);
-    }, 1000);
+        // take screenshot every second
+        if (labelTool.takeCanvasScreenshot === true) {
+            if (labelTool.currentFileIndex < 899) {
+                takeScreenshot();
+                labelTool.changeFrame(labelTool.currentFileIndex + 1);
+            }
+        }
+
+
+    }, labelTool.timeDelay);
 }
 
 let labelTool = {
@@ -36,12 +45,15 @@ let labelTool = {
     currentSequence: '2018-07-02-005-frame-00000000-00000900',//[2018-05-23-001-frame-00042917-00043816_small, One]
     numFramesLISAT: 900,
     numFramesNuScenes: 120,//[3962,120]
+    frameScreenshots: [],
     numFrames: 0,
     dataTypes: [],
     currentFileIndex: 0,
+    showCameraPosition: false,
     previousFileIndex: 0,
     fileNames: [],
-    // originalSize: [0, 0], // Original size of jpeg image
+    takeCanvasScreenshot: false,
+    timeDelay: 1000,
     imageSizes: {},
     originalAnnotations: [],   // For checking modified or not
     skipFrameCount: 1,
@@ -676,6 +688,11 @@ let labelTool = {
     },
 
     initialize: function () {
+        if (labelTool.takeCanvasScreenshot === true) {
+            // increase delay from 1sec to 4sec between two frames (to load data)
+            labelTool.timeDelay = 4000;
+        }
+
         initPanes();
 
         let imageContainer = $("#layout_layout_panel_top .w2ui-panel-content");
@@ -711,7 +728,7 @@ let labelTool = {
         $("#layout_layout_panel_top .w2ui-panel-content").css("overflow", "scroll");
 
         let pointCloudContainer = $("#layout_layout_panel_main .w2ui-panel-content");
-        pointCloudContainer.append('<div id="canvas3d" style="z-index: 0; background-color: #000000;"></div>');
+        pointCloudContainer.append('<div id="canvas3d" style="z-index: 0; background-color: #ffffff;"></div>');
 
         this.pageBox.placeholder = (this.currentFileIndex + 1) + "/" + this.fileNames.length;
         this.camChannels.forEach(function (channelObj) {
@@ -1985,3 +2002,41 @@ function calculateAndDrawLineSegments(channelObj, className) {
 
     return lineArray;
 }
+
+function takeScreenshot() {
+    // html2canvas($("#canvas3d canvas")[0], {backgroundColor: null}).then(canvas => {
+    //     let imageBase64String = canvas.toDataURL("image/png");
+    //     labelTool.frameScreenshots.push(imageBase64String);
+    // });
+    // let context = canvas3D.getContext("experimental-webgl", {preserveDrawingBuffer: true});
+    // let imageBase64String = canvas3D.toDataURL("image/png");
+
+    let imgData = renderer.domElement.toDataURL();
+    labelTool.frameScreenshots.push(imgData);
+
+    // html2canvas($('#label-tool-log')[0], {
+    //     background: '#FFFFFF',
+    //     onrendered: function (canvas) {
+    //         //Set hidden field's value to image data (base-64 string)
+    //         //let imageBase64String = canvas.toDataURL("image/png");
+    //         let imageBase64String = canvas.toDataURL("image/jpeg");
+    //         labelTool.frameScreenshots.push(imageBase64String);
+    //     }
+    // });
+}
+
+
+function getZipVideoFrames() {
+    let zip = new JSZip();
+    for (let i = 0; i < 900; i++) {
+        // for (let i = 0; i < 30; i++) {
+        // let uintArray = Base64Binary.decode(labelTool.frameScreenshots[i]);
+        // zip.file(pad(i, 6) + ".png", uintArray);
+        let substring = labelTool.frameScreenshots[i].substring(22, labelTool.frameScreenshots[i].length);
+        let byteArray = Base64Binary.decodeArrayBuffer(substring);
+        zip.file(pad(i, 6) + ".png", byteArray);
+
+    }
+    return zip;
+}
+

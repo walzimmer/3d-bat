@@ -238,6 +238,9 @@ let parameters = {
     save: function () {
         save();
     },
+    download_video: function () {
+        downloadVideo();
+    },
     download: function () {
         download();
     },
@@ -358,6 +361,63 @@ function addObject(sceneObject, name) {
     scene.add(sceneObject);
 }
 
+function drawCameraPosition() {
+    let camFrontGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+    camFrontGeometry.translate(-3.402 / 100, 60.7137 / 100, -10.4301 / 100);
+    let material = new THREE.MeshBasicMaterial({
+        color: 0xff0000,
+        side: THREE.DoubleSide,
+        transparent: false
+    });
+    let camFrontMesh = new THREE.Mesh(camFrontGeometry, material);
+    addObject(camFrontMesh, 'cam-front-object');
+    let camFrontRightGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+    material = new THREE.MeshBasicMaterial({
+        color: 0x00ff00,
+        side: THREE.DoubleSide,
+        transparent: false
+    });
+    camFrontRightGeometry.translate(59.35125262 / 100, 41.21713246 / 100, -15.43223025 / 100);
+    let camFrontRightMesh = new THREE.Mesh(camFrontRightGeometry, material);
+    addObject(camFrontRightMesh, 'cam-front-right-object');
+    let camBackRightGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+    material = new THREE.MeshBasicMaterial({
+        color: 0x0000ff,
+        side: THREE.DoubleSide,
+        transparent: false
+    });
+    camBackRightGeometry.translate(47.93776844 / 100, -90.71772718 / 100, -8.13149812 / 100);
+    let camBackRightMesh = new THREE.Mesh(camBackRightGeometry, material);
+    addObject(camBackRightMesh, 'cam-back-right-object');
+    let camBackGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+    material = new THREE.MeshBasicMaterial({
+        color: 0xffff00,
+        side: THREE.DoubleSide,
+        transparent: false
+    });
+    camBackGeometry.translate(-4.07865574 / 100, -95.4603164 / 100, -13.38361257 / 100);
+    let camBackMesh = new THREE.Mesh(camBackGeometry, material);
+    addObject(camBackMesh, 'cam-back-object');
+    let camBackLeftGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+    material = new THREE.MeshBasicMaterial({
+        color: 0x00ffff,
+        side: THREE.DoubleSide,
+        transparent: false
+    });
+    camBackLeftGeometry.translate(-75.37243686 / 100, -77.11760848 / 100, -15.77163041 / 100);
+    let camBackLeftMesh = new THREE.Mesh(camBackLeftGeometry, material);
+    addObject(camBackLeftMesh, 'cam-back-left-object');
+    let camFrontLeftGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+    material = new THREE.MeshBasicMaterial({
+        color: 0xff00ff,
+        side: THREE.DoubleSide,
+        transparent: false
+    });
+    camFrontLeftGeometry.translate(-59.9910821 / 100, 50.67448108 / 100, -14.11259497 / 100);
+    let camFrontLeftMesh = new THREE.Mesh(camFrontLeftGeometry, material);
+    addObject(camFrontLeftMesh, 'cam-front-left-object');
+}
+
 // Visualize 2d and 3d data
 labelTool.onLoadData("PCD", function () {
     // remove previous loaded point clouds
@@ -392,176 +452,63 @@ labelTool.onLoadData("PCD", function () {
     }
 
     // draw positions of cameras
-    // front (red)
-    let posCamFront = [0, 0, 0, 1];
-    let translation_vector_lidar_to_cam_front = [-7.151, 13.4829, 59.7093];//lat/vert/long
-    let rotation_matrix_lidar_to_cam_front = [[0.9972, -0.0734, -0.0130],
-        [-0.0094, 0.0500, -0.9987],
-        [0.0740, 0.9960, 0.0492]];
-    // let transformation_matrix_lidar_to_cam_front = [[0.9972, -0.0734, -0.013, -7.7151],
-    //     [-0.0094, 0.05, -0.9987, 13.4829],
-    //     [0.074, 0.996, 0.0492, 59.7093],
-    //     [0, 0, 0, 1]];
-    let transformation_matrix_lidar_to_cam_front = [[0.9972, -0.0734, -0.013, -3.402],
-        [-0.0094, 0.05, -0.9987, 60.7137],
-        [0.074, 0.996, 0.0492, -10.4301],
-        [0, 0, 0, 1]];
-    // posCamFront = matrixProduct4x4(transformation_matrix_lidar_to_cam_front, posCamFront);
-    // long/vert/lat to lat,long,vert
-    let camFrontGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
-    //camFrontGeometry.translate(translation_vector_lidar_to_cam_front[0]/100, translation_vector_lidar_to_cam_front[1]/100, translation_vector_lidar_to_cam_front[2]/100);//long,lat,vert
-    //camFrontGeometry.translate(-posCamFront[0] / 100, posCamFront[2] / 100, -posCamFront[1] / 100);//long,lat,vert
-    //camFrontGeometry.translate(posCamFront[0] / 100, posCamFront[1] / 100, posCamFront[2] / 100);//long,lat,vert
+    if (labelTool.showCameraPosition === true) {
+        drawCameraPosition();
+    }
 
-    // lat, vert, long -> -lat,long,vert
-    // camFrontGeometry.translate(3.402 / 100, 60.7137 / 100, -10.4301 / 100);
-    // lat, long, vert -> -lat,long,vert
-    // camFrontGeometry.translate(3.402/100, 60.7137/100, -10.4301/100);
-    // vert, long, lat -> lat, long, vert
-    camFrontGeometry.translate(-3.402 / 100, 60.7137 / 100, -10.4301 / 100);
-    // rotation_x = Math.atan2(rotation_matrix_lidar_to_cam_front[1][2], rotation_matrix_lidar_to_cam_front[2][2]);
-    // rotation_y = Math.atan2(-rotation_matrix_lidar_to_cam_front[1][0], Math.sqrt(Math.pow(rotation_matrix_lidar_to_cam_front[1][2], 2) + Math.pow(rotation_matrix_lidar_to_cam_front[2][2], 2)));
-    // rotation_z = Math.atan2(rotation_matrix_lidar_to_cam_front[0][1], rotation_matrix_lidar_to_cam_front[0][0]);
-    // camFrontGeometry.rotateX(rotation_x);
-    // camFrontGeometry.rotateY(rotation_y);
-    // camFrontGeometry.rotateZ(rotation_z);
-    let material = new THREE.MeshBasicMaterial({
-        color: 0xff0000,
-        side: THREE.DoubleSide,
-        transparent: false
+    // draw ego vehicle
+
+    // draw ego vehicle
+    let lexusTexture = new THREE.TextureLoader().load('assets/models/lexus/lexus.jpg');
+    let lexusMaterial = new THREE.MeshBasicMaterial({map: lexusTexture});
+    let objLoader = new THREE.OBJLoader();
+    objLoader.load('assets/models/lexus/lexus_hs.obj', function (object) {
+        let lexusGeometry = object.children[0].geometry;
+        let lexusMesh = new THREE.Mesh(lexusGeometry, lexusMaterial);
+
+        lexusMesh.scale.set(0.06, 0.06, 0.06);
+        lexusMesh.rotation.set(0, 0, -Math.PI / 2);
+        lexusMesh.position.set(0, 0, -1.6);
+
+        scene.add(lexusMesh)
     });
-    let camFrontMesh = new THREE.Mesh(camFrontGeometry, material);
-    addObject(camFrontMesh, 'cam-front-object');
 
 
-    // front right (green)
-    // let posCamFrontRight = [0, 0, 0, 1];
-    let camFrontRightGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
-    // let transformation_matrix_lidar_to_cam_front_right = [[0.4899, -0.8708, 0.0407, 9.8561],
-    //     [-0.0484, -0.0739, -0.9961, -2.676],
-    //     [0.8704, 0.4861, -0.0785, -68.6021],
-    //     [0, 0, 0, 1]];
-    let transformation_matrix_lidar_to_cam_front_right = [[0.4899, -0.8708, 0.0407, 3.402],
-        [-0.0484, -0.0739, -0.9961, -60.7137],
-        [0.8704, 0.4861, -0.0785, 10.4301],
-        [0, 0, 0, 1]];
-    material = new THREE.MeshBasicMaterial({
-        color: 0x00ff00,
-        side: THREE.DoubleSide,
-        transparent: false
-    });
-    // posCamFrontRight = matrixProduct4x4(transformation_matrix_lidar_to_cam_front_right, posCamFrontRight);
-    //camFrontRightGeometry.translate(-posCamFrontRight[0] / 100, posCamFrontRight[2] / 100, -posCamFrontRight[1] / 100);//long,lat,vert
-    //camFrontRightGeometry.translate(posCamFrontRight[0] / 100, posCamFrontRight[1] / 100, posCamFrontRight[2] / 100);//long,lat,vert
-    //camFrontRightGeometry.translate(9.85241346 / 100, 68.60191404 / 100, -2.67767493 / 100);
-    // lat, vert, long -> -lat,long,vert
-    // camFrontRightGeometry.translate(48.50692475 / 100, 19.48044474 / 100, -7.04107117 / 100);
-    // lat, long, vert-> -lat,long,vert
-    // camFrontRightGeometry.translate(48.09335335, 102.48678976, -12.42106788);
-    // vert, long, lat -> lat, long, vert
-    //camFrontRightGeometry.translate(39.57155481 / 100, 17.14137681 / 100, -9.67783505 / 100);
-    // lat, long, vert -> -lat, -long, vert
-    camFrontRightGeometry.translate(59.35125262 / 100, 41.21713246 / 100, -15.43223025 / 100);
-
-    let camFrontRightMesh = new THREE.Mesh(camFrontRightGeometry, material);
-    addObject(camFrontRightMesh, 'cam-front-right-object');
-
-    // back right (blue)
-    let posCamBackRight = [0, 0, 0, 1];
-    let camBackRightGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
-    let transformation_matrix_lidar_to_cam_back_right = [[-0.1932, -0.9775, -0.0856, -81.1507],
-        [-0.09, 0.1046, -0.9904, -2.2588],
-        [0.977, -0.1837, -0.1082, -60.6184],
-        [0, 0, 0, 1]];
-    material = new THREE.MeshBasicMaterial({
-        color: 0x0000ff,
-        side: THREE.DoubleSide,
-        transparent: false
-    });
-    // posCamBackRight = matrixProduct4x4(transformation_matrix_lidar_to_cam_back_right, posCamBackRight);
-    //camBackRightGeometry.translate(-posCamBackRight[0] / 100, posCamBackRight[2] / 100, -posCamBackRight[1] / 100);//long,lat,vert
-    // lat, vert, long -> -lat,long,vert
-    //camBackRightGeometry.translate(142.34835515 / 100, -13.25334373 / 100, 4.29496243 / 100);
-    // lat, long, vert-> -lat,long,vert
-    //camBackRightGeometry.translate(142.07855337/100, 136.62693543/100, -9.68514665/100);
-    // vert, long, lat -> lat, long, vert
-    //camBackRightGeometry.translate(1.31533121e+02 / 100, -2.09856129e+01 / 100, 8.62667580e-02 / 100);
-    // lat, long, vert -> -lat, -long, vert
-    camBackRightGeometry.translate(47.93776844 / 100, -90.71772718 / 100, -8.13149812 / 100);
-    let camBackRightMesh = new THREE.Mesh(camBackRightGeometry, material);
-    addObject(camBackRightMesh, 'cam-back-right-object');
-
-    // back (yellow)
-    let posCamBack = [0, 0, 0, 1];
-    let camBackGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
-    let transformation_matrix_lidar_to_cam_back = [[-0.9988, 0.0439, 0.0189, -4.2963],
-        [-0.0149, 0.0895, -0.9959, -2.0743],
-        [-0.0455, -0.995, -0.0888, -95.8045],
-        [0, 0, 0, 1]];
-    material = new THREE.MeshBasicMaterial({
-        color: 0xffff00,
-        side: THREE.DoubleSide,
-        transparent: false
-    });
-    // posCamBack = matrixProduct4x4(transformation_matrix_lidar_to_cam_back, posCamBack);
-    //camBackGeometry.translate(-posCamBack[0] / 100, posCamBack[2] / 100, -posCamBack[1] / 100);//long,lat,vert
-    // lat, vert, long -> -lat,long,vert
-    // camBackGeometry.translate(1.82904048 / 100, -94.42023039 / 100, 3.3679369 / 100);
-    // lat, long, vert -> -lat,long,vert
-    // camBackGeometry.translate(0.82947958/100, 216.3210723/100, -4.20344562/100);
-    // vert, long, lat -> lat, long, vert
-    //camBackGeometry.translate(-12.78487853 / 100, -94.7338226 / 100, -8.16539427 / 100);
-    // lat, long, vert -> -lat, -long, vert
-    camBackGeometry.translate(-4.07865574 / 100, -95.4603164 / 100, -13.38361257 / 100);
-    let camBackMesh = new THREE.Mesh(camBackGeometry, material);
-    addObject(camBackMesh, 'cam-back-object');
-
-    // back left (light blue)
-    let posCamBackLeft = [0, 0, 0, 1];
-    let camBackLeftGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
-    let transformation_matrix_lidar_to_cam_back_left = [[-0.0664, 0.995, 0.0742, 71.5185],
-        [0.0397, 0.0769, -0.9962, 1.0001],
-        [-0.997, -0.0632, -0.0446, -84.9344],
-        [0, 0, 0, 1]];
-    material = new THREE.MeshBasicMaterial({
-        color: 0x00ffff,
-        side: THREE.DoubleSide,
-        transparent: false
-    });
-    // posCamBackLeft = matrixProduct4x4(transformation_matrix_lidar_to_cam_back_left, posCamBackLeft);
-    //camBackLeftGeometry.translate(-posCamBackLeft[0] / 100, posCamBackLeft[2] / 100, -posCamBackLeft[1] / 100);//long,lat,vert
-    // lat, vert, long -> -lat,long,vert
-    //camBackLeftGeometry.translate(-127.9776 / 100, -24.2005 / 100, 5.4966 / 100);
-    // vert, long, lat -> lat, long, vert
-    //camBackLeftGeometry.translate(-138.99563226 / 100, -18.46088298 / 100, -2.0666138 / 100);
-    // lat, long, vert -> -lat, -long, vert
-    camBackLeftGeometry.translate(-75.37243686 / 100, -77.11760848 / 100, -15.77163041 / 100);
-    let camBackLeftMesh = new THREE.Mesh(camBackLeftGeometry, material);
-    addObject(camBackLeftMesh, 'cam-back-left-object');
-
-    // front left (pink)
-    let posCamFrontLeft = [0, 0, 0, 1];
-    let camFrontLeftGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
-    let transformation_matrix_lidar_to_cam_front_left = [[0.6119, 0.791, -0.0001, -0.9675],
-        [0.0757, -0.0587, -0.9954, -1.8214],
-        [-0.7873, 0.6091, -0.0958, -82.9684],
-        [0, 0, 0, 1]];
-    material = new THREE.MeshBasicMaterial({
-        color: 0xff00ff,
-        side: THREE.DoubleSide,
-        transparent: false
-    });
-    // posCamFrontLeft = matrixProduct4x4(transformation_matrix_lidar_to_cam_front_left, posCamFrontLeft);
-    //camFrontLeftGeometry.translate(-posCamFrontLeft[0] / 100, posCamFrontLeft[2] / 100, -posCamFrontLeft[1] / 100);//long,lat,vert
-    // lat, vert, long -> -lat,long,vert
-    //camFrontLeftGeometry.translate(-41.57191408 / 100, 18.40190109 / 100, -5.69111251 / 100);
-    // vert, long, lat -> lat, long, vert
-    //camFrontLeftGeometry.translate(-50.46079534 / 100, 20.4720023 / 100, -9.25820959 / 100);
-    // lat, long, vert -> -lat, -long, vert
-    camFrontLeftGeometry.translate(-59.9910821 / 100, 50.67448108 / 100, -14.11259497 / 100);
-    let camFrontLeftMesh = new THREE.Mesh(camFrontLeftGeometry, material);
-    addObject(camFrontLeftMesh, 'cam-front-left-object');
-
+    // let loader = new THREE.ObjectLoader();
+    // loader.load('assets/models/car.json', function (object) {
+    //     object.scale.set(0.0005, 0.0005, 0.0005);
+    //     object.rotation.set(Math.PI / 2, Math.PI / 2, 0);
+    //     object.position.set(0, 0, -1.6);
+    //     scene.add(object);
+    // });
+    // // front left
+    // loader.load('assets/models/brakes.json', function (object) {
+    //     object.scale.set(0.0008, 0.0008, 0.0008);
+    //     object.rotation.set(Math.PI / 2, 0, Math.PI / 2);
+    //     object.position.set(-0.7, 2.1, -1.6);//lat, long,vert
+    //     scene.add(object);
+    // });
+    // //back right
+    // loader.load('assets/models/brakes.json', function (object) {
+    //     object.scale.set(0.0008, 0.0008, 0.0008);
+    //     object.rotation.set(Math.PI / 2, 0, Math.PI / 2);
+    //     object.position.set(-0.7, -1.1, -1.6);//lat, long,vert
+    //     scene.add(object);
+    // });
+    // // front right
+    // loader.load('assets/models/brakes.json', function (object) {
+    //     object.scale.set(0.0008, 0.0008, 0.0008);
+    //     object.rotation.set(Math.PI / 2, 0, -Math.PI / 2);//
+    //     object.position.set(0.7, 2.1, -0.65);//lat, long,vert
+    //     scene.add(object);
+    // });
+    // // back right
+    // loader.load('assets/models/brakes.json', function (object) {
+    //     object.scale.set(0.0008, 0.0008, 0.0008);
+    //     object.rotation.set(Math.PI / 2, 0, -Math.PI / 2);
+    //     object.position.set(0.7, -1.1, -0.75);//lat, long,vert
+    //     scene.add(object);
+    // });
 
 });
 
@@ -663,11 +610,19 @@ function paddingRight(s, c, n) {
 }
 
 function download() {
-    // download annotations from all frames of current dataset
     let annotations = labelTool.createAnnotations();
     let outputString = JSON.stringify(annotations);
     outputString = b64EncodeUnicode(outputString);
     $($('#bounding-box-3d-menu ul li')[0]).children().first().attr('href', 'data:application/octet-stream;base64,' + outputString).attr('download', labelTool.currentDataset + "_" + labelTool.currentSequence + '_annotations.txt');
+}
+
+function downloadVideo() {
+    let zip = getZipVideoFrames();
+    zip.generateAsync({type: "blob"})
+        .then(function (content) {
+            saveAs(content, labelTool.currentDataset + "_" + labelTool.currentSequence + '_video_frames.zip')
+        });
+    // $($('#bounding-box-3d-menu ul li')[1]).children().first().attr('href', 'data:application/zip;base64,' + outputString).attr('download', labelTool.currentDataset + "_" + labelTool.currentSequence + '_video_frames.zip');
 }
 
 function hideMasterView() {
@@ -3273,7 +3228,8 @@ function initViews() {
             top: 0,
             width: window.innerWidth,
             height: window.innerHeight,
-            background: new THREE.Color(22 / 256.0, 22 / 256.0, 22 / 256.0),
+            //background: new THREE.Color(22 / 256.0, 22 / 256.0, 22 / 256.0),
+            background: new THREE.Color(1, 1, 1),
             up: [0, 1, 0],
             fov: 70
         },
@@ -3593,7 +3549,7 @@ function loadDetectedBoxes() {
                     params.class = "Vehicle";
                     params.rotationY = rotationY;
                     params.original.rotationY = rotationY;
-                    params.trackId = classesBoundingBox["Vehicle"]["nextTrackId"];
+                    params.trackId = objectIndexWithinFrame + 1;
                     if (tmpWidth !== 0.0 && tmpHeight !== 0.0 && tmpDepth !== 0.0) {
                         tmpWidth = Math.max(tmpWidth, 0.0001);
                         tmpHeight = Math.max(tmpHeight, 0.0001);
@@ -3690,14 +3646,15 @@ function init() {
     scene = new THREE.Scene();
 
     scene.background = new THREE.Color(0x323232);
+
     scene.fog = new THREE.Fog(scene.background, 3500, 15000);
 
     let axisHelper = new THREE.AxisHelper(1);
     axisHelper.position.set(0, 0, 0);
     scene.add(axisHelper);
 
-    let light = new THREE.DirectionalLight(0xffffff, 20);
-    light.position.set(0, 0, 0);
+    let light = new THREE.DirectionalLight(0xffffff, 0.7);
+    light.position.set(0, 0, 6).normalize();
     scene.add(light);
 
     canvas3D = document.getElementById('canvas3d');
@@ -3712,7 +3669,13 @@ function init() {
     window.addEventListener('keydown', windowKeyDownHandler);
     // controls.domElement = container;
 
-    renderer = new THREE.WebGLRenderer({antialias: true});
+    renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        clearColor: 0x000000,
+        clearAlpha: 0,
+        alpha: true,
+        preserveDrawingBuffer: true
+    });
     // renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -3742,44 +3705,6 @@ function init() {
         handleMouseUp(ev);
     };
 
-    // currentOrbitControls.noZoom = true;
-    // $('#canvas3d').on('mousewheel', function (e) {
-    //     let mouseX = (e.clientX - (window.innerWidth / 2)) * 10;
-    //     let mouseY = (e.clientY - (window.innerHeight / 2)) * 10;
-    //
-    //     if (e.originalEvent.deltaY < 0) { // zoom to the front
-    //         currentCamera.position.x -= mouseX * .00125;
-    //         currentCamera.position.z += mouseY * .00125;
-    //         currentCamera.position.y += 1.1 * 10;
-    //         currentOrbitControls.target.x -= mouseX * .00125;
-    //         currentOrbitControls.target.z += mouseY * .00125;
-    //         currentOrbitControls.target.y += 1.1 * 10;
-    //     } else {                          // zoom to the back
-    //         currentCamera.position.x += mouseX * .00125;
-    //         currentCamera.position.z -= mouseY * .00125;
-    //         currentCamera.position.y -= 1.1 * 10;
-    //         currentOrbitControls.target.x += mouseX * .00125;
-    //         currentOrbitControls.target.z -= mouseY * .00125;
-    //         currentOrbitControls.target.y -= 1.1 * 10;
-    //     }
-    // });
-    //canvas3D.addEventListener('mousewheel', onDocumentMouseWheel, false);
-    // canvas3D.onmousewheel = function (event) {
-    //     let factor = 15;
-    //     let mX = (event.clientX / jQuery(container).width()) * 2 - 1;
-    //     let mY = -(event.clientY / jQuery(container).height()) * 2 + 1;
-    //     let vector = new THREE.Vector3(mX, mY, 0.1);
-    //     vector.unproject(currentCamera);
-    //     vector.sub(currentCamera.position);
-    //     if (event.deltaY < 0) {
-    //         currentCamera.position.addVectors(currentCamera.position, vector.setLength(factor));
-    //         currentOrbitControls.target.addVectors(currentOrbitControls.target, vector.setLength(factor));
-    //     } else {
-    //         currentCamera.position.subVectors(currentCamera.position, vector.setLength(factor));
-    //         currentOrbitControls.target.subVectors(currentOrbitControls.target, vector.setLength(factor));
-    //     }
-    // };
-
     labelTool.cubeArray = [];
     labelTool.spriteArray = [];
     labelTool.savedFrames = [];
@@ -3801,7 +3726,8 @@ function init() {
         };
         guiAnnotationClasses.domElement.id = 'class-picker';
         // 3D BB controls
-        guiOptions.add(parameters, 'download').name("Download");
+        guiOptions.add(parameters, 'download').name("Download Annotations");
+        guiOptions.add(parameters, 'download_video').name("Download Video");
         guiOptions.add(parameters, 'switch_view').name("Switch view");
         let showOriginalNuScenesLabelsCheckbox = guiOptions.add(parameters, 'show_nuscenes_labels').name('NuScenes Labels').listen();
         showOriginalNuScenesLabelsCheckbox.onChange(function (value) {
