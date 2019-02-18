@@ -4,6 +4,7 @@ function initTimer() {
     let minutes = 0;
     let seconds = 0;
     let timeString = "";
+
     setInterval(function () {
         // increase elapsed time every second
         labelTool.timeElapsed = labelTool.timeElapsed + 1;
@@ -15,16 +16,30 @@ function initTimer() {
         hours = Math.floor(labelTool.timeElapsed / (60 * 60));
         timeString = pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2);
         $("#time-elapsed").text(timeString);
-        // take screenshot every second
+    }, labelTool.timeDelay);
+}
+
+function initScreenshotTimer() {
+    labelTool.timeElapsedScreenshot = 0;
+    setInterval(function () {
+        // increase elapsed time every second
+        labelTool.timeElapsedScreenshot = labelTool.timeElapsedScreenshot + 1;
+        // take screenshot every 2 seconds
         if (labelTool.takeCanvasScreenshot === true) {
-            if (labelTool.currentFileIndex < 899) {
+            //if (labelTool.currentFileIndex < 899) {
+            if (labelTool.currentFileIndex < 5) {
                 takeScreenshot();
                 labelTool.changeFrame(labelTool.currentFileIndex + 1);
+            }else{
+                labelTool.takeCanvasScreenshot=false;
+                let zip = getZipVideoFrames();
+                zip.generateAsync({type: "blob"})
+                    .then(function (content) {
+                        saveAs(content, labelTool.currentDataset + "_" + labelTool.currentSequence + '_video_frames.zip')
+                    });
             }
         }
-
-
-    }, labelTool.timeDelay);
+    }, labelTool.timeDelayScreenshot);
 }
 
 let labelTool = {
@@ -54,6 +69,7 @@ let labelTool = {
     fileNames: [],
     takeCanvasScreenshot: false,
     timeDelay: 1000,
+    timeDelayScreenshot: 2000,
     imageSizes: {},
     originalAnnotations: [],   // For checking modified or not
     skipFrameCount: 1,
@@ -286,6 +302,7 @@ let labelTool = {
     folderEndSize: undefined,
     logger: undefined,
     timeElapsed: 0, // elapsed time in seconds
+    timeElapsedScreenshot: 0, // elapsed time between two screenshots
 
     /********** Externally defined functions **********
      * Define these functions in the labeling tools.
@@ -688,11 +705,6 @@ let labelTool = {
     },
 
     initialize: function () {
-        if (labelTool.takeCanvasScreenshot === true) {
-            // increase delay from 1sec to 4sec between two frames (to load data)
-            labelTool.timeDelay = 4000;
-        }
-
         initPanes();
 
         let imageContainer = $("#layout_layout_panel_top .w2ui-panel-content");
@@ -2004,38 +2016,17 @@ function calculateAndDrawLineSegments(channelObj, className) {
 }
 
 function takeScreenshot() {
-    // html2canvas($("#canvas3d canvas")[0], {backgroundColor: null}).then(canvas => {
-    //     let imageBase64String = canvas.toDataURL("image/png");
-    //     labelTool.frameScreenshots.push(imageBase64String);
-    // });
-    // let context = canvas3D.getContext("experimental-webgl", {preserveDrawingBuffer: true});
-    // let imageBase64String = canvas3D.toDataURL("image/png");
-
     let imgData = renderer.domElement.toDataURL();
     labelTool.frameScreenshots.push(imgData);
-
-    // html2canvas($('#label-tool-log')[0], {
-    //     background: '#FFFFFF',
-    //     onrendered: function (canvas) {
-    //         //Set hidden field's value to image data (base-64 string)
-    //         //let imageBase64String = canvas.toDataURL("image/png");
-    //         let imageBase64String = canvas.toDataURL("image/jpeg");
-    //         labelTool.frameScreenshots.push(imageBase64String);
-    //     }
-    // });
 }
 
 
 function getZipVideoFrames() {
     let zip = new JSZip();
-    for (let i = 0; i < 900; i++) {
-        // for (let i = 0; i < 30; i++) {
-        // let uintArray = Base64Binary.decode(labelTool.frameScreenshots[i]);
-        // zip.file(pad(i, 6) + ".png", uintArray);
+    for (let i = 0; i < 5; i++) {
         let substring = labelTool.frameScreenshots[i].substring(22, labelTool.frameScreenshots[i].length);
         let byteArray = Base64Binary.decodeArrayBuffer(substring);
         zip.file(pad(i, 6) + ".png", byteArray);
-
     }
     return zip;
 }
