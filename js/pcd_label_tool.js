@@ -435,6 +435,8 @@ labelTool.onLoadData("PCD", function () {
     pcdLoader.load(pointCloudFullURL, function (mesh) {
         mesh.name = 'pointcloud_full';
         pointCloudFull = mesh.clone();
+        // TODO: rotate point cloud so that North shows always upwards
+        pointCloudFull.rotation.set(0, 0, 0);
         scene.add(pointCloudFull);
     });
 
@@ -466,7 +468,7 @@ labelTool.onLoadData("PCD", function () {
         let lexusGeometry = object.children[0].geometry;
         let lexusMesh = new THREE.Mesh(lexusGeometry, lexusMaterial);
 
-        lexusMesh.scale.set(0.06, 0.06, 0.06);
+        lexusMesh.scale.set(0.065, 0.065, 0.065);
         lexusMesh.rotation.set(0, 0, -Math.PI / 2);
         lexusMesh.position.set(0, 0, -1.6);
 
@@ -617,12 +619,14 @@ function download() {
 }
 
 function downloadVideo() {
-    let zip = getZipVideoFrames();
-    zip.generateAsync({type: "blob"})
-        .then(function (content) {
-            saveAs(content, labelTool.currentDataset + "_" + labelTool.currentSequence + '_video_frames.zip')
-        });
-    // $($('#bounding-box-3d-menu ul li')[1]).children().first().attr('href', 'data:application/zip;base64,' + outputString).attr('download', labelTool.currentDataset + "_" + labelTool.currentSequence + '_video_frames.zip');
+    if (labelTool.currentDataset === labelTool.datasets.LISA_T && (labelTool.currentSequence === labelTool.sequencesLISAT.date_2018_07_02_005_frame_00000000_00000900 || labelTool.currentSequence === labelTool.sequencesLISAT.date_2018_07_02_005_frame_00000900_00001800 || labelTool.currentSequence === labelTool.sequencesLISAT.date_2018_07_02_005_frame_00001800_00002700)) {
+        labelTool.takeCanvasScreenshot = true;
+        labelTool.changeFrame(0);
+        initScreenshotTimer();
+    } else {
+        labelTool.logger.error("Detections are only available for the LISA sequences: date_2018_07_02_005_frame_00000000_00000900, date_2018_07_02_005_frame_00000900_00001800 and date_2018_07_02_005_frame_00001800_00002700");
+    }
+
 }
 
 function hideMasterView() {
@@ -3833,15 +3837,19 @@ function init() {
         let showDetectionsCheckbox = guiOptions.add(parameters, 'show_detections').name('Show Detections').listen();
         showDetectionsCheckbox.domElement.id = 'show-detections-checkbox';
         showDetectionsCheckbox.onChange(function (value) {
+            showDetections = value;
             if (showDetections === true) {
-                if (labelTool.currentDataset === labelTool.datasets.LISA_T && labelTool.currentSequence === labelTool.sequencesLISAT.date_2018_07_02_005_frame_00000000_00000900) {
-                    // TODO
+                if (labelTool.currentDataset === labelTool.datasets.LISA_T && (labelTool.currentSequence === labelTool.sequencesLISAT.date_2018_07_02_005_frame_00000000_00000900 || labelTool.currentSequence === labelTool.sequencesLISAT.date_2018_07_02_005_frame_00000900_00001800 || labelTool.currentSequence === labelTool.sequencesLISAT.date_2018_07_02_005_frame_00001800_00002700)) {
+                    // TODO: load detection boxes in the beginning
+                    // show/hide detection boxes for current frame if user selects checkbox
                     //showDetectedBoxes();
+                    loadDetectedBoxes();
                 } else {
-                    labelTool.logger.error("Detections are only available for the LISA sequence: date_2018_07_02_005_frame_00000000_00000900");
+                    labelTool.logger.error("Detections are only available for the LISA sequences: date_2018_07_02_005_frame_00000000_00000900, date_2018_07_02_005_frame_00000900_00001800 and date_2018_07_02_005_frame_00001800_00002700");
                 }
             } else {
-                hideDetectedBoxes();
+                // TODO
+                // hideDetectedBoxes();
             }
         });
 
@@ -3944,7 +3952,5 @@ function init() {
     elem.css("color", "#969696");
 
     initViews();
-
-    loadDetectedBoxes();
 
 }
