@@ -1,5 +1,6 @@
 let annotationObjects = {
     contents: [],
+    contentsDetections: [],
     localOnSelect: {
         "CAM_FRONT_LEFT": function (index) {
         },
@@ -49,9 +50,6 @@ let annotationObjects = {
             return this.contents[index];
         }
         return this.contents[index][channel];
-    },
-    add2DBoundingBox: function (indexByDimension, channelObj) {
-        annotationObjects.contents[labelTool.currentFileIndex][indexByDimension].channels.push(channelObj);
     },
     set: function (insertIndex, params) {
         let obj = get3DLabel(params);
@@ -125,28 +123,6 @@ let annotationObjects = {
         //                                                           ul        number      div       div[class c]    input
         folderBoundingBox3DArray[selectedObjectIndex].domElement.children[0].children[3].children[0].children[1].children[0].value = nextTrackIdNewClass;
 
-
-        // add folder at same position with new class label and track id
-        //guiOptions.removeFolder(currentClassLabel + ' ' + currentTrackId);
-        //folderBoundingBox3DArray.splice(selectedObjectIndex, 1);
-        //folderPositionArray.splice(selectedObjectIndex, 1);
-        //folderSizeArray.splice(selectedObjectIndex, 1);
-        // let annotationObj = annotationObjects.contents[labelTool.currentFileIndex][selectedObjectIndex];
-        // let bbox = {
-        //     class: annotationObj["class"],
-        //     x: annotationObj["x"],
-        //     y: annotationObj["y"],
-        //     z: annotationObj["z"],
-        //     width: annotationObj["width"],
-        //     height: annotationObj["height"],
-        //     depth: annotationObj["depth"],
-        //     rotationY: parseFloat(annotationObj["rotationY"]),
-        //     trackId: annotationObj["trackId"],
-        //     copyLabelToNextFrame: annotationObj["copyLabelToNextFrame"]
-        // };
-        // addBoundingBoxGui(bbox, undefined);
-
-
         // open current folder
         folderBoundingBox3DArray[selectedObjectIndex].open();
         folderPositionArray[selectedObjectIndex].open();
@@ -179,7 +155,6 @@ let annotationObjects = {
         }
     },
     select: function (objectIndex, channel) {
-        let notificationElem = $("#label-tool-log");
         this.setSelectionIndex(objectIndex, channel);
         this.localOnSelect["PCD"](objectIndex);
     },
