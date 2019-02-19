@@ -2242,32 +2242,42 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
         let point = cornerPoints[cornerPoint];
 
         // swap vertical and long before projection
-        let tmp = point[1];
-        point[1] = point[2];
-        point[2] = tmp;
+        // let tmp = point.x;
+        // point.x = point.y;
+        // point.y = tmp;
 
         // rotate all 8 corner points before projection
         // TMP: commented out
-        // let pointRotated = rotatePoint(point.x, point.y, xPos, yPos, rotationY * 360 / (2 * Math.PI));
+        // let pointRotated = rotatePoint(point.x, point.y, xPos, zPos, rotationY * 360 / (2 * Math.PI));
         // point.x = pointRotated.x;
         // point.y = pointRotated.y;
 
-        //let point3D = [point.x * dimensionScalingFactor, (point.y + longitudeOffset) * dimensionScalingFactor, (point.z + streetVerticalOffset) * dimensionScalingFactor, 1];
+
         let point3D = [point.x * dimensionScalingFactor, point.y * dimensionScalingFactor, point.z * dimensionScalingFactor, 1];
         let projectionMatrix;
         let point2D;
         if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
             let transformationMatrixLidarToCam = matrixInvert(labelTool.camChannels[idx].transformationMatrixCamToLidar);
 
-            // swap vert with long before projection
+            // swap vert with long before projection to get (lat, long, vert)
             let tmp = point3D[1];
             point3D[1] = point3D[2];
             point3D[2] = tmp;
+
+            let pointRotated = rotatePoint(point3D[0], point3D[1], xPos, zPos, rotationY * 360 / (2 * Math.PI));
+            point3D[0] = pointRotated.x;
+            point3D[1] = pointRotated.y;
+
             let transformedPoint = matrixProduct4x4(transformationMatrixLidarToCam, point3D);//result will be 4x1
 
-            let pointRotated = rotatePoint(transformedPoint.x, transformedPoint.y, xPos, yPos, rotationY * 360 / (2 * Math.PI));
-            transformedPoint.x = pointRotated.x;
-            transformedPoint.y = pointRotated.y;
+
+            // let pointRotated = rotatePoint(transformedPoint.x, transformedPoint.y, xPos, yPos, rotationY * 360 / (2 * Math.PI));
+            // transformedPoint.x = pointRotated.x;
+            // transformedPoint.y = pointRotated.y;
+
+            // let pointRotated = rotatePoint(transformedPoint.x, transformedPoint.y, xPos, yPos, rotationY * 360 / (2 * Math.PI));
+            // transformedPoint.x = pointRotated.x;
+            // transformedPoint.y = pointRotated.y;
 
             point2D = matrixProduct3x4(labelTool.camChannels[idx].intrinsicMatrixLISAT, transformedPoint);
 
@@ -3012,6 +3022,7 @@ function mouseUpLogic(ev) {
                 addBboxParameters.class = classesBoundingBox.targetName();
                 addBboxParameters.x = xPos;
                 addBboxParameters.y = yPos;
+                //addBboxParameters.z = zPos + defaultDepth / 2 - labelTool.positionLidarLISAT[2];
                 addBboxParameters.z = zPos + defaultDepth / 2 - labelTool.positionLidarLISAT[2];
                 addBboxParameters.width = Math.abs(groundPointMouseUp.x - groundPointMouseDown.x);
                 addBboxParameters.height = Math.abs(groundPointMouseUp.y - groundPointMouseDown.y);
@@ -3051,7 +3062,7 @@ function mouseUpLogic(ev) {
                     // working for LISA_T
                     // let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -yPos, -zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth, channel, addBboxParameters.rotationY);
                     // new transformation matrices
-                    let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -zPos, -yPos, addBboxParameters.width, addBboxParameters.depth, addBboxParameters.height, channel, addBboxParameters.rotationY);
+                    let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -zPos - defaultDepth / 2 + labelTool.positionLidarLISAT[2], -yPos, addBboxParameters.width, addBboxParameters.depth, addBboxParameters.height, channel, addBboxParameters.rotationY);
                     addBboxParameters.channels[i].projectedPoints = projectedBoundingBox;
                 }
                 // calculate line segments
@@ -3514,7 +3525,7 @@ function canvas3DKeyDownHandler(event) {
 function loadDetectedBoxes() {
     let rawFile = new XMLHttpRequest();
     try {
-        rawFile.open("GET", 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/detections/detections.txt', false);
+        rawFile.open("GET", 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/detections/detections_lidar.txt', false);
     } catch (error) {
     }
 
@@ -3546,9 +3557,9 @@ function loadDetectedBoxes() {
                     params.original.x = params.x;
                     params.original.y = params.y;
                     params.original.z = params.z;
-                    let tmpDepth = parseFloat(attributes[4].trim().split(" ")[2]);
-                    let tmpHeight = parseFloat(attributes[5].trim().split(" ")[2]);
-                    let tmpWidth = parseFloat(attributes[6].trim().split(" ")[2]);//long
+                    let tmpDepth = parseFloat(attributes[4].trim().split(" ")[2]);// vert
+                    let tmpWidth = parseFloat(attributes[5].trim().split(" ")[2]);// lat
+                    let tmpHeight = parseFloat(attributes[6].trim().split(" ")[2]);//long
                     let rotationY = parseFloat(attributes[7].trim().split(" ")[1]);
                     params.class = "Vehicle";
                     params.rotationY = rotationY;
