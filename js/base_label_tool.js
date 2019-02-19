@@ -892,14 +892,12 @@ let labelTool = {
         if (this.currentDataset === this.datasets.LISA_T) {
             w2ui['layout'].panels[0].maxSize = 480;
             w2ui['layout'].panels[0].minSize = 240;
-            // w2ui['layout'].panels[0].size = 480;
             w2ui['layout'].panels[0].size = 240;
         } else {
             w2ui['layout'].panels[0].minSize = Math.ceil(window.innerWidth) / (6 * 1.7778);
             w2ui['layout'].panels[0].maxSize = 360;
 
             w2ui['layout'].panels[0].size = Math.ceil(window.innerWidth) / (6 * 1.7778);
-            //w2ui['layout'].panels[0].size = 360;
 
         }
         w2ui['layout'].resize();
