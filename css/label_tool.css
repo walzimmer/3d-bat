@@ -506,7 +506,7 @@ text {
 
 #class-picker {
     left: 10px;
-    bottom: 0px;
+    bottom: 20px;
     padding-bottom: 30px;
     float: none;
     position: fixed;

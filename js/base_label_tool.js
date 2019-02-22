@@ -21,25 +21,64 @@ function initTimer() {
 
 function initScreenshotTimer() {
     labelTool.timeElapsedScreenshot = 0;
-    setInterval(function () {
+    let screenshotIntervalHandle = setInterval(function () {
         // increase elapsed time every second
         labelTool.timeElapsedScreenshot = labelTool.timeElapsedScreenshot + 1;
         // take screenshot every 2 seconds
         if (labelTool.takeCanvasScreenshot === true) {
-            //if (labelTool.currentFileIndex < 899) {
-            if (labelTool.currentFileIndex < 5) {
+            if (labelTool.currentFileIndex < 899) {
+                // if (labelTool.currentFileIndex < 450) {
                 takeScreenshot();
                 labelTool.changeFrame(labelTool.currentFileIndex + 1);
-            }else{
-                labelTool.takeCanvasScreenshot=false;
+            } else {
+                labelTool.takeCanvasScreenshot = false;
                 let zip = getZipVideoFrames();
                 zip.generateAsync({type: "blob"})
                     .then(function (content) {
                         saveAs(content, labelTool.currentDataset + "_" + labelTool.currentSequence + '_video_frames.zip')
                     });
             }
+        } else {
+            clearInterval(screenshotIntervalHandle);
         }
     }, labelTool.timeDelayScreenshot);
+}
+
+function initPlayTimer() {
+    labelTool.timeElapsedPlay = 0;
+    let playIntervalHandle = setInterval(function () {
+        labelTool.timeElapsedPlay = labelTool.timeElapsedPlay + 1;
+        if (labelTool.playSequence === true) {
+            if (labelTool.currentFileIndex < 900) {
+                labelTool.changeFrame(labelTool.currentFileIndex + 1);
+            } else {
+                clearInterval(playIntervalHandle);
+            }
+        } else {
+            clearInterval(playIntervalHandle);
+        }
+
+    }, labelTool.timeDelayPlay);
+}
+
+function initFrameSelector() {
+    // add bar segments to frame selection bar
+    // for (let i = 0; i < labelTool.numFrames; i++) {
+    for (let i = 0; i < 100; i++) {
+        let selectedClass = "";
+        if (i === 0) {
+            selectedClass = "selected";
+        }
+        let divElem = $("<div data-tip=" + i + " data-for=\"frame-selector\" class=\"frame default " + selectedClass + "\"></div>");
+        $(divElem).on("click", function (item) {
+            $("div.frame").attr("class", "frame default");
+            item.target.className = "frame default selected";
+            let elemIndex = Number(item.target.dataset.tip);
+            labelTool.changeFrame(elemIndex);
+        });
+        $(".frame-selector__frames").append(divElem);
+
+    }
 }
 
 let labelTool = {
@@ -57,19 +96,25 @@ let labelTool = {
     }),
     sequencesNuScenes: [],
     currentDataset: 'LISA_T',
-    currentSequence: '2018-07-02-005-frame-00000000-00000900',//[2018-05-23-001-frame-00042917-00043816_small, One]
-    numFramesLISAT: 900,
+    currentSequence: '2018-07-02-005-frame-00001800-00002700',//[2018-05-23-001-frame-00042917-00043816_small, One]
+    // temprorarily set to 100
+    numFramesLISAT: 50,
     numFramesNuScenes: 120,//[3962,120]
     frameScreenshots: [],
     numFrames: 0,
     dataTypes: [],
+    playSequence: false,
     currentFileIndex: 0,
     showCameraPosition: false,
     previousFileIndex: 0,
     fileNames: [],
     takeCanvasScreenshot: false,
     timeDelay: 1000,
+    pointCloudLoaded: false,
+    imageCanvasInitialized: false,
+    cameraImagesLoaded: false,
     timeDelayScreenshot: 2000,
+    timeDelayPlay: 100,
     imageSizes: {},
     originalAnnotations: [],   // For checking modified or not
     skipFrameCount: 1,
@@ -303,14 +348,15 @@ let labelTool = {
     logger: undefined,
     timeElapsed: 0, // elapsed time in seconds
     timeElapsedScreenshot: 0, // elapsed time between two screenshots
+    timeElapsedPlay: 0,
 
     /********** Externally defined functions **********
      * Define these functions in the labeling tools.
      **************************************************/
 
-    onLoadData: function (dataType, f) {
-        this.localOnLoadData[dataType] = f;
-    },
+    // onLoadData: function (dataType, f) {
+    //     this.localOnLoadData[dataType] = f;
+    // },
 
     onInitialize: function (dataType, f) {
         this.localOnInitialize[dataType] = f;
@@ -318,46 +364,46 @@ let labelTool = {
 
     /****************** Private functions **************/
 
-    localOnLoadData: {
-        "CAM_FRONT_LEFT":
-            function () {
-            }
-        ,
-        "CAM_FRONT":
-
-            function () {
-            }
-
-        ,
-        "CAM_FRONT_RIGHT":
-
-            function () {
-            }
-
-        ,
-        "CAM_BACK_RIGHT":
-
-            function () {
-            }
-
-        ,
-        "CAM_BACK":
-
-            function () {
-            }
-
-        ,
-        "CAM_BACK_LEFT":
-
-            function () {
-            }
-
-        ,
-        "PCD":
-
-            function () {
-            }
-    },
+    // localOnLoadData: {
+    //     "CAM_FRONT_LEFT":
+    //         function () {
+    //         }
+    //     ,
+    //     "CAM_FRONT":
+    //
+    //         function () {
+    //         }
+    //
+    //     ,
+    //     "CAM_FRONT_RIGHT":
+    //
+    //         function () {
+    //         }
+    //
+    //     ,
+    //     "CAM_BACK_RIGHT":
+    //
+    //         function () {
+    //         }
+    //
+    //     ,
+    //     "CAM_BACK":
+    //
+    //         function () {
+    //         }
+    //
+    //     ,
+    //     "CAM_BACK_LEFT":
+    //
+    //         function () {
+    //         }
+    //
+    //     ,
+    //     "PCD":
+    //
+    //         function () {
+    //         }
+    // },
 
     localOnLoadAnnotation: {
         "CAM_FRONT_LEFT":
@@ -490,12 +536,24 @@ let labelTool = {
 
 // Visualize 2d and 3d data
     showData: function () {
-        for (let camChannelObj in this.camChannels) {
-            if (this.camChannels.hasOwnProperty(camChannelObj)) {
-                let camChannelObject = this.camChannels[camChannelObj];
-                this.localOnLoadData[camChannelObject.channel]();
+        if (labelTool.cameraImagesLoaded === false) {
+            for (let i = 0; i < this.numFrames; i++) {
+                for (let camChannelObj in this.camChannels) {
+                    if (this.camChannels.hasOwnProperty(camChannelObj)) {
+                        let camChannelObject = this.camChannels[camChannelObj];
+                        loadCameraImages(camChannelObject.channel, i);
+                    }
+                }
+                imageArrayAll.push(imageArray);
             }
+            labelTool.cameraImagesLoaded = true;
         }
+        // show 6 camera images of current frame
+        for (let i = 0; i < 6; i++) {
+            imageArrayAll[labelTool.currentFileIndex][i].toBack();
+        }
+
+
         // draw 2D bb for all objects
         // note that last element is the 'insertIndex' -> iterate until length-1
         if (annotationObjects.contents !== undefined && annotationObjects.contents.length > 0) {
@@ -509,8 +567,7 @@ let labelTool = {
                 }
             }
         }
-
-        this.localOnLoadData["PCD"]();
+        loadPCDData();
     },
 
     setTrackIds: function () {
@@ -707,40 +764,79 @@ let labelTool = {
     initialize: function () {
         initPanes();
 
+        initFrameSelector();
+
         let imageContainer = $("#layout_layout_panel_top .w2ui-panel-content");
         // create six image divs
-        for (let channelIdx in labelTool.camChannels) {
-            if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
-                let channel = labelTool.camChannels[channelIdx].channel;
-                let id = "image-" + channel.toLowerCase().replace(/_/g, '-');
-                let minWidth = window.innerWidth / 6;
-                let minHeight = minWidth * 1.7778;
-                imageContainer.append("<div id='" + id + "'></div>");
-                $("#" + id).css("width", minWidth);
-                $("#" + id).css("height", minHeight);
-                let canvasElem = imageContainer["0"].children[channelIdx];
 
-                canvasArray.push(canvasElem);
-                let imagePanelTopPos = parseInt($("#layout_layout_resizer_top").css("top"), 10);
-                if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-                    if (channel === "CAM_BACK" || channel === "CAM_FRONT") {
-                        imageWidth = labelTool.imageSizes["LISA_T"]["minWidthWide"];
+        // ---------------------------------------------------------------
+        // for (let channelIdx in labelTool.camChannels) {
+        //     if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
+        //         let channel = labelTool.camChannels[channelIdx].channel;
+        //         let id = "image-" + channel.toLowerCase().replace(/_/g, '-');
+        //         let minWidth = window.innerWidth / 6;
+        //         let minHeight = minWidth * 1.7778;
+        //         imageContainer.append("<div id='" + id + "'></div>");
+        //         $("#" + id).css("width", minWidth);
+        //         $("#" + id).css("height", minHeight);
+        //         let canvasElem = imageContainer["0"].children[channelIdx];
+        //
+        //         canvasArray.push(canvasElem);
+        //         let imagePanelTopPos = parseInt($("#layout_layout_resizer_top").css("top"), 10);
+        //         if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+        //             if (channel === "CAM_BACK" || channel === "CAM_FRONT") {
+        //                 imageWidth = labelTool.imageSizes["LISA_T"]["minWidthWide"];
+        //             } else {
+        //                 imageWidth = labelTool.imageSizes["LISA_T"]["minWidthNormal"];
+        //             }
+        //         } else {
+        //             imageWidth = labelTool.imageSizes["NuScenes"]["minWidthNormal"];
+        //         }
+        //         paperArray.push(Raphael(canvasElem, imageWidth, imagePanelTopPos));
+        //     }
+        // }
+
+        //-------------------------------------------------------------
+        let imageWidth;
+        let canvasElem;
+        let imagePanelTopPos;
+        for (let i = 0; i < labelTool.numFrames; i++) {
+            paperArray = [];
+            for (let channelIdx = 0; channelIdx < labelTool.camChannels.length; channelIdx++) {
+                if (labelTool.imageCanvasInitialized === false) {
+                    let channel = labelTool.camChannels[channelIdx].channel;
+                    let id = "image-" + channel.toLowerCase().replace(/_/g, '-');
+                    let minWidth = window.innerWidth / 6;
+                    let minHeight = minWidth * 1.7778;
+                    imageContainer.append("<div id='" + id + "'></div>");
+                    $("#" + id).css("width", minWidth);
+                    $("#" + id).css("height", minHeight);
+                    canvasElem = imageContainer["0"].children[channelIdx];
+                    canvasArray.push(canvasElem);
+                    imagePanelTopPos = parseInt($("#layout_layout_resizer_top").css("top"), 10);
+                    if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+                        if (channel === "CAM_BACK" || channel === "CAM_FRONT") {
+                            imageWidth = labelTool.imageSizes["LISA_T"]["minWidthWide"];
+                        } else {
+                            imageWidth = labelTool.imageSizes["LISA_T"]["minWidthNormal"];
+                        }
                     } else {
-                        imageWidth = labelTool.imageSizes["LISA_T"]["minWidthNormal"];
+                        imageWidth = labelTool.imageSizes["NuScenes"]["minWidthNormal"];
                     }
-                } else {
-                    imageWidth = labelTool.imageSizes["NuScenes"]["minWidthNormal"];
                 }
-                paperArray.push(Raphael(canvasElem, imageWidth, imagePanelTopPos));
+                paperArray.push(Raphael(canvasArray[channelIdx], imageWidth, imagePanelTopPos));
             }
+            labelTool.imageCanvasInitialized = true;
+            paperArrayAll.push(paperArray);
         }
+        // ---------------------------------------------------------------
 
         // make image container scrollable
         $("#layout_layout_panel_top .w2ui-panel-content").addClass("dragscroll");
         $("#layout_layout_panel_top .w2ui-panel-content").css("overflow", "scroll");
 
         let pointCloudContainer = $("#layout_layout_panel_main .w2ui-panel-content");
-        pointCloudContainer.append('<div id="canvas3d" style="z-index: 0; background-color: #ffffff;"></div>');
+        pointCloudContainer.append('<div id="canvas3d" style="z-index: 0;"></div>');
 
         this.pageBox.placeholder = (this.currentFileIndex + 1) + "/" + this.fileNames.length;
         this.camChannels.forEach(function (channelObj) {
@@ -924,7 +1020,8 @@ let labelTool = {
                 numFiles = 300;
             } else {
                 labelTool.numFrames = labelTool.numFramesLISAT;
-                numFiles = 900;
+                // TODO: temporary set to 100 for testing (default: 900)
+                numFiles = 50;
             }
 
         } else {
@@ -938,74 +1035,6 @@ let labelTool = {
         }
         return fileNameArray;
     },
-
-    getTargetFileName: function () {
-        return this.fileNames[this.currentFileIndex];
-    },
-    /*
-     *     getImageBBox: function(index) {
-     * 	if (this.annotationObjects[index] == undefined) {
-     * 	    return undefined;
-     * 	}
-     * 	return this.annotationObjects[index]["CAM_FRONT_LEFT"];
-     *     },
-     *
-     *     getPCDBBox: function(index) {
-     * 	if (this.annotationObjects[index] == undefined) {
-     * 	    return undefined;
-     * 	}
-     * 	return this.annotationObjects[index]["PCD"];
-     *     },
-     *
-     *     getSelectedImageBBox: function() {
-     * 	if (this.annotationObjects[this.targetBBox] == undefined) {
-     * 	    return undefined;
-     * 	}
-     * 	return this.annotationObjects[this.targetBBox]["CAM_FRONT_LEFT"];
-     *     },
-     *
-     *     getSelectedPCDBBox: function() {
-     * 	if (this.annotationObjects[this.targetBBox] == undefined) {
-     * 	    return undefined;
-     * 	}
-     * 	return this.annotationObjects[this.targetBBox]["PCD"];
-     *     },
-     *
-     *     setImageBBox: function(index, bbox) {
-     * 	if (this.annotationObjects[index] == undefined) {
-     * 	    this.annotationObjects[index] = {
-     * 		"label": this.targetClass,
-     * 		"CAM_FRONT_LEFT": bbox
-     * 	    };
-     * 	} else {
-     * 	    this.annotationObjects[index]["CAM_FRONT_LEFT"] = bbox;
-     * 	}
-     *     },
-     *
-     *     setPCDBBox: function(index, bbox) {
-     * 	if (this.annotationObjects[index] == undefined) {
-     * 	    this.annotationObjects[index] = {
-     * 		"label": this.targetClass,
-     * 		"PCD": bbox
-     * 	    };
-     * 	} else {
-     * 	    this.annotationObjects[index]["PCD"] = bbox;
-     * 	}
-     *     },*/
-    /*
-     *     setSelectedImageBBox: function(bbox) {
-     * 	if (this.targetBBox == -1) {
-     * 	    console.error("No annotationObjects selected.");
-     * 	}
-     * 	if (this.annotationObjects[this.targetBBox] == undefined) {
-     * 	    this.annotationObjects[this.targetBBox] = {
-     * 		"label": this.targetClass,
-     * 		"CAM_FRONT_LEFT": bbox
-     * 	    };
-     * 	} else {
-     * 	    this.annotationObjects[this.targetBBox]["CAM_FRONT_LEFT"] = bbox;
-     * 	}
-     *     },*/
 
     // previousCamChannel: function () {
     //     var currentChannel = this.currentCameraChannelIndex;
@@ -1036,11 +1065,15 @@ let labelTool = {
     },
 
     nextFrame: function () {
+        let start = new Date().getTime();
         if (this.currentFileIndex < (this.fileNames.length - 1 - this.skipFrameCount)) {
             this.changeFrame(this.currentFileIndex + this.skipFrameCount);
         } else if (this.currentFileIndex !== this.fileNames.length - 1) {
             this.changeFrame(this.fileNames.length - 1);
         }
+        let end = new Date().getTime();
+        let time = end - start;
+        console.log(time);
     },
 
     jumpFrame: function () {
@@ -1194,6 +1227,29 @@ let labelTool = {
             return;
         }
 
+        labelTool.removeObject("pointcloud-scan-" + this.currentFileIndex);
+        labelTool.removeObject("pointcloud-scan-no-ground-" + this.currentFileIndex);
+
+        // -------------------------------------------------
+        // for (let i = 0; i < this.camChannels.length; i++) {
+        //     let img = imageArrayAll[this.currentFileIndex][i];
+        //     if (img !== undefined) {
+        //         img.remove();
+        //     }
+        // }
+        // -------------------------------------------------
+        // bring current image into background instead of removing it
+        for (let i = 0; i < this.camChannels.length; i++) {
+            let id = "#image-" + this.camChannels[i].channel.toLowerCase().replace(/_/g, '-');
+            // bring all svgs into background
+            let allSvg = $(id + " svg");
+            for (let j = 0; j < allSvg.length; j++) {
+                allSvg[j].style.zIndex = 0;
+            }
+            allSvg[labelTool.numFrames - newFileIndex - 1].style.zIndex = 2;
+        }
+        // -------------------------------------------------
+
 
         // remove all 3D BB objects from scene
         for (let i = scene.children.length; i >= 0; i--) {
@@ -1290,9 +1346,14 @@ let labelTool = {
         }
 
         this.pageBox.placeholder = (newFileIndex + 1) + "/" + this.fileNames.length;
+        $(".current").text((newFileIndex + 1) + "/" + this.fileNames.length);
         this.pageBox.value = "";
-        cFlag = false;
-        rFlag = false;
+        // set class selected to current frame bar
+        // unselect all
+        $("div.frame").attr("class", "frame default");
+        let currentBar = $("div.frame")[newFileIndex];
+        currentBar.className = "frame default selected";
+
 
         let bboxEndParams = undefined;
         if (interpolationMode === true) {
@@ -1771,7 +1832,6 @@ function initPanes() {
         maxHeight = labelTool.imageSizes["NuScenes"]["maxHeightNormal"];
     }
 
-    //------------------------------------------------------------------
     let topStyle = 'background-color: #F5F6F7; border: 1px solid #dfdfdf; padding: 0px;';
     $('#label-tool-wrapper').w2layout({
         name: 'layout',
@@ -1786,7 +1846,6 @@ function initPanes() {
             if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
                 newWidth = newImagePanelHeight * labelTool.imageAspectRatioLISAT;
                 newWidthBackFront = newImagePanelHeight * labelTool.imageAspectRatioFrontBackLISAT;
-
             } else {
                 newWidth = newImagePanelHeight * labelTool.imageAspectRatioNuScenes;
             }
@@ -1802,7 +1861,6 @@ function initPanes() {
                     } else {
                         changeCanvasSize(newWidth, newImagePanelHeight, channel);
                     }
-
                 }
             }
             w2ui['layout'].set('top', {size: newImagePanelHeight});
@@ -1825,12 +1883,12 @@ function initPanes() {
             for (let i = 1; i < views.length; i++) {
                 let view = views[i];
                 view.height = newCanvasHeight;
-                var top = 4;
-                var bottom = -4;
-                var aspectRatio = view.width / view.height;
-                var left = bottom * aspectRatio;
-                var right = top * aspectRatio;
-                var camera = view.camera;
+                let top = 4;
+                let bottom = -4;
+                let aspectRatio = view.width / view.height;
+                let left = bottom * aspectRatio;
+                let right = top * aspectRatio;
+                let camera = view.camera;
                 camera.left = left;
                 camera.right = right;
                 camera.top = top;
@@ -1848,8 +1906,6 @@ function initPanes() {
             }
             // update position of controls
             $("#bounding-box-3d-menu").css("top", headerHeight + newImagePanelHeight);
-
-
         },
         onRefresh: function (event) {
             console.log('object ' + event.target + ' is refreshed');
@@ -1863,7 +1919,6 @@ function initPanes() {
             }
         }
     });
-
     w2ui['layout'].resizer = 10;
     w2ui['layout'].resize();
     w2ui['layout'].refresh();
@@ -2021,7 +2076,8 @@ function takeScreenshot() {
 
 function getZipVideoFrames() {
     let zip = new JSZip();
-    for (let i = 0; i < 5; i++) {
+    // for (let i = 0; i < 899; i++) {
+    for (let i = 0; i < 449; i++) {
         let substring = labelTool.frameScreenshots[i].substring(22, labelTool.frameScreenshots[i].length);
         let byteArray = Base64Binary.decodeArrayBuffer(substring);
         zip.file(pad(i, 6) + ".png", byteArray);
