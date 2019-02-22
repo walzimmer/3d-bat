@@ -2,7 +2,9 @@ let canvasArray = [];
 let canvasParamsArray = [{}, {}, {}, {}, {}, {}];
 let imageWidthBackFrontLISAT = 480;
 let paperArray = [];
+let paperArrayAll = [];
 let imageArray = [];
+let imageArrayAll = [];
 let fontSize = 20;
 let isDragging = false; // For distinguishing click and drag.
 let action = "add";
@@ -132,53 +134,25 @@ labelTool.onInitialize("CAM_BACK_LEFT", function () {
     initialize("CAM_BACK_LEFT");
 });
 
-function loadData(camChannel) {
-    let imgURL;
-    imgURL = "input/" + labelTool.currentDataset + "/" + labelTool.currentSequence + "/images/" + camChannel + "/" + labelTool.getTargetFileName() + ".jpg";
-
+function loadCameraImages(camChannel, fileIndex) {
+    let imgPath = "input/" + labelTool.currentDataset + "/" + labelTool.currentSequence + "/images/" + camChannel + "/" + labelTool.fileNames[fileIndex] + ".jpg";
     let channelIdx = getChannelIndexByName(camChannel);
-    let img = imageArray[channelIdx];
-    if (img !== undefined) {
-        img.remove();
-    }
-    let paper = paperArray[channelIdx];
-    imageArray[channelIdx] = paper.image(imgURL, 0, 0, "100%", "100%");
-    imageArray[channelIdx].toBack();
-    addEventsToImage(imageArray[channelIdx]);
+    //-----------------------------------
+    let paper = paperArrayAll[fileIndex][channelIdx];
+    //-----------------------------------
+    // let paper = paperArray[channelIdx];
+    //-----------------------------------
+    imageArray[channelIdx] = paper.image(imgPath, 0, 0, "100%", "100%");
 }
 
-labelTool.onLoadData("CAM_FRONT_LEFT", function () {
-    loadData("CAM_FRONT_LEFT");
-});
-
-labelTool.onLoadData("CAM_FRONT", function () {
-    loadData("CAM_FRONT");
-});
-
-labelTool.onLoadData("CAM_FRONT_RIGHT", function () {
-    loadData("CAM_FRONT_RIGHT");
-});
-
-labelTool.onLoadData("CAM_BACK_RIGHT", function () {
-    loadData("CAM_BACK_RIGHT");
-});
-
-labelTool.onLoadData("CAM_BACK", function () {
-    loadData("CAM_BACK");
-});
-
-labelTool.onLoadData("CAM_BACK_LEFT", function () {
-    loadData("CAM_BACK_LEFT");
-});
-
 function changeClass(bbIndex, newClass) {
-    let notificationElem = $("#label-tool-log");
-    notificationElem.val("4. Repeat steps 1-3, download annotations and continue with next frame");
-    notificationElem.css("color", "#969696");
+    // let notificationElem = $("#label-tool-log");
+    // notificationElem.val("4. Repeat steps 1-3, download annotations and continue with next frame");
+    // notificationElem.css("color", "#969696");
     let annotation = annotationObjects.contents[labelTool.currentFileIndex][bbIndex];
     let color = classesBoundingBox[newClass].color;
     // update color in all 6 channels
-    for (let i=0;i<annotation["channels"].length;i++){
+    for (let i = 0; i < annotation["channels"].length; i++) {
         if (annotation["channels"][i]["lines"] !== undefined && annotation["channels"][i]["lines"][0] !== undefined) {
             for (let lineObj in annotation["channels"][i]["lines"]) {
                 if (annotation["channels"][i]["lines"].hasOwnProperty(lineObj)) {
@@ -243,12 +217,6 @@ $(window).keydown(function (e) {
         case "66": // B
             labelTool.previousFrame();
             break;
-        // case "84": // T
-        //     toggleIsolation();
-        //     break;
-        // case "68": // D
-        //     annotationObjects.removeSelectedBoundingBox();
-        //     break;
     }
     setAction(e);
 });
@@ -863,13 +831,3 @@ function adjustTextBox(index) {
     textBox["text"].attr({x: rect.attr("x"), y: rect.attr("y") - fontSize / 2});
     textBox["box"].attr({x: rect.attr("x"), y: rect.attr("y") - fontSize - 1});
 }
-
-// function getRect(params) {
-//     var rect = paperArray[getChannelIndexByName(params.channel)].rect(params.x_img, params.y_img, params.width_img, params.height_img)
-//         .attr({
-//             "stroke": classesBoundingBox[params.class].color,
-//             "stroke-width": 3
-//         });
-//     rect.node.setAttribute("pointer-events", "none");
-//     return rect;
-// }

@@ -3,6 +3,7 @@
 <head>
     <meta http-equiv="Expires" content="3600">
     <meta charset="utf-8">
+    q
     <link rel="shortcut icon" href="favicon.ico"/>
     <meta
             name="viewport"
@@ -26,7 +27,7 @@
     <!--<script src="js/lib/jspanel.js"></script>-->
     <script src="js/lib/jquery-2.2.4.min.js"></script>
     <script src="js/lib/bootstrap.min.js"></script>
-    <script src="js/lib/raphael.min.js"></script>
+    <script src="js/lib/raphael.js"></script>
     <script src="js/lib/Toast.js"></script>
     <script type="text/javascript" src="js/lib/jquery-1.10.2.min.js"></script>
     <script type="text/javascript" src="js/lib/jquery-ui.min.js"></script>
@@ -70,7 +71,8 @@
                                placeholder="" value="" onkeypress="labelTool.handlePressKey(event.keyCode)"/>
                     </li>
                     <li class="label-header-item">
-                        <button id="next-frame-button" class="file-select-right-button" onClick="labelTool.nextFrame()">
+                        <button id="next-frame-button" class="file-select-right-button"
+                                onClick="labelTool.nextFrame();">
                             <i class="material-icons">chevron_right</i>
                         </button>
                     </li>
@@ -91,8 +93,8 @@
             </li>
         </ul>
     </div>
-    <div id="label-tool-wrapper">
-    </div>
+    <div id="label-tool-wrapper"></div>
+
 
     <!--<div id="label-tool-status-overlay" class="label-tool-overlay">-->
     <!--</div>-->
@@ -144,6 +146,12 @@
     <!--<script src='js/util/createColorMapBrowser.js?ver=1.0'></script>-->
     <script src='js/lib/w2ui-1.5.rc1.min.js?ver=1.0'></script>
     <script src="node_modules/dragscroll/dragscroll.js"></script>
+</div>
+<div class="frame-selector">
+    <div class="current">1/900</div>
+    <div class="list-wrapper">
+        <div class="frame-selector__frames"></div>
+    </div>
 </div>
 <ul class="toasts"></ul>
 </body>
