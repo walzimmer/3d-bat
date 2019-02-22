@@ -472,5 +472,135 @@ td.fold-hard {
 }
 
 /*#bounding-box-3d-menu {*/
-    /*width: 290px!important;*/
+/*width: 290px!important;*/
 /*}*/
+
+/**
+ * Frame selection bar
+ */
+.frame-selector__frames {
+    align-self: stretch;
+    flex-grow: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    white-space: nowrap;
+    justify-content: stretch;
+}
+
+.frame {
+    flex-grow: 1;
+}
+
+.frame {
+    background-color: rgba(255, 255, 255, 1);
+    cursor: pointer;
+    transition: all 250ms ease-out;
+}
+
+.frame.loading {
+    background-color: rgba(255, 255, 255, .7);
+}
+
+.frame.default:hover, .frame.default.selected {
+    background-color: #22a6d3;
+}
+
+.frame.default:hover {
+    background: #ccc;
+}
+
+.frame.selected {
+    cursor: grab;
+}
+
+.frame.dragging {
+    cursor: grabbing;
+}
+
+.frame-selector {
+    /*display: flex;*/
+    display: block;
+    align-items: center;
+    flex-grow: 1;
+    /*opacity: 0;*/
+    opacity: 50;
+    z-index: 100000000;
+    transition: opacity 250ms ease-in-out;
+    user-select: none;
+    position: absolute;
+    bottom: 10px;
+    width: calc(100% - 135px);
+    left: 100px;
+}
+
+.frame-selector.active, .frame-selector.touch, .frame-selector:hover {
+    opacity: 1;
+}
+
+.current {
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    user-select: none;
+    height: 16px;
+    position: absolute;
+    bottom: 0px;
+    left: -65px;
+}
+
+.list-wrapper {
+    height: 10px;
+    width: 100%;
+    margin: 0 20px;
+    display: flex;
+    align-items: stretch;
+    justify-content: stretch;
+}
+
+.frame-selector.touch .list-wrapper {
+    margin: 0 0 0 20px;
+}
+
+#image-cam-front-left svg {
+    position: absolute !important;
+    left: 0px;
+    width: 365px;
+    z-index: 0;
+}
+
+#image-cam-front svg {
+    position: absolute !important;
+    left: 365px;
+    width: 548px;
+    z-index: 0;
+}
+
+#image-cam-front-right svg {
+    position: absolute !important;
+    left: 913px;
+    width: 365px;
+    z-index: 0;
+}
+
+#image-cam-back-right svg {
+    position: absolute !important;
+    left: 1278px;
+    width: 365px;
+    z-index: 0;
+}
+
+#image-cam-back svg {
+    position: absolute !important;
+    left: 1643px;
+    width: 548px;
+    z-index: 0;
+}
+
+#image-cam-back-left svg {
+    position: absolute !important;
+    left: 2191px;
+    width: 365px;
+    z-index: 0;
+}
+
