@@ -85,8 +85,6 @@ let groundPlaneArray = [];
 let clickedPlaneArray = [];
 let birdsEyeViewFlag = true;
 let cls = 0;
-let cFlag = false;
-let rFlag = false;
 let rotWorldMatrix;
 let rotObjectMatrix;
 let circleArray = [];
@@ -95,8 +93,10 @@ let activeColorMap = 'colorMapJet.js';
 let currentPoints3D = [];
 let currentDistances = [];
 let spriteBehindObject;
-let pointCloudFull;
-let pointCloudWithoutGround;
+let pointCloudScanList = [];
+let pointCloudScanNoGroundList = [];
+let pointCloudScan;
+let pointCloudScanNoGround;
 let useTransformControls;
 let dragControls = false;
 let keyboardNavigation = false;
@@ -419,31 +419,43 @@ function drawCameraPosition() {
 }
 
 // Visualize 2d and 3d data
-labelTool.onLoadData("PCD", function () {
+function loadPCDData() {
     // remove previous loaded point clouds
-    labelTool.removeObject("pointcloud_full");
-    labelTool.removeObject("pointcloud_without_ground");
-    // remove all bounding boxes
+    // for (let i = 0; i < labelTool.numFrames; i++) {
+    //     labelTool.removeObject("pointcloud-scan-" + i);
+    //     labelTool.removeObject("pointcloud-scan-no-ground-" + i);
+    // }
+
 
     // ASCII pcd files
     let pcdLoader = new THREE.PCDLoader();
     let pointCloudFullURL;
     let pointCloudWithoutGroundURL;
-    pointCloudFullURL = 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/' + 'pointclouds/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
     pointCloudWithoutGroundURL = 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/' + 'pointclouds_without_ground/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
 
-    pcdLoader.load(pointCloudFullURL, function (mesh) {
-        mesh.name = 'pointcloud_full';
-        pointCloudFull = mesh.clone();
-        // TODO: rotate point cloud so that North shows always upwards
-        pointCloudFull.rotation.set(0, 0, 0);
-        scene.add(pointCloudFull);
-    });
+    // load all 900 point cloud scans in the beginning
+    if (labelTool.pointCloudLoaded === false) {
+        for (let i = 0; i < labelTool.numFrames; i++) {
+            pointCloudFullURL = 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/' + 'pointclouds/' + labelTool.fileNames[i] + '.pcd';
+            pcdLoader.load(pointCloudFullURL, function (mesh) {
+                mesh.name = 'pointcloud-scan-' + i;
+                pointCloudScan = mesh.clone();
+                pointCloudScanList.push(pointCloudScan);
+                if (i === labelTool.currentFileIndex) {
+                    scene.add(pointCloudScan);
+                }
+            });
+            pcdLoader.load(pointCloudWithoutGroundURL, function (mesh) {
+                mesh.name = 'pointcloud-scan-no-ground-' + i;
+                pointCloudScanNoGround = mesh.clone();
+                pointCloudScanNoGroundList.push(pointCloudScanNoGround);
+            });
+        }
+        labelTool.pointCloudLoaded = true;
+    } else {
+        scene.add(pointCloudScanList[labelTool.currentFileIndex]);
+    }
 
-    pcdLoader.load(pointCloudWithoutGroundURL, function (mesh) {
-        mesh.name = 'pointcloud_without_ground';
-        pointCloudWithoutGround = mesh.clone();
-    });
 
     // show FOV of camera within 3D pointcloud
     labelTool.removeObject('rightplane');
@@ -459,8 +471,6 @@ labelTool.onLoadData("PCD", function () {
     }
 
     // draw ego vehicle
-
-    // draw ego vehicle
     let lexusTexture = new THREE.TextureLoader().load('assets/models/lexus/lexus.jpg');
     let lexusMaterial = new THREE.MeshBasicMaterial({map: lexusTexture});
     let objLoader = new THREE.OBJLoader();
@@ -474,45 +484,8 @@ labelTool.onLoadData("PCD", function () {
 
         scene.add(lexusMesh)
     });
+}
 
-
-    // let loader = new THREE.ObjectLoader();
-    // loader.load('assets/models/car.json', function (object) {
-    //     object.scale.set(0.0005, 0.0005, 0.0005);
-    //     object.rotation.set(Math.PI / 2, Math.PI / 2, 0);
-    //     object.position.set(0, 0, -1.6);
-    //     scene.add(object);
-    // });
-    // // front left
-    // loader.load('assets/models/brakes.json', function (object) {
-    //     object.scale.set(0.0008, 0.0008, 0.0008);
-    //     object.rotation.set(Math.PI / 2, 0, Math.PI / 2);
-    //     object.position.set(-0.7, 2.1, -1.6);//lat, long,vert
-    //     scene.add(object);
-    // });
-    // //back right
-    // loader.load('assets/models/brakes.json', function (object) {
-    //     object.scale.set(0.0008, 0.0008, 0.0008);
-    //     object.rotation.set(Math.PI / 2, 0, Math.PI / 2);
-    //     object.position.set(-0.7, -1.1, -1.6);//lat, long,vert
-    //     scene.add(object);
-    // });
-    // // front right
-    // loader.load('assets/models/brakes.json', function (object) {
-    //     object.scale.set(0.0008, 0.0008, 0.0008);
-    //     object.rotation.set(Math.PI / 2, 0, -Math.PI / 2);//
-    //     object.position.set(0.7, 2.1, -0.65);//lat, long,vert
-    //     scene.add(object);
-    // });
-    // // back right
-    // loader.load('assets/models/brakes.json', function (object) {
-    //     object.scale.set(0.0008, 0.0008, 0.0008);
-    //     object.rotation.set(Math.PI / 2, 0, -Math.PI / 2);
-    //     object.position.set(0.7, -1.1, -0.75);//lat, long,vert
-    //     scene.add(object);
-    // });
-
-});
 
 annotationObjects.onSelect("PCD", function (selectionIndex) {
     clickedPlaneArray = [];
@@ -1324,14 +1297,10 @@ function onDraggingChangedHandler(event) {
     if (transformControls.getMode() === "scale") {
         // labelTool.selectedMesh.translateY(labelTool.selectedMesh.geometry.parameters.height / 2)
     }
-    // orbitControls.enabled = !event.value;
-    // translating works (no object is created)
-    // scaleRotateTranslate = false;
 }
 
 function addTransformControls() {
     if (transformControls === undefined) {
-        // labelTool.removeObject("transformControls");
         transformControls = new THREE.TransformControls(currentCamera, renderer.domElement);
         transformControls.name = "transformControls";
     } else {
@@ -1346,27 +1315,9 @@ function addTransformControls() {
     transformControls.addEventListener('change', onChangeHandler);
     transformControls.removeEventListener('dragging-changed', onDraggingChangedHandler);
     transformControls.addEventListener('dragging-changed', onDraggingChangedHandler);
-
-
-    // if in birdseyeview then find minimum of longitude and latitude
-    // otherwise find minimum of x, y and z
-    // let smallestSide;
-    // if (birdsEyeViewFlag === true) {
-    //     smallestSide = Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y);
-    // } else {
-    //     smallestSide = Math.min(Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y), labelTool.selectedMesh.scale.z);
-    // }
-    //
-    // let size = smallestSide / 2;
-    // console.log("size controls addtransformcontrols: " + size);
-    // transformControls.scale.x = size;
-    // transformControls.scale.y = size;
-    // transformControls.scale.z = size;
     transformControls.attach(labelTool.selectedMesh);
     labelTool.removeObject("transformControls");
     scene.add(transformControls);
-
-
     window.removeEventListener('keydown', keyDownHandler);
     window.addEventListener('keydown', keyDownHandler);
     window.removeEventListener('keyup', keyUpHandler);
@@ -1383,81 +1334,110 @@ function keyUpHandler(event) {
 }
 
 function keyDownHandler(event) {
-    switch (event.keyCode) {
-        case 17: // Ctrl
-            transformControls.setTranslationSnap(0.5);
-            if (transformControls.getMode() === "rotate") {
-                let newRotation = Math.ceil(labelTool.selectedMesh.rotation.z / THREE.Math.degToRad(15));
-                let lowerBound = newRotation * 15;
-                if (labelTool.selectedMesh.rotation.z - lowerBound < THREE.Math.degToRad(15) / 2) {
-                    // rotate to lower bound
-                    labelTool.selectedMesh.rotation.z = lowerBound;
-                } else {
-                    // rotate to upper bound
-                    labelTool.selectedMesh.rotation.z = lowerBound + THREE.Math.degToRad(15);
+    if (labelTool.selectedMesh !== undefined) {
+        switch (event.keyCode) {
+            case 17: // Ctrl
+                transformControls.setTranslationSnap(0.5);
+                if (transformControls.getMode() === "rotate") {
+                    let newRotation = Math.ceil(labelTool.selectedMesh.rotation.z / THREE.Math.degToRad(15));
+                    let lowerBound = newRotation * 15;
+                    if (labelTool.selectedMesh.rotation.z - lowerBound < THREE.Math.degToRad(15) / 2) {
+                        // rotate to lower bound
+                        labelTool.selectedMesh.rotation.z = lowerBound;
+                    } else {
+                        // rotate to upper bound
+                        labelTool.selectedMesh.rotation.z = lowerBound + THREE.Math.degToRad(15);
+                    }
                 }
-            }
 
-            transformControls.setRotationSnap(THREE.Math.degToRad(15));
-            break;
-        case 84: // T
-            transformControls.setMode("translate");
-            transformControls.showX = true;
-            transformControls.showY = true;
-            if (birdsEyeViewFlag === true) {
+                transformControls.setRotationSnap(THREE.Math.degToRad(15));
+                break;
+            case 73: //I
+                if (annotationObjects.getSelectionIndex() !== -1) {
+                    if (interpolationMode === true) {
+                        if (annotationObjects.contents[labelTool.currentFileIndex][annotationObjects.getSelectionIndex()]["interpolationStartFileIndex"] !== labelTool.currentFileIndex) {
+                            interpolate();
+                        } else {
+                            labelTool.logger.message("Please choose end frame.");
+                        }
+                    } else {
+                        labelTool.logger.message("Please activate interpolation mode first.");
+                    }
+                } else {
+                    labelTool.logger.message("Please select an object first.");
+                }
+            case 82: // R
+                transformControls.setMode("rotate");
+                transformControls.showX = false;
+                transformControls.showY = false;
                 transformControls.showZ = true;
-            } else {
-                transformControls.showZ = false;
-            }
-            // enable planes (translation, scaling)
-            transformControls.children[1].enabled = false;
+                // enable gizmo
+                transformControls.children[0].enabled = true;
+                // disable planes (translation, scaling)
+                transformControls.children[1].enabled = false;
+                break;
+            case 83: // S
+                transformControls.setMode("scale");
+                transformControls.showX = true;
+                transformControls.showY = true;
+                if (birdsEyeViewFlag === true) {
+                    transformControls.showZ = true;
+                } else {
+                    transformControls.showZ = false;
+                }
+                // enable planes (translation, scaling)
+                transformControls.children[1].enabled = false;
+                break;
+            case 84: // T
+                transformControls.setMode("translate");
+                transformControls.showX = true;
+                transformControls.showY = true;
+                if (birdsEyeViewFlag === true) {
+                    transformControls.showZ = true;
+                } else {
+                    transformControls.showZ = false;
+                }
+                // enable planes (translation, scaling)
+                transformControls.children[1].enabled = false;
+                break;
+            case 88: // X
+                transformControls.showX = !transformControls.showX;
+                break;
+            case 89: // Y
+                transformControls.showY = !transformControls.showY;
+                break;
+            case 90: // Z
+                // only allow to switch z axis in 3d view
+                if (birdsEyeViewFlag === false) {
+                    transformControls.showZ = !transformControls.showZ;
+                } else {
+                    labelTool.logger.message("Show/Hide z-axis only in 3D view possible.");
+                }
+                break;
+            case 187:
+            case 107: // +, =, num+
+                transformControls.setSize(Math.min(transformControls.size + 0.1, 10));
+                break;
+            case 189:
+            case 109: // -, _, num-
+                transformControls.setSize(Math.max(transformControls.size - 0.1, 0.1));
+                break;
+        }
+    }
+
+    switch (event.keyCode) {
+        case 67: // C
+            switchView();
             break;
-        case 82: // R
-            transformControls.setMode("rotate");
-            transformControls.showX = false;
-            transformControls.showY = false;
-            transformControls.showZ = true;
-            // enable gizmo
-            transformControls.children[0].enabled = true;
-            // disable planes (translation, scaling)
-            transformControls.children[1].enabled = false;
-            break;
-        case 83: // S
-            transformControls.setMode("scale");
-            transformControls.showX = true;
-            transformControls.showY = true;
-            if (birdsEyeViewFlag === true) {
-                transformControls.showZ = true;
-            } else {
-                transformControls.showZ = false;
-            }
-            // enable planes (translation, scaling)
-            transformControls.children[1].enabled = false;
-            break;
-        case 187:
-        case 107: // +, =, num+
-            transformControls.setSize(Math.min(transformControls.size + 0.1, 10));
-            break;
-        case 189:
-        case 109: // -, _, num-
-            transformControls.setSize(Math.max(transformControls.size - 0.1, 0.1));
-            break;
-        case 88: // X
-            transformControls.showX = !transformControls.showX;
-            break;
-        case 89: // Y
-            transformControls.showY = !transformControls.showY;
-            break;
-        case 90: // Z
-            // only allow to switch z axis in 3d view
-            if (birdsEyeViewFlag === false) {
-                transformControls.showZ = !transformControls.showZ;
-            } else {
-                labelTool.logger.message("Show/Hide z-axis only in 3D view possible.");
-            }
+        case 75: //K
+            toggleKeyboardNavigation();
             break;
         case 32: // Spacebar
-            transformControls.enabled = !transformControls.enabled;
+            // play video sequence from current frame on to end
+            labelTool.playSequence = !labelTool.playSequence;
+            if (labelTool.playSequence === true) {
+                initPlayTimer();
+            }
             break;
         case 78:// N
             // next frame
@@ -1467,22 +1447,9 @@ function keyDownHandler(event) {
             // previous frame
             labelTool.previousFrame();
             break;
-        case 73: //I
-            if (annotationObjects.getSelectionIndex() !== -1) {
-                if (interpolationMode === true) {
-                    if (annotationObjects.contents[labelTool.currentFileIndex][annotationObjects.getSelectionIndex()]["interpolationStartFileIndex"] !== labelTool.currentFileIndex) {
-                        interpolate();
-                    } else {
-                        labelTool.logger.message("Please choose end frame.");
-                    }
-                } else {
-                    labelTool.logger.message("Please activate interpolation mode first.");
-                }
-            } else {
-                labelTool.logger.message("Please select an object first.");
-            }
-
     }
+
+
 }
 
 function setOrbitControls() {
@@ -3101,8 +3068,8 @@ function mouseUpLogic(ev) {
 
             }
             groundPlaneArray = [];
-            $("#label-tool-log").val("4. Choose class from drop down list");
-            $("#label-tool-log").css("color", "#969696");
+            // $("#label-tool-log").val("4. Choose class from drop down list");
+            // $("#label-tool-log").css("color", "#969696");
         }
 
     }
@@ -3386,52 +3353,6 @@ function createGrid() {
     scene.add(grid);
 }
 
-function windowKeyDownHandler(event) {
-    switch (event.keyCode) {
-        case 67: // C
-            switchView();
-            break;
-    }
-    if (birdsEyeViewFlag === false) {
-        switch (event.keyCode) {
-            case 75: //K
-                toggleKeyboardNavigation();
-                break;
-        }
-        // if (keyboardNavigation === true) {
-        //     let delta = 1;
-        //     let rotationDelta = 0.1;
-        //     switch (event.keyCode) {
-        //         case 65: // A MOVE LEFT
-        //             currentCamera.position.x = currentCamera.position.x - delta;
-        //             break;
-        //         case 87: // W MOVE FORWARD
-        //             currentCamera.position.y = currentCamera.position.y + delta;
-        //             break;
-        //         case 68: // D MOVE RIGHT
-        //             currentCamera.position.x = currentCamera.position.x + delta;
-        //             break;
-        //         case 83: // S MOVE BACKWARD
-        //             currentCamera.position.y = currentCamera.position.y - delta;
-        //             break;
-        //         case 37:// LEFT ROTATION (YAW)
-        //             currentCamera.rotation.y = currentCamera.rotation.y - rotationDelta;
-        //             break;
-        //         case 38:// UP ROTATION (PITCH)
-        //             currentCamera.rotation.x = currentCamera.rotation.x + rotationDelta;
-        //             break;
-        //         case 39:// RIGHT ROTATION (YAW)
-        //             currentCamera.rotation.y = currentCamera.rotation.y + rotationDelta;
-        //             break;
-        //         case 40:// DOWN ROTATION (PITCH)
-        //             currentCamera.rotation.x = currentCamera.rotation.x - rotationDelta;
-        //             break;
-        //     }
-        //     currentCamera.updateProjectionMatrix();
-        // }
-    }
-}
-
 function toggleKeyboardNavigation() {
     keyboardNavigation = !keyboardNavigation;
     if (keyboardNavigation === true) {
@@ -3557,9 +3478,9 @@ function loadDetectedBoxes() {
                     params.original.x = params.x;
                     params.original.y = params.y;
                     params.original.z = params.z;
-                    let tmpDepth = parseFloat(attributes[4].trim().split(" ")[2]);// vert
+                    let tmpHeight = parseFloat(attributes[4].trim().split(" ")[2]);// vert
                     let tmpWidth = parseFloat(attributes[5].trim().split(" ")[2]);// lat
-                    let tmpHeight = parseFloat(attributes[6].trim().split(" ")[2]);//long
+                    let tmpDepth = parseFloat(attributes[6].trim().split(" ")[2]);//long
                     let rotationY = parseFloat(attributes[7].trim().split(" ")[1]);
                     params.class = "Vehicle";
                     params.rotationY = rotationY;
@@ -3679,10 +3600,8 @@ function init() {
         canvas3D.addEventListener('keydown', canvas3DKeyDownHandler);
     }
 
-
-    window.removeEventListener('keydown', windowKeyDownHandler);
-    window.addEventListener('keydown', windowKeyDownHandler);
-    // controls.domElement = container;
+    window.removeEventListener('keydown', keyDownHandler);
+    window.addEventListener('keydown', keyDownHandler);
 
     renderer = new THREE.WebGLRenderer({
         antialias: true,
@@ -3836,10 +3755,10 @@ function init() {
             filterGround = value;
             if (filterGround === true) {
                 labelTool.removeObject("pointcloud_full");
-                addObject(pointCloudWithoutGround, "pointcloud_without_ground");
+                addObject(pointCloudScanNoGround, "pointcloud_without_ground");
             } else {
                 labelTool.removeObject("pointcloud_without_ground");
-                addObject(pointCloudFull, "pointcloud_full");
+                addObject(pointCloudScan, "pointcloud_full");
             }
         });
         guiOptions.add(parameters, 'select_all_copy_label_to_next_frame').name("Select all 'Copy label to next frame'");
@@ -3958,9 +3877,9 @@ function init() {
         $(item).css('border-bottom', '0px');
     });
 
-    let elem = $("#label-tool-log");
-    elem.val("1. Draw bounding box ");
-    elem.css("color", "#969696");
+    // let elem = $("#label-tool-log");
+    // elem.val("1. Draw bounding box ");
+    // elem.css("color", "#969696");
 
     initViews();
 
