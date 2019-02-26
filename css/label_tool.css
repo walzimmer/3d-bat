@@ -675,9 +675,8 @@ text {
 }
 
 #time-elapsed {
-    position: relative;
-    float: right;
-    top: 15px;
-    right: 20px;
+    position: absolute;
+    right: 50%;
+    bottom: 30px;
     color: #969696;
 }
