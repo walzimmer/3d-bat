@@ -63,8 +63,7 @@ function initPlayTimer() {
 
 function initFrameSelector() {
     // add bar segments to frame selection bar
-    // for (let i = 0; i < labelTool.numFrames; i++) {
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < labelTool.numFrames; i++) {
         let selectedClass = "";
         if (i === 0) {
             selectedClass = "selected";
@@ -938,6 +937,7 @@ let labelTool = {
             let obj = scene.children[i];
             scene.remove(obj);
         }
+
         // base label tool
         this.currentFileIndex = 0;
         this.fileNames = [];
@@ -954,6 +954,7 @@ let labelTool = {
         $(".class-tooltip").remove();
         this.spriteArray = [];
         this.selectedMesh = undefined;
+        this.imageCanvasInitialized = false;
 
         // classesBoundingBox
         classesBoundingBox.colorIdx = 0;
@@ -963,6 +964,7 @@ let labelTool = {
         canvasArray = [];
         canvasParamsArray = [];
         paperArray = [];
+        paperArrayAll = [];
         imageArray = [];
         // pcd label tool
         folderBoundingBox3DArray = [];
@@ -999,6 +1001,7 @@ let labelTool = {
         w2ui['layout'].resize();
 
         classesBoundingBox.content = [];
+        $("#frame-selector__frames").empty();
     },
 
     start() {
@@ -1221,6 +1224,12 @@ let labelTool = {
     // }
     // ,
     changeFrame: function (newFileIndex) {
+        if (newFileIndex === labelTool.numFrames - 1 && labelTool.playSequence === true) {
+            // last frame will be shown
+            // stop playing sequence
+            labelTool.playSequence = false;
+        }
+
         interpolationObjIndexCurrentFile = annotationObjects.getSelectionIndex();
         if (interpolationObjIndexCurrentFile === -1 && interpolationMode === true) {
             labelTool.logger.error("Please select an object for interpolation or uncheck interpolation mode.");

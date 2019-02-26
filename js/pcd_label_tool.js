@@ -284,6 +284,9 @@ let parameters = {
             interpolate();
         }
     },
+    reset_all: function () {
+        labelTool.resetBoxes()
+    }
 };
 
 /*********** Event handlers **************/
@@ -3846,6 +3849,9 @@ function init() {
         interpolateBtn = guiOptions.add(parameters, 'interpolate').name("Interpolate");
         interpolateBtn.domElement.id = 'interpolate-btn';
         disableInterpolationBtn();
+
+        guiOptions.add(parameters, 'reset_all').name("Reset all");
+
         guiOptions.domElement.id = 'bounding-box-3d-menu';
         // add download Annotations button
         let downloadAnnotationsItem = $($('#bounding-box-3d-menu ul li')[0]);
