@@ -764,6 +764,7 @@ let labelTool = {
         initPanes();
 
         initFrameSelector();
+        $(".current").text((labelTool.currentFileIndex + 1) + "/" + this.fileNames.length);
 
         let imageContainer = $("#layout_layout_panel_top .w2ui-panel-content");
         // create six image divs
