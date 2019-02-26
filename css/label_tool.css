@@ -323,7 +323,7 @@ body {
 
 .label-header-item.left > img {
     height: 100%;
-    width: 155px;
+    /*width: 155px;*/
 }
 
 #label-tool-log {
