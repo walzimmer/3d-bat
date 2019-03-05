@@ -3,7 +3,6 @@
 <head>
     <meta http-equiv="Expires" content="3600">
     <meta charset="utf-8">
-    q
     <link rel="shortcut icon" href="favicon.ico"/>
     <meta
             name="viewport"
@@ -42,33 +41,19 @@
 
 <body>
 <noscript>You need to enable JavaScript to run this app.</noscript>
-<!--<div id="root">test</div>-->
 <div id="wrapper">
     <div id="label-header">
         <ul class="label-header-left-items">
             <li class="label-header-item left">
-                <input class="black-input" type="text" id="label-tool-log"
-                       placeholder="" value=""/>
+                <input class="black-input" type="text" id="label-tool-log" placeholder="" value=""/>
             </li>
         </ul>
         <ul class="label-header-right-items">
             <li class="label-header-item label-header-column">
                 <ul class="file-select">
                     <li class="label-header-item">
-                        <button id="previous-frame-button" class="file-select-left-button"
-                                onClick="labelTool.previousFrame()">
-                            <i class="material-icons">chevron_left</i>
-                        </button>
-                    </li>
-                    <li class="label-header-item">
                         <input class="black-input file-select-input" type="number" id="page_num"
                                placeholder="" value="" onkeypress="labelTool.handlePressKey(event.keyCode)"/>
-                    </li>
-                    <li class="label-header-item">
-                        <button id="next-frame-button" class="file-select-right-button"
-                                onClick="labelTool.nextFrame();">
-                            <i class="material-icons">chevron_right</i>
-                        </button>
                     </li>
                 </ul>
             </li>
@@ -138,6 +123,8 @@
         <div class="frame-selector__frames"></div>
     </div>
 </div>
+<img id="left-btn" src="assets/textures/left.png" onClick="labelTool.previousFrame()" alt="left"/>
+<img id="right-btn" src="assets/textures/right.png" onClick="labelTool.nextFrame()" alt="right"/>
 <div id="time-elapsed"></div>
 <ul class="toasts"></ul>
 </body>

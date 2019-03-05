@@ -1,85 +1,3 @@
-function initTimer() {
-    labelTool.timeElapsed = 0;
-    let hours = 0;
-    let minutes = 0;
-    let seconds = 0;
-    let timeString = "";
-
-    setInterval(function () {
-        // increase elapsed time every second
-        labelTool.timeElapsed = labelTool.timeElapsed + 1;
-        seconds = labelTool.timeElapsed % 60;
-        minutes = Math.floor(labelTool.timeElapsed / 60);
-        if (minutes > 59) {
-            minutes = 0;
-        }
-        hours = Math.floor(labelTool.timeElapsed / (60 * 60));
-        timeString = pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2);
-        $("#time-elapsed").text(timeString);
-    }, labelTool.timeDelay);
-}
-
-function initScreenshotTimer() {
-    labelTool.timeElapsedScreenshot = 0;
-    let screenshotIntervalHandle = setInterval(function () {
-        // increase elapsed time every second
-        labelTool.timeElapsedScreenshot = labelTool.timeElapsedScreenshot + 1;
-        // take screenshot every 2 seconds
-        if (labelTool.takeCanvasScreenshot === true) {
-            if (labelTool.currentFileIndex < 899) {
-                // if (labelTool.currentFileIndex < 450) {
-                takeScreenshot();
-                labelTool.changeFrame(labelTool.currentFileIndex + 1);
-            } else {
-                labelTool.takeCanvasScreenshot = false;
-                let zip = getZipVideoFrames();
-                zip.generateAsync({type: "blob"})
-                    .then(function (content) {
-                        saveAs(content, labelTool.currentDataset + "_" + labelTool.currentSequence + '_video_frames.zip')
-                    });
-            }
-        } else {
-            clearInterval(screenshotIntervalHandle);
-        }
-    }, labelTool.timeDelayScreenshot);
-}
-
-function initPlayTimer() {
-    labelTool.timeElapsedPlay = 0;
-    let playIntervalHandle = setInterval(function () {
-        labelTool.timeElapsedPlay = labelTool.timeElapsedPlay + 1;
-        if (labelTool.playSequence === true) {
-            if (labelTool.currentFileIndex < 900) {
-                labelTool.changeFrame(labelTool.currentFileIndex + 1);
-            } else {
-                clearInterval(playIntervalHandle);
-            }
-        } else {
-            clearInterval(playIntervalHandle);
-        }
-
-    }, labelTool.timeDelayPlay);
-}
-
-function initFrameSelector() {
-    // add bar segments to frame selection bar
-    for (let i = 0; i < labelTool.numFrames; i++) {
-        let selectedClass = "";
-        if (i === 0) {
-            selectedClass = "selected";
-        }
-        let divElem = $("<div data-tip=" + i + " data-for=\"frame-selector\" class=\"frame default " + selectedClass + "\"></div>");
-        $(divElem).on("click", function (item) {
-            $("div.frame").attr("class", "frame default");
-            item.target.className = "frame default selected";
-            let elemIndex = Number(item.target.dataset.tip);
-            labelTool.changeFrame(elemIndex);
-        });
-        $(".frame-selector__frames").append(divElem);
-
-    }
-}
-
 let labelTool = {
     datasets: Object.freeze({"NuScenes": "NuScenes", "LISA_T": "LISA_T"}),
     sequencesLISAT: Object.freeze({
@@ -640,73 +558,72 @@ let labelTool = {
         annotationObjects.clear();
         let maxTrackIds = [0, 0, 0, 0, 0];// vehicle, truck, motorcycle, bicycle, pedestrian
         // Add new bounding boxes.
-        for (let frameAnnotationIdx in allAnnotations) {
+        //for (let frameAnnotationIdx in allAnnotations) {
+        for (let i = 0; i < labelTool.numFrames; i++) {
             // convert 2D bounding box to integer values
-            if (allAnnotations.hasOwnProperty(frameAnnotationIdx)) {
-                let frameAnnotations = allAnnotations[frameAnnotationIdx];
+            let frameAnnotations = allAnnotations[i];
 
-                for (let annotationIdx in frameAnnotations) {
-                    if (frameAnnotations.hasOwnProperty(annotationIdx)) {
-                        let annotation = frameAnnotations[annotationIdx];
-                        let params = getDefaultObject();
-                        params.class = annotation.class;
-                        params.rotationY = parseFloat(annotation.rotationY);
-                        params.original.rotationY = parseFloat(annotation.rotationY);
-                        let classIdx;
-                        params.trackId = annotation.trackId;
-                        classIdx = classesBoundingBox[annotation.class].index;
-                        if (params.trackId > maxTrackIds[classIdx]) {
-                            maxTrackIds[classIdx] = params.trackId;
-                        }
-                        // Nuscenes labels are stored in global frame in the database
-                        // Nuscenes: labels (3d positions) are transformed from global frame to point cloud (global -> ego, ego -> point cloud) before exporting them
-                        // LISAT: labels are stored in ego frame which is also the point cloud frame (no transformation needed)
-                        // if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-                        params.x = parseFloat(annotation.x);
-                        params.y = parseFloat(annotation.y);
-                        params.z = parseFloat(annotation.z);
-                        params.original.x = parseFloat(annotation.x);
-                        params.original.y = parseFloat(annotation.y);
-                        params.original.z = parseFloat(annotation.z);
-                        let tmpWidth = parseFloat(annotation.width);
-                        let tmpHeight = parseFloat(annotation.height);
-                        let tmpDepth = parseFloat(annotation.length);
-                        if (tmpWidth > 0.3 && tmpHeight > 0.3 && tmpDepth > 0.3) {
-                            tmpWidth = Math.max(tmpWidth, 0.0001);
-                            tmpHeight = Math.max(tmpHeight, 0.0001);
-                            tmpDepth = Math.max(tmpDepth, 0.0001);
-                            params.delta_x = 0;
-                            params.delta_y = 0;
-                            params.delta_z = 0;
-                            params.width = tmpWidth;
-                            params.height = tmpHeight;
-                            params.depth = tmpDepth;
-                            params.original.width = tmpWidth;
-                            params.original.height = tmpHeight;
-                            params.original.depth = tmpDepth;
-                        }
-                        params.fileIndex = Number(frameAnnotationIdx);
-                        // add new entry to contents array
-                        annotationObjects.set(annotationObjects.__insertIndex, params);
-                        annotationObjects.__insertIndex++;
-                        if (labelTool.showOriginalNuScenesLabels === true) {
-                            classesBoundingBox.content[classesBoundingBox.targetName()].nextTrackId++;
-                        } else {
-                            classesBoundingBox.target().nextTrackId++;
-                        }
-
-
+            for (let annotationIdx in frameAnnotations) {
+                if (frameAnnotations.hasOwnProperty(annotationIdx)) {
+                    let annotation = frameAnnotations[annotationIdx];
+                    let params = getDefaultObject();
+                    params.class = annotation.class;
+                    params.rotationY = parseFloat(annotation.rotationY);
+                    params.original.rotationY = parseFloat(annotation.rotationY);
+                    let classIdx;
+                    params.trackId = annotation.trackId;
+                    classIdx = classesBoundingBox[annotation.class].index;
+                    if (params.trackId > maxTrackIds[classIdx]) {
+                        maxTrackIds[classIdx] = params.trackId;
                     }
-                }//end for loop frame annotations
-                // reset track ids for next frame if nuscenes dataset and showLabels=true
-                if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
-                    for (let i = 0; i < classesBoundingBox.classNameArray.length; i++) {
-                        classesBoundingBox.content[classesBoundingBox.classNameArray[i]].nextTrackId = 0;
+                    // Nuscenes labels are stored in global frame in the database
+                    // Nuscenes: labels (3d positions) are transformed from global frame to point cloud (global -> ego, ego -> point cloud) before exporting them
+                    // LISAT: labels are stored in ego frame which is also the point cloud frame (no transformation needed)
+                    // if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
+                    params.x = parseFloat(annotation.x);
+                    params.y = parseFloat(annotation.y);
+                    params.z = parseFloat(annotation.z);
+                    params.original.x = parseFloat(annotation.x);
+                    params.original.y = parseFloat(annotation.y);
+                    params.original.z = parseFloat(annotation.z);
+                    let tmpWidth = parseFloat(annotation.width);
+                    let tmpHeight = parseFloat(annotation.height);
+                    let tmpDepth = parseFloat(annotation.length);
+                    if (tmpWidth > 0.3 && tmpHeight > 0.3 && tmpDepth > 0.3) {
+                        tmpWidth = Math.max(tmpWidth, 0.0001);
+                        tmpHeight = Math.max(tmpHeight, 0.0001);
+                        tmpDepth = Math.max(tmpDepth, 0.0001);
+                        params.delta_x = 0;
+                        params.delta_y = 0;
+                        params.delta_z = 0;
+                        params.width = tmpWidth;
+                        params.height = tmpHeight;
+                        params.depth = tmpDepth;
+                        params.original.width = tmpWidth;
+                        params.original.height = tmpHeight;
+                        params.original.depth = tmpDepth;
                     }
+                    params.fileIndex = Number(i);
+                    // add new entry to contents array
+                    annotationObjects.set(annotationObjects.__insertIndex, params);
+                    annotationObjects.__insertIndex++;
+                    if (labelTool.showOriginalNuScenesLabels === true) {
+                        classesBoundingBox.content[classesBoundingBox.targetName()].nextTrackId++;
+                    } else {
+                        classesBoundingBox.target().nextTrackId++;
+                    }
+
+
                 }
-                // reset insert index
-                annotationObjects.__insertIndex = 0;
+            }//end for loop frame annotations
+            // reset track ids for next frame if nuscenes dataset and showLabels=true
+            if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
+                for (let i = 0; i < classesBoundingBox.classNameArray.length; i++) {
+                    classesBoundingBox.content[classesBoundingBox.classNameArray[i]].nextTrackId = 0;
+                }
             }
+            // reset insert index
+            annotationObjects.__insertIndex = 0;
         }// end for loop all annotations
 
         if (labelTool.showOriginalNuScenesLabels === true) {
@@ -956,6 +873,9 @@ let labelTool = {
         this.spriteArray = [];
         this.selectedMesh = undefined;
         this.imageCanvasInitialized = false;
+        this.cameraImagesLoaded = false;
+        this.pointCloudLoaded= false;
+        $(".frame-selector__frames").empty();
 
         // classesBoundingBox
         classesBoundingBox.colorIdx = 0;
@@ -971,6 +891,7 @@ let labelTool = {
         folderBoundingBox3DArray = [];
         folderPositionArray = [];
         folderSizeArray = [];
+        pointCloudScanList = [];
 
         let classPickerElem = $('#class-picker ul li');
         classPickerElem.css('background-color', '#353535');
@@ -1946,16 +1867,6 @@ $("#next-frame-button").keyup(function (e) {
     }
 });
 
-$("#frame-skip").change(function () {
-    let value = $(this).val();
-    if (value == "") {
-        value = 1;
-    } else {
-        value = parseInt(value);
-    }
-    labelTool.skipFrameCount = value;
-});
-
 function calculateAndDrawLineSegments(channelObj, className) {
     let channel = channelObj.channel;
     let lineArray = [];
@@ -2095,3 +2006,84 @@ function getZipVideoFrames() {
     return zip;
 }
 
+function initTimer() {
+    labelTool.timeElapsed = 0;
+    let hours = 0;
+    let minutes = 0;
+    let seconds = 0;
+    let timeString = "";
+
+    setInterval(function () {
+        // increase elapsed time every second
+        labelTool.timeElapsed = labelTool.timeElapsed + 1;
+        seconds = labelTool.timeElapsed % 60;
+        minutes = Math.floor(labelTool.timeElapsed / 60);
+        if (minutes > 59) {
+            minutes = 0;
+        }
+        hours = Math.floor(labelTool.timeElapsed / (60 * 60));
+        timeString = pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2);
+        $("#time-elapsed").text(timeString);
+    }, labelTool.timeDelay);
+}
+
+function initScreenshotTimer() {
+    labelTool.timeElapsedScreenshot = 0;
+    let screenshotIntervalHandle = setInterval(function () {
+        // increase elapsed time every second
+        labelTool.timeElapsedScreenshot = labelTool.timeElapsedScreenshot + 1;
+        // take screenshot every 2 seconds
+        if (labelTool.takeCanvasScreenshot === true) {
+            if (labelTool.currentFileIndex < 899) {
+                // if (labelTool.currentFileIndex < 450) {
+                takeScreenshot();
+                labelTool.changeFrame(labelTool.currentFileIndex + 1);
+            } else {
+                labelTool.takeCanvasScreenshot = false;
+                let zip = getZipVideoFrames();
+                zip.generateAsync({type: "blob"})
+                    .then(function (content) {
+                        saveAs(content, labelTool.currentDataset + "_" + labelTool.currentSequence + '_video_frames.zip')
+                    });
+            }
+        } else {
+            clearInterval(screenshotIntervalHandle);
+        }
+    }, labelTool.timeDelayScreenshot);
+}
+
+function initPlayTimer() {
+    labelTool.timeElapsedPlay = 0;
+    let playIntervalHandle = setInterval(function () {
+        labelTool.timeElapsedPlay = labelTool.timeElapsedPlay + 1;
+        if (labelTool.playSequence === true) {
+            if (labelTool.currentFileIndex < 900) {
+                labelTool.changeFrame(labelTool.currentFileIndex + 1);
+            } else {
+                clearInterval(playIntervalHandle);
+            }
+        } else {
+            clearInterval(playIntervalHandle);
+        }
+
+    }, labelTool.timeDelayPlay);
+}
+
+function initFrameSelector() {
+    // add bar segments to frame selection bar
+    for (let i = 0; i < labelTool.numFrames; i++) {
+        let selectedClass = "";
+        if (i === 0) {
+            selectedClass = "selected";
+        }
+        let divElem = $("<div data-tip=" + i + " data-for=\"frame-selector\" class=\"frame default " + selectedClass + "\"></div>");
+        $(divElem).on("click", function (item) {
+            $("div.frame").attr("class", "frame default");
+            item.target.className = "frame default selected";
+            let elemIndex = Number(item.target.dataset.tip);
+            labelTool.changeFrame(elemIndex);
+        });
+        $(".frame-selector__frames").append(divElem);
+
+    }
+}

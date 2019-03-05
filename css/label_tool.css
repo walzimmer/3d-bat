@@ -79,41 +79,55 @@ body {
     height: 50px;
 }
 
-.file-select-left-button {
-    float: right;
-    outline: none;
-    border-style: none;
-    border-top-right-radius: 0px;
-    border-bottom-right-radius: 0px;
-    /*border-color: #000;*/
-    border: 1px;
-    height: 50px;
-    width: 100px;
-    background-image: -webkit-gradient(
-            linear,
-            left bottom,
-            left top,
-            from(#707070),
-            to(#c5c5c5));
+/*.file-select-left-button {*/
+/*float: right;*/
+/*outline: none;*/
+/*border-style: none;*/
+/*border-top-right-radius: 0px;*/
+/*border-bottom-right-radius: 0px;*/
+/*!*border-color: #000;*!*/
+/*border: 1px;*/
+/*height: 50px;*/
+/*width: 100px;*/
+/*background-image: -webkit-gradient(*/
+/*linear,*/
+/*left bottom,*/
+/*left top,*/
+/*from(#707070),*/
+/*to(#c5c5c5));*/
+/*}*/
+
+/*.file-select-right-button {*/
+/*float: right;*/
+/*outline: none;*/
+/*border-style: none;*/
+/*border-top-left-radius: 0px;*/
+/*border-bottom-left-radius: 0px;*/
+/*margin-left: -3px;*/
+/*!*border-color: #000;*!*/
+/*border: 1px;*/
+/*height: 50px;*/
+/*width: 100px;*/
+/*background-image: -webkit-gradient(*/
+/*linear,*/
+/*left bottom,*/
+/*left top,*/
+/*from(#707070),*/
+/*to(#c5c5c5));*/
+/*}*/
+
+#left-btn {
+    position: absolute;
+    left: -70px;
+    top: 50%;
+    cursor: -webkit-grabbing;
 }
 
-.file-select-right-button {
-    float: right;
-    outline: none;
-    border-style: none;
-    border-top-left-radius: 0px;
-    border-bottom-left-radius: 0px;
-    margin-left: -3px;
-    /*border-color: #000;*/
-    border: 1px;
-    height: 50px;
-    width: 100px;
-    background-image: -webkit-gradient(
-            linear,
-            left bottom,
-            left top,
-            from(#707070),
-            to(#c5c5c5));
+#right-btn {
+    position: absolute;
+    right: 430px;
+    top: 50%;
+    cursor: -webkit-grabbing;
 }
 
 #jpeg-label-header form input {
