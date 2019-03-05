@@ -62,6 +62,7 @@ let interpolateBtn;
 let guiAnnotationClasses = new dat.GUI({autoPlace: true, width: 90, resizable: false});
 let guiBoundingBoxAnnotationMap;
 let guiOptions = new dat.GUI({autoPlace: true, width: 350, resizable: false});
+let guiOptionsOpened = true;
 let numGUIOptions = 13;
 let showProjectedPointsFlag = false;
 let showGridFlag = false;
@@ -286,7 +287,8 @@ let parameters = {
     },
     reset_all: function () {
         labelTool.resetBoxes()
-    }
+    },
+    skip_frames: labelTool.skipFrameCount
 };
 
 /*********** Event handlers **************/
@@ -442,16 +444,19 @@ function loadPCDData() {
             pointCloudFullURL = 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/' + 'pointclouds/' + labelTool.fileNames[i] + '.pcd';
             pcdLoader.load(pointCloudFullURL, function (mesh) {
                 mesh.name = 'pointcloud-scan-' + i;
-                pointCloudScan = mesh.clone();
-                pointCloudScanList.push(pointCloudScan);
+                // pointCloudScan = mesh.clone();
+                // pointCloudScanList.push(pointCloudScan);
+                pointCloudScanList.push(mesh);
                 if (i === labelTool.currentFileIndex) {
-                    scene.add(pointCloudScan);
+                    //scene.add(pointCloudScan);
+                    scene.add(mesh);
                 }
             });
             pcdLoader.load(pointCloudWithoutGroundURL, function (mesh) {
                 mesh.name = 'pointcloud-scan-no-ground-' + i;
-                pointCloudScanNoGround = mesh.clone();
-                pointCloudScanNoGroundList.push(pointCloudScanNoGround);
+                // pointCloudScanNoGround = mesh.clone();
+                // pointCloudScanNoGroundList.push(pointCloudScanNoGround);
+                pointCloudScanNoGroundList.push(mesh);
             });
         }
         labelTool.pointCloudLoaded = true;
@@ -2841,6 +2846,9 @@ function mouseUpLogic(ev) {
                     annotationObjects.select(clickedObjectIndex, camChannel);
                 }
             }
+            // move button to right
+            $("#left-btn").css("left", 780);
+
             let obj = annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex];
             showHelperViews(obj["x"], obj["y"], obj["z"], obj["width"], obj["height"], obj["depth"]);
 
@@ -2935,6 +2943,9 @@ function mouseUpLogic(ev) {
 
             let interpolationModeCheckbox = document.getElementById("interpolation-checkbox");
             disableInterpolationModeCheckbox(interpolationModeCheckbox);
+
+            // move button to left
+            $("#left-btn").css("left", -70);
 
         }
 
@@ -3051,6 +3062,8 @@ function mouseUpLogic(ev) {
                 } else {
                     labelTool.removeObject("transformControls");
                 }
+                // move left button to right
+                $("#left-btn").css("left", 780);
                 showHelperViews(xPos, yPos, zPos, addBboxParameters["width"], addBboxParameters["height"], addBboxParameters["depth"]);
 
 
@@ -3159,6 +3172,8 @@ function mouseDownLogic(ev) {
             let bboxClass = annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex]["class"];
             let trackId = annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex]["trackId"];
             deleteObject(bboxClass, trackId, clickedObjectIndex);
+            // move button to left
+            $("#left-btn").css("left", -70);
         }//end right click
     } else {
         if (birdsEyeViewFlag === true) {
@@ -3757,11 +3772,13 @@ function init() {
         filterGroundCheckbox.onChange(function (value) {
             filterGround = value;
             if (filterGround === true) {
-                labelTool.removeObject("pointcloud_full");
-                addObject(pointCloudScanNoGround, "pointcloud_without_ground");
+                labelTool.removeObject("pointcloud-scan-" + labelTool.currentFileIndex);
+                //addObject(pointCloudScanNoGround, "pointcloud-scan-no-ground-" + labelTool.currentFileIndex);
+                addObject(pointCloudScanNoGroundList[labelTool.currentFileIndex], "pointcloud-scan-no-ground-" + labelTool.currentFileIndex);
             } else {
-                labelTool.removeObject("pointcloud_without_ground");
-                addObject(pointCloudScan, "pointcloud_full");
+                labelTool.removeObject("pointcloud-scan-no-ground-" + labelTool.currentFileIndex);
+                //addObject(pointCloudScan, "pointcloud-scan-" + labelTool.currentFileIndex);
+                addObject(pointCloudScanList[labelTool.currentFileIndex], "pointcloud-scan-" + labelTool.currentFileIndex);
             }
         });
         guiOptions.add(parameters, 'select_all_copy_label_to_next_frame').name("Select all 'Copy label to next frame'");
@@ -3851,6 +3868,15 @@ function init() {
         disableInterpolationBtn();
 
         guiOptions.add(parameters, 'reset_all').name("Reset all");
+        guiOptions.add(parameters, 'skip_frames').name("Skip frames").onChange(function (value) {
+            if (value === "") {
+                value = 1;
+            } else {
+                value = parseInt(value);
+            }
+            labelTool.skipFrameCount = value;
+        });
+
 
         guiOptions.domElement.id = 'bounding-box-3d-menu';
         // add download Annotations button
@@ -3872,7 +3898,14 @@ function init() {
 
     $('#bounding-box-3d-menu').css('width', '480px');
     $('#bounding-box-3d-menu ul li').css('background-color', '#353535');
-
+    $("#bounding-box-3d-menu .close-button").click(function () {
+        guiOptionsOpened = !guiOptionsOpened;
+        if (guiOptionsOpened === true) {
+            $("#right-btn").css("right", 430);
+        } else {
+            $("#right-btn").css("right", -50);
+        }
+    });
 
     guiOptions.open();
     classPickerElem.each(function (i, item) {
