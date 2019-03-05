@@ -198,7 +198,7 @@ let annotationObjects = {
 
 function getLine(channelIdx, pointStart, pointEnd, color) {
     if (pointStart !== undefined && pointEnd !== undefined && isFinite(pointStart.x) && isFinite(pointStart.y) && isFinite(pointEnd.x) && isFinite(pointEnd.y)) {
-        let line = paperArray[channelIdx].path(["M", pointStart.x, pointStart.y, "L", pointEnd.x, pointEnd.y]);
+        let line = paperArrayAll[labelTool.currentFileIndex][channelIdx].path(["M", pointStart.x, pointStart.y, "L", pointEnd.x, pointEnd.y]);
         line.attr("stroke", color);
         line.attr("stroke-width", 3);
         return line;
