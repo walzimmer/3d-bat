@@ -650,7 +650,7 @@ function increaseBrightness(hex, percent) {
 
 
 function addClassTooltip(fileIndex, className, trackId, color, bbox) {
-    let classTooltipElement = $("<div class='class-tooltip' id='class-" + className.charAt(0) + trackId + "'>" + className.charAt(0) + trackId + " | " + className + "</div>");
+    let classTooltipElement = $("<div class='class-tooltip' id='tooltip-" + className.charAt(0) + trackId + "'>" + trackId + "</div>");
     // Sprite
     const spriteMaterial = new THREE.SpriteMaterial({
         alphaTest: 0.5,
@@ -659,16 +659,13 @@ function addClassTooltip(fileIndex, className, trackId, color, bbox) {
         depthWrite: false
     });
     let sprite = new THREE.Sprite(spriteMaterial);
-    sprite.position.set(bbox.x, bbox.y, bbox.z + bbox.depth / 2);
+    sprite.position.set(bbox.x + bbox.width / 2, bbox.y + bbox.length / 2, bbox.z + bbox.depth / 2);
     sprite.scale.set(1, 1, 1);
     sprite.name = "sprite-" + className.charAt(0) + trackId;
 
     // add tooltip only to DOM if fileIndex is equal to current file index
     if (fileIndex === labelTool.currentFileIndex) {
         $("body").append(classTooltipElement);
-        // set background color
-        $(classTooltipElement[0]).css("background", color);
-        $(classTooltipElement[0]).css("opacity", 0.5);
         scene.add(sprite);
     }
     labelTool.spriteArray[fileIndex].push(sprite);
@@ -871,7 +868,7 @@ function deleteObject(bboxClass, trackId, labelIndex) {
     // NOTE: already removed in annotationObjects.remove()
     //labelTool.removeObject("cube-" + bboxClass.charAt(0) + trackId);
     // remove sprite from DOM tree
-    $("#class-" + bboxClass.charAt(0) + trackId).remove();
+    $("#tooltip-" + bboxClass.charAt(0) + trackId).remove();
     labelTool.selectedMesh = undefined;
     // reduce track id by 1 for this class
     if (labelTool.showOriginalNuScenesLabels) {
@@ -1766,13 +1763,13 @@ function updateScreenPosition() {
     for (let i = 0; i < labelTool.cubeArray[labelTool.currentFileIndex].length; i++) {
         let cubeObj = labelTool.cubeArray[labelTool.currentFileIndex][i];
         let annotationObj = annotationObjects.contents[labelTool.currentFileIndex][i];
-        const vector = new THREE.Vector3(cubeObj.position.x - cubeObj.scale.x / 2, cubeObj.position.y + cubeObj.scale.y / 2, cubeObj.position.z + cubeObj.scale.z / 2);
+        const vector = new THREE.Vector3(cubeObj.position.x, cubeObj.position.y, cubeObj.position.z + cubeObj.scale.z / 2);
         const canvas = renderer.domElement;
         vector.project(currentCamera);
         vector.x = Math.round((0.5 + vector.x / 2) * (canvas.width));
         vector.y = Math.round((0.5 - vector.y / 2) * (canvas.height));
         if (annotationObj.trackId !== undefined) {
-            let classTooltip = $("#class-" + annotationObj.class.charAt(0) + annotationObj.trackId)[0];
+            let classTooltip = $("#tooltip-" + annotationObj.class.charAt(0) + annotationObj.trackId)[0];
             if (classTooltip !== undefined) {
                 let imagePaneHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
                 classTooltip.style.top = `${vector.y + headerHeight + imagePaneHeight - 21}px`;
@@ -2818,6 +2815,10 @@ function mouseUpLogic(ev) {
 
             labelTool.selectedMesh = labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex];
             if (labelTool.selectedMesh !== undefined) {
+                for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
+                    $("#tooltip-" + annotationObjects.contents[labelTool.currentFileIndex][i]["class"].charAt(0) + annotationObjects.contents[labelTool.currentFileIndex][i]["trackId"]).show();
+                }
+                $("#tooltip-" + annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex]["class"].charAt(0) + annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex]["trackId"]).hide();
                 addTransformControls();
 
                 if (transformControls.position !== undefined) {
@@ -3176,6 +3177,9 @@ function mouseDownLogic(ev) {
             $("#left-btn").css("left", -70);
         }//end right click
     } else {
+        for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
+            $("#tooltip-" + annotationObjects.contents[labelTool.currentFileIndex][i]["class"].charAt(0) + annotationObjects.contents[labelTool.currentFileIndex][i]["trackId"]).show();
+        }
         if (birdsEyeViewFlag === true) {
             clickedObjectIndex = -1;
             groundPlaneArray = [];
