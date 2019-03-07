@@ -36,7 +36,7 @@ let labelTool = {
     originalAnnotations: [],   // For checking modified or not
     skipFrameCount: 1,
     targetClass: "Vehicle",
-    pageBox: document.getElementById('page_num'),
+    // pageBox: document.getElementById('page_num'),
     savedFrames: [],
     cubeArray: [],
     spriteArray: [],
@@ -755,7 +755,7 @@ let labelTool = {
         let pointCloudContainer = $("#layout_layout_panel_main .w2ui-panel-content");
         pointCloudContainer.append('<div id="canvas3d" style="z-index: 0;"></div>');
 
-        this.pageBox.placeholder = (this.currentFileIndex + 1) + "/" + this.fileNames.length;
+        // this.pageBox.placeholder = (this.currentFileIndex + 1) + "/" + this.fileNames.length;
         this.camChannels.forEach(function (channelObj) {
             this.localOnInitialize[channelObj.channel]();
         }.bind(this));
@@ -874,7 +874,7 @@ let labelTool = {
         this.selectedMesh = undefined;
         this.imageCanvasInitialized = false;
         this.cameraImagesLoaded = false;
-        this.pointCloudLoaded= false;
+        this.pointCloudLoaded = false;
         $(".frame-selector__frames").empty();
 
         // classesBoundingBox
@@ -1178,6 +1178,18 @@ let labelTool = {
                 allSvg[j].style.zIndex = 0;
             }
             allSvg[labelTool.numFrames - newFileIndex - 1].style.zIndex = 2;
+            console.log(window.innerWidth);
+            if (i === 1 || i === 4) {
+                // back or front
+                let imgWidth = 1.5 * window.innerWidth / 7;
+                allSvg[labelTool.numFrames - newFileIndex - 1].style.width = imgWidth;
+                allSvg[labelTool.numFrames - newFileIndex - 1].style.height = imgWidth / labelTool.imageAspectRatioFrontBackLISAT;
+            } else {
+                let imgWidth = window.innerWidth / 7;
+                allSvg[labelTool.numFrames - newFileIndex - 1].style.width = imgWidth;
+                allSvg[labelTool.numFrames - newFileIndex - 1].style.height = imgWidth / labelTool.imageAspectRatioLISAT;
+            }
+
         }
         // -------------------------------------------------
 
@@ -1245,16 +1257,24 @@ let labelTool = {
 
                 let trackId = annotationObjects.contents[newFileIndex][i]["trackId"];
                 let className = annotationObjects.contents[newFileIndex][i]["class"];
-                let objectIndexByTrackIdAndClass = getObjectIndexByTrackIdAndClass(trackId, className, this.currentFileIndex);
-                if (objectIndexByTrackIdAndClass !== -1) {
-                    // next frame contains a new object -> add tooltip for new object
-                    let classTooltipElement = $("<div class='class-tooltip' id='class-" + className.charAt(0) + trackId + "'>" + className.charAt(0) + trackId + " | " + className + "</div>");
-                    $("body").append(classTooltipElement);
-                    // set background color
-                    let color = classesBoundingBox[className].color;
-                    $(classTooltipElement[0]).css("background", color);
-                    $(classTooltipElement[0]).css("opacity", 0.5);
-                }
+                // let objectIndexByTrackIdAndClass = getObjectIndexByTrackIdAndClass(trackId, className, this.currentFileIndex);
+                // if (objectIndexByTrackIdAndClass !== -1) {
+                // next frame contains a new object -> add tooltip for new object
+                let classTooltipElement = $("<div class='class-tooltip' id='tooltip-" + className.charAt(0) + trackId + "'>" + trackId + "</div>");
+                // set background color
+                let color = classesBoundingBox[className].color;
+                let imagePaneHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
+                const vector = new THREE.Vector3(mesh.position.x, mesh.position.y, mesh.position.z + mesh.scale.z / 2);
+                const canvas = renderer.domElement;
+                vector.project(currentCamera);
+                vector.x = Math.round((0.5 + vector.x / 2) * (canvas.width));
+                vector.y = Math.round((0.5 - vector.y / 2) * (canvas.height));
+                $(classTooltipElement[0]).css("top", `${vector.y + headerHeight + imagePaneHeight - 21}px`);
+                $(classTooltipElement[0]).css("left", `${vector.x}px`);
+                $(classTooltipElement[0]).css("opacity", 1.0);
+
+                $("body").append(classTooltipElement);
+                // }
             }
             for (let i = 0; i < annotationObjects.contents[this.currentFileIndex].length; i++) {
                 let trackId = annotationObjects.contents[this.currentFileIndex][i]["trackId"];
@@ -1276,9 +1296,9 @@ let labelTool = {
             }
         }
 
-        this.pageBox.placeholder = (newFileIndex + 1) + "/" + this.fileNames.length;
+        // this.pageBox.placeholder = (newFileIndex + 1) + "/" + this.fileNames.length;
         $(".current").text((newFileIndex + 1) + "/" + this.fileNames.length);
-        this.pageBox.value = "";
+        // this.pageBox.value = "";
         // set class selected to current frame bar
         // unselect all
         $("div.frame").attr("class", "frame default");
