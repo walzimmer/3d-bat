@@ -49,7 +49,7 @@ body {
 
 #label-tool-wrapper {
     position: fixed;
-    top: 50px;
+    top: 0px;
     bottom: 0px;
     width: 100%;
     background-color: #353535;
