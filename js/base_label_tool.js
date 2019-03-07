@@ -1938,13 +1938,20 @@ function calculateAndDrawLineSegments(channelObj, className) {
 
 
     // draw line for orientation
-    let pointZero = channelObj.projectedPoints[0].clone();
-    let pointOne = channelObj.projectedPoints[1].clone();
-    let pointTwo = channelObj.projectedPoints[2].clone();
-    let pointThree = channelObj.projectedPoints[3].clone();
+    // TODO: better draw filled polygon (transparent) like in scale.ai
+    // let pointZero = channelObj.projectedPoints[0].clone();
+    // let pointOne = channelObj.projectedPoints[1].clone();
+    // let pointTwo = channelObj.projectedPoints[2].clone();
+    // let pointThree = channelObj.projectedPoints[3].clone();
+
+    let pointZero = channelObj.projectedPoints[3].clone();
+    let pointOne = channelObj.projectedPoints[2].clone();
+    let pointTwo = channelObj.projectedPoints[6].clone();
+    let pointThree = channelObj.projectedPoints[7].clone();
+
     let startPoint = pointZero.add(pointThree.sub(pointZero).multiplyScalar(0.5));
-    pointZero = channelObj.projectedPoints[0].clone();
-    pointThree = channelObj.projectedPoints[3].clone();
+    // pointZero = channelObj.projectedPoints[0].clone();
+    // pointThree = channelObj.projectedPoints[3].clone();
     let startPointCloned = startPoint.clone();
     let helperPoint = pointOne.add(pointTwo.sub(pointOne).multiplyScalar(0.5));
     let helperPointCloned = helperPoint.clone();
