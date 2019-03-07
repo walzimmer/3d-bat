@@ -44,7 +44,7 @@ let rotateLeft = false;
 let rotateRight = false;
 let rotateUp = false;
 let rotateDown = false;
-let headerHeight = 50;
+let headerHeight = 0;
 let translationVelocity = new THREE.Vector3();
 let rotationVelocity = new THREE.Vector3();
 let translationDirection = new THREE.Vector3();
@@ -425,13 +425,6 @@ function drawCameraPosition() {
 
 // Visualize 2d and 3d data
 function loadPCDData() {
-    // remove previous loaded point clouds
-    // for (let i = 0; i < labelTool.numFrames; i++) {
-    //     labelTool.removeObject("pointcloud-scan-" + i);
-    //     labelTool.removeObject("pointcloud-scan-no-ground-" + i);
-    // }
-
-
     // ASCII pcd files
     let pcdLoader = new THREE.PCDLoader();
     let pointCloudFullURL;
@@ -444,18 +437,13 @@ function loadPCDData() {
             pointCloudFullURL = 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/' + 'pointclouds/' + labelTool.fileNames[i] + '.pcd';
             pcdLoader.load(pointCloudFullURL, function (mesh) {
                 mesh.name = 'pointcloud-scan-' + i;
-                // pointCloudScan = mesh.clone();
-                // pointCloudScanList.push(pointCloudScan);
                 pointCloudScanList.push(mesh);
                 if (i === labelTool.currentFileIndex) {
-                    //scene.add(pointCloudScan);
                     scene.add(mesh);
                 }
             });
             pcdLoader.load(pointCloudWithoutGroundURL, function (mesh) {
                 mesh.name = 'pointcloud-scan-no-ground-' + i;
-                // pointCloudScanNoGround = mesh.clone();
-                // pointCloudScanNoGroundList.push(pointCloudScanNoGround);
                 pointCloudScanNoGroundList.push(mesh);
             });
         }
@@ -970,41 +958,53 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
         update2DBoundingBox(labelTool.currentFileIndex, selectionIndex);
     });
     cubeW.onChange(function (value) {
-        let selectionIndex = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
-        let newXPos = labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].position.x + (value - labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].scale.x) * Math.cos(labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].rotation.z) / 2;
-        labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].position.x = newXPos;
-        bbox.x = newXPos;
-        annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["x"] = newXPos;
-        let newYPos = labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].position.y + (value - labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].scale.x) * Math.sin(labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].rotation.z) / 2;
-        labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].position.y = newYPos;
-        bbox.y = -newYPos;
-        annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["y"] = newYPos;
-        labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].scale.x = value;
-        annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["width"] = value;
-        update2DBoundingBox(labelTool.currentFileIndex, selectionIndex);
+        for (let i = 0; i < labelTool.numFrames; i++) {
+            let selectionIndex = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, i);
+            if (selectionIndex !== -1) {
+                let newXPos = labelTool.cubeArray[i][selectionIndex].position.x + (value - labelTool.cubeArray[i][selectionIndex].scale.x) * Math.cos(labelTool.cubeArray[i][selectionIndex].rotation.z) / 2;
+                labelTool.cubeArray[i][selectionIndex].position.x = newXPos;
+                bbox.x = newXPos;
+                annotationObjects.contents[i][selectionIndex]["x"] = newXPos;
+                let newYPos = labelTool.cubeArray[i][selectionIndex].position.y + (value - labelTool.cubeArray[i][selectionIndex].scale.x) * Math.sin(labelTool.cubeArray[i][selectionIndex].rotation.z) / 2;
+                labelTool.cubeArray[i][selectionIndex].position.y = newYPos;
+                bbox.y = -newYPos;
+                annotationObjects.contents[i][selectionIndex]["y"] = newYPos;
+                labelTool.cubeArray[i][selectionIndex].scale.x = value;
+                annotationObjects.contents[i][selectionIndex]["width"] = value;
+            }
+        }
+        let selectionIndexCurrentFrame = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
+        update2DBoundingBox(labelTool.currentFileIndex, selectionIndexCurrentFrame);
     });
     cubeH.onChange(function (value) {
-        let selectionIndex = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
-        let newXPos = labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].position.x + (value - labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].scale.y) * Math.sin(labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].rotation.z) / 2;
-        labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].position.x = newXPos;
-        bbox.x = newXPos;
-        annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["x"] = newXPos;
-        let newYPos = labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].position.y - (value - labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].scale.y) * Math.cos(labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].rotation.z) / 2;
-        labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].position.y = newYPos;
-        bbox.y = -newYPos;
-        annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["y"] = newYPos;
-        labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].scale.y = value;
-        annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["height"] = value;
-        update2DBoundingBox(labelTool.currentFileIndex, selectionIndex);
+        for (let i = 0; i < labelTool.numFrames; i++) {
+            let selectionIndex = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, i);
+            let newXPos = labelTool.cubeArray[i][selectionIndex].position.x + (value - labelTool.cubeArray[i][selectionIndex].scale.y) * Math.sin(labelTool.cubeArray[i][selectionIndex].rotation.z) / 2;
+            labelTool.cubeArray[i][selectionIndex].position.x = newXPos;
+            bbox.x = newXPos;
+            annotationObjects.contents[i][selectionIndex]["x"] = newXPos;
+            let newYPos = labelTool.cubeArray[i][selectionIndex].position.y - (value - labelTool.cubeArray[i][selectionIndex].scale.y) * Math.cos(labelTool.cubeArray[i][selectionIndex].rotation.z) / 2;
+            labelTool.cubeArray[i][selectionIndex].position.y = newYPos;
+            bbox.y = -newYPos;
+            annotationObjects.contents[i][selectionIndex]["y"] = newYPos;
+            labelTool.cubeArray[i][selectionIndex].scale.y = value;
+            annotationObjects.contents[i][selectionIndex]["height"] = value;
+        }
+        let selectionIndexCurrent = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
+        update2DBoundingBox(labelTool.currentFileIndex, selectionIndexCurrent);
     });
     cubeD.onChange(function (value) {
-        let selectionIndex = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
-        let newZPos = labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].position.z + (value - labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].scale.z) / 2;
-        labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].position.z = newZPos;
-        bbox.z = newZPos;
-        labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].scale.z = value;
-        annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["depth"] = value;
-        update2DBoundingBox(labelTool.currentFileIndex, selectionIndex);
+        for (let i = 0; i < labelTool.numFrames; i++) {
+            let selectionIndex = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, i);
+            let newZPos = labelTool.cubeArray[i][selectionIndex].position.z + (value - labelTool.cubeArray[i][selectionIndex].scale.z) / 2;
+            labelTool.cubeArray[i][selectionIndex].position.z = newZPos;
+            bbox.z = newZPos;
+            labelTool.cubeArray[i][selectionIndex].scale.z = value;
+            annotationObjects.contents[i][selectionIndex]["depth"] = value;
+        }
+        let selectionIndexCurrent = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
+        update2DBoundingBox(labelTool.currentFileIndex, selectionIndexCurrent);
+
     });
 
     if (bboxEndParams !== undefined && interpolationMode === true) {
@@ -1777,7 +1777,6 @@ function updateScreenPosition() {
                 classTooltip.style.opacity = spriteBehindObject ? 0.25 : 1;
             }
         }
-
     }
 }
 
@@ -3063,6 +3062,7 @@ function mouseUpLogic(ev) {
                 } else {
                     labelTool.removeObject("transformControls");
                 }
+                $("#tooltip-" + annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["class"].charAt(0) + annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["trackId"]).hide();
                 // move left button to right
                 $("#left-btn").css("left", 780);
                 showHelperViews(xPos, yPos, zPos, addBboxParameters["width"], addBboxParameters["height"], addBboxParameters["depth"]);
@@ -3085,8 +3085,6 @@ function mouseUpLogic(ev) {
 
             }
             groundPlaneArray = [];
-            // $("#label-tool-log").val("4. Choose class from drop down list");
-            // $("#label-tool-log").css("color", "#969696");
         }
 
     }
@@ -3777,11 +3775,9 @@ function init() {
             filterGround = value;
             if (filterGround === true) {
                 labelTool.removeObject("pointcloud-scan-" + labelTool.currentFileIndex);
-                //addObject(pointCloudScanNoGround, "pointcloud-scan-no-ground-" + labelTool.currentFileIndex);
                 addObject(pointCloudScanNoGroundList[labelTool.currentFileIndex], "pointcloud-scan-no-ground-" + labelTool.currentFileIndex);
             } else {
                 labelTool.removeObject("pointcloud-scan-no-ground-" + labelTool.currentFileIndex);
-                //addObject(pointCloudScan, "pointcloud-scan-" + labelTool.currentFileIndex);
                 addObject(pointCloudScanList[labelTool.currentFileIndex], "pointcloud-scan-" + labelTool.currentFileIndex);
             }
         });
