@@ -163,22 +163,22 @@ function changeClass(bbIndex, newClass) {
         }
     }
 
-    let textBox;
-    if (annotation["channels"][0]["textBox"] !== undefined) {
-        textBox = annotation["channels"][0]["textBox"];
-    } else if (annotation["channels"][0]["textBox"] !== undefined) {
-        textBox = annotation["channels"][1]["textBox"];
-    } else {
-        // no textbox
-        return;
-    }
-    textBox["text"].attr({text: bboxString(bbIndex, newClass)});
-    let box = textBox["text"].getBBox();
-    textBox["box"].attr({
-        fill: color,
-        stroke: "none",
-        width: box.width
-    });
+    // let textBox;
+    // if (annotation["channels"][0]["textBox"] !== undefined) {
+    //     textBox = annotation["channels"][0]["textBox"];
+    // } else if (annotation["channels"][0]["textBox"] !== undefined) {
+    //     textBox = annotation["channels"][1]["textBox"];
+    // } else {
+    //     // no textbox
+    //     return;
+    // }
+    // textBox["text"].attr({text: bboxString(bbIndex, newClass)});
+    // let box = textBox["text"].getBBox();
+    // textBox["box"].attr({
+    //     fill: color,
+    //     stroke: "none",
+    //     width: box.width
+    // });
 }
 
 annotationObjects.onChangeClass("CAM_FRONT_LEFT", function (bbIndex, newClass) {

@@ -235,15 +235,19 @@ function interpolate() {
     labelTool.logger.success("Interpolation successfully!");
 }
 
+function undoOperation() {
+
+}
+
 let parameters = {
-    save: function () {
-        save();
-    },
     download_video: function () {
         downloadVideo();
     },
     download: function () {
         download();
+    },
+    undo: function () {
+        undoOperation();
     },
     i: -1,
     switch_view: function () {
@@ -382,6 +386,7 @@ function drawCameraPosition() {
         side: THREE.DoubleSide,
         transparent: false
     });
+    // lat, long, vert
     camFrontRightGeometry.translate(59.35125262 / 100, 41.21713246 / 100, -15.43223025 / 100);
     let camFrontRightMesh = new THREE.Mesh(camFrontRightGeometry, material);
     addObject(camFrontRightMesh, 'cam-front-right-object');
@@ -506,6 +511,7 @@ annotationObjects.onChangeClass("PCD", function (index, label) {
     labelTool.cubeArray[labelTool.currentFileIndex][index].material.color.setHex(classesBoundingBox[label].color.replace("#", "0x"));
     // change also color of the bounding box
     labelTool.cubeArray[labelTool.currentFileIndex][index].children[0].material.color.setHex(classesBoundingBox[label].color.replace("#", "0x"));
+    annotationObjects.contents[labelTool.currentFileIndex][index]["class"] = label;
 });
 
 //add remove function in dat.GUI
@@ -549,11 +555,6 @@ function inverseMatrix(inMax) {
     let inv33 = (inMax[0][0] * inMax[1][1] * inMax[2][2] + inMax[0][1] * inMax[1][2] * inMax[2][0] + inMax[0][2] * inMax[1][0] * inMax[2][1] - inMax[0][2] * inMax[1][1] * inMax[2][0] - inMax[0][1] * inMax[1][0] * inMax[2][2] - inMax[0][0] * inMax[1][2] * inMax[2][1]) / det;
 
     return [[inv00, inv01, inv02, inv03], [inv10, inv11, inv12, inv13], [inv20, inv21, inv22, inv23], [inv30, inv31, inv32, inv33]]
-}
-
-//save data
-function save() {
-    labelTool.savedFrames[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex] = true;
 }
 
 function b64EncodeUnicode(str) {
@@ -719,9 +720,9 @@ function update2DBoundingBox(fileIndex, objectIndex) {
                 let rotationY = annotationObjects.contents[fileIndex][objectIndex]["rotationY"];
                 let channel = channelObj.channel;
                 // working for LISA_T
-                // channelObj.projectedPoints = calculateProjectedBoundingBox(-x, -y, -z, width, height, depth, channel, rotationY);
+                channelObj.projectedPoints = calculateProjectedBoundingBox(-x, -y, -z, width, height, depth, channel, rotationY);
                 // new transformation matrices
-                channelObj.projectedPoints = calculateProjectedBoundingBox(-x, -z, -y, width, depth, height, channel, rotationY);
+                // channelObj.projectedPoints = calculateProjectedBoundingBox(-x, -z, -y, width, depth, height, channel, rotationY);
 
                 // remove previous drawn lines
                 for (let lineObj in channelObj.lines) {
@@ -733,7 +734,8 @@ function update2DBoundingBox(fileIndex, objectIndex) {
                     }
                 }
                 if (channelObj.projectedPoints !== undefined && channelObj.projectedPoints.length === 8) {
-                    channelObj.lines = calculateAndDrawLineSegments(channelObj, className);
+                    let horizontal = width > height;
+                    channelObj.lines = calculateAndDrawLineSegments(channelObj, className, horizontal);
                 }
             }
         }
@@ -1161,6 +1163,7 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
 //reset cube parameter and position
 function resetCube(index) {
     let reset_bbox = annotationObjects.contents[labelTool.currentFileIndex][index];
+    reset_bbox.class = reset_bbox.original.class;
     reset_bbox.x = reset_bbox.original.x;
     reset_bbox.y = reset_bbox.original.y;
     reset_bbox.z = reset_bbox.original.z;
@@ -1175,7 +1178,8 @@ function resetCube(index) {
     labelTool.cubeArray[labelTool.currentFileIndex][index].scale.x = reset_bbox.width;
     labelTool.cubeArray[labelTool.currentFileIndex][index].scale.y = reset_bbox.height;
     labelTool.cubeArray[labelTool.currentFileIndex][index].scale.z = reset_bbox.depth;
-    // updateChannels(index);
+    // TODO: redraw in 3D and 2D to change color
+
 }
 
 //change window size
@@ -2123,22 +2127,7 @@ function rotatePoint(pointX, pointY, originX, originY, angle) {
 
 
 function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, channel, rotationY) {
-    // xPos = 2.8725;
-    // yPos = 12.4287;
-    // zPos = -0.1678;
-    // width = 1.9793;
-    // height = 1.2933;
-    // depth = 4.2928;// longitudinal
     let idx = getChannelIndexByName(channel);
-    // LIDAR uses long, lat, vert
-    // pos_long = pos_long - labelTool.positionLidarNuscenes[1];
-    // pos_lat = pos_lat - labelTool.positionLidarNuscenes[0];
-    // pos_vert = pos_vert - labelTool.positionLidarNuscenes[2];
-
-    // working, but user sees back of camera
-    // xPos = xPos - labelTool.positionLidarNuscenes[1];
-    // yPos = yPos - labelTool.positionLidarNuscenes[2];
-    // zPos = zPos - labelTool.positionLidarNuscenes[0];
     // TODO: calculate scaling factor dynamically (based on top position of slider)
     let imageScalingFactor;
     let dimensionScalingFactor;
@@ -2172,9 +2161,9 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
         } else {
             //longitudeOffset = 0;
         }
-        //dimensionScalingFactor = 100;// multiply by 100 to transform from m to cm
+        dimensionScalingFactor = 100;// multiply by 100 to transform from m to cm
         // with new transformation matrix
-        dimensionScalingFactor = 1;
+        //dimensionScalingFactor = 1;
     }
     let cornerPoints = [];
 
@@ -2211,49 +2200,23 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
     let projectedPoints = [];
     for (let cornerPoint in cornerPoints) {
         let point = cornerPoints[cornerPoint];
-
-        // swap vertical and long before projection
-        // let tmp = point.x;
-        // point.x = point.y;
-        // point.y = tmp;
-
-        // rotate all 8 corner points before projection
-        // TMP: commented out
-        // let pointRotated = rotatePoint(point.x, point.y, xPos, zPos, rotationY * 360 / (2 * Math.PI));
-        // point.x = pointRotated.x;
-        // point.y = pointRotated.y;
-
-
         let point3D = [point.x * dimensionScalingFactor, point.y * dimensionScalingFactor, point.z * dimensionScalingFactor, 1];
         let projectionMatrix;
         let point2D;
         if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-            let transformationMatrixLidarToCam = matrixInvert(labelTool.camChannels[idx].transformationMatrixCamToLidar);
-
+            // let transformationMatrixLidarToCam = matrixInvert(labelTool.camChannels[idx].transformationMatrixCamToLidar);
             // swap vert with long before projection to get (lat, long, vert)
-            let tmp = point3D[1];
-            point3D[1] = point3D[2];
-            point3D[2] = tmp;
-
+            // let tmp = point3D[1];
+            // point3D[1] = point3D[2];
+            // point3D[2] = tmp;
             let pointRotated = rotatePoint(point3D[0], point3D[1], xPos, zPos, rotationY * 360 / (2 * Math.PI));
             point3D[0] = pointRotated.x;
             point3D[1] = pointRotated.y;
+            // let transformedPoint = matrixProduct4x4(transformationMatrixLidarToCam, point3D);//result will be 4x1
+            // point2D = matrixProduct3x4(labelTool.camChannels[idx].intrinsicMatrixLISAT, transformedPoint);
 
-            let transformedPoint = matrixProduct4x4(transformationMatrixLidarToCam, point3D);//result will be 4x1
-
-
-            // let pointRotated = rotatePoint(transformedPoint.x, transformedPoint.y, xPos, yPos, rotationY * 360 / (2 * Math.PI));
-            // transformedPoint.x = pointRotated.x;
-            // transformedPoint.y = pointRotated.y;
-
-            // let pointRotated = rotatePoint(transformedPoint.x, transformedPoint.y, xPos, yPos, rotationY * 360 / (2 * Math.PI));
-            // transformedPoint.x = pointRotated.x;
-            // transformedPoint.y = pointRotated.y;
-
-            point2D = matrixProduct3x4(labelTool.camChannels[idx].intrinsicMatrixLISAT, transformedPoint);
-
-            // projectionMatrix = labelTool.camChannels[idx].projectionMatrixLISAT;
-            // point2D = matrixProduct3x4(projectionMatrix, point3D);
+            projectionMatrix = labelTool.camChannels[idx].projectionMatrixLISAT;
+            point2D = matrixProduct3x4(projectionMatrix, point3D);
         } else {
             projectionMatrix = labelTool.camChannels[idx].projectionMatrixNuScenes;
             point2D = matrixProduct3x4(projectionMatrix, point3D);
@@ -2353,6 +2316,11 @@ function changeSequence(sequence) {
     labelTool.currentSequence = sequence;
     labelTool.reset();
     labelTool.start();
+    // set height of panel slider
+
+    // set height of all svg elements
+
+    // set top of canvas3d element
 }
 
 function readPointCloud() {
@@ -2413,34 +2381,30 @@ function projectPoints(points3D, channelIdx) {
     let scalingFactor;
     let imagePanelHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
     if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-
         if (channelIdx === 1 || channelIdx === 4) {
             // back and front camera image have a width of 480 px
             scalingFactor = 960 / imagePanelHeight;
         } else {
             scalingFactor = 1440 / imagePanelHeight;
         }
-
         projectionMatrix = labelTool.camChannels[channelIdx].projectionMatrixLISAT;
     } else {
         scalingFactor = 900 / imagePanelHeight;
         projectionMatrix = labelTool.camChannels[channelIdx].projectionMatrixNuScenes;
     }
 
-    for (let point3DObj in points3D) {
-        if (points3D.hasOwnProperty(point3DObj)) {
-            let point3D = points3D[point3DObj];
-            let point2D = matrixProduct3x4(projectionMatrix, point3D);
-            if (point2D[2] > 0) {
-                // use only points that are in front of the camera
-                let windowX = point2D[0] / point2D[2];
-                let windowY = point2D[1] / point2D[2];
-                currentPoints3D.push(point3D);
-                // calculate distance
-                let distance = Math.sqrt(Math.pow(point3D[0], 2) + Math.pow(point3D[1], 2) + Math.pow(point3D[2], 2));
-                currentDistances.push(distance);
-                points2D.push({x: windowX / scalingFactor, y: windowY / scalingFactor});
-            }
+    for (let i = 0; i < points3D.length; i++) {
+        let point3D = points3D[i];
+        let point2D = matrixProduct3x4(projectionMatrix, point3D);
+        if (point2D[2] > 0) {
+            // use only points that are in front of the camera
+            let windowX = point2D[0] / point2D[2];
+            let windowY = point2D[1] / point2D[2];
+            currentPoints3D.push(point3D);
+            // calculate distance
+            let distance = Math.sqrt(Math.pow(point3D[0], 2) + Math.pow(point3D[1], 2) + Math.pow(point3D[2], 2));
+            currentDistances.push(distance);
+            points2D.push({x: windowX / scalingFactor, y: windowY / scalingFactor});
         }
     }
     return points2D;
@@ -2469,23 +2433,18 @@ function normalizeDistances() {
 
 function showProjectedPoints() {
     let points3D = readPointCloud();
-    for (let channelIdx in labelTool.camChannels) {
-        if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
-            let channelObj = labelTool.camChannels[channelIdx];
-            let channelIndexByName = getChannelIndexByName(channelObj.channel);
-            let paper = paperArray[channelIndexByName];
-            let points2D = projectPoints(points3D, channelIndexByName);
-            normalizeDistances();
-            for (let i = 0; i < points2D.length; i++) {
-                let pt2D = points2D[i];
-                let circle = paper.circle(pt2D.x, pt2D.y, 1);
-                let distance = currentDistances[i];
-                let color = colorMap[Math.floor(distance)];
-                circle.attr("stroke", color);
-                circle.attr("stroke-width", 1);
-                circleArray.push(circle);
-            }
-
+    for (let channelIdx = 0; channelIdx < labelTool.camChannels.length; channelIdx++) {
+        let paper = paperArrayAll[labelTool.currentFileIndex][channelIdx];
+        let points2D = projectPoints(points3D, channelIdx);
+        normalizeDistances();
+        for (let i = 0; i < points2D.length; i++) {
+            let pt2D = points2D[i];
+            let circle = paper.circle(pt2D.x, pt2D.y, 1);
+            let distance = currentDistances[i];
+            let color = colorMap[Math.floor(distance)];
+            circle.attr("stroke", color);
+            circle.attr("stroke-width", 1);
+            circleArray.push(circle);
         }
     }
 
@@ -2847,7 +2806,7 @@ function mouseUpLogic(ev) {
                 }
             }
             // move button to right
-            $("#left-btn").css("left", 780);
+            $("#left-btn").css("left", window.innerWidth / 3 - 70);
 
             let obj = annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex];
             showHelperViews(obj["x"], obj["y"], obj["z"], obj["width"], obj["height"], obj["depth"]);
@@ -3041,9 +3000,9 @@ function mouseUpLogic(ev) {
                 for (let i = 0; i < labelTool.camChannels.length; i++) {
                     let channel = labelTool.camChannels[i].channel;
                     // working for LISA_T
-                    // let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -yPos, -zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth, channel, addBboxParameters.rotationY);
+                    let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -yPos, -zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth, channel, addBboxParameters.rotationY);
                     // new transformation matrices
-                    let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -zPos - defaultDepth / 2 + labelTool.positionLidarLISAT[2], -yPos, addBboxParameters.width, addBboxParameters.depth, addBboxParameters.height, channel, addBboxParameters.rotationY);
+                    // let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -zPos - defaultDepth / 2 + labelTool.positionLidarLISAT[2], -yPos, addBboxParameters.width, addBboxParameters.depth, addBboxParameters.height, channel, addBboxParameters.rotationY);
                     addBboxParameters.channels[i].projectedPoints = projectedBoundingBox;
                 }
                 // calculate line segments
@@ -3051,7 +3010,8 @@ function mouseUpLogic(ev) {
                     let channelObj = addBboxParameters.channels[i];
                     if (channelObj.channel !== undefined && channelObj.channel !== '') {
                         if (addBboxParameters.channels[i].projectedPoints !== undefined && addBboxParameters.channels[i].projectedPoints.length === 8) {
-                            addBboxParameters.channels[i]["lines"] = calculateAndDrawLineSegments(channelObj, classesBoundingBox.targetName());
+                            let horizontal = addBboxParameters.width > addBboxParameters.height;
+                            addBboxParameters.channels[i]["lines"] = calculateAndDrawLineSegments(channelObj, classesBoundingBox.targetName(), horizontal);
                         }
                     }
                 }
@@ -3064,7 +3024,7 @@ function mouseUpLogic(ev) {
                 }
                 $("#tooltip-" + annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["class"].charAt(0) + annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["trackId"]).hide();
                 // move left button to right
-                $("#left-btn").css("left", 780);
+                $("#left-btn").css("left", window.innerWidth / 3 - 70);
                 showHelperViews(xPos, yPos, zPos, addBboxParameters["width"], addBboxParameters["height"], addBboxParameters["depth"]);
 
 
@@ -3682,6 +3642,7 @@ function init() {
         // 3D BB controls
         guiOptions.add(parameters, 'download').name("Download Annotations");
         guiOptions.add(parameters, 'download_video').name("Download Video");
+        guiOptions.add(parameters, 'undo').name("Undo");
         guiOptions.add(parameters, 'switch_view').name("Switch view");
         let showOriginalNuScenesLabelsCheckbox = guiOptions.add(parameters, 'show_nuscenes_labels').name('NuScenes Labels').listen();
         showOriginalNuScenesLabelsCheckbox.onChange(function (value) {
