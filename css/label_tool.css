@@ -152,7 +152,7 @@ body {
 }
 
 #canvas3d canvas {
-    /*width: 50% !important;*/
+    cursor: crosshair;
 }
 
 .label-tool-overlay {
