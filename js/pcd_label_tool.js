@@ -479,9 +479,9 @@ function loadPCDData() {
         let lexusGeometry = object.children[0].geometry;
         let lexusMesh = new THREE.Mesh(lexusGeometry, lexusMaterial);
 
-        lexusMesh.scale.set(0.065, 0.065, 0.065);
+        lexusMesh.scale.set(0.055, 0.055, 0.055);
         lexusMesh.rotation.set(0, 0, -Math.PI / 2);
-        lexusMesh.position.set(0, 0, -1.6);
+        lexusMesh.position.set(0, 0, -1.3);
 
         scene.add(lexusMesh)
     });

@@ -1956,14 +1956,23 @@ function calculateAndDrawLineSegments(channelObj, className, horizontal) {
     let pointTwo;
     let pointThree;
     if (horizontal) {
-        pointZero = channelObj.projectedPoints[3].clone();
-        pointOne = channelObj.projectedPoints[2].clone();
+        console.log("horizontal");
+        // pointZero = channelObj.projectedPoints[3].clone();
+        // pointOne = channelObj.projectedPoints[2].clone();
+        // pointTwo = channelObj.projectedPoints[6].clone();
+        // pointThree = channelObj.projectedPoints[7].clone();
+        pointZero = channelObj.projectedPoints[4].clone();
+        pointOne = channelObj.projectedPoints[5].clone();
         pointTwo = channelObj.projectedPoints[6].clone();
         pointThree = channelObj.projectedPoints[7].clone();
     } else {
+        // pointZero = channelObj.projectedPoints[6].clone();
+        // pointOne = channelObj.projectedPoints[2].clone();
+        // pointTwo = channelObj.projectedPoints[3].clone();
+        // pointThree = channelObj.projectedPoints[7].clone();
         pointZero = channelObj.projectedPoints[6].clone();
-        pointOne = channelObj.projectedPoints[2].clone();
-        pointTwo = channelObj.projectedPoints[3].clone();
+        pointOne = channelObj.projectedPoints[4].clone();
+        pointTwo = channelObj.projectedPoints[5].clone();
         pointThree = channelObj.projectedPoints[7].clone();
     }
 
