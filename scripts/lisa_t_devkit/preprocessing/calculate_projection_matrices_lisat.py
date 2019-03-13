@@ -1,5 +1,6 @@
-import numpy as np
 import math
+
+import numpy as np
 
 
 def print_matrix(mat):
@@ -45,10 +46,12 @@ intrinsic_matrix_all_cams = np.array([[851.809297551590, 0, 0],
 
 # unit in cm
 # front
-# NOTE: transformation given from cam_front to lidar that is why is must be inverted
-# vert, lat, long
+# NOTE: transformation given from cam_front to lidar that is why it must be inverted
+# lat, vert, long
 # translation_vector_lidar_to_cam_front = np.array([7.7151, -13.4829, -59.7093]).T
-translation_vector_lidar_to_cam_front = -np.array([3.40200000000000, -60.7137000000000, 10.4301000000000]).T
+# translation_vector_lidar_to_cam_front = np.array([-60.7137000000000,3.40200000000000, 10.4301000000000]).T
+translation_vector_lidar_to_cam_front = np.array([-3.402, -10.4301, -60.7137]).T
+# translation_vector_lidar_to_cam_front = np.array([0, 0, 0]).T
 
 rotation_matrix_lidar_to_cam_front = np.array([[0.9972, -0.0734, -0.0130],
                                                [-0.0094, 0.0500, -0.9987],
@@ -72,7 +75,9 @@ print_matrix(projection_matrix)
 
 # front right
 # transformation values given from car front to each specific cam
-translation_vector_lidar_to_cam_front_right = -np.array([9.8561, -2.6760, -68.6021]).T
+# lat vert long
+translation_vector_lidar_to_cam_front_right = np.array([9.8561, -2.6760, -68.6021]).T
+
 rotation_matrix_lidar_to_cam_front_right = np.array([[0.4899, -0.8708, 0.0407],
                                                      [-0.0484, -0.0739, -0.9961],
                                                      [0.8704, 0.4861, -0.0785]])
@@ -109,6 +114,10 @@ print_matrix(projection_matrix)
 
 # back right
 translation_vector_lidar_to_cam_back_right = np.array([-81.1507, -2.2588, -60.6184]).T
+# subtract front -3.40200000000000, -10.4301000000000, -60.7137000000000
+# 47.93776844 , -90.71772718 , -8.13149812 (lat, long, vert)
+# translation_vector_lidar_to_cam_back_right = np.array([81.1507, -2.2588, -60.6184]).T
+# translation_vector_lidar_to_cam_back_right = np.array([-120, 2.2588, 60.6184])
 rotation_matrix_lidar_to_cam_back_right = np.array([[-0.1932, -0.9775, -0.0856],
                                                     [-0.0900, 0.1046, -0.9904],
                                                     [0.9770, -0.1837, -0.1082]])
