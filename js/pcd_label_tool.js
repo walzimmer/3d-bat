@@ -720,7 +720,7 @@ function update2DBoundingBox(fileIndex, objectIndex) {
                 let rotationY = annotationObjects.contents[fileIndex][objectIndex]["rotationY"];
                 let channel = channelObj.channel;
                 // working for LISA_T
-                channelObj.projectedPoints = calculateProjectedBoundingBox(-x, -y, -z, width, height, depth, channel, rotationY);
+                channelObj.projectedPoints = calculateProjectedBoundingBox(x, y, z, width, height, depth, channel, rotationY);
                 // new transformation matrices
                 // channelObj.projectedPoints = calculateProjectedBoundingBox(-x, -z, -y, width, depth, height, channel, rotationY);
 
@@ -2131,39 +2131,29 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
     // TODO: calculate scaling factor dynamically (based on top position of slider)
     let imageScalingFactor;
     let dimensionScalingFactor;
-    let streetVerticalOffset = 0;
-    let longitudeOffset = 0;
     let imagePanelHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
     if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
-        streetVerticalOffset = 0;//[0,labelTool.positionLidarNuscenes[2],1]
         imageScalingFactor = 1600 / imagePanelHeight;//5
-        //imageScalingFactor = 5;
         dimensionScalingFactor = 1;
-        longitudeOffset = 0;
         xPos = xPos + labelTool.translationVectorLidarToCamFront[1];//lat
         yPos = yPos + labelTool.translationVectorLidarToCamFront[0];//long
         zPos = zPos + labelTool.translationVectorLidarToCamFront[2];//vertical
     } else {
-        if (channel === "CAM_FRONT") {
-            imageScalingFactor = 960 / imagePanelHeight;
+        if (channel === "CAM_FRONT" || channel === "CAM_BACK") {
+            imageScalingFactor = 960 / labelTool.imageSizes["LISA_T"]["minHeightNormal"];
             // TODO: height should be 1.4478m (1.6 m) but 0.6m is working
-            //streetVerticalOffset = 60.7137000000000 / 100;//height of lidar; scene1: 60.7137000000000 / 100; scene4: 0
-        } else if (channel === "CAM_BACK") {
-            imageScalingFactor = 960 / imagePanelHeight;//960
-            //streetVerticalOffset = -130 / 100;// scene1:-100 / 100; scene4: 0
         } else {
-            imageScalingFactor = 1440 / imagePanelHeight;//6
-            //streetVerticalOffset = 0;
+            imageScalingFactor = 1440 / labelTool.imageSizes["LISA_T"]["minHeightNormal"];
         }
-
-        if (channel === "CAM_BACK_LEFT" || channel === "CAM_BACK_RIGHT") {
-            //longitudeOffset = -100 / 100;// sequence1 -100/100, sequence4: 0
-        } else {
-            //longitudeOffset = 0;
-        }
-        dimensionScalingFactor = 100;// multiply by 100 to transform from m to cm
+        //dimensionScalingFactor = 100;// multiply by 100 to transform from m to cm
+        xPos = xPos * 100;
+        yPos = yPos * 100;
+        zPos = zPos * 100;
+        width = width * 100;
+        depth = depth * 100;
+        height = height * 100;
         // with new transformation matrix
-        //dimensionScalingFactor = 1;
+        dimensionScalingFactor = 1;
     }
     let cornerPoints = [];
 
@@ -2209,9 +2199,11 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
             // let tmp = point3D[1];
             // point3D[1] = point3D[2];
             // point3D[2] = tmp;
+            //---
             let pointRotated = rotatePoint(point3D[0], point3D[1], xPos, zPos, rotationY * 360 / (2 * Math.PI));
             point3D[0] = pointRotated.x;
             point3D[1] = pointRotated.y;
+            //---
             // let transformedPoint = matrixProduct4x4(transformationMatrixLidarToCam, point3D);//result will be 4x1
             // point2D = matrixProduct3x4(labelTool.camChannels[idx].intrinsicMatrixLISAT, transformedPoint);
 
@@ -2224,7 +2216,7 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, height, depth, c
 
 
         // lisat and old projection matrix: <
-        if (point2D[2] < 0) {
+        if (point2D[2] > 0) {
             // add only points that are in front of camera
             let windowX = point2D[0] / point2D[2];
             let windowY = point2D[1] / point2D[2];
@@ -3000,7 +2992,7 @@ function mouseUpLogic(ev) {
                 for (let i = 0; i < labelTool.camChannels.length; i++) {
                     let channel = labelTool.camChannels[i].channel;
                     // working for LISA_T
-                    let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -yPos, -zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth, channel, addBboxParameters.rotationY);
+                    let projectedBoundingBox = calculateProjectedBoundingBox(xPos, yPos, zPos, addBboxParameters.width, addBboxParameters.height, addBboxParameters.depth, channel, addBboxParameters.rotationY);
                     // new transformation matrices
                     // let projectedBoundingBox = calculateProjectedBoundingBox(-xPos, -zPos - defaultDepth / 2 + labelTool.positionLidarLISAT[2], -yPos, addBboxParameters.width, addBboxParameters.depth, addBboxParameters.height, channel, addBboxParameters.rotationY);
                     addBboxParameters.channels[i].projectedPoints = projectedBoundingBox;
@@ -3152,7 +3144,7 @@ function mouseDownLogic(ev) {
             let groundPlane = new THREE.Mesh(geometry, material);
             groundPlane.position.x = 0;
             groundPlane.position.y = 0;
-            groundPlane.position.z = -1;
+            groundPlane.position.z = 0;
             groundPlaneArray.push(groundPlane);
             let groundObject = ray.intersectObjects(groundPlaneArray);
             groundPointMouseDown = groundObject[0].point;
