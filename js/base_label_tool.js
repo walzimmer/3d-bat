@@ -13,7 +13,7 @@ let labelTool = {
     }),
     sequencesNuScenes: [],
     currentDataset: 'LISA_T',
-    currentSequence: '2018-07-02-005-frame-00001800-00002700',//[2018-05-23-001-frame-00042917-00043816_small, One]
+    currentSequence: '2018-05-23-001-frame-00042917-00043816',//[2018-05-23-001-frame-00042917-00043816_small, One]
     // temprorarily set to 100
     numFramesLISAT: 50,
     numFramesNuScenes: 120,//[3962,120]
@@ -1635,7 +1635,8 @@ function draw2DProjections(params) {
     for (let i = 0; i < params.channels.length; i++) {
         if (params.channels[i].channel !== undefined && params.channels[i].channel !== "") {
             // working for LISA_T
-            params.channels[i].projectedPoints = calculateProjectedBoundingBox(-params.x, -params.y, -params.z, params.width, params.height, params.depth, params.channels[i].channel, params.rotationY);
+            //params.channels[i].projectedPoints = calculateProjectedBoundingBox(-params.x, -params.y, -params.z, params.width, params.height, params.depth, params.channels[i].channel, params.rotationY);
+            params.channels[i].projectedPoints = calculateProjectedBoundingBox(params.x, params.y, params.z, params.width, params.height, params.depth, params.channels[i].channel, params.rotationY);
             // new transformation matrices
             // params.channels[i].projectedPoints = calculateProjectedBoundingBox(-params.x, -params.z, -params.y, params.width, params.depth, params.height, params.channels[i].channel, params.rotationY);
 
