@@ -551,18 +551,19 @@ let labelTool = {
                 params.original.y = -parseFloat(annotation.y);
                 params.original.z = parseFloat(annotation.z);
                 let tmpWidth = parseFloat(annotation.width);
-                let tmpHeight = parseFloat(annotation.height);
-                let tmpDepth = parseFloat(annotation.length);
-                if (tmpWidth !== 0.0 && tmpHeight !== 0.0 && tmpDepth !== 0.0) {
+                // swap length with height
+                let tmpLength = parseFloat(annotation.height);
+                let tmpHeight = parseFloat(annotation.length);
+                if (tmpWidth !== 0.0 && tmpLength !== 0.0 && tmpHeight !== 0.0) {
                     tmpWidth = Math.max(tmpWidth, 0.0001);
+                    tmpLength = Math.max(tmpLength, 0.0001);
                     tmpHeight = Math.max(tmpHeight, 0.0001);
-                    tmpDepth = Math.max(tmpDepth, 0.0001);
                     params.width = tmpWidth;
+                    params.length = tmpLength;
                     params.height = tmpHeight;
-                    params.depth = tmpDepth;
                     params.original.width = tmpWidth;
+                    params.original.length = tmpLength;
                     params.original.height = tmpHeight;
-                    params.original.depth = tmpDepth;
                 }
                 params.fileIndex = fileIndex;
                 // project 3D position into 2D camera image
@@ -609,21 +610,22 @@ let labelTool = {
                     params.original.y = parseFloat(annotation.y);
                     params.original.z = parseFloat(annotation.z);
                     let tmpWidth = parseFloat(annotation.width);
-                    let tmpHeight = parseFloat(annotation.height);
-                    let tmpDepth = parseFloat(annotation.length);
-                    if (tmpWidth > 0.3 && tmpHeight > 0.3 && tmpDepth > 0.3) {
+                    // swap length with height
+                    let tmpLength = parseFloat(annotation.height);
+                    let tmpHeight = parseFloat(annotation.length);
+                    if (tmpWidth > 0.3 && tmpLength > 0.3 && tmpHeight > 0.3) {
                         tmpWidth = Math.max(tmpWidth, 0.0001);
+                        tmpLength = Math.max(tmpLength, 0.0001);
                         tmpHeight = Math.max(tmpHeight, 0.0001);
-                        tmpDepth = Math.max(tmpDepth, 0.0001);
                         params.delta_x = 0;
                         params.delta_y = 0;
                         params.delta_z = 0;
                         params.width = tmpWidth;
+                        params.length = tmpLength;
                         params.height = tmpHeight;
-                        params.depth = tmpDepth;
                         params.original.width = tmpWidth;
+                        params.original.length = tmpLength;
                         params.original.height = tmpHeight;
-                        params.original.depth = tmpDepth;
                     }
                     params.fileIndex = Number(i);
                     // add new entry to contents array
@@ -681,9 +683,10 @@ let labelTool = {
                     let annotation = {
                         class: annotationObj["class"],
                         // TODO: store information of 3D objects also in annotationObjects.contents instead of cubeArray
-                        height: this.cubeArray[j][i].scale.y,
                         width: this.cubeArray[j][i].scale.x,
-                        length: this.cubeArray[j][i].scale.z, // depth
+                        // swap length with height
+                        length: this.cubeArray[j][i].scale.z,
+                        height: this.cubeArray[j][i].scale.y,
                         x: this.cubeArray[j][i].position.x,
                         y: this.cubeArray[j][i].position.y,
                         z: this.cubeArray[j][i].position.z,
@@ -1317,8 +1320,8 @@ let labelTool = {
                 z: annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["z"],
                 rotationY: annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["rotationY"],
                 width: annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["width"],
+                length: annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["length"],
                 height: annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["height"],
-                depth: annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["depth"],
                 newFileIndex: newFileIndex
             };
         }
@@ -1352,8 +1355,8 @@ let labelTool = {
                 y: annotationObj["y"],
                 z: annotationObj["z"],
                 width: annotationObj["width"],
+                length: annotationObj["length"],
                 height: annotationObj["height"],
-                depth: annotationObj["depth"],
                 rotationY: parseFloat(annotationObj["rotationY"]),
                 trackId: annotationObj["trackId"],
                 copyLabelToNextFrame: copyFlag
@@ -1372,8 +1375,8 @@ let labelTool = {
             annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["z"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["z"];
             annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["rotationY"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["rotationY"];
             annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["size"]["width"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["width"];
+            annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["size"]["length"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["length"];
             annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["size"]["height"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["height"];
-            annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["size"]["depth"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["depth"];
 
             let objectIndexNextFrame = getObjectIndexByTrackIdAndClass(annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["trackId"], annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["class"], newFileIndex);
             annotationObjects.__selectionIndexNextFrame = objectIndexNextFrame;
@@ -1382,8 +1385,8 @@ let labelTool = {
             annotationObjects.contents[newFileIndex][objectIndexNextFrame]["interpolationEnd"]["position"]["z"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["z"];
             annotationObjects.contents[newFileIndex][objectIndexNextFrame]["interpolationEnd"]["position"]["rotationY"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["rotationY"];
             annotationObjects.contents[newFileIndex][objectIndexNextFrame]["interpolationEnd"]["size"]["width"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["width"];
+            annotationObjects.contents[newFileIndex][objectIndexNextFrame]["interpolationEnd"]["size"]["length"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["length"];
             annotationObjects.contents[newFileIndex][objectIndexNextFrame]["interpolationEnd"]["size"]["height"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["height"];
-            annotationObjects.contents[newFileIndex][objectIndexNextFrame]["interpolationEnd"]["size"]["depth"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["depth"];
 
             // add start frame number
             let interpolationStartFileIndex = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationStartFileIndex"];
@@ -1488,17 +1491,17 @@ let labelTool = {
                     obj["z"] = obj["original"]["z"];
                     cubeObj["position"]["z"] = obj["original"]["z"];
                 }
-                if (obj["original"]["length"] !== undefined) {
-                    obj["length"] = obj["original"]["length"];
-                    cubeObj["scale"]["y"] = obj["original"]["length"];
-                }
                 if (obj["original"]["width"] !== undefined) {
                     obj["width"] = obj["original"]["width"];
                     cubeObj["scale"]["x"] = obj["original"]["width"];
                 }
-                if (obj["original"]["depth"] !== undefined) {
-                    obj["depth"] = obj["original"]["depth"];
-                    cubeObj["scale"]["z"] = obj["original"]["depth"];
+                if (obj["original"]["length"] !== undefined) {
+                    obj["length"] = obj["original"]["length"];
+                    cubeObj["scale"]["y"] = obj["original"]["length"];
+                }
+                if (obj["original"]["height"] !== undefined) {
+                    obj["height"] = obj["original"]["height"];
+                    cubeObj["scale"]["z"] = obj["original"]["height"];
                 }
                 if (obj["original"]["rotationY"] !== undefined) {
                     obj["rotationY"] = obj["original"]["rotationY"];
@@ -1577,8 +1580,8 @@ function setObjectParameters(annotationObj) {
         y: annotationObj["y"],
         z: annotationObj["z"],
         width: annotationObj["width"],
+        length: annotationObj["length"],
         height: annotationObj["height"],
-        depth: annotationObj["depth"],
         rotationY: parseFloat(annotationObj["rotationY"]),
         channels: [{
             rect: [],
@@ -1621,10 +1624,10 @@ function setObjectParameters(annotationObj) {
     return params;
 }
 
-function getIndexByDimension(width, height, depth) {
+function getIndexByDimension(width, length, height) {
     for (let obj in annotationObjects.contents[labelTool.currentFileIndex]) {
         let annotation = annotationObjects.contents[labelTool.currentFileIndex][obj];
-        if (annotation.width === width && annotation.height === height && annotation.depth === depth) {
+        if (annotation.width === width && annotation.length === length && annotation.height === height) {
             return annotationObjects.contents[labelTool.currentFileIndex].indexOf(annotation);
         }
     }
@@ -1634,16 +1637,11 @@ function getIndexByDimension(width, height, depth) {
 function draw2DProjections(params) {
     for (let i = 0; i < params.channels.length; i++) {
         if (params.channels[i].channel !== undefined && params.channels[i].channel !== "") {
-            // working for LISA_T
-            //params.channels[i].projectedPoints = calculateProjectedBoundingBox(-params.x, -params.y, -params.z, params.width, params.height, params.depth, params.channels[i].channel, params.rotationY);
-            params.channels[i].projectedPoints = calculateProjectedBoundingBox(params.x, params.y, params.z, params.width, params.height, params.depth, params.channels[i].channel, params.rotationY);
-            // new transformation matrices
-            // params.channels[i].projectedPoints = calculateProjectedBoundingBox(-params.x, -params.z, -params.y, params.width, params.depth, params.height, params.channels[i].channel, params.rotationY);
-
+            params.channels[i].projectedPoints = calculateProjectedBoundingBox(params.x, params.y, params.z, params.width, params.length, params.height, params.channels[i].channel, params.rotationY);
             // calculate line segments
             let channelObj = params.channels[i];
             if (params.channels[i].projectedPoints !== undefined && params.channels[i].projectedPoints.length === 8) {
-                let horizontal = params.width > params.height;
+                let horizontal = params.width > params.length;
                 params.channels[i].lines = calculateAndDrawLineSegments(channelObj, params.class, horizontal);
             }
         }
@@ -1687,16 +1685,16 @@ function getDefaultObject() {
         delta_y: 0,
         delta_z: 0,
         width: -1,
+        length: -1,
         height: -1,
-        depth: -1,
         rotationY: -1,
         original: {
             x: -1,
             y: -1,
             z: -1,
             width: -1,
+            length: -1,
             height: -1,
-            depth: -1,
             rotationY: -1
         },
         interpolationStartFileIndex: -1,
@@ -1709,8 +1707,8 @@ function getDefaultObject() {
             },
             size: {
                 width: -1,
-                height: -1,
-                depth: -1
+                length: -1,
+                height: -1
             }
         },
         interpolationEnd: {
@@ -1722,8 +1720,8 @@ function getDefaultObject() {
             },
             size: {
                 width: -1,
-                height: -1,
-                depth: -1
+                length: -1,
+                height: -1
             }
         },
         trackId: -1,
@@ -1910,6 +1908,7 @@ function calculateAndDrawLineSegments(channelObj, className, horizontal) {
     }
 
     let imageHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
+    console.log(imageHeight);
     let imageWidth;
     if (labelTool.currentDataset === labelTool.datasets.LISA_T && (channel === "CAM_FRONT" || channel === "CAM_BACK")) {
         imageWidth = imageHeight * labelTool.imageAspectRatioFrontBackLISAT;
@@ -1918,30 +1917,10 @@ function calculateAndDrawLineSegments(channelObj, className, horizontal) {
     }
 
     // bottom four lines
-    if ((channelObj.projectedPoints[0].x < 0 || channelObj.projectedPoints[0].x > imageWidth) && (channelObj.projectedPoints[0].y < 0 || channelObj.projectedPoints[0].y > imageHeight)
-        && (channelObj.projectedPoints[1].x < 0 || channelObj.projectedPoints[1].x > imageWidth) && (channelObj.projectedPoints[1].y < 0 || channelObj.projectedPoints[1].y > imageHeight)) {
-        // continue with next line
-    } else {
-        lineArray.push(getLine(channelIdx, channelObj.projectedPoints[0], channelObj.projectedPoints[1], color));
-    }
-    if ((channelObj.projectedPoints[1].x < 0 || channelObj.projectedPoints[1].x > imageWidth) && (channelObj.projectedPoints[1].y < 0 || channelObj.projectedPoints[1].y > imageHeight)
-        && (channelObj.projectedPoints[2].x < 0 || channelObj.projectedPoints[2].x > imageWidth) && (channelObj.projectedPoints[2].y < 0 || channelObj.projectedPoints[2].y > imageHeight)) {
-        // continue with next line
-    } else {
-        lineArray.push(getLine(channelIdx, channelObj.projectedPoints[1], channelObj.projectedPoints[2], color));
-    }
-    if ((channelObj.projectedPoints[2].x < 0 || channelObj.projectedPoints[2].x > imageWidth) && (channelObj.projectedPoints[2].y < 0 || channelObj.projectedPoints[2].y > imageHeight)
-        && (channelObj.projectedPoints[3].x < 0 || channelObj.projectedPoints[3].x > imageWidth) && (channelObj.projectedPoints[3].y < 0 || channelObj.projectedPoints[3].y > imageHeight)) {
-        // continue with next line
-    } else {
-        lineArray.push(getLine(channelIdx, channelObj.projectedPoints[2], channelObj.projectedPoints[3], color));
-    }
-    if ((channelObj.projectedPoints[3].x < 0 || channelObj.projectedPoints[3].x > imageWidth) && (channelObj.projectedPoints[3].y < 0 || channelObj.projectedPoints[3].y > imageHeight)
-        && (channelObj.projectedPoints[0].x < 0 || channelObj.projectedPoints[0].x > imageWidth) && (channelObj.projectedPoints[0].y < 0 || channelObj.projectedPoints[0].y > imageHeight)) {
-        // continue with next line
-    } else {
-        lineArray.push(getLine(channelIdx, channelObj.projectedPoints[3], channelObj.projectedPoints[0], color));
-    }
+    lineArray.push(drawLine(channelIdx, channelObj.projectedPoints[0], channelObj.projectedPoints[1], color));
+    lineArray.push(drawLine(channelIdx, channelObj.projectedPoints[1], channelObj.projectedPoints[2], color));
+    lineArray.push(drawLine(channelIdx, channelObj.projectedPoints[2], channelObj.projectedPoints[3], color));
+    lineArray.push(drawLine(channelIdx, channelObj.projectedPoints[3], channelObj.projectedPoints[0], color));
 
 
     // draw line for orientation
@@ -1984,62 +1963,21 @@ function calculateAndDrawLineSegments(channelObj, className, horizontal) {
     let helperPoint = pointOne.add(pointTwo.sub(pointOne).multiplyScalar(0.5));
     let helperPointCloned = helperPoint.clone();
     let endPoint = startPointCloned.add(helperPointCloned.sub(startPointCloned).multiplyScalar(0.2));
-    lineArray.push(getLine(channelIdx, startPoint, endPoint, color));
+    lineArray.push(drawLine(channelIdx, startPoint, endPoint, color));
 
 
     // color = '#00ff00';
     // top four lines
-    if ((channelObj.projectedPoints[4].x < 0 || channelObj.projectedPoints[4].x > 320) && (channelObj.projectedPoints[4].y < 0 || channelObj.projectedPoints[4].y > 240)
-        && (channelObj.projectedPoints[5].x < 0 || channelObj.projectedPoints[5].x > 320) && (channelObj.projectedPoints[5].y < 0 || channelObj.projectedPoints[5].y > 240)) {
-        // continue with next line
-    } else {
-        lineArray.push(getLine(channelIdx, channelObj.projectedPoints[4], channelObj.projectedPoints[5], color));
-    }
-
-    if ((channelObj.projectedPoints[5].x < 0 || channelObj.projectedPoints[5].x > 320) && (channelObj.projectedPoints[5].y < 0 || channelObj.projectedPoints[5].y > 240)
-        && (channelObj.projectedPoints[6].x < 0 || channelObj.projectedPoints[6].x > 320) && (channelObj.projectedPoints[6].y < 0 || channelObj.projectedPoints[6].y > 240)) {
-        // continue with next line
-    } else {
-        lineArray.push(getLine(channelIdx, channelObj.projectedPoints[5], channelObj.projectedPoints[6], color));
-    }
-    if ((channelObj.projectedPoints[6].x < 0 || channelObj.projectedPoints[6].x > 320) && (channelObj.projectedPoints[6].y < 0 || channelObj.projectedPoints[6].y > 240)
-        && (channelObj.projectedPoints[7].x < 0 || channelObj.projectedPoints[7].x > 320) && (channelObj.projectedPoints[7].y < 0 || channelObj.projectedPoints[7].y > 240)) {
-        // continue with next line
-    } else {
-        lineArray.push(getLine(channelIdx, channelObj.projectedPoints[6], channelObj.projectedPoints[7], color));
-    }
-    if ((channelObj.projectedPoints[7].x < 0 || channelObj.projectedPoints[7].x > 320) && (channelObj.projectedPoints[7].y < 0 || channelObj.projectedPoints[7].y > 240)
-        && (channelObj.projectedPoints[4].x < 0 || channelObj.projectedPoints[4].x > 320) && (channelObj.projectedPoints[4].y < 0 || channelObj.projectedPoints[4].y > 240)) {
-        // continue with next line
-    } else {
-        lineArray.push(getLine(channelIdx, channelObj.projectedPoints[7], channelObj.projectedPoints[4], color));
-    }
+    lineArray.push(drawLine(channelIdx, channelObj.projectedPoints[4], channelObj.projectedPoints[5], color));
+    lineArray.push(drawLine(channelIdx, channelObj.projectedPoints[5], channelObj.projectedPoints[6], color));
+    lineArray.push(drawLine(channelIdx, channelObj.projectedPoints[6], channelObj.projectedPoints[7], color));
+    lineArray.push(drawLine(channelIdx, channelObj.projectedPoints[7], channelObj.projectedPoints[4], color));
 
     // vertical lines
-    if ((channelObj.projectedPoints[0].x < 0 || channelObj.projectedPoints[0].x > 320) && (channelObj.projectedPoints[0].y < 0 || channelObj.projectedPoints[0].y > 240)
-        && (channelObj.projectedPoints[4].x < 0 || channelObj.projectedPoints[4].x > 320) && (channelObj.projectedPoints[4].y < 0 || channelObj.projectedPoints[4].y > 240)) {
-        // continue with next line
-    } else {
-        lineArray.push(getLine(channelIdx, channelObj.projectedPoints[0], channelObj.projectedPoints[4], color));
-    }
-    if ((channelObj.projectedPoints[1].x < 0 || channelObj.projectedPoints[1].x > 320) && (channelObj.projectedPoints[1].y < 0 || channelObj.projectedPoints[1].y > 240)
-        && (channelObj.projectedPoints[5].x < 0 || channelObj.projectedPoints[5].x > 320) && (channelObj.projectedPoints[5].y < 0 || channelObj.projectedPoints[5].y > 240)) {
-        // continue with next line
-    } else {
-        lineArray.push(getLine(channelIdx, channelObj.projectedPoints[1], channelObj.projectedPoints[5], color));
-    }
-    if ((channelObj.projectedPoints[2].x < 0 || channelObj.projectedPoints[2].x > 320) && (channelObj.projectedPoints[2].y < 0 || channelObj.projectedPoints[2].y > 240)
-        && (channelObj.projectedPoints[6].x < 0 || channelObj.projectedPoints[6].x > 320) && (channelObj.projectedPoints[6].y < 0 || channelObj.projectedPoints[6].y > 240)) {
-        // continue with next line
-    } else {
-        lineArray.push(getLine(channelIdx, channelObj.projectedPoints[2], channelObj.projectedPoints[6], color));
-    }
-    if ((channelObj.projectedPoints[3].x < 0 || channelObj.projectedPoints[3].x > 320) && (channelObj.projectedPoints[3].y < 0 || channelObj.projectedPoints[3].y > 240)
-        && (channelObj.projectedPoints[7].x < 0 || channelObj.projectedPoints[7].x > 320) && (channelObj.projectedPoints[7].y < 0 || channelObj.projectedPoints[7].y > 240)) {
-        // continue with next line
-    } else {
-        lineArray.push(getLine(channelIdx, channelObj.projectedPoints[3], channelObj.projectedPoints[7], color));
-    }
+    lineArray.push(drawLine(channelIdx, channelObj.projectedPoints[0], channelObj.projectedPoints[4], color));
+    lineArray.push(drawLine(channelIdx, channelObj.projectedPoints[1], channelObj.projectedPoints[5], color));
+    lineArray.push(drawLine(channelIdx, channelObj.projectedPoints[2], channelObj.projectedPoints[6], color));
+    lineArray.push(drawLine(channelIdx, channelObj.projectedPoints[3], channelObj.projectedPoints[7], color));
 
     return lineArray;
 }
