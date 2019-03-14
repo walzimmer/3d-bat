@@ -196,7 +196,7 @@ let annotationObjects = {
     __insertIndex: 0
 };
 
-function getLine(channelIdx, pointStart, pointEnd, color) {
+function drawLine(channelIdx, pointStart, pointEnd, color) {
     if (pointStart !== undefined && pointEnd !== undefined && isFinite(pointStart.x) && isFinite(pointStart.y) && isFinite(pointEnd.x) && isFinite(pointEnd.y)) {
         let line = paperArrayAll[labelTool.currentFileIndex][channelIdx].path(["M", pointStart.x, pointStart.y, "L", pointEnd.x, pointEnd.y]);
         line.attr("stroke", color);
