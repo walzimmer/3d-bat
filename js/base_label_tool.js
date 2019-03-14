@@ -1642,7 +1642,7 @@ function draw2DProjections(params) {
             let channelObj = params.channels[i];
             if (params.channels[i].projectedPoints !== undefined && params.channels[i].projectedPoints.length === 8) {
                 let horizontal = params.width > params.length;
-                params.channels[i].lines = calculateAndDrawLineSegments(channelObj, params.class, horizontal);
+                params.channels[i].lines = calculateAndDrawLineSegments(channelObj, params.class, horizontal, false);
             }
         }
     }
@@ -1892,7 +1892,7 @@ $("#next-frame-button").keyup(function (e) {
     }
 });
 
-function calculateAndDrawLineSegments(channelObj, className, horizontal) {
+function calculateAndDrawLineSegments(channelObj, className, horizontal, selected) {
     let channel = channelObj.channel;
     let lineArray = [];
     let channelIdx = getChannelIndexByName(channel);
@@ -1900,12 +1900,19 @@ function calculateAndDrawLineSegments(channelObj, className, horizontal) {
     // let color = '#ffff00';
     // uncomment line to use yellow to color bottom 4 lines
     let color;
-    if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
-        let classIdx = classesBoundingBox.classNameArray.indexOf(className);
-        color = classesBoundingBox.colorArray[classIdx];
+    if (selected === true) {
+        color = "#ff0000";
     } else {
-        color = classesBoundingBox[className].color;
+        if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
+            let classIdx = classesBoundingBox.classNameArray.indexOf(className);
+            color = classesBoundingBox.colorArray[classIdx];
+        } else {
+            color = classesBoundingBox[className].color;
+        }
     }
+
+    // color objects that are selected in red
+
 
     let imageHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
     console.log(imageHeight);
