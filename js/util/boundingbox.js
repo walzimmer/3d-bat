@@ -136,6 +136,9 @@ let annotationObjects = {
             }
         }
         this.localOnChangeClass["PCD"](selectedObjectIndex, newClassLabel);
+        let classPickerElem = $('#class-picker ul li');
+        classPickerElem.css('background-color', '#353535');
+        $(classPickerElem[classesBoundingBox[newClassLabel].index]).css('background-color', '#525252');
     },
     getSelectedBoundingBox: function () {
         if (this.__selectionIndexCurrentFrame === -1 || this.contents[labelTool.currentFileIndex][this.__selectionIndexCurrentFrame] === undefined) {
