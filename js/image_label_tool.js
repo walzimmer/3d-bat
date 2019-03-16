@@ -137,18 +137,11 @@ labelTool.onInitialize("CAM_BACK_LEFT", function () {
 function loadCameraImages(camChannel, fileIndex) {
     let imgPath = "input/" + labelTool.currentDataset + "/" + labelTool.currentSequence + "/images/" + camChannel + "/" + labelTool.fileNames[fileIndex] + ".jpg";
     let channelIdx = getChannelIndexByName(camChannel);
-    //-----------------------------------
     let paper = paperArrayAll[fileIndex][channelIdx];
-    //-----------------------------------
-    // let paper = paperArray[channelIdx];
-    //-----------------------------------
     imageArray[channelIdx] = paper.image(imgPath, 0, 0, "100%", "100%");
 }
 
 function changeClass(bbIndex, newClass) {
-    // let notificationElem = $("#label-tool-log");
-    // notificationElem.val("4. Repeat steps 1-3, download annotations and continue with next frame");
-    // notificationElem.css("color", "#969696");
     let annotation = annotationObjects.contents[labelTool.currentFileIndex][bbIndex];
     let color = classesBoundingBox[newClass].color;
     // update color in all 6 channels
@@ -162,23 +155,6 @@ function changeClass(bbIndex, newClass) {
             }
         }
     }
-
-    // let textBox;
-    // if (annotation["channels"][0]["textBox"] !== undefined) {
-    //     textBox = annotation["channels"][0]["textBox"];
-    // } else if (annotation["channels"][0]["textBox"] !== undefined) {
-    //     textBox = annotation["channels"][1]["textBox"];
-    // } else {
-    //     // no textbox
-    //     return;
-    // }
-    // textBox["text"].attr({text: bboxString(bbIndex, newClass)});
-    // let box = textBox["text"].getBBox();
-    // textBox["box"].attr({
-    //     fill: color,
-    //     stroke: "none",
-    //     width: box.width
-    // });
 }
 
 annotationObjects.onChangeClass("CAM_FRONT_LEFT", function (bbIndex, newClass) {
