@@ -4,6 +4,8 @@ let canvasFrontView;
 let views;
 let grid;
 
+let operationStack= [];
+
 let orthographicCamera;
 let perspectiveCamera;
 let currentCamera;
@@ -235,8 +237,59 @@ function interpolate() {
     labelTool.logger.success("Interpolation successfully!");
 }
 
+/**
+ * The following operations can be undone:
+ *  1. class label
+ *  2. track ID
+ *  3. delete object -> create it again
+ *  4. position
+ *  5. scale
+ *  6. rotation
+ *  7. reset (reset to previous position)
+ *  8. add new object -> delete object
+ *  9. interpolation (delete all non human annotations)
+ *  10. change frame from 1 to 2 (go to prev. frame and remove all objects from frame 2 that were copied from frame 1)
+ */
 function undoOperation() {
+    // get the last operation from the stack which is implemented as a map with key value pairs
+    // the value is represented as a json object
+    if (operationStack.length === 0) {
+        return;
+    }
+    let lastOperation = operationStack[operationStack.length - 1];
+    let lastOperationType = lastOperation["type"];
+    switch (lastOperationType) {
+        case "classLabel":
+            let objectIndex = Number(lastOperation["objectIndex"]);
+            let previousClassLabel = lastOperation["previousClass"];
+            annotationObjects.changeClass(objectIndex,previousClassLabel);
+            // select previous class in class picker
+            break;
+        case "trackId":
+            break;
+        case "delete":
+            break;
+        case "position":
+            break;
+        case "scale":
+            break;
+        case "rotation":
+            break;
+        case "reset":
+            break;
+        case "add":
+            break;
+        case "interpolation":
+            break;
+        case "changeFrame":
+            break;
+    }
+    // remove operation from stack
+    operationStack.splice(operationStack.length-1,1);
 
+    if (operationStack.length === 0) {
+        // TODO: disable undo button
+    }
 }
 
 let parameters = {
