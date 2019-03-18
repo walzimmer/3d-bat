@@ -4,7 +4,7 @@ let canvasFrontView;
 let views;
 let grid;
 
-let operationStack= [];
+let operationStack = [];
 
 let orthographicCamera;
 let perspectiveCamera;
@@ -65,10 +65,11 @@ let guiAnnotationClasses = new dat.GUI({autoPlace: true, width: 90, resizable: f
 let guiBoundingBoxAnnotationMap;
 let guiOptions = new dat.GUI({autoPlace: true, width: 350, resizable: false});
 let guiOptionsOpened = true;
-let numGUIOptions = 13;
+let numGUIOptions = 18;
 let showProjectedPointsFlag = false;
 let showGridFlag = false;
 let filterGround = false;
+let hideOtherAnnotations = false;
 let interpolationMode = false;
 let showDetections = false;
 let folderBoundingBox3DArray = [];
@@ -262,7 +263,7 @@ function undoOperation() {
         case "classLabel":
             let objectIndex = Number(lastOperation["objectIndex"]);
             let previousClassLabel = lastOperation["previousClass"];
-            annotationObjects.changeClass(objectIndex,previousClassLabel);
+            annotationObjects.changeClass(objectIndex, previousClassLabel);
             // select previous class in class picker
             break;
         case "trackId":
@@ -285,7 +286,7 @@ function undoOperation() {
             break;
     }
     // remove operation from stack
-    operationStack.splice(operationStack.length-1,1);
+    operationStack.splice(operationStack.length - 1, 1);
 
     if (operationStack.length === 0) {
         // TODO: disable undo button
@@ -313,6 +314,7 @@ let parameters = {
     show_field_of_view: false,
     show_grid: false,
     filter_ground: false,
+    hide_other_annotations: hideOtherAnnotations,
     select_all_copy_label_to_next_frame: function () {
         for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
             annotationObjects.contents[labelTool.currentFileIndex][i]["copyLabelToNextFrame"] = true;
@@ -3768,6 +3770,54 @@ function init() {
                 addObject(pointCloudScanList[labelTool.currentFileIndex], "pointcloud-scan-" + labelTool.currentFileIndex);
             }
         });
+
+        let hideOtherAnnotationsCheckbox = guiOptions.add(parameters, 'hide_other_annotations').name('Hide other annotations').listen();
+        hideOtherAnnotationsCheckbox.onChange(function (value) {
+            hideOtherAnnotations = value;
+            let selectionIndex = annotationObjects.getSelectionIndex();
+            if (hideOtherAnnotations === true) {
+                for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
+                    // remove 3D labels
+                    let mesh = labelTool.cubeArray[labelTool.currentFileIndex][i];
+                    mesh.material.opacity = 0;
+                    // remove all 2D labels
+                    for (let j = 0; j < annotationObjects.contents[labelTool.currentFileIndex][i].channels.length; j++) {
+                        let channelObj = annotationObjects.contents[labelTool.currentFileIndex][i].channels[j];
+                        // remove drawn lines of all 6 channels
+                        for (let lineObj in channelObj.lines) {
+                            if (channelObj.lines.hasOwnProperty(lineObj)) {
+                                let line = channelObj.lines[lineObj];
+                                if (line !== undefined) {
+                                    line.remove();
+                                }
+                            }
+                        }
+                    }
+                }
+                if (selectionIndex !== -1) {
+                    // draw selected object in 2D and 3D
+                    update2DBoundingBox(labelTool.currentFileIndex, selectionIndex, true);
+                }
+            } else {
+                for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
+                    // show 3D labels
+                    let mesh = labelTool.cubeArray[labelTool.currentFileIndex][i];
+                    mesh.material.opacity = 0.9;
+                    // show 2D labels
+                    if (selectionIndex === i) {
+                        // draw selected object in 2D and 3D
+                        update2DBoundingBox(labelTool.currentFileIndex, selectionIndex, true);
+                    } else {
+                        if (selectionIndex !== -1) {
+                            update2DBoundingBox(labelTool.currentFileIndex, i, false);
+                        }
+                    }
+
+                }
+            }
+
+        });
+
         guiOptions.add(parameters, 'select_all_copy_label_to_next_frame').name("Select all 'Copy label to next frame'");
         guiOptions.add(parameters, 'unselect_all_copy_label_to_next_frame').name("Unselect all 'Copy label to next frame'");
 
