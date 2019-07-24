@@ -29,8 +29,6 @@ for idx, filename in enumerate(sorted(os.listdir(input_path))):
         print('zmax: ', str(max(pc.points[2])))
 
         for v in pc.points.transpose():
-            # TODO: center data
-            # TODO: find out how to extract intensity values from binary data
             # temporary set to random number
             i = randint(0, 256)
             f.write("{v[0]:.8f} {v[1]:.8f} {v[2]:.8f} {i}\n".format(v=v, i=i))

@@ -65,7 +65,7 @@ let guiAnnotationClasses = new dat.GUI({autoPlace: true, width: 90, resizable: f
 let guiBoundingBoxAnnotationMap;
 let guiOptions = new dat.GUI({autoPlace: true, width: 350, resizable: false});
 let guiOptionsOpened = true;
-let numGUIOptions = 18;
+let numGUIOptions = 17;
 let showProjectedPointsFlag = false;
 let showGridFlag = false;
 let filterGround = false;
@@ -307,8 +307,8 @@ let parameters = {
     switch_view: function () {
         switchView();
     },
-    datasets: labelTool.datasets.LISA_T,
-    sequences: labelTool.sequencesLISAT.date_2018_05_23_001_frame_00042917_00043816_small,
+    datasets: labelTool.datasets.NuScenes,
+    sequences: "ONE",
     show_projected_points: false,
     show_nuscenes_labels: labelTool.showOriginalNuScenesLabels,
     show_field_of_view: false,
@@ -491,7 +491,7 @@ function loadPCDData() {
     let pointCloudWithoutGroundURL;
     pointCloudWithoutGroundURL = 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/' + 'pointclouds_without_ground/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
 
-    // load all 900 point cloud scans in the beginning
+    // load all point cloud scans in the beginning
     if (labelTool.pointCloudLoaded === false) {
         for (let i = 0; i < labelTool.numFrames; i++) {
             pointCloudFullURL = 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/' + 'pointclouds/' + labelTool.fileNames[i] + '.pcd';
@@ -536,7 +536,7 @@ function loadPCDData() {
 
         lexusMesh.scale.set(0.065, 0.065, 0.065);
         lexusMesh.rotation.set(0, 0, -Math.PI / 2);
-        lexusMesh.position.set(0, 0, -labelTool.positionLidarLISAT[2]);
+        lexusMesh.position.set(0, 0, -labelTool.positionLidarNuscenes[2]);
 
         scene.add(lexusMesh)
     });
@@ -643,15 +643,13 @@ function download() {
     $($('#bounding-box-3d-menu ul li')[0]).children().first().attr('href', 'data:application/octet-stream;base64,' + outputString).attr('download', labelTool.currentDataset + "_" + labelTool.currentSequence + '_annotations.txt');
 }
 
+// TODO: test
 function downloadVideo() {
-    if (labelTool.currentDataset === labelTool.datasets.LISA_T && (labelTool.currentSequence === labelTool.sequencesLISAT.date_2018_07_02_005_frame_00000000_00000900 || labelTool.currentSequence === labelTool.sequencesLISAT.date_2018_07_02_005_frame_00000900_00001800 || labelTool.currentSequence === labelTool.sequencesLISAT.date_2018_07_02_005_frame_00001800_00002700)) {
+    if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
         labelTool.takeCanvasScreenshot = true;
         labelTool.changeFrame(0);
         initScreenshotTimer();
-    } else {
-        labelTool.logger.error("Detections are only available for the LISA sequences: date_2018_07_02_005_frame_00000000_00000900, date_2018_07_02_005_frame_00000900_00001800 and date_2018_07_02_005_frame_00001800_00002700");
     }
-
 }
 
 function hideMasterView() {
@@ -2193,34 +2191,10 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, length, height, 
         xPos = xPos + labelTool.translationVectorLidarToCamFront[1];//lat
         yPos = yPos + labelTool.translationVectorLidarToCamFront[0];//long
         zPos = zPos + labelTool.translationVectorLidarToCamFront[2];//vertical
-    } else {
-        if (channel === "CAM_FRONT" || channel === "CAM_BACK") {
-            imageScalingFactor = 960 / labelTool.imageSizes["LISA_T"]["minHeightNormal"];
-        } else {
-            imageScalingFactor = 1440 / labelTool.imageSizes["LISA_T"]["minHeightNormal"];
-        }
-        //dimensionScalingFactor = 100;// multiply by 100 to transform from m to cm
-        xPos = xPos * 100;
-        yPos = yPos * 100;
-        zPos = zPos * 100;
-        width = width * 100;
-        length = length * 100;
-        height = height * 100;
-        // with new transformation matrix
     }
     let cornerPoints = [];
 
-    if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-        // working
-        cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos - length / 2, zPos + height / 2));
-        cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos - length / 2, zPos + height / 2));
-        cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos + length / 2, zPos + height / 2));
-        cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos + length / 2, zPos + height / 2));
-        cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos - length / 2, zPos - height / 2));
-        cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos - length / 2, zPos - height / 2));
-        cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos + length / 2, zPos - height / 2));
-        cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos + length / 2, zPos - height / 2));
-    } else {
+    if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
         cornerPoints.push(new THREE.Vector3(xPos - width / 2, yPos - length / 2, zPos + height / 2));
         cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos - length / 2, zPos + height / 2));
         cornerPoints.push(new THREE.Vector3(xPos + width / 2, yPos + length / 2, zPos + height / 2));
@@ -2238,19 +2212,11 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, length, height, 
         let point3D = [point.x, point.y, point.z, 1];
         let projectionMatrix;
         let point2D;
-        if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-            let pointRotated = rotatePoint(point3D[0], point3D[1], xPos, yPos, rotationY * 360 / (2 * Math.PI));
-            point3D[0] = pointRotated.x;
-            point3D[1] = pointRotated.y;
-            projectionMatrix = labelTool.camChannels[idx].projectionMatrixLISAT;
-            point2D = matrixProduct3x4(projectionMatrix, point3D);
-        } else {
+        if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
             projectionMatrix = labelTool.camChannels[idx].projectionMatrixNuScenes;
             point2D = matrixProduct3x4(projectionMatrix, point3D);
         }
 
-
-        // lisat and old projection matrix: <
         if (point2D[2] > 0) {
             // add only points that are in front of camera
             let windowX = point2D[0] / point2D[2];
@@ -2379,10 +2345,7 @@ function readPointCloud() {
                     for (let j = 0; j < points3DStringArray.length - 1; j++) {
                         let value = Number(points3DStringArray[j]);
                         // points are stored in meters within .h5 file and .pcd files
-                        // For LISA_T dataset multiply by 100 to get points in cm, because projection matrix requires it
-                        if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-                            point3D.push(value * 100);
-                        } else {
+                        if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
                             point3D.push(value);
                         }
 
@@ -2406,15 +2369,7 @@ function projectPoints(points3D, channelIdx) {
     let projectionMatrix;
     let scalingFactor;
     let imagePanelHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
-    if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-        if (channelIdx === 1 || channelIdx === 4) {
-            // back and front camera image have a width of 480 px
-            scalingFactor = 960 / imagePanelHeight;
-        } else {
-            scalingFactor = 1440 / imagePanelHeight;
-        }
-        projectionMatrix = labelTool.camChannels[channelIdx].projectionMatrixLISAT;
-    } else {
+    if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
         scalingFactor = 900 / imagePanelHeight;
         projectionMatrix = labelTool.camChannels[channelIdx].projectionMatrixNuScenes;
     }
@@ -2530,9 +2485,7 @@ function onDocumentMouseMove(event) {
 
 function increaseTrackId(label, dataset) {
     let classesBB;
-    if (dataset === labelTool.datasets.LISA_T) {
-        classesBB = classesBoundingBox;
-    } else {
+    if (dataset === labelTool.datasets.NuScenes) {
         classesBB = classesBoundingBox.content;
     }
 
@@ -2984,9 +2937,6 @@ function mouseUpLogic(ev) {
             if (Math.abs(groundPointMouseUp.x - groundPointMouseDown.x) > 0.1) {
                 let xPos = (groundPointMouseUp.x + groundPointMouseDown.x) / 2;
                 let yPos = (groundPointMouseUp.y + groundPointMouseDown.y) / 2;
-                //let zPos = -100 / 100; // height of lidar sensor. Use it to put object on street
-                //let zPos = -60.7137000000000 / 100;
-                //let zPos = -labelTool.positionLidarLISAT[2];
                 let zPos = 0;
 
                 // average car height in meters (ref: https://www.carfinderservice.com/car-advice/a-careful-look-at-different-sedan-dimensions)
@@ -2995,7 +2945,7 @@ function mouseUpLogic(ev) {
                 addBboxParameters.class = classesBoundingBox.targetName();
                 addBboxParameters.x = xPos;
                 addBboxParameters.y = yPos;
-                addBboxParameters.z = zPos + defaultHeight / 2 - labelTool.positionLidarLISAT[2];
+                addBboxParameters.z = zPos + defaultHeight / 2 - labelTool.positionLidarNuScenes[2];
                 addBboxParameters.width = Math.abs(groundPointMouseUp.x - groundPointMouseDown.x);
                 addBboxParameters.length = Math.abs(groundPointMouseUp.y - groundPointMouseDown.y);
                 addBboxParameters.height = defaultHeight;
@@ -3004,7 +2954,7 @@ function mouseUpLogic(ev) {
                     class: classesBoundingBox.targetName(),
                     x: (groundPointMouseUp.x + groundPointMouseDown.x) / 2,
                     y: (groundPointMouseUp.y + groundPointMouseDown.y) / 2,
-                    z: zPos + defaultHeight / 2 - labelTool.positionLidarLISAT[2],
+                    z: zPos + defaultHeight / 2 - labelTool.positionLidarNuScenes[2],
                     width: Math.abs(groundPointMouseUp.x - groundPointMouseDown.x),
                     length: Math.abs(groundPointMouseUp.y - groundPointMouseDown.y),
                     height: defaultHeight,
@@ -3131,20 +3081,16 @@ function mouseDownLogic(ev) {
                 if ([normal.a, normal.b, normal.c].toString() == [6, 3, 2].toString() || [normal.a, normal.b, normal.c].toString() == [7, 6, 2].toString()) {
                     clickedPlane.rotation.x = Math.PI / 2;
                     clickedPlane.rotation.y = labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z;
-                }
-                else if ([normal.a, normal.b, normal.c].toString() == [6, 7, 5].toString() || [normal.a, normal.b, normal.c].toString() == [4, 6, 5].toString()) {
+                } else if ([normal.a, normal.b, normal.c].toString() == [6, 7, 5].toString() || [normal.a, normal.b, normal.c].toString() == [4, 6, 5].toString()) {
                     clickedPlane.rotation.x = -Math.PI / 2;
                     clickedPlane.rotation.y = -Math.PI / 2 - labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z;
-                }
-                else if ([normal.a, normal.b, normal.c].toString() == [0, 2, 1].toString() || [normal.a, normal.b, normal.c].toString() == [2, 3, 1].toString()) {
+                } else if ([normal.a, normal.b, normal.c].toString() == [0, 2, 1].toString() || [normal.a, normal.b, normal.c].toString() == [2, 3, 1].toString()) {
                     clickedPlane.rotation.x = Math.PI / 2;
                     clickedPlane.rotation.y = Math.PI / 2 + labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z;
-                }
-                else if ([normal.a, normal.b, normal.c].toString() == [5, 0, 1].toString() || [normal.a, normal.b, normal.c].toString() == [4, 5, 1].toString()) {
+                } else if ([normal.a, normal.b, normal.c].toString() == [5, 0, 1].toString() || [normal.a, normal.b, normal.c].toString() == [4, 5, 1].toString()) {
                     clickedPlane.rotation.x = -Math.PI / 2;
                     clickedPlane.rotation.y = -labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z;
-                }
-                else if ([normal.a, normal.b, normal.c].toString() == [3, 6, 4].toString() || [normal.a, normal.b, normal.c].toString() == [1, 3, 4].toString()) {
+                } else if ([normal.a, normal.b, normal.c].toString() == [3, 6, 4].toString() || [normal.a, normal.b, normal.c].toString() == [1, 3, 4].toString()) {
                     clickedPlane.rotation.y = -Math.PI
                 }
                 clickedPlane.name = "planeObject";
@@ -3345,9 +3291,7 @@ function createGrid() {
     labelTool.removeObject("grid");
     grid = new THREE.GridHelper(100, 100);
     let posZLidar;
-    if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-        posZLidar = labelTool.positionLidarLISAT[2];
-    } else {
+    if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
         posZLidar = labelTool.positionLidarNuscenes[2];
     }
     grid.translateZ(-posZLidar);
@@ -3689,35 +3633,23 @@ function init() {
         });
         let allCheckboxes = $(":checkbox");
         let showNuScenesLabelsCheckbox = allCheckboxes[0];
-        if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-            disableShowNuscenesLabelsCheckbox(showNuScenesLabelsCheckbox);
-        } else {
+        if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
             enableShowNuscenesLabelsCheckbox(showNuScenesLabelsCheckbox);
         }
         let chooseSequenceDropDown;
-        guiOptions.add(parameters, 'datasets', ['NuScenes', 'LISA_T']).name("Choose dataset")
+        guiOptions.add(parameters, 'datasets', ['NuScenes']).name("Choose dataset")
             .onChange(function (value) {
                 changeDataset(value);
                 let allCheckboxes = $(":checkbox");
                 let showNuScenesLabelsCheckbox = allCheckboxes[0];
-                if (value === labelTool.datasets.LISA_T) {
-                    disableShowNuscenesLabelsCheckbox(showNuScenesLabelsCheckbox);
-                    enableChooseSequenceDropDown(chooseSequenceDropDown.domElement);
-                } else {
+                if (value === labelTool.datasets.NuScenes) {
                     enableShowNuscenesLabelsCheckbox(showNuScenesLabelsCheckbox);
                     disableChooseSequenceDropDown(chooseSequenceDropDown.domElement);
                 }
                 hideMasterView();
             });
         chooseSequenceDropDown = guiOptions.add(parameters, 'sequences', [
-            labelTool.sequencesLISAT.date_2018_05_23_001_frame_00042917_00043816_small,
-            labelTool.sequencesLISAT.date_2018_05_23_001_frame_00042917_00043816,
-            labelTool.sequencesLISAT.date_2018_05_23_001_frame_00077323_00078222,
-            labelTool.sequencesLISAT.date_2018_05_23_001_frame_00080020_00080919,
-            labelTool.sequencesLISAT.date_2018_05_23_001_frame_00106993_00107892,
-            labelTool.sequencesLISAT.date_2018_07_02_005_frame_00000000_00000900,
-            labelTool.sequencesLISAT.date_2018_07_02_005_frame_00000900_00001800,
-            labelTool.sequencesLISAT.date_2018_07_02_005_frame_00001800_00002700]).name("Choose Sequence")
+            labelTool.sequencesNuScenes[0]]).name("Choose Sequence")
             .onChange(function (value) {
                 changeSequence(value);
                 hideMasterView();
@@ -3821,24 +3753,6 @@ function init() {
         guiOptions.add(parameters, 'select_all_copy_label_to_next_frame').name("Select all 'Copy label to next frame'");
         guiOptions.add(parameters, 'unselect_all_copy_label_to_next_frame').name("Unselect all 'Copy label to next frame'");
 
-        let showDetectionsCheckbox = guiOptions.add(parameters, 'show_detections').name('Show Detections').listen();
-        showDetectionsCheckbox.domElement.id = 'show-detections-checkbox';
-        showDetectionsCheckbox.onChange(function (value) {
-            showDetections = value;
-            if (showDetections === true) {
-                if (labelTool.currentDataset === labelTool.datasets.LISA_T && (labelTool.currentSequence === labelTool.sequencesLISAT.date_2018_07_02_005_frame_00000000_00000900 || labelTool.currentSequence === labelTool.sequencesLISAT.date_2018_07_02_005_frame_00000900_00001800 || labelTool.currentSequence === labelTool.sequencesLISAT.date_2018_07_02_005_frame_00001800_00002700)) {
-                    // TODO: load detection boxes in the beginning
-                    // show/hide detection boxes for current frame if user selects checkbox
-                    //showDetectedBoxes();
-                    loadDetectedBoxes();
-                } else {
-                    labelTool.logger.error("Detections are only available for the LISA sequences: date_2018_07_02_005_frame_00000000_00000900, date_2018_07_02_005_frame_00000900_00001800 and date_2018_07_02_005_frame_00001800_00002700");
-                }
-            } else {
-                // TODO
-                // hideDetectedBoxes();
-            }
-        });
 
         let interpolationModeCheckbox = guiOptions.add(parameters, 'interpolation_mode').name('Interpolation Mode');
         interpolationModeCheckbox.domElement.id = 'interpolation-checkbox';
