@@ -40,14 +40,14 @@ function parseAnnotationFile(fileName) {
     let annotationsJSONArray = [];
     let frameAnnotations = [];
     try {
-        if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-            rawFile.open("GET", 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/annotations/' + fileName, false);
-        } else {
+        if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
             if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
                 rawFile.open("GET", 'input/' + labelTool.currentDataset + '/annotations_original/LIDAR_TOP/' + fileName, false);
             } else {
                 rawFile.open("GET", 'input/' + labelTool.currentDataset +'/'+labelTool.currentSequence+ '/annotations/LIDAR_TOP/' + fileName, false);
             }
+        } else {
+            rawFile.open("GET", 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/annotations/' + fileName, false);
         }
 
 

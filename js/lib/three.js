@@ -32891,7 +32891,7 @@
 
 		},
 
-		// removes equivalent sequential keys as common in morph target sequencesLISAT
+		// removes equivalent sequential keys as common in morph target sequences
 		// (0,0,0,0,1,1,1,0,0,0,0,0,0,0) --> (0,0,1,1,0,0)
 		optimize: function () {
 
@@ -33438,7 +33438,7 @@
 
 			var animationToMorphTargets = {};
 
-			// tested with https://regex101.com/ on trick sequencesLISAT
+			// tested with https://regex101.com/ on trick sequences
 			// such flamingo_flyA_003, flamingo_run1_003, crdeath0059
 			var pattern = /^([\w-]*?)([\d]+)$/;
 
