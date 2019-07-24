@@ -3,7 +3,6 @@ from pyquaternion import Quaternion
 
 # Move 3d point from LIDAR to ego vehicle coord system
 translation_vector_lidar_to_imu = np.array([0.891067, 0.0, 1.84292]).T
-# TODO: confirm that it is identity
 rotation_matrix_lidar_to_imu = np.array([[1, 0, 0],
                                          [0, 1, 0],
                                          [0, 0, 1]])

@@ -1,6 +1,5 @@
 let canvasArray = [];
 let canvasParamsArray = [{}, {}, {}, {}, {}, {}];
-let imageWidthBackFrontLISAT = 480;
 let paperArray = [];
 let paperArrayAll = [];
 let imageArray = [];
@@ -95,14 +94,7 @@ function initialize(camChannel) {
     };
     let width;
     let height;
-    if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-        height = $("#layout_layout_resizer_top").position().top;
-        if (camChannel === "CAM_FRONT" || camChannel === "CAM_BACK") {
-            width = height * labelTool.imageAspectRatioFrontBackLISAT;
-        } else {
-            width = height * labelTool.imageAspectRatioLISAT;
-        }
-    } else {
+    if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
         width = 320;
         height = 180;
     }
@@ -557,7 +549,6 @@ function isWithinPolygon(numVertices, xPosArray, yPosArray, mouseXPos, mouseYPos
  * @param e
  * @returns {*}
  */
-// TODO: check if clicked mouse position is within convex hull of projected bounding box
 function getClickedIndex(e) {
     let mouseXPos = e.offsetX;
     let mouseYPos = e.offsetY;
@@ -651,12 +642,7 @@ function changeCanvasSize(width, height, camChannel) {
     if (fontSize < 15) {
         fontSize = 15;
     }
-    // TODO:
-    if (annotationObjects.contents[labelTool.currentFileIndex] !== undefined && annotationObjects.contents[labelTool.currentFileIndex].length > 0) {
-        adjustAllBBoxes(camChannel);
-    }
 
-    // TODO: adjust also all projected point clouds
     canvasParamsArray[channelIdx] = {
         x: canvas.offsetLeft,
         y: canvas.offsetTop,
@@ -669,90 +655,9 @@ function changeCanvasSize(width, height, camChannel) {
     // $('#image-' + camChannel.toLowerCase().replace(/_/g, '-')).hide().show(0);
 }
 
-// TODO: adjust all projected bounding boxes if images size changes
 function adjustAllBBoxes(camChannel) {
-    for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; ++i) {
-        let canvas = canvasArray[getChannelIndexByName(camChannel)];
-        let canvasParams = canvasParamsArray[getChannelIndexByName(camChannel)];
-        let linesChannelOne = annotationObjects.contents[labelTool.currentFileIndex][i]["channels"][0]["lines"];
-        let linesChannelTwo = annotationObjects.contents[labelTool.currentFileIndex][i]["channels"][1]["lines"];
-        // var rect = annotationObjects.contents[i]["rect"];
-        // rect.attr({
-        //     width: rect.attr("width") * canvas.offsetWidth / canvasParams.width,
-        //     height: rect.attr("height") * canvas.offsetHeight / canvasParams.height,
-        //     x: rect.attr("x") * canvas.offsetWidth / canvasParams.width,
-        //     y: rect.attr("y") * canvas.offsetHeight / canvasParams.height
-        // });
-        // var textBox = annotationObjects.contents[i]["textBox"];
-        // if (textBox === undefined) {
-        //     continue;
-        // }
-        // textBox["text"].attr({
-        //     x: rect.attr("x"),
-        //     y: rect.attr("y") - fontSize / 2,
-        //     "font-size": fontSize,
-        //     text: bboxString(i, annotationObjects.contents[i]["class"])
-        // });
-        // var box = textBox["text"].getBBox();
-        // textBox["box"].attr({x: box.x, y: box.y, width: box.width, height: box.height});
-        // emphasizeBBox(i, camChannel);
-    }
 }
 
-// function isOutOfCanvas(posX, posY) {
-//     return posX < canvasLeftParams.x || posX > canvasLeftParams.x + canvasLeftParams.width || posY < canvasLeftParams.y || posY > canvasLeftParams.y + canvasLeftParams.height;
-// }
-
-// function hideImageBBox(index) {
-//     annotationObjects.contents[index]["rect"].hide();
-// }
-
-// function showImageBBox(index) {
-//     annotationObjects.contents[index]["rect"].show();
-// }
-
-// TODO: emphasize/highlight projected bounding boxes
-// function emphasizeBBox(index, camChannel) {
-//     removeBoundingBoxHighlight(index);
-//     var rect = annotationObjects.contents[index]["rect"];
-//     rect.g = rect.glow({color: "#FFF", width: 5, opacity: 1});
-//     rect.g[0].node.setAttribute("pointer-events", "none");
-//     rect.g[1].node.setAttribute("pointer-events", "none");
-//     rect.g[2].node.setAttribute("pointer-events", "none");
-//     rect.g[3].node.setAttribute("pointer-events", "none");
-//     const x0 = rect.attr("x");
-//     const x1 = rect.attr("x") + rect.attr("width") / 2;
-//     const x2 = rect.attr("x") + rect.attr("width");
-//     const y0 = rect.attr("y");
-//     const y1 = rect.attr("y") + rect.attr("height") / 2;
-//     const y2 = rect.attr("y") + rect.attr("height");
-//     var paper = paperArray[getChannelIndexByName(camChannel)];
-//     rect.l = [paper.path("M" + x1 + "," + y0 + " L" + x1 + "," + y2),
-//         paper.path("M" + x0 + "," + y1 + " L" + x2 + "," + y1)];
-//     for (var i = 0; i <= 1; ++i) {
-//         rect.l[i].attr({"stroke-dasharray": "."});
-//         rect.l[i].node.setAttribute("pointer-events", "none");
-//         rect.l[i].g = rect.l[i].glow({color: "#FFF", width: 1});
-//         rect.l[i].g[0].node.setAttribute("pointer-events", "none");
-//     }
-//     rect.toFront();
-// }
-
-// function removeBoundingBoxHighlight(index) {
-//     var rect = annotationObjects.contents[index]["rect"];
-//     if (rect.g != undefined) {
-//         rect.g.remove();
-//     }
-//     if (rect.l != undefined) {
-//         rect.l[0].g.remove();
-//         rect.l[0].remove();
-//         rect.l[1].g.remove();
-//         rect.l[1].remove();
-//         delete rect.l;
-//     }
-// }
-
-// TODO:
 function addTextBox(bbIndex, camChannel) {
     let bbox = annotationObjects.contents[labelTool.currentFileIndex][bbIndex];
     let trackId = bbox["trackId"];
