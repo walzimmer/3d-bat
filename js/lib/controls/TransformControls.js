@@ -83,8 +83,6 @@ THREE.TransformControls = function (camera, domElement) {
     var _quaternionStart = new THREE.Quaternion();
     var _scaleStart = new THREE.Vector3();
 
-    // TODO: remove properties unused in plane and gizmo
-
     defineProperty("parentQuaternion", parentQuaternion);
     defineProperty("worldPosition", worldPosition);
     defineProperty("worldPositionStart", worldPositionStart);
@@ -563,8 +561,6 @@ THREE.TransformControls = function (camera, domElement) {
         scope.pointerUp(getPointer(event));
 
     }
-
-    // TODO: depricate
 
     this.getMode = function () {
 
@@ -1077,8 +1073,6 @@ THREE.TransformControlsGizmo = function () {
 
             var eyeDistance = this.worldPosition.distanceTo(this.cameraPosition);
             handle.scale.set(1, 1, 1).multiplyScalar(eyeDistance * this.size / 7);
-
-            // TODO: simplify helpers and consider decoupling from gizmo
 
             if (handle.tag === 'helper') {
 

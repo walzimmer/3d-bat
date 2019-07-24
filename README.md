@@ -3,12 +3,18 @@
 2. Install npm (linux): $sudo apt-get install npm
    + OR: Install npm (windows): https://nodejs.org/dist/v10.15.0/node-v10.15.0-x86.msi
 3. Install PHP Storm (IDE with integrated server): https://www.jetbrains.com/phpstorm/download/download-thanks.html
-4. Install WhatPulse to measure the number of clicks and key strokes while labeling: https://whatpulse.org/
+4. [OPTIONAL] Install WhatPulse to measure the number of clicks and key strokes while labeling: https://whatpulse.org/
 5. Open folder '3D_BoundingBox_Annotation_Tool_3D_BAT' in PHP Storm    
 5. Move into directory: $cd 3D_BoundingBox_Annotation_Tool_3D_BAT   
 6. Install required packages: $npm install
 7. Open index.html with chromium-browser (Linux) or Chrome (Windows) within the IDE
- 
+
+# Overview
+
+![Overview](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/img/overview.png)
+
+# Paper
+![Paper](https://github.com/walzimmer/3D_BoundingBox_Annotation_Tool_3D_BAT/blob/master/assets/img/paper.png)
  
 # 3D Boundingbox Annotation Instructions
 1. Step: Watch raw video (10 sec) to get familiar with the sequence and to see where interpolation makes sense
@@ -27,6 +33,7 @@
 9. Step: Download labels to your computer (JSON file)
 10. Step: Stop the time after labeling is done.
 11. Step: Make screenshots of keyboard and mouse heat map, record number of clicks and keystrokes
+
 
 # Keyboard Shortcuts
 | Key | Description   | |
@@ -112,8 +119,8 @@ Hints:
 + **Do not** apply more than one box to a single object.
 + Check every cuboid in every frame, to make sure all points are inside the cuboid and **look reasonable in the image view**.
 + The program has been quite stable in my use cases, but there is no guarantee that it won't crash. So please back up (download) your annotated scenes (~every 10 min). Saving to local storage (browser) is done automatically.
-+ Download the annotation file into the following folder: 3D_BoundingBox_Annotation_Tool_3D_BAT/input/<DATASET>/<SEQUENCE>/annotations
-+ Please open new issue tickets on Github for questions and bug reports or write me an email. Thanks!
++ Download the annotation file into the following folder: ```3d-bat/input/<DATASET>/<SEQUENCE>/annotations```
++ Please open new issue tickets on Github for questions and bug reports or write me an email (wzimmer@eng.ucsd.edu). Thanks!
 
 # Special Rules
 + **Minimum LIDAR Points** : 
@@ -211,3 +218,23 @@ Bounding Box color convention in example images:
     ![](https://www.nuscenes.org/public/images/taxonomy_imgs/child_pedestrian_3.jpg)
     ![](https://www.nuscenes.org/public/images/taxonomy_imgs/child_pedestrian_4.jpg)
     ![](https://www.nuscenes.org/public/images/taxonomy_imgs/child_pedestrian_5.jpg)
+
+# License
+
+Copyright © 2019 The Regents of the University of California
+
+All Rights Reserved. Permission to copy, modify, and distribute this tool for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice, this paragraph and the following three paragraphs appear in all copies. Permission to make commercial use of this software may be obtained by contacting:
+
+
+Office of Innovation and Commercialization
+9500 Gilman Drive, Mail Code 0910
+University of California
+La Jolla, CA 92093-0910
+(858) 534-5815
+innovation@ucsd.edu
+
+
+This tool is copyrighted by The Regents of the University of California. The code is supplied “as is”, without any accompanying services from The Regents. The Regents does not warrant that the operation of the tool will be uninterrupted or error-free. The end-user understands that the tool was developed for research purposes and is advised not to rely exclusively on the tool for any reason.
+
+
+IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF THE USE OF THIS TOOL, EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE TOOL PROVIDED HEREUNDER IS ON AN “AS IS” BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.

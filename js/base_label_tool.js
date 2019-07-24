@@ -1,21 +1,9 @@
 let labelTool = {
-    datasets: Object.freeze({"NuScenes": "NuScenes", "LISA_T": "LISA_T"}),
-    sequencesLISAT: Object.freeze({
-        "date_2018_05_23_001_frame_00042917_00043816_small": "2018-05-23-001-frame-00042917-00043816_small",
-        "date_2018_05_23_001_frame_00042917_00043816": "2018-05-23-001-frame-00042917-00043816",
-        "date_2018_05_23_001_frame_00077323_00078222": "2018-05-23-001-frame-00077323-00078222",
-        "date_2018_05_23_001_frame_00080020_00080919": "2018-05-23-001-frame-00080020-00080919",
-        "date_2018_05_23_001_frame_00106993_00107892": "2018-05-23-001-frame-00106993-00107892",
-        "date_2018_07_02_005_frame_00000000_00000900": "2018-07-02-005-frame-00000000-00000900",
-        "date_2018_07_02_005_frame_00000900_00001800": "2018-07-02-005-frame-00000900-00001800",
-        "date_2018_07_02_005_frame_00001800_00002700": "2018-07-02-005-frame-00001800-00002700"
-
-    }),
+    datasets: Object.freeze({"NuScenes": "NuScenes"}),
     sequencesNuScenes: [],
-    currentDataset: 'LISA_T',
-    currentSequence: '2018-05-23-001-frame-00042917-00043816',//[2018-05-23-001-frame-00042917-00043816_small, One]
+    currentDataset: 'NuScenes',
+    currentSequence: 'One',//[2018-05-23-001-frame-00042917-00043816_small, 2018-05-23-001-frame-00042917-00043816, One]
     // temprorarily set to 100
-    numFramesLISAT: 50,
     numFramesNuScenes: 120,//[3962,120]
     frameScreenshots: [],
     numFrames: 0,
@@ -54,25 +42,6 @@ let labelTool = {
             [2.33267982e-02, -5.23589075e-04, -9.99727756e-01, 4.72000000e-01],
             [5.86538603e-01, 8.09812692e-01, 1.32616689e-02, 1.53500000e+00],
             [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 1.00000000e+00]],
-        // projectionMatrixLISAT: [[-251.25471266126286, 1271.4131017512532, -94.08147145637669, -82230.40765539104],
-        //     [-480.6212728089816, 371.7218954940578, -912.1641583067685, -58976.298755304604],
-        //     [-0.7873, 0.6091, -0.0958, -82.9684]],
-        projectionMatrixLISAT: [[-251.25471266126286, 1271.4131017512532, -94.08147145637669, -82230.40765539104],
-            [-480.6212728089816, 371.7218954940578, -912.1641583067685, -58976.298755304604],
-            [-0.7873, 0.6091, -0.0958, -82.9684]],
-        projectionMatrixLISATUni: [[851.809297551590, 0, 981.172134933419, 0],
-            [0, 849.762831114839, 692.173655689540, 0],
-            [0, 0, 1, 0]],
-        intrinsicMatrixLISAT: [[851.809297551590, 0, 981.172134933419, 0],
-            [0, 849.762831114839, 692.173655689540, 0],
-            [0, 0, 1, 0]],
-        // projectionMatrixLISAT: [[-215.2526681977112, 1310.3693441729433, -93.64018907169996, -81894.77674601768],
-        //     [-491.1015539416495, 379.8210484742729, -980.7314142419619, -60737.10982639055],
-        //     [-0.7873, 0.6091, -0.0958, -82.9684]],
-        transformationMatrixEgoToCamLISAT: [[0.6119, 0.791, -0.0001, -0.9675],
-            [0.0757, -0.0587, -0.9954, -1.8214],
-            [-0.7873, 0.6091, -0.0958, -82.9684],
-            [0, 0, 0, 1]],
         transformationMatrixCamToLidar: [[0.611885708104161, 0.0757328996740149, -0.787314493117665, -0.645924850428946],
             [0.790958342977185, -0.0587080682108027, 0.609070023716074, -0.511902726095409],
             [-9.94618314704501e-05, -0.995431173227924, -0.0958096818561450, -0.0976217092625083],
@@ -90,31 +59,6 @@ let labelTool = {
             [0.01358668, -0.0056486, -0.99989174, -0.026],
             [0.99989659, -0.00463591, 0.01361294, 1.536],
             [0, 0, 0, 1,]],
-        // old intrinsic
-        // projectionMatrixLISAT: [[922.033620236691, 914.742127292118, 37.1306002570457, 52013.3448439892],
-        //     [43.2552503707437, 731.907745080755, -814.641807656038, 52786.4684187814],
-        //     [0.0739896518701493, 0.996046991878090, 0.0491520232212485, 59.7093249377266]],
-        // tmp test with new translation vector
-        // projectionMatrixLISAT: [[922.0309695035186, 914.7246439533986, 37.20014817055355, -13131.578714839563],
-        //     [43.23307990854648, 731.8931026225239, -814.6031955744643, 44372.80515324952],
-        //     [0.074, 0.996, 0.0492, -10.4301]],
-        projectionMatrixLISAT: [[922.0309695035186, 914.7246439533986, 37.20014817055355, -62468.44587897763],
-            [43.23307990854648, 731.8931026225239, -814.6031955744643, -50887.53498424891],
-            [0.074, 0.996, 0.0492, -60.7137]],
-        projectionMatrixLISATUni: [[851.809297551590, 0, 981.172134933419, 0],
-            [0, 849.762831114839, 692.173655689540, 0],
-            [0, 0, 1, 0]],
-        intrinsicMatrixLISAT: [[851.809297551590, 0, 981.172134933419, 0],
-            [0, 849.762831114839, 692.173655689540, 0],
-            [0, 0, 1, 0]],
-        // new intrinsic
-        // projectionMatrixLISAT: [[1032.0809269597441, 983.234693051346, 39.603066911575674, 55773.41899194405],
-        //     [46.91969034275177, 800.4238080880446, -918.475825334129, 58018.158075382664],
-        //     [0.074, 0.996, 0.0492, 59.7093]],
-        transformationMatrixEgoToCamLISAT: [[9.97200e-01, -9.40000e-03, 7.40000e-02, -7.71510e+00],
-            [-7.34000e-02, 5.00000e-02, 9.96000e-01, 1.34829e+01],
-            [-1.30000e-02, -9.98700e-01, 4.92000e-02, 5.97093e+01],
-            [0, 0, 0, 1]],
         transformationMatrixCamToLidar: [[0.997215031568529, -0.00936548076240627, 0.0739896518701493, -0.0340200000000000],
             [-0.0734336035104482, 0.0499789540314553, 0.996046991878090, -0.607137000000000],
             [-0.0130263843505084, -0.998706359208757, 0.0491520232212485, -0.104301000000000],
@@ -132,27 +76,6 @@ let labelTool = {
             [1.90058814e-02, 7.99720013e-04, -9.99819052e-01, -5.27000000e-01],
             [5.84932270e-01, -8.11014555e-01, 1.04704634e-02, 1.52600000e+00],
             [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 1.00000000e+00]],
-        // old intrinsic
-        // projectionMatrixLISAT: [[1271.3136011165718, -264.8077615167896, -42.35337418192368, -58914.95130031767],
-        //     [561.3394288862174, 273.6681408112988, -900.78438804512, -49758.5316810427],
-        //     [0.8704, 0.4861, -0.0785, -68.6021]],
-        projectionMatrixLISAT: [[1271.3136011165718, -264.8077615167896, -42.35337418192368, -58914.95130031767],
-            [561.3394288862174, 273.6681408112988, -900.78438804512, -49758.5316810427],
-            [0.8704, 0.4861, -0.0785, -68.6021]],
-        projectionMatrixLISATUni: [[851.809297551590, 0, 981.172134933419, 0],
-            [0, 849.762831114839, 692.173655689540, 0],
-            [0, 0, 1, 0]],
-        intrinsicMatrixLISAT: [[851.809297551590, 0, 981.172134933419, 0],
-            [0, 849.762831114839, 692.173655689540, 0],
-            [0, 0, 1, 0]],
-        // new intrinsic
-        // projectionMatrixLISAT: [[1271.6922710846952, -304.99836406619386, -39.3907887583833, -57233.65791384971],
-        //     [583.4133290049833, 284.0465837849785, -944.3857374439146, -51768.28201250383],
-        //     [0.8704, 0.4861, -0.0785, -68.6021]],
-        transformationMatrixEgoToCamLISAT: [[4.89900e-01, -8.70800e-01, 4.07000e-02, 9.85610e+00],
-            [-4.84000e-02, -7.39000e-02, -9.96100e-01, -2.67600e+00],
-            [8.70400e-01, 4.86100e-01, -7.85000e-02, -6.86021e+01],
-            [0, 0, 0, 1]],
         transformationMatrixCamToLidar: [[0.489949531751989, -0.0484410342339139, 0.870396411247678, 0.547505822207358],
             [-0.870796041221885, -0.0739463348124615, 0.486077585826712, -0.417296775245384],
             [0.0407426180835198, -0.996130722229845, -0.0784595299758922, -0.0845163336838742],
@@ -170,25 +93,6 @@ let labelTool = {
             [9.88119913e-03, -1.50763065e-03, -9.99950043e-01, -4.56000000e-01],
             [-3.54597523e-01, -9.35016690e-01, -2.09429354e-03, 1.59500000e+00],
             [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 1.00000000e+00]],
-        // projectionMatrixLISAT: [[794.0356195429831, -1012.8849095439483, -179.07770087021203, -128602.00570706779],
-        //     [599.7750068083451, -38.26710841555636, -916.4982974817447, -43877.90381297301],
-        //     [0.977, -0.1837, -0.1082, -60.6184]],
-        projectionMatrixLISAT: [[794.0356195429831, -1012.8849095439483, -179.07770087021203, -128602.00570706779],
-            [599.7750068083451, -38.26710841555636, -916.4982974817447, -43877.90381297301],
-            [0.977, -0.1837, -0.1082, -60.6184]],
-        projectionMatrixLISATUni: [[851.809297551590, 0, 981.172134933419, 0],
-            [0, 849.762831114839, 692.173655689540, 0],
-            [0, 0, 1, 0]],
-        intrinsicMatrixLISAT: [[851.809297551590, 0, 981.172134933419, 0],
-            [0, 849.762831114839, 692.173655689540, 0],
-            [0, 0, 1, 0]],
-        // projectionMatrixLISAT: [[848.5512598840686,-1129.2646483996264,-196.315756621337,-141734.32068581556],
-        // [652.1020273778403,-38.71272862691212,-1029.46526109555,-47964.78590957537],
-        // [0.977,-0.1837,-0.1082,-60.6184]],
-        transformationMatrixEgoToCamLISAT: [[-0.1932, -0.9775, -0.0856, -81.1507],
-            [-0.09, 0.1046, -0.9904, -2.2588],
-            [0.977, -0.1837, -0.1082, -60.6184],
-            [0, 0, 0, 1]],
         transformationMatrixCamToLidar: [[-0.193231128863561, -0.0899745016110242, 0.977022225986264, 0.433415648129604],
             [-0.977461683106893, 0.104551287752388, -0.183698859473772, 0.902282239760038],
             [-0.0855534855862260, -0.990413220473740, -0.108171294514213, -0.157346593607020],
@@ -207,25 +111,6 @@ let labelTool = {
             [1.48292972e-02, -4.38565732e-04, -9.99889944e-01, -7.00000000e-03],
             [-9.99731565e-01, 1.77968704e-02, -1.48347542e-02, 1.54100000e+00],
             [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 1.00000000e+00]],
-        // projectionMatrixLISAT: [[-895.4304585339987, -938.871846096237, -71.02888985836256, -5982.317869225711],
-        //     [-44.155367517485175, -612.6590140263143, -907.7438241324993, -84384.88883048057],
-        //     [-0.0455, -0.995, -0.0888, -4.2963]],
-        projectionMatrixLISAT: [[-895.4304585339987, -938.871846096237, -71.02888985836256, -97660.33408629964],
-            [-44.155367517485175, -612.6590140263143, -907.7438241324993, -68076.01403709005],
-            [-0.0455, -0.995, -0.0888, -95.8045]],
-        projectionMatrixLISATUni: [[851.809297551590, 0, 981.172134933419, 0],
-            [0, 849.762831114839, 692.173655689540, 0],
-            [0, 0, 1, 0]],
-        intrinsicMatrixLISAT: [[851.809297551590, 0, 981.172134933419, 0],
-            [0, 849.762831114839, 692.173655689540, 0],
-            [0, 0, 1, 0]],
-        // projectionMatrixLISAT: [[-986.505781537663,-883.3532006027316,-64.67265646137503,-93111.9226453282],
-        // [-47.88317051477141,-651.6533925460091,-1014.0108621580484,-72925.35490935268],
-        // [-0.0455,-0.995,-0.0888,-95.8045]],
-        transformationMatrixEgoToCamLISAT: [[-0.9988, 0.0439, 0.0189, -2.0743],
-            [-0.0149, 0.0895, -0.9959, -95.8045],
-            [-0.0455, -0.995, -0.0888, -4.2963],
-            [0, 0, 0, 1]],
         transformationMatrixCamToLidar: [[-0.998808553877788, -0.0149413207580060, -0.0454503498176134, -0.0867564508770912],
             [0.0439474681814231, 0.0895085938805023, -0.995004795840449, 0.949494752014195],
             [0.0188751885024967, -0.995874825746460, -0.0888185338539377, -0.104974405626315],
@@ -243,27 +128,6 @@ let labelTool = {
             [0.00612855, 0.00579634, -0.99996442, 0.441],
             [-0.32493135, 0.94573116, 0.00349055, 1.605],
             [0, 0, 0, 1]],
-        // old intrinsic
-        // projectionMatrixLISAT: [[-1034.7887558860443, 785.54017213604, 19.44397266029749, -22415.14333034558],
-        //     [-656.3615503272123, 21.601386673152174, -877.404677400356, -57939.50633439972],
-        //     [-0.997, -0.0632, -0.0446, -84.9344]],
-        projectionMatrixLISAT: [[-1034.7887558860443, 785.54017213604, 19.44397266029749, -22415.14333034558],
-            [-656.3615503272123, 21.601386673152174, -877.404677400356, -57939.50633439972],
-            [-0.997, -0.0632, -0.0446, -84.9344]],
-        projectionMatrixLISATUni: [[851.809297551590, 0, 981.172134933419, 0],
-            [0, 849.762831114839, 692.173655689540, 0],
-            [0, 0, 1, 0]],
-        intrinsicMatrixLISAT: [[851.809297551590, 0, 981.172134933419, 0],
-            [0, 849.762831114839, 692.173655689540, 0],
-            [0, 0, 1, 0]],
-        // new intrinsic
-        // projectionMatrixLISAT: [[-1017.8956117124864, 947.0278929555594, 32.58889806014775, -8586.028158741105],
-        //     [-750.7556140821051, 27.649591167257046, -1043.054541250592, -66366.2238780424],
-        //     [-0.997, -0.0632, -0.0446, -84.9344]],
-        transformationMatrixEgoToCamLISAT: [[-0.0664, 0.995, 0.0742, 71.5185],
-            [0.0397, 0.0769, -0.9962, 1.0001],
-            [-0.997, -0.0632, -0.0446, -84.9344],
-            [0, 0, 0, 1]],
         transformationMatrixCamToLidar: [[-0.0663516915626888, 0.0396829723346042, -0.996997658740693, -0.799760186924911],
             [0.994993204667150, 0.0769339896518345, -0.0631911603306386, 0.765992406314240],
             [0.0742461830195015, -0.996215314549491, -0.0445785343146626, -0.0810346195489563],
@@ -273,13 +137,9 @@ let labelTool = {
     currentChannelLabel: document.getElementById('cam_channel'),
     // position of the lidar sensor in ego vehicle space
     positionLidarNuscenes: [0.891067, 0.0, 1.84292],//(long, lat, vert)
-    positionLidarLISAT: [0, 0, 1.607137],
     translationVectorLidarToCamFront: [0.77, -0.02, -0.3],
-    // positionLidarNuscenes: [1.84, 0.0, 1.84292],//(long, lat, vert)
     showOriginalNuScenesLabels: false,
     imageAspectRatioNuScenes: 1.777777778,
-    imageAspectRatioLISAT: 1.333333333,
-    imageAspectRatioFrontBackLISAT: 2.0,
     showFieldOfView: false,
     selectedMesh: undefined,
     folderEndPosition: undefined,
@@ -601,8 +461,6 @@ let labelTool = {
                     }
                     // Nuscenes labels are stored in global frame in the database
                     // Nuscenes: labels (3d positions) are transformed from global frame to point cloud (global -> ego, ego -> point cloud) before exporting them
-                    // LISAT: labels are stored in ego frame which is also the point cloud frame (no transformation needed)
-                    // if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
                     params.x = parseFloat(annotation.x);
                     params.y = parseFloat(annotation.y);
                     params.z = parseFloat(annotation.z);
@@ -677,7 +535,6 @@ let labelTool = {
             for (let i = 0; i < annotationObjects.contents[j].length; i++) {
                 if (annotationObjects.contents[j][i] !== undefined && this.cubeArray[j][i] !== undefined) {
                     let annotationObj = annotationObjects.contents[j][i];
-                    // LISAT: labels are stored in ego frame which is also the point cloud frame (no transformation needed)
                     // Nuscenes labels are stored in global frame within database
                     // [optional] Nuscenes: transform 3d positions from point cloud to global frame (point cloud-> ego, ego -> global)
                     let annotation = {
@@ -709,36 +566,6 @@ let labelTool = {
         $(".current").text((labelTool.currentFileIndex + 1) + "/" + this.fileNames.length);
 
         let imageContainer = $("#layout_layout_panel_top .w2ui-panel-content");
-        // create six image divs
-
-        // ---------------------------------------------------------------
-        // for (let channelIdx in labelTool.camChannels) {
-        //     if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
-        //         let channel = labelTool.camChannels[channelIdx].channel;
-        //         let id = "image-" + channel.toLowerCase().replace(/_/g, '-');
-        //         let minWidth = window.innerWidth / 6;
-        //         let minHeight = minWidth * 1.7778;
-        //         imageContainer.append("<div id='" + id + "'></div>");
-        //         $("#" + id).css("width", minWidth);
-        //         $("#" + id).css("height", minHeight);
-        //         let canvasElem = imageContainer["0"].children[channelIdx];
-        //
-        //         canvasArray.push(canvasElem);
-        //         let imagePanelTopPos = parseInt($("#layout_layout_resizer_top").css("top"), 10);
-        //         if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-        //             if (channel === "CAM_BACK" || channel === "CAM_FRONT") {
-        //                 imageWidth = labelTool.imageSizes["LISA_T"]["minWidthWide"];
-        //             } else {
-        //                 imageWidth = labelTool.imageSizes["LISA_T"]["minWidthNormal"];
-        //             }
-        //         } else {
-        //             imageWidth = labelTool.imageSizes["NuScenes"]["minWidthNormal"];
-        //         }
-        //         paperArray.push(Raphael(canvasElem, imageWidth, imagePanelTopPos));
-        //     }
-        // }
-
-        //-------------------------------------------------------------
         let imageWidth;
         let canvasElem;
         let imagePanelTopPos;
@@ -756,14 +583,9 @@ let labelTool = {
                     canvasElem = imageContainer["0"].children[channelIdx];
                     canvasArray.push(canvasElem);
                     imagePanelTopPos = parseInt($("#layout_layout_resizer_top").css("top"), 10);
-                    if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-                        if (channel === "CAM_BACK" || channel === "CAM_FRONT") {
-                            imageWidth = labelTool.imageSizes["LISA_T"]["minWidthWide"];
-                        } else {
-                            imageWidth = labelTool.imageSizes["LISA_T"]["minWidthNormal"];
-                        }
-                    } else {
+                    if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
                         imageWidth = labelTool.imageSizes["NuScenes"]["minWidthNormal"];
+
                     }
                 }
                 paperArray.push(Raphael(canvasArray[channelIdx], imageWidth, imagePanelTopPos));
@@ -819,24 +641,7 @@ let labelTool = {
 
     getAnnotations() {
         let fileName;
-        if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-            fileName = labelTool.currentDataset + "_" + labelTool.currentSequence + "_annotations.txt";
-            request({
-                url: '/label/annotations/',
-                type: 'GET',
-                dataType: 'json',
-                data: {
-                    file_name: fileName
-                },
-                success: function (res) {
-                    if (res !== undefined && res.length > 0) {
-                        this.loadAnnotationsJSON(res);
-                    }
-                }.bind(this),
-                error: function (res) {
-                }.bind(this)
-            });
-        } else {
+        if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
             if (labelTool.showOriginalNuScenesLabels === true) {
                 for (let i = 0; i < this.fileNames.length; i++) {
                     fileName = this.fileNames[i] + ".txt";
@@ -871,8 +676,6 @@ let labelTool = {
                 });
             }
         }
-
-
     },
 
     reset() {
@@ -934,16 +737,10 @@ let labelTool = {
         // remove image divs
         $("#layout_layout_panel_top .w2ui-panel-content").empty();
 
-        if (this.currentDataset === this.datasets.LISA_T) {
-            w2ui['layout'].panels[0].maxSize = 480;
-            w2ui['layout'].panels[0].minSize = 240;
-            w2ui['layout'].panels[0].size = 240;
-        } else {
+        if (this.currentDataset === this.datasets.NuScenes) {
             w2ui['layout'].panels[0].minSize = Math.ceil(window.innerWidth) / (6 * 1.7778);
             w2ui['layout'].panels[0].maxSize = 360;
-
             w2ui['layout'].panels[0].size = Math.ceil(window.innerWidth) / (6 * 1.7778);
-
         }
         w2ui['layout'].resize();
 
@@ -965,47 +762,20 @@ let labelTool = {
     getFileNames() {
         let numFiles;
         let fileNameArray = [];
-        if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-            if (labelTool.currentSequence === labelTool.sequencesLISAT.date_2018_05_23_001_frame_00042917_00043816_small) {
-                labelTool.numFrames = 300;
-                numFiles = 300;
-            } else {
-                labelTool.numFrames = labelTool.numFramesLISAT;
-                // TODO: temporary set to 100 for testing (default: 900)
-                numFiles = 50;
-            }
-
-        } else {
+        if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
             labelTool.numFrames = labelTool.numFramesNuScenes;
             setSequences();
             labelTool.currentSequence = labelTool.sequencesNuScenes[0];
             numFiles = 120;//[3962, 120]
+
+        } else {
+
         }
         for (let i = 0; i < numFiles; i++) {
             fileNameArray.push(pad(i, 6))
         }
         return fileNameArray;
     },
-
-    // previousCamChannel: function () {
-    //     var currentChannel = this.currentCameraChannelIndex;
-    //     this.currentCameraChannelIndex = this.currentCameraChannelIndex - 1;
-    //     if (this.currentCameraChannelIndex < 0) {
-    //         this.currentCameraChannelIndex = 5;
-    //     }
-    //     this.changeCamChannel(currentChannel, this.currentCameraChannelIndex % 6);
-    // }
-    // ,
-    //
-    // nextCamChannel: function () {
-    //     var currentChannel = this.currentCameraChannelIndex;
-    //     this.currentCameraChannelIndex = this.currentCameraChannelIndex + 1;
-    //     if (this.currentCameraChannelIndex > 5) {
-    //         this.currentCameraChannelIndex = 0;
-    //     }
-    //     this.changeCamChannel(currentChannel, this.currentCameraChannelIndex % 6);
-    // }
-    // ,
 
     previousFrame: function () {
         if (this.currentFileIndex >= this.skipFrameCount) {
@@ -1187,17 +957,8 @@ let labelTool = {
         labelTool.removeObject("pointcloud-scan-" + this.currentFileIndex);
         labelTool.removeObject("pointcloud-scan-no-ground-" + this.currentFileIndex);
 
-        // -------------------------------------------------
-        // for (let i = 0; i < this.camChannels.length; i++) {
-        //     let img = imageArrayAll[this.currentFileIndex][i];
-        //     if (img !== undefined) {
-        //         img.remove();
-        //     }
-        // }
-        // -------------------------------------------------
         // bring current image into background instead of removing it
         setPanelSize(newFileIndex);
-        // -------------------------------------------------
 
 
         // remove all 3D BB objects from scene
@@ -1554,16 +1315,6 @@ let labelTool = {
 function setImageSize() {
     // calculate the image width given the window width
     labelTool.imageSizes = {
-        "LISA_T": {
-            minWidthNormal: Math.round(window.innerWidth / 7.0),
-            minHeightNormal: Math.round(window.innerWidth / (7.0 * 1.333)),
-            maxWidthNormal: Math.round(2 * window.innerWidth / 7.0),
-            maxHeightNormal: Math.round(2 * window.innerWidth / (7.0 * 1.333)),
-            minWidthWide: Math.round(1.5 * window.innerWidth / 7.0),
-            minHeightWide: Math.round(1.5 * window.innerWidth / (7.0 * 1.333)),
-            maxWidthWide: Math.round(2 * 1.5 * window.innerWidth / 7.0),
-            maxHeightWide: Math.round(2 * 1.5 * window.innerWidth / (7.0 * 1.333))
-        },
         "NuScenes": {
             minWidthNormal: Math.floor(window.innerWidth / 6),
             minHeightNormal: Math.floor(window.innerWidth / (6 * 1.77778)),
@@ -1664,7 +1415,7 @@ function numberToText(n) {
             return firstPart + "_" + secondPart;
         }
     } else if (n === 100) {
-        return "HUNDRED";
+        return "Hundred";
     }
 }
 
@@ -1780,10 +1531,7 @@ function remove2DBoundingBoxes() {
 function initPanes() {
     let maxHeight;
     let minHeight;
-    if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-        minHeight = labelTool.imageSizes["LISA_T"]["minHeightNormal"];
-        maxHeight = labelTool.imageSizes["LISA_T"]["maxHeightNormal"];
-    } else {
+    if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
         minHeight = labelTool.imageSizes["NuScenes"]["minHeightNormal"];
         maxHeight = labelTool.imageSizes["NuScenes"]["maxHeightNormal"];
     }
@@ -1799,10 +1547,7 @@ function initPanes() {
             let newImagePanelHeight = topElem.offsetHeight;
             let newWidth;
             let newWidthBackFront;
-            if (labelTool.currentDataset === labelTool.datasets.LISA_T) {
-                newWidth = newImagePanelHeight * labelTool.imageAspectRatioLISAT;
-                newWidthBackFront = newImagePanelHeight * labelTool.imageAspectRatioFrontBackLISAT;
-            } else {
+            if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
                 newWidth = newImagePanelHeight * labelTool.imageAspectRatioNuScenes;
             }
             if (newImagePanelHeight === 0 || newWidth === 0) {
@@ -1812,9 +1557,7 @@ function initPanes() {
                 if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
                     let channelObj = labelTool.camChannels[channelIdx];
                     let channel = channelObj.channel;
-                    if (labelTool.currentDataset === labelTool.datasets.LISA_T && (channel === "CAM_FRONT" || channel === "CAM_BACK")) {
-                        changeCanvasSize(newWidthBackFront, newImagePanelHeight, channel);
-                    } else {
+                    if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
                         changeCanvasSize(newWidth, newImagePanelHeight, channel);
                     }
                 }
@@ -1917,10 +1660,8 @@ function calculateAndDrawLineSegments(channelObj, className, horizontal, selecte
     let imageHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
     console.log(imageHeight);
     let imageWidth;
-    if (labelTool.currentDataset === labelTool.datasets.LISA_T && (channel === "CAM_FRONT" || channel === "CAM_BACK")) {
-        imageWidth = imageHeight * labelTool.imageAspectRatioFrontBackLISAT;
-    } else {
-        imageWidth = imageHeight * labelTool.imageAspectRatioLISAT;
+    if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
+        imageWidth = imageHeight * labelTool.imageAspectRatioNuScenes;
     }
 
     // bottom four lines
@@ -1931,11 +1672,6 @@ function calculateAndDrawLineSegments(channelObj, className, horizontal, selecte
 
 
     // draw line for orientation
-    // TODO: better draw filled polygon (transparent) like in scale.ai
-    // let pointZero = channelObj.projectedPoints[0].clone();
-    // let pointOne = channelObj.projectedPoints[1].clone();
-    // let pointTwo = channelObj.projectedPoints[2].clone();
-    // let pointThree = channelObj.projectedPoints[3].clone();
 
     let pointZero;
     let pointOne;
@@ -1943,19 +1679,11 @@ function calculateAndDrawLineSegments(channelObj, className, horizontal, selecte
     let pointThree;
     if (horizontal) {
         console.log("horizontal");
-        // pointZero = channelObj.projectedPoints[3].clone();
-        // pointOne = channelObj.projectedPoints[2].clone();
-        // pointTwo = channelObj.projectedPoints[6].clone();
-        // pointThree = channelObj.projectedPoints[7].clone();
         pointZero = channelObj.projectedPoints[4].clone();
         pointOne = channelObj.projectedPoints[5].clone();
         pointTwo = channelObj.projectedPoints[6].clone();
         pointThree = channelObj.projectedPoints[7].clone();
     } else {
-        // pointZero = channelObj.projectedPoints[6].clone();
-        // pointOne = channelObj.projectedPoints[2].clone();
-        // pointTwo = channelObj.projectedPoints[3].clone();
-        // pointThree = channelObj.projectedPoints[7].clone();
         pointZero = channelObj.projectedPoints[6].clone();
         pointOne = channelObj.projectedPoints[4].clone();
         pointTwo = channelObj.projectedPoints[5].clone();
@@ -1964,8 +1692,6 @@ function calculateAndDrawLineSegments(channelObj, className, horizontal, selecte
 
 
     let startPoint = pointZero.add(pointThree.sub(pointZero).multiplyScalar(0.5));
-    // pointZero = channelObj.projectedPoints[0].clone();
-    // pointThree = channelObj.projectedPoints[3].clone();
     let startPointCloned = startPoint.clone();
     let helperPoint = pointOne.add(pointTwo.sub(pointOne).multiplyScalar(0.5));
     let helperPointCloned = helperPoint.clone();
@@ -1973,7 +1699,6 @@ function calculateAndDrawLineSegments(channelObj, className, horizontal, selecte
     lineArray.push(drawLine(channelIdx, startPoint, endPoint, color));
 
 
-    // color = '#00ff00';
     // top four lines
     lineArray.push(drawLine(channelIdx, channelObj.projectedPoints[4], channelObj.projectedPoints[5], color));
     lineArray.push(drawLine(channelIdx, channelObj.projectedPoints[5], channelObj.projectedPoints[6], color));
@@ -2089,7 +1814,7 @@ function initFrameSelector() {
 }
 
 function setPanelSize(newFileIndex) {
-    let panelHeight = labelTool.imageSizes["LISA_T"]["minHeightNormal"];
+    let panelHeight = labelTool.imageSizes["NuScenes"]["minHeightNormal"];
     $("#layout_layout_panel_top").css("height", panelHeight);
     $("#layout_layout_resizer_top").css("top", panelHeight);
     $("#layout_layout_panel_main").css("top", panelHeight);
@@ -2109,16 +1834,9 @@ function setPanelSize(newFileIndex) {
             allSvg[j].style.zIndex = 0;
         }
         allSvg[labelTool.numFrames - newFileIndex - 1].style.zIndex = 2;
-        if (i === 1 || i === 4) {
-            // back or front
-            let imgWidth = 1.5 * window.innerWidth / 7;
-            allSvg[labelTool.numFrames - newFileIndex - 1].style.width = imgWidth;
-            allSvg[labelTool.numFrames - newFileIndex - 1].style.height = imgWidth / labelTool.imageAspectRatioFrontBackLISAT;
-        } else {
-            let imgWidth = window.innerWidth / 7;
-            allSvg[labelTool.numFrames - newFileIndex - 1].style.width = imgWidth;
-            allSvg[labelTool.numFrames - newFileIndex - 1].style.height = imgWidth / labelTool.imageAspectRatioLISAT;
-        }
+        let imgWidth = window.innerWidth / 7;
+        allSvg[labelTool.numFrames - newFileIndex - 1].style.width = imgWidth;
+        allSvg[labelTool.numFrames - newFileIndex - 1].style.height = imgWidth / labelTool.imageAspectRatioNuScenes;
     }
 
 }
