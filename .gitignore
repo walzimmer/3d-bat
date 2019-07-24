@@ -19,17 +19,6 @@ doc
 .pydevproject
 _ext
 
-input/NuScenes_full/*
-input/LISA_T/2018-05-23-001-frame-00042917-00043816/*
-input/LISA_T/2018-05-23-001-frame-00077323-00078222/*
-input/LISA_T/2018-05-23-001-frame-00080020-00080919/*
-input/LISA_T/2018-05-23-001-frame-00106993-00107892/*
-
-input/LISA_T/2018-07-02-005-frame-00000000-00000900/*
-input/LISA_T/2018-07-02-005-frame-00000900-00001800/*
-input/LISA_T/2018-07-02-005-frame-00001800-00002700/*
-
-
 
 # Logs
 logs
