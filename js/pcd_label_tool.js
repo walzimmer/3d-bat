@@ -2186,8 +2186,9 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, length, height, 
     // TODO: calculate scaling factor dynamically (based on top position of slider)
     let imageScalingFactor;
     let imagePanelHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
+    console.log("image panel height: "+imagePanelHeight)
     if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
-        imageScalingFactor = 1600 / imagePanelHeight;//5
+        imageScalingFactor = 900 / imagePanelHeight;//5
         xPos = xPos + labelTool.translationVectorLidarToCamFront[1];//lat
         yPos = yPos + labelTool.translationVectorLidarToCamFront[0];//long
         zPos = zPos + labelTool.translationVectorLidarToCamFront[2];//vertical
