@@ -1,7 +1,7 @@
 from PIL import Image, ImageDraw
 
-image_path_in = '/media/cvrr/161d15ca-26dc-4d36-b085-945b15ce24b8/sandbox/3D_BoundingBox_Annotation_Tool_3D_BAT/input/JPEGImages/CAM_BACK/000000.jpg'
-image_path_out = '/media/cvrr/161d15ca-26dc-4d36-b085-945b15ce24b8/sandbox/3D_BoundingBox_Annotation_Tool_3D_BAT/output/000000.jpg'
+image_path_in = '/path/to/CAM_BACK/000000.jpg'
+image_path_out = '/output/000000.jpg'
 
 bb = [711.2052971998752, 379.53076863504674, 1008.7345435520874, 570.4641298240495]
 

@@ -1,7 +1,7 @@
 import os
 
-path_in = '/media/cvrr/161d15ca-26dc-4d36-b085-945b15ce24b8/sandbox/3D_BoundingBox_Annotation_Tool_3D_BAT/input/NuScenes/pointclouds/all_scenes/'
-path_out = '/media/cvrr/161d15ca-26dc-4d36-b085-945b15ce24b8/sandbox/3D_BoundingBox_Annotation_Tool_3D_BAT/input/NuScenes/pointclouds_without_ground/all_scenes/'
+path_in = '/input/NuScenes/pointclouds/'
+path_out = '/input/NuScenes/pointclouds_without_ground/'
 for file in sorted(os.listdir(path_in)):
     lines = []
     pointcloud_without_ground = []

@@ -9,7 +9,7 @@ from nuscenes_utils.data_classes import PointCloud
 from nuscenes_utils.nuscenes import NuScenes
 
 nusc = NuScenes(version='v0.1',
-                dataroot='/media/cvrr/161d15ca-26dc-4d36-b085-945b15ce24b8/sandbox/datasets/nuscenes/nuscenes_teaser_meta_v1',
+                dataroot='datasets/nuscenes/nuscenes_teaser_meta_v1',
                 verbose=True)
 pointsensor_channel = 'LIDAR_TOP'
 camera_channels = ['CAM_FRONT', 'CAM_FRONT_RIGHT', 'CAM_BACK_RIGHT', 'CAM_BACK', 'CAM_BACK_LEFT', 'CAM_FRONT_LEFT']
