@@ -1,12 +1,12 @@
 import numpy as np
 
-# translation_vector_lidar_to_cam_front = -np.array([3.40200000000000, 10.4301000000000, -60.7137000000000, 1]).T  # lat, vert, long      working without rotation
-# translation_vector_lidar_to_cam_front = -np.array([3.40200000000000, -60.7137000000000, 10.4301000000000, 1]).T  # lat, long, vert      not working
-# translation_vector_lidar_to_cam_front = -np.array([-60.7137000000000, 10.4301000000000, 3.40200000000000, 1]).T  # long, vert, lat     not working
-# translation_vector_lidar_to_cam_front = -np.array([-60.7137000000000, 3.40200000000000, 10.4301000000000, 1]).T  # long, lat, vert      not working
+# translation_vector_lidar_to_cam_front = -np.array([3.40200000000000, 10.4301000000000, -60.7137000000000, 1]).T
+# translation_vector_lidar_to_cam_front = -np.array([3.40200000000000, -60.7137000000000, 10.4301000000000, 1]).T
+# translation_vector_lidar_to_cam_front = -np.array([-60.7137000000000, 10.4301000000000, 3.40200000000000, 1]).T
+# translation_vector_lidar_to_cam_front = -np.array([-60.7137000000000, 3.40200000000000, 10.4301000000000, 1]).T
 translation_vector_lidar_to_cam_front = -np.array(
-    [10.4301000000000, -60.7137000000000, 3.40200000000000, 1]).T  # vert, lat, long       not working
-# translation_vector_lidar_to_cam_front = -np.array([3.40200000000000, -60.7137000000000, 10.4301000000000, 1]).T  # vert, long, lat        not working
+    [10.4301000000000, -60.7137000000000, 3.40200000000000, 1]).T
+# translation_vector_lidar_to_cam_front = -np.array([3.40200000000000, -60.7137000000000, 10.4301000000000, 1]).T
 
 rotation_matrix_lidar_to_cam_front = np.array([[0.9972, -0.0734, -0.0130],
                                                [-0.0094, 0.0500, -0.9987],

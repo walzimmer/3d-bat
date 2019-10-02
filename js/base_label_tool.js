@@ -1658,7 +1658,6 @@ function calculateAndDrawLineSegments(channelObj, className, horizontal, selecte
 
 
     let imageHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
-    console.log(imageHeight);
     let imageWidth;
     if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
         imageWidth = imageHeight * labelTool.imageAspectRatioNuScenes;
@@ -1678,7 +1677,6 @@ function calculateAndDrawLineSegments(channelObj, className, horizontal, selecte
     let pointTwo;
     let pointThree;
     if (horizontal) {
-        console.log("horizontal");
         pointZero = channelObj.projectedPoints[4].clone();
         pointOne = channelObj.projectedPoints[5].clone();
         pointTwo = channelObj.projectedPoints[6].clone();
@@ -1834,7 +1832,8 @@ function setPanelSize(newFileIndex) {
             allSvg[j].style.zIndex = 0;
         }
         allSvg[labelTool.numFrames - newFileIndex - 1].style.zIndex = 2;
-        let imgWidth = window.innerWidth / 7;
+        let imgWidth = window.innerWidth / 6;
+        console.log("image_width_svg: " + imgWidth)
         allSvg[labelTool.numFrames - newFileIndex - 1].style.width = imgWidth;
         allSvg[labelTool.numFrames - newFileIndex - 1].style.height = imgWidth / labelTool.imageAspectRatioNuScenes;
     }

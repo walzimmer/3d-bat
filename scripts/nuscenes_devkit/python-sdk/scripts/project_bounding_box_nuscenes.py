@@ -33,14 +33,14 @@ from nuscenes_utils.nuscenes import NuScenes
 # cam = nusc.get('sample_data', camera_token)
 # pointsensor = nusc.get('sample_data', pointsensor_token)
 
-# file = '/media/cvrr/161d15ca-26dc-4d36-b085-945b15ce24b8/sandbox/datasets/nuscenes/nuscenes_teaser_meta_v1/samples/LIDAR_TOP/n008-2018-05-21-11-06-59-0400__LIDAR_TOP__1526915243047392.pcd.bin'
+# file = 'datasets/nuscenes/nuscenes_teaser_meta_v1/samples/LIDAR_TOP/n008-2018-05-21-11-06-59-0400__LIDAR_TOP__1526915243047392.pcd.bin'
 # pc = PointCloud.from_file(file)
 # print('tests')
 # 4xN
 
 
 nusc = NuScenes(version='v0.1',
-                dataroot='/media/cvrr/161d15ca-26dc-4d36-b085-945b15ce24b8/sandbox/datasets/nuscenes/nuscenes_teaser_meta_v1',
+                dataroot='datasets/nuscenes/nuscenes_teaser_meta_v1',
                 verbose=True)
 
 # 3d position in sensor coordinate frame (lidar)
