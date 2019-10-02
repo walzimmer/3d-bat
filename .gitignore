@@ -15,6 +15,7 @@ doc
 .DS_STORE
 .DS_Store
 .idea
+**/.idea
 .project
 .pydevproject
 _ext
