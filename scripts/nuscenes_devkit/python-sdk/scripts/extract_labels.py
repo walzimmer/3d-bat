@@ -7,10 +7,10 @@ from nuscenes_utils.nuscenes import NuScenes
 import numpy as np
 
 nusc = NuScenes(version='v0.1',
-                dataroot='/media/cvrr/161d15ca-26dc-4d36-b085-945b15ce24b8/sandbox/datasets/nuscenes/nuscenes_teaser_meta_v1/',
+                dataroot='nuscenes/nuscenes_teaser_meta_v1/',
                 verbose=True)
 
-# output_path = '/media/cvrr/161d15ca-26dc-4d36-b085-945b15ce24b8/sandbox/3D_BoundingBox_Annotation_Tool_3D_BAT/input/NuScenes/Annotations/'
+# output_path = 'input/NuScenes/Annotations/'
 output_path = 'tmp/'
 
 # iterate over all 3977 samples

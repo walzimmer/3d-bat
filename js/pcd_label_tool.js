@@ -2319,7 +2319,7 @@ function readPointCloud() {
     let rawFile = new XMLHttpRequest();
     try {
         if (labelTool.showOriginalNuScenesLabels === true) {
-            rawFile.open("GET", 'input/' + labelTool.currentDataset + '/pointclouds/all_scenes/' + pad(labelTool.currentFileIndex, 6) + '.pcd', false);
+            rawFile.open("GET", 'input/' + labelTool.currentDataset + '/pointclouds/' + pad(labelTool.currentFileIndex, 6) + '.pcd', false);
         } else {
             rawFile.open("GET", 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/pointclouds/' + pad(labelTool.currentFileIndex, 6) + '.pcd', false);
         }
@@ -2442,7 +2442,7 @@ function hideProjectedPoints() {
 function loadColorMap() {
     let rawFile = new XMLHttpRequest();
     try {
-        rawFile.open("GET", 'colormaps/' + activeColorMap, false);
+        rawFile.open("GET", 'assets/colormaps/' + activeColorMap, false);
     } catch (error) {
     }
 
@@ -2945,7 +2945,7 @@ function mouseUpLogic(ev) {
                 addBboxParameters.class = classesBoundingBox.targetName();
                 addBboxParameters.x = xPos;
                 addBboxParameters.y = yPos;
-                addBboxParameters.z = zPos + defaultHeight / 2 - labelTool.positionLidarNuScenes[2];
+                addBboxParameters.z = zPos + defaultHeight / 2 - labelTool.positionLidarNuscenes[2];
                 addBboxParameters.width = Math.abs(groundPointMouseUp.x - groundPointMouseDown.x);
                 addBboxParameters.length = Math.abs(groundPointMouseUp.y - groundPointMouseDown.y);
                 addBboxParameters.height = defaultHeight;
@@ -2954,7 +2954,7 @@ function mouseUpLogic(ev) {
                     class: classesBoundingBox.targetName(),
                     x: (groundPointMouseUp.x + groundPointMouseDown.x) / 2,
                     y: (groundPointMouseUp.y + groundPointMouseDown.y) / 2,
-                    z: zPos + defaultHeight / 2 - labelTool.positionLidarNuScenes[2],
+                    z: zPos + defaultHeight / 2 - labelTool.positionLidarNuscenes[2],
                     width: Math.abs(groundPointMouseUp.x - groundPointMouseDown.x),
                     length: Math.abs(groundPointMouseUp.y - groundPointMouseDown.y),
                     height: defaultHeight,

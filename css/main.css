@@ -564,43 +564,43 @@ td.fold-hard {
 
 #image-cam-front-left svg {
     position: absolute !important;
-    left: 0px;
-    width: 365px;
+    left: 0px !important;
+    width: 16.66666vw;
     z-index: 0;
 }
 
 #image-cam-front svg {
     position: absolute !important;
-    left: 365px;
-    width: 548px;
+    left: calc(16.66666vw * 1) !important;
+    width: 16.66666vw;
     z-index: 0;
 }
 
 #image-cam-front-right svg {
     position: absolute !important;
-    left: 913px;
-    width: 365px;
+    left: calc(16.66666vw * 2) !important;
+    width: 16.66666vw;
     z-index: 0;
 }
 
 #image-cam-back-right svg {
     position: absolute !important;
-    left: 1278px;
-    width: 365px;
+    left: calc(16.66666vw * 3) !important;
+    width: 16.66666vw;
     z-index: 0;
 }
 
 #image-cam-back svg {
     position: absolute !important;
-    left: 1643px;
-    width: 548px;
+    left: calc(16.66666vw * 4) !important;
+    width: 16.66666vw;
     z-index: 0;
 }
 
 #image-cam-back-left svg {
     position: absolute !important;
-    left: 2191px;
-    width: 365px;
+    left: calc(16.66666vw * 5) !important;
+    width: 16.66666vw;
     z-index: 0;
 }
 
