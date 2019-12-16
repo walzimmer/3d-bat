@@ -7,33 +7,32 @@
 5. Open folder '3d-bat' in PHP Storm
 5. Move into directory: `cd 3d-bat`
 6. Install required packages: `npm install`
-7. Open index.html with chromium-browser (Linux) or Chrome (Windows) within the IDE
+7. Open `index.html` with chromium-browser (Linux) or Chrome (Windows) within the IDE
 
 # Overview
-
 ![Overview](https://github.com/walzimmer/3d-bat/blob/master/assets/img/overview.png)
 
 # Paper
 ![Paper](https://github.com/walzimmer/3d-bat/blob/master/assets/img/paper.png)
 Reference: https://arxiv.org/abs/1905.00525
 
-# 3D Boundingbox Annotation Instructions
-Step 1: Watch raw video (10 sec) to get familiar with the sequence and to see where interpolation makes sense
-Step 2: Watch tutorial videos to get familiar with (translation/scaling/rotating objects, interpolation and how to use helper views)
-Step 3: Start WhatPulse. Login with koyunujiju@braun4email.com and password: labeluser
-Step 4: Draw bounding box in the Bird's-Eye-View (BEV)
-Step 5: Move/Scale it in BEV using 3D arrows (drag and drop) or sliders
-Step 6: Choose one of the 5 classes (Car, Pedestrian, Cyclist, Motorbike, Truck)
-Step 7: Interpolate if necessary
-    a. Select Object to interpolate by clicking on a Bounding Box
-    b. Activate 'Interpolation Mode' in the menu (checkbox) -> start position will be saved
-    c. Move to desired frame by skipping x frames
-    d. Translate object to new position
-    e. Click on the 'Interpolate' button in the menu
-Step 8: Repeat steps 4-7 for all objects in the sequence
-Step 9: Download labels to your computer (JSON file)
-Step 10: Stop the time after labeling is done.
-Step 11: Make screenshots of keyboard and mouse heat map, record number of clicks and keystrokes
+# 3D Bounding Box Labelling Instructions
+1. Watch raw video (10 sec) to get familiar with the sequence and to see where interpolation makes sense
+2. Watch tutorial videos to get familiar with (translation/scaling/rotating objects, interpolation and how to use helper views)
+3. Start WhatPulse. Login with koyunujiju@braun4email.com and password: labeluser
+4. Draw bounding box in the Bird's-Eye-View (BEV)
+5. Move/Scale it in BEV using 3D arrows (drag and drop) or sliders
+6. Choose one of the 5 classes (Car, Pedestrian, Cyclist, Motorbike, Truck)
+7. Interpolate if necessary
+   1. Select Object to interpolate by clicking on a Bounding Box
+   2. Activate 'Interpolation Mode' in the menu (checkbox) -> start position will be saved
+   3. Move to desired frame by skipping x frames
+   4. Translate object to new position
+   5. Click on the 'Interpolate' button in the menu
+8. Repeat steps 4-7 for all objects in the sequence
+9. Download labels to your computer (JSON file)
+10. Stop the time after labeling is done.
+11. Make screenshots of keyboard and mouse heat map, record number of clicks and keystrokes
 
 
 # Keyboard Shortcuts
@@ -109,44 +108,40 @@ Step 11: Make screenshots of keyboard and mouse heat map, record number of click
 |                                                                                                                               | Quit fullscreen cam image (TODO)||
 | ![ALT](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/alt.png)![MOUSELEFT](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/mouseleft.png) | Copy bounding box (by dragging) (TODO)||
 
-
-
-
-
 Hints:
-+ Select 'Copy label to next frame' checkbox if you want to keep the label (position, size, class) for next frame
++ Select `Copy label to next frame` checkbox if you want to keep the label (position, size, class) for next frame
 + Use helper views to align object along z-axis (no need to switch into 3D view)
 + Label one object from start to end (using interpolation) and then continue with next object
 + **Do not** apply more than one box to a single object.
 + Check every cuboid in every frame, to make sure all points are inside the cuboid and **look reasonable in the image view**.
 + The program has been quite stable in my use cases, but there is no guarantee that it won't crash. So please back up (download) your annotated scenes (~every 10 min). Saving to local storage (browser) is done automatically.
-+ Download the annotation file into the following folder: ```3d-bat/input/<DATASET>/<SEQUENCE>/annotations```
++ Download the annotation file into the following folder: `3d-bat/input/<DATASET>/<SEQUENCE>/annotations`
 + Please open new issue tickets on Github for questions and bug reports or write me an email (wzimmer@eng.ucsd.edu). Thanks!
 
 # Special Rules
 + **Minimum LIDAR Points** :
-    + Label any target object containing **at least 10 LIDAR point**, as long as you can be reasonably sure you know the location and shape of the object. Use your best judgment on correct cuboid position, sizing, and heading.
+    + Label any target object containing **at least 10 LIDAR points**, as long as you can be reasonably sure you know the location and shape of the object. Use your best judgment on correct cuboid position, sizing, and heading.
 + **Cuboid Sizing** :
     + **Cuboids must be very tight.** Draw the cuboid as close as possible to the edge of the object without excluding any LIDAR points. There should be almost no visible space between the cuboid border and the closest point on the object.
 + **Extremities** :
     + **If** an object has extremities (eg. arms and legs of pedestrians), **then** the bounding box should include the extremities.
     + **Exception**: Do not include vehicle side view mirrors. Also, do not include other vehicle extremities (crane arms etc.) that are above 1.5 meters high.
 + **Carried Object** :
-    + If a pedestrian is carrying an object (bags, umbrellas, tools etc.), such object will be included in the bounding box for the pedestrian. If two or more pedestrians are carrying the same object, the bounding box of only one of them will include the object.
-+ **Use Pictures**:
+    + If a pedestrian is carrying an object (bag, umbrella, tools etc.), such objects will be included in the bounding box for the pedestrian. If two or more pedestrians are carrying the same object, the bounding box of only one of them will include the object.
++ **Use Images when Necessary**:
     + For objects with few LIDAR points, use the images to make sure boxes are correctly sized. If you see that a cuboid is too short in the image view, adjust it to cover the entire object based on the image view.
 
 # Labels
 **For every bounding box, include one of the following labels:**
-1. **[Car](#car)**: Vehicle designed primarily for personal use, e.g. sedans, hatch-backs, wagons, vans, mini-vans, SUVs, jeeps and pickup trucks (A pickup truck is a light duty truck with an enclosed cab and an open or closed cargo area. A pickup truck can be intended primarily for hauling cargo or for personal use).   
+1. **[Car](#car)**: Vehicle designed primarily for personal use, e.g. sedans, hatch-backs, wagons, vans, mini-vans, SUVs, jeeps and pickup trucks (a pickup truck is a light duty truck with an enclosed cab and an open or closed cargo area; a pickup truck can be intended primarily for hauling cargo or for personal use).   
 
 2. **[Truck](#truck)**: Vehicles primarily designed to haul cargo including lorrys, trucks.
 
-3. **[Motorcycle](#motorcycle)**: Gasoline or electric powered 2-wheeled vehicle designed to move rapidly (at the speed of standard cars) on the road surface. This category includes all motorcycles, vespas and scooters. It also includes light 3-wheel vehicles, often with a light plastic roof and open on the sides, that tend to be common in Asia. If there is a rider and/or passenger, include them in the box.
+3. **[Motorcycle](#motorcycle)**: Gasoline or electric powered 2-wheeled vehicle designed to move rapidly (at the speed of standard cars) on the road surface. This category includes all motorcycles, vespas and scooters. It also includes light 3-wheel vehicles, often with a light plastic roof and open on the sides, that tend to be common in Asia (rickshaws). If there is a rider and/or passenger, include them in the box.
 
 4. **[Bicycle](#bicycle)**: Human or electric powered 2-wheeled vehicle designed to travel at lower speeds either on road surface, sidewalks or bicycle paths. If there is a rider and/or passenger, include them in the box.
 
-5. **[Pedestrian](#pedestrian)**: An adult/child pedestrian moving around the cityscape. Mannequins should also be annotated as Pedestrian.  
+5. **[Pedestrian](#pedestrian)**: An adult/child pedestrian moving around the cityscape. Mannequins should also be annotated as `Pedestrian`.  
 
  # Detailed Instructions and Examples
 
@@ -162,7 +157,7 @@ Bounding Box color convention in example images:
     ![](https://www.nuscenes.org/public/images/taxonomy_imgs/personal_vehicle_4.jpg)
 
 ## Truck
-+ Vehicles primarily designed to haul cargo including lorrys, trucks, pickup truck (+ A pickup truck is a light duty truck with an enclosed cab and an open or closed cargo area. A pickup truck can be intended primarily for hauling cargo or for personal use).
++ Vehicles primarily designed to haul cargo including lorrys, trucks, pickup truck (a pickup truck is a light duty truck with an enclosed cab and an open or closed cargo area; a pickup truck can be intended primarily for hauling cargo or for personal use).
 
     ![](https://www.nuscenes.org/public/images/taxonomy_imgs/truck_2.jpg)
     ![](https://www.nuscenes.org/public/images/taxonomy_imgs/truck_3.jpg)
@@ -180,7 +175,7 @@ Bounding Box color convention in example images:
     ![](https://www.nuscenes.org/public/images/taxonomy_imgs/front_of_semi_truck_8.png)
 
  ## Motorcycle
-+ Gasoline or electric powered 2-wheeled vehicle designed to move rapidly (at the speed of standard cars) on the road surface. This category includes all motorcycles, vespas and scooters. It also includes light 3-wheel vehicles, often with a light plastic roof and open on the sides, that tend to be common in Asia.
++ Gasoline or electric powered 2-wheeled vehicle designed to move rapidly (at the speed of standard cars) on the road surface. This category includes all motorcycles, vespas and scooters. It also includes light 3-wheel vehicles, often with a light plastic roof and open on the sides, that tend to be common in Asia (rickshaws).
     + If there is a rider, include the rider in the box.
     + If there is a passenger, include the passenger in the box.
     + If there is a pedestrian standing next to the motorcycle, do NOT include in the annotation.
