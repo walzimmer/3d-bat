@@ -1,12 +1,12 @@
 # Installation
-1. Clone repository: git clone https://github.com/walzimmer/3d-bat.git
-2. Install npm (linux): $sudo apt-get install npm
+1. Clone repository: `git clone https://github.com/walzimmer/3d-bat.git`
+2. Install npm (linux): `sudo apt-get install npm`
    + OR: Install npm (windows): https://nodejs.org/dist/v10.15.0/node-v10.15.0-x86.msi
 3. Install PHP Storm (IDE with integrated server): https://www.jetbrains.com/phpstorm/download/download-thanks.html
 4. [OPTIONAL] Install WhatPulse to measure the number of clicks and key strokes while labeling: https://whatpulse.org/
 5. Open folder '3d-bat' in PHP Storm
-5. Move into directory: $cd 3d-bat
-6. Install required packages: $npm install
+5. Move into directory: `cd 3d-bat`
+6. Install required packages: `npm install`
 7. Open index.html with chromium-browser (Linux) or Chrome (Windows) within the IDE
 
 # Overview
