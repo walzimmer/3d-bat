@@ -17,6 +17,10 @@
 ![Paper](https://github.com/walzimmer/3d-bat/blob/master/assets/img/paper.png)
 Reference: https://arxiv.org/abs/1905.00525
 
+# Video
+![Video](https://github.com/walzimmer/3d-bat/blob/master/assets/img/paper.png)
+Link: https://www.youtube.com/watch?v=gSGG4Lw8BSU
+
 # 3D Bounding Box Labelling Instructions
 1. Watch raw video (10 sec) to get familiar with the sequence and to see where interpolation makes sense
 2. Watch tutorial videos to get familiar with (translation/scaling/rotating objects, interpolation and how to use helper views)
