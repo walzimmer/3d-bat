@@ -1,3 +1,6 @@
+# 3D BAT
+![3D BAT](https://github.com/walzimmer/3d-bat/blob/master/assets/img/3d-bat.png)
+
 # Installation
 1. Clone repository: `git clone https://github.com/walzimmer/3d-bat.git`
 2. Install npm 
