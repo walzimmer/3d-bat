@@ -23,6 +23,9 @@
 ![Paper](https://github.com/walzimmer/3d-bat/blob/master/assets/img/paper.png)
 Reference: https://arxiv.org/abs/1905.00525
 
+# Animation
+![Animation](https://github.com/walzimmer/3d-bat/blob/master/assets/img/animation.gif)
+
 # Video
 ![Video](https://github.com/walzimmer/3d-bat/blob/master/assets/img/video.png)
 Link: https://www.youtube.com/watch?v=gSGG4Lw8BSU
