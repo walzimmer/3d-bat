@@ -11,10 +11,11 @@
    + Windows: https://nodejs.org/dist/v10.15.0/node-v10.15.0-x86.msi
 3. Install PHP Storm (IDE with integrated server): https://www.jetbrains.com/phpstorm/download/download-thanks.html
 4. [OPTIONAL] Install WhatPulse to measure the number of clicks and key strokes while labeling: https://whatpulse.org/
-5. Open folder `3d-bat` in PHP Storm
-5. Move into directory: `cd 3d-bat`
-6. Install required packages: `npm install`
-7. Open `index.html` with chromium-browser (Linux) or Chrome (Windows) within the IDE
+5. Open folder `3d-bat` in PHP Storm.
+5. Move into directory: `cd 3d-bat`.
+6. Download a part of the NuScenes dataset from [here](https://github.com/walzimmer/3d-bat/releases/download/v0.1.0/NuScenes.zip) and extract the content into the `3d-bat/input/` folder.
+7. Install required packages: `npm install`
+8. Open `index.html` with chromium-browser (Linux) or Chrome (Windows) within the IDE.
 
 # Overview
 ![Overview](https://github.com/walzimmer/3d-bat/blob/master/assets/img/overview.png)
@@ -215,7 +216,7 @@ Bounding Box color convention in example images:
     ![](https://www.nuscenes.org/public/images/taxonomy_imgs/bicycle_4.jpg)
 
 
-## Adult/child Pedestrian
+## Pedestrian
 + An adult/child pedestrian moving around the cityscape.
     + Mannequins should also be treated as pedestrian.
 
