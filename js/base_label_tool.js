@@ -340,7 +340,6 @@ let labelTool = {
                     annotations[i][key] = parseInt(annotations[i][key]);
                 });
                 let annotation = annotations[i];
-                // annotationObjects.selectEmpty();
                 let params = getDefaultObject();
                 params.class = annotation.class;
                 params.rotationY = parseFloat(annotation.rotationY);
