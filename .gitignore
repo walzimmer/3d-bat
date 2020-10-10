@@ -116,3 +116,7 @@ typings/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# input
+input/NuScenes
+input/providentia
