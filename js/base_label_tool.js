@@ -153,56 +153,9 @@ let labelTool = {
      * Define these functions in the labeling tools.
      **************************************************/
 
-    // onLoadData: function (dataType, f) {
-    //     this.localOnLoadData[dataType] = f;
-    // },
-
     onInitialize: function (dataType, f) {
         this.localOnInitialize[dataType] = f;
     },
-
-    /****************** Private functions **************/
-
-    // localOnLoadData: {
-    //     "CAM_FRONT_LEFT":
-    //         function () {
-    //         }
-    //     ,
-    //     "CAM_FRONT":
-    //
-    //         function () {
-    //         }
-    //
-    //     ,
-    //     "CAM_FRONT_RIGHT":
-    //
-    //         function () {
-    //         }
-    //
-    //     ,
-    //     "CAM_BACK_RIGHT":
-    //
-    //         function () {
-    //         }
-    //
-    //     ,
-    //     "CAM_BACK":
-    //
-    //         function () {
-    //         }
-    //
-    //     ,
-    //     "CAM_BACK_LEFT":
-    //
-    //         function () {
-    //         }
-    //
-    //     ,
-    //     "PCD":
-    //
-    //         function () {
-    //         }
-    // },
 
     localOnLoadAnnotation: {
         "CAM_FRONT_LEFT":
@@ -887,60 +840,6 @@ let labelTool = {
                 break;
         }
     },
-    // changeCamChannel: function (currentChannelNumber, nextChannelNumber) {
-    //     // if (this.dataTypes.indexOf("PCD") >= 0) {
-    //     //     // remove all folder of current channel
-    //     //     for (var k = 0; k < annotationObjects.contents.length; k++) {
-    //     //         guiOptions.removeFolder(annotationObjects.contents[k]["class"] + ' ' + annotationObjects.contents[k]["trackId"]);
-    //     //     }
-    //     // }
-    //     if (this.hasLoadedPCD) {
-    //         cFlag = false;
-    //         rFlag = false;
-    //         this.bboxes = [];
-    //         // do not delete bounding boxes that were set previously
-    //         // this.cubeArray[this.currentFileIndex][this.currentCameraChannelIndex] = [];
-    //         numbertagList = [];
-    //         folderBoundingBox3DArray = [];
-    //         guiTag = [];
-    //         numbertagList = [];
-    //         folderPositionArray = [];
-    //         folderSizeArray = [];
-    //         this.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex] = [];
-    //     }
-    //     var previousChannelNumber = currentChannelNumber - 1;
-    //     if (previousChannelNumber < 0) {
-    //         previousChannelNumber = 5;
-    //     }
-    //     this.hasLoadedImage[labelTool.camChannels.indexOf(previousChannelNumber)] = false;
-    //     this.hasLoadedImage[labelTool.camChannels.indexOf(currentChannelNumber)] = false;
-    //     this.hasLoadedImage[labelTool.camChannels.indexOf(nextChannelNumber)] = false;
-    //     this.hasLoadedPCD = false;
-    //     this.showData();
-    //
-    //     // render labels
-    //     // hold flag not set
-    //     if (this.savedFrames[this.currentFileIndex][this.currentCameraChannelIndex] == true) {
-    //
-    //     } else {
-    //         // load annotations from file for all three camera views if they exist, otherwise show blank image
-    //         if (annotationFileExist(this.currentFileIndex)) {
-    //             this.getAnnotations(this.currentFileIndex);
-    //         } else {
-    //             // no annotations are loaded
-    //             annotationObjects.clear();
-    //         }
-    //     }
-    //
-    //     // change FOV of camera
-    //     this.removeObject('rightplane');
-    //     this.removeObject('leftplane');
-    //     this.removeObject('prism');
-    //     this.drawFieldOfView();
-    //
-    //
-    // }
-    // ,
     changeFrame: function (newFileIndex) {
         if (newFileIndex === labelTool.numFrames - 1 && labelTool.playSequence === true) {
             // last frame will be shown
@@ -1271,39 +1170,6 @@ let labelTool = {
             }
         }
     },
-
-// selectYes() {
-//     $(function () {
-//         $("#label-tool-dialogue-overlay").remove();
-//     });
-//     if (updateFlag)
-//         return;
-//     updateFlag = true;
-//     document.getElementById("overlay-text").innerHTML = "Updating Database...";
-//     $(function () {
-//         $("#label-tool-status-overlay").fadeIn();
-//     });
-//     this.setAnnotations();
-//     $.ajax({
-//         url: '/labeling_tool/update_database/',
-//         type: 'POST',
-//         dataType: 'json',
-//         data: {
-//             images: this.fileNames.length,
-//             label_id: this.labelId
-//         },
-//         complete: function (res) {
-//             location.href = "label_select";
-//         }.bind(this)
-//     })
-// },
-//
-// selectNo() {
-//     $(function () {
-//         $("#label-tool-dialogue-overlay").fadeOut();
-//     });
-// },
-
 
     handlePressKey: function (code, value) {
         if (code === 13) {

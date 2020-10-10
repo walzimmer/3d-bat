@@ -791,18 +791,6 @@ function update2DBoundingBox(fileIndex, objectIndex, isSelected) {
     }
 }
 
-// function updateChannels(insertIndex) {
-// let annotationObj = annotationObjects.contents[labelTool.currentFileIndex][insertIndex];
-// let posX = annotationObj.x;
-// let posY = annotationObj.y;
-// let posZ = annotationObj.z;
-// let channels = getChannelsByPosition(posX, posY, posZ);
-// annotationObj.channels[0].channel = channels[0];
-// if (channels[1] !== undefined) {
-//     annotationObj.channels[1].channel = channels[1];
-// }
-// }
-
 function updateXPos(newFileIndex, value) {
     labelTool.cubeArray[newFileIndex][interpolationObjIndexNextFile].position.x = value;
     annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["interpolationEnd"]["position"]["x"] = value;
@@ -905,7 +893,6 @@ function deleteObject(bboxClass, trackId, labelIndex) {
     labelTool.spriteArray[labelTool.currentFileIndex].splice(labelIndex, 1);
     labelTool.removeObject("sprite-" + bboxClass.charAt(0) + trackId);
     // NOTE: already removed in annotationObjects.remove()
-    //labelTool.removeObject("cube-" + bboxClass.charAt(0) + trackId);
     // remove sprite from DOM tree
     $("#tooltip-" + bboxClass.charAt(0) + trackId).remove();
     labelTool.selectedMesh = undefined;
@@ -1256,10 +1243,6 @@ function onWindowResize() {
     views[3].height = newHeight;
     views[3].top = 2 * newHeight;
 
-    // var canvas3D = $("canvas3d");
-    // camera.aspect = canvas3D.getAttribute("width") / canvas3D.getAttribute("height");
-    // camera.updateProjectionMatrix();
-    // renderer.setSize(canvas3D.getAttribute("width"), canvas3D.getAttribute("height"));
     currentCamera.aspect = window.innerWidth / window.innerHeight;
     currentCamera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -1326,23 +1309,8 @@ function onChangeHandler(event) {
         }
     }
 
-
-    // dragObject = true;
-    // change type (e.g. from translate to scale)
-    // or a new bounding box object is created
-    // or hover over an arrow
-    // or dragging starts or draggin ends
-    // or mousedown or mouseup
     render();
 
-    // console.log("change");
-    // console.log("mode: "+event.target.getMode());
-    // translating works (no object is created), problem: selection randomly works
-    // scaleRotateTranslate = true;
-    // selection works (clicking on background, current object will be unselected), problem: after translation an object is created
-    // scaleRotateTranslate = !scaleRotateTranslate;
-    // update bounding box in image
-    // console.log(event);
 }
 
 function onDraggingChangedHandler(event) {
@@ -1623,14 +1591,6 @@ function setCamera() {
         if (transformControls !== undefined) {
             if (labelTool.selectedMesh !== undefined) {
                 addTransformControls();
-                // if in birdseyeview then find minimum of longitude and latitude
-                // otherwise find minimum of x, y and z
-                // let smallestSide;
-                // if (birdsEyeViewFlag === true) {
-                //     smallestSide = Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y);
-                // } else {
-                //     smallestSide = Math.min(Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y), labelTool.selectedMesh.scale.z);
-                // }
                 transformControls.size = 2;
                 transformControls.showZ = true;
             } else {
@@ -1649,67 +1609,7 @@ function setCamera() {
         } else {
             setOrbitControls();
         }
-
         // TODO: enable to fly through the 3d scene using keys
-        // let onKeyDown = function (event) {
-        //
-        //     switch (event.keyCode) {
-        //
-        //         case 87: // w
-        //             moveForward = true;
-        //             break;
-        //
-        //         case 65: // a
-        //             moveLeft = true;
-        //             break;
-        //
-        //         case 83: // s
-        //             moveBackward = true;
-        //             break;
-        //
-        //         case 68: // d
-        //             moveRight = true;
-        //             break;
-        //     }
-        //
-        // };
-        //
-        // let onKeyUp = function (event) {
-        //
-        //     switch (event.keyCode) {
-        //
-        //         case 87: // w
-        //             moveForward = false;
-        //             break;
-        //
-        //         case 65: // a
-        //             moveLeft = false;
-        //             break;
-        //
-        //         case 83: // s
-        //             moveBackward = false;
-        //             break;
-        //
-        //         case 68: // d
-        //             moveRight = false;
-        //             break;
-        //
-        //     }
-        //
-        // };
-        //
-        // document.removeEventListener('keydown', onKeyDown);
-        // document.addEventListener('keydown', onKeyDown, false);
-        // document.removeEventListener('keyup', onKeyUp);
-        // document.addEventListener('keyup', onKeyUp, false);
-
-        // let pos = labelTool.camChannels[0].position;
-        // controls.object.position.set(-pos[1], pos[0] - labelTool.positionLidarNuscenes[0], labelTool.positionLidarNuscenes[2] - pos[2]);
-        // controls.target = new THREE.Vector3(-pos[1] - 0.0000001, pos[0] - labelTool.positionLidarNuscenes[0] + 0.0000001, labelTool.positionLidarNuscenes[2] - pos[2]);// look backward
-
-        // orbitControls.update();
-        // currentOrbitControls.removeEventListener('change', render);
-        // currentOrbitControls.addEventListener('change', render);
     } else {
         // BEV
         if (transformControls !== undefined) {
@@ -1728,33 +1628,7 @@ function setCamera() {
         currentOrbitControls.enableKeys = false;
         currentOrbitControls.maxPolarAngle = Math.PI / 2;
 
-        // orbitControls = new THREE.OrbitControls(currentCamera, renderer.domElement);
-        // currentOrbitControls = orthographicOrbitControls;
-        // currentOrbitControls.object.position.set(0, 0, 100);
-        // currentOrbitControls.object.rotation.set(0, THREE.Math.degToRad(90), 0);
-        // controls.rotateSpeed = 2.0;
-        // controls.zoomSpeed = 0.3;
-        // controls.panSpeed = 0.2;
-        // controls.enableZoom = true;
-        // controls.enablePan = true;
-        // orbitControls.enableRotate = false;
-
-
-        // controls.enableDamping = false;
-        // controls.dampingFactor = 0.3;
-        // controls.minDistance = 0.3;
-        // controls.maxDistance = 0.3 * 100;
-        // controls.noKey = true;
-        // controls.autoForward = true;
-        // controls.movementSpeed = 1000;
-        // controls.rollSpeed = Math.PI / 24;
-        // controls.enabled = true;
-        // controls.target.set(0, 0, 0);
-        // controls.autoRotate = true;
-        // orbitControls.update();
     }
-    // scene.add(camera);
-    // currentOrbitControls.addEventListener('change', render);
     if (keyboardNavigation === false) {
         currentOrbitControls.update();
     }
@@ -1762,9 +1636,6 @@ function setCamera() {
 }
 
 function render() {
-    // renderer.clear();
-    // renderer.clearColor(22, 22, 22);
-    // renderer.setClearColor(new THREE.Color(22 / 256.0, 22 / 256.0, 22 / 256.0));
     // render main window
     let mainView = views[0];
     renderer.setViewport(mainView.left, mainView.top, mainView.width, mainView.height);
@@ -1849,40 +1720,13 @@ function update() {
         }
     }
 
-
-    // rescale transform controls
-    // if (labelTool.selectedMesh !== undefined && birdsEyeViewFlag === true) {
-    //     let newSize = labelTool.selectedMesh.position.distanceTo(currentCamera.position) / 6;
-    //     console.log(newSize);
-    //     transformControls.size = newSize;
-    // } else {
-    //     // dis
-    // }
-
-
     // find intersections
     // create a Ray with origin at the mouse position
     // and direction into the scene (camera direction)
     let vector = new THREE.Vector3(mousePos.x, mousePos.y, 1);
-    // console.log(vector.x + " " + vector.y);
     vector.unproject(currentCamera);
     let ray = new THREE.Raycaster(currentCamera.position, vector.sub(currentCamera.position).normalize());
-    // create an array containing all objects in the scene with which the ray intersects
-    // filter objects
-    // let cubeList = [];
-    // for (let objIdx in scene.children) {
-    //     if (scene.children.hasOwnProperty(objIdx)) {
-    //         let obj = scene.children[objIdx];
-    //         if (obj.name.startsWith("cube")) {
-    //             cubeList.push(obj);
-    //         }
-    //     }
-    //
-    // }
-    //let intersects = ray.intersectObjects(cubeList);
     let intersects = ray.intersectObjects(scene.children);
-    // intersectedObject = the object in the scene currently closest to the camera
-    //		and intersected by the Ray projected from the mouse position
 
     // if there is one (or more) intersections
     if (intersects.length > 0) {
@@ -1912,133 +1756,12 @@ function update() {
     }
 
     keyboard.update();
-    let moveDistance = 50 * clock.getDelta();
-    // if (keyboardNavigation === true) {
-    //     if (keyboard.down("A")) {
-    //         // A MOVE LEFT
-    //         currentCamera.position.x = currentCamera.position.x - moveDistance;
-    //     }
-    //     if (keyboard.down("W")) {
-    //         // W MOVE FORWARD
-    //         currentCamera.position.y = currentCamera.position.y + moveDistance;
-    //     }
-    //     if (keyboard.down("D")) {
-    //         // D MOVE RIGHT
-    //         currentCamera.position.x = currentCamera.position.x + moveDistance;
-    //     }
-    //     if (keyboard.down("S")) {
-    //         // S MOVE BACKWARD
-    //         currentCamera.position.y = currentCamera.position.y - moveDistance;
-    //     }
-    //     if (keyboard.down("left")) {
-    //         // LEFT ROTATION (YAW)
-    //         currentCamera.rotation.y = currentCamera.rotation.y - moveDistance;
-    //     }
-    //     if (keyboard.down("up")) {
-    //         // UP ROTATION (PITCH)
-    //         currentCamera.rotation.x = currentCamera.rotation.x + moveDistance;
-    //     }
-    //     if (keyboard.down("right")) {
-    //         // RIGHT ROTATION (YAW)
-    //         currentCamera.rotation.y = currentCamera.rotation.y + moveDistance;
-    //     }
-    //     if (keyboard.down("down")) {
-    //         // DOWN ROTATION (PITCH)
-    //         currentCamera.rotation.x = currentCamera.rotation.x - moveDistance;
-    //     }
-    //     currentCamera.updateProjectionMatrix();
-    // }
 }
 
 //draw animation
 function animate() {
     requestAnimationFrame(animate);
 
-    // var delta = clock.getDelta();
-    // controls.update(delta);
-    // keyboard.update();
-    // if (keyboard.down("shift")) {
-    //     controls.enabled = true;
-    //     bboxFlag = false;
-    // }
-    //
-    // if (keyboard.up("shift")) {
-    //     controls.enabled = false;
-    //     bboxFlag = true;
-    // }
-
-    // if (keyboard.down("alt")) {
-    //     moveFlag = true;
-    // }
-    // if (keyboard.up("alt")) {
-    //     moveFlag = false;
-    // }
-    // if (keyboard.down("C")) {
-    //     rFlag = false;
-    //     if (cFlag === false) {
-    //         copyBboxIndex = annotationObjects.getSelectionIndex();
-    //         copyBbox = annotationObjects.contents[labelTool.currentFileIndex][copyBboxIndex];
-    //         cFlag = true;
-    //     } else {
-    //         copyBboxIndex = -1;
-    //         cFlag = false;
-    //     }
-    // }
-    // if (keyboard.down("R")) {
-    //     cFlag = false;
-    //     if (rFlag === false) {
-    //         rotationBboxIndex = annotationObjects.getSelectionIndex();
-    //         rFlag = true;
-    //     }
-    //     else {
-    //         rotationBboxIndex = -1;
-    //         rFlag = false;
-    //     }
-    // }
-
-    // required if autoupdate
-    // currentOrbitControls.update();
-
-    // stats.update();
-    // if (annotationObjects.getSelectionIndex() !== rotationBboxIndex) {
-    //     rFlag = false;
-    // }
-    // var cubeLength;
-    // var cubes = labelTool.cubeArray[labelTool.currentFileIndex];
-    // if (cubes == undefined) {
-    //     cubeLength = 0;
-    // } else {
-    //     cubeLength = cubes.length;
-    // }
-
-    // for (var i = 0; i < labelTool.cubeArray[labelTool.currentFileIndex].length; i++) {
-    //     if (labelTool.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex][i] == annotationObjects.getSelectionIndex()) {
-    //         folderBoundingBox3DArray[i].open();
-    //         folderPositionArray[i].open();
-    //         folderSizeArray[i].open();
-    //     }
-    //     else {
-    //         folderBoundingBox3DArray[i].close();
-    //     }
-    //     if (i == labelTool.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex].lastIndexOf(copyBboxIndex.toString()) && cFlag == true) {
-    //         labelTool.cubeArray[labelTool.currentFileIndex][i].material.color.setHex(0xffff00);
-    //     }
-    //     else if (folderBoundingBox3DArray[i].closed == false) {
-    //         if (i == labelTool.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex].lastIndexOf(rotationBboxIndex.toString()) && rFlag == true) {
-    //             labelTool.cubeArray[labelTool.currentFileIndex][i].material.color.setHex(0xff8000);
-    //         }
-    //         else {
-    //             labelTool.cubeArray[labelTool.currentFileIndex][i].material.color.setHex(0xff0000);
-    //             folderPositionArray[i].open();
-    //             folderSizeArray[i].open();
-    //         }
-    //     }
-    //
-    //     else if (folderBoundingBox3DArray[i].closed == true) {
-    //         labelTool.cubeArray[labelTool.currentFileIndex][i].material.color.setHex(0x008866);
-    //     }
-    // }
-    // cameraControls.update(camera, keyboard, clock);
     update();
     if (keyboardNavigation === true && pointerLockControls !== undefined) {
         let time = performance.now();
@@ -2068,24 +1791,6 @@ function animate() {
         pointerLockControls.getObject().translateX(translationVelocity.x * delta);//lateral
         pointerLockControls.getObject().translateY(translationVelocity.y * delta);//vertical
         pointerLockControls.getObject().translateZ(translationVelocity.z * delta);//longitudinal
-
-        // pointerLockControls.getObject().rotateX(rotationVelocity.x * delta);//pitch
-        // pointerLockControls.getObject().rotateY(rotationVelocity.y * delta);//yaw
-        //pointerLockControls.getObject().rotateZ(rotationVelocity.z * delta);//roll not used
-
-
-        // TODO: do not allow to rotate up/down (pitch) because yaw will not work afterwards (because yaw rotation around local vertical axis)
-        // solution: yaw rotation around vertical WORLD axis!
-        // if (rotateUp) {
-        //     pointerLockObject.rotateX(0.01);//pitch
-        // } else {
-        //     pointerLockObject.rotateX(0);//pitch
-        // }
-        // if (rotateDown) {
-        //     pointerLockObject.rotateX(-0.01);//pitch
-        // } else {
-        //     pointerLockObject.rotateX(0);//pitch
-        // }
 
         if (rotateLeft) {
             pointerLockObject.rotateY(0.01);//pitch
@@ -2232,73 +1937,6 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, length, height, 
     return projectedPoints;
 }
 
-// function setCameraToChannel(channel) {
-//     let channelIdx = getChannelIndexByName(channel);
-//     let fieldOfView = labelTool.camChannels[channelIdx].fieldOfView;
-//     // scene.remove(camera);
-//     camera = new THREE.PerspectiveCamera(fieldOfView, window.innerWidth / window.innerHeight, 0.01, 100000);
-//     camera.up = new THREE.Vector3(0, 0, 1);
-//     // scene.add(camera);
-//     controls = new THREE.OrbitControls(camera, renderer.domElement);
-//     controls.enableRotate = false;
-//     controls.enablePan = true;
-//     if (channel === labelTool.camChannels[0].channel) {
-//         // front left
-//         let pos = labelTool.camChannels[0].position;
-//         controls.object.position.set(-pos[1], pos[0] - labelTool.positionLidarNuscenes[0], labelTool.positionLidarNuscenes[2] - pos[2]);
-//         controls.target = new THREE.Vector3(-pos[1] + 0.0000001, pos[0] - labelTool.positionLidarNuscenes[0] + 0.0000001, labelTool.positionLidarNuscenes[2] - pos[2]);// look backward
-//     } else if (channel === labelTool.camChannels[1].channel) {
-//         // front
-//         let pos = labelTool.camChannels[1].position;
-//         controls.object.position.set(pos[1], pos[0], labelTool.positionLidarNuscenes[2] - pos[2]);
-//         controls.target = new THREE.Vector3(pos[1], pos[0] + 0.0000001, labelTool.positionLidarNuscenes[2] - pos[2]);
-//     } else if (channel === labelTool.camChannels[2].channel) {
-//         // front right
-//         let yPos = 0.5;
-//         let xPos = Math.tan(55 * Math.PI / 180) * yPos;
-//         let pos = labelTool.camChannels[2].position;
-//         controls.object.position.set(-pos[1] + xPos, pos[0] - labelTool.positionLidarNuscenes[0] + yPos, labelTool.positionLidarNuscenes[2] - pos[2]);
-//         controls.target = new THREE.Vector3(-pos[1] + xPos + 0.0000001, pos[0] - labelTool.positionLidarNuscenes[0] + yPos + 0.0000001, labelTool.positionLidarNuscenes[2] - pos[2]);// look backward
-//     } else if (channel === labelTool.camChannels[3].channel) {
-//         // back right
-//         let yPos = 0.5;
-//         let xPos = Math.tan(110 * Math.PI / 180) * yPos;
-//         let pos = labelTool.camChannels[3].position;
-//         controls.object.position.set(-pos[1] - xPos, pos[0] - labelTool.positionLidarNuscenes[0] - yPos, labelTool.positionLidarNuscenes[2] - pos[2]);
-//         controls.target = new THREE.Vector3(-pos[1] - xPos + 0.0000001, pos[0] - labelTool.positionLidarNuscenes[0] - yPos - 0.0000001, labelTool.positionLidarNuscenes[2] - pos[2]);// look backward
-//     } else if (channel === labelTool.camChannels[4].channel) {
-//         // back
-//         let yPos = 0.5;
-//         let xPos = Math.tan(180 * Math.PI / 180) * yPos;
-//         let pos = labelTool.camChannels[4].position;
-//         controls.object.position.set(-pos[1] - xPos, pos[0] - labelTool.positionLidarNuscenes[0] - yPos, labelTool.positionLidarNuscenes[2] - pos[2]);
-//         controls.target = new THREE.Vector3(-pos[1] - xPos - 0.0000001, pos[0] - labelTool.positionLidarNuscenes[0] - yPos - 0.01, labelTool.positionLidarNuscenes[2] - pos[2]);// look backward
-//     } else if (channel === labelTool.camChannels[5].channel) {
-//         // back left
-//         let yPos = 0.5;
-//         let xPos = Math.tan(250 * Math.PI / 180) * yPos;
-//         let pos = labelTool.camChannels[5].position;
-//         controls.object.position.set(-pos[1] - xPos, pos[0] - labelTool.positionLidarNuscenes[0] - yPos, labelTool.positionLidarNuscenes[2] - pos[2]);
-//         controls.target = new THREE.Vector3(-pos[1] - xPos - 0.00000001, pos[0] - labelTool.positionLidarNuscenes[0] - yPos - 0.000000001, labelTool.positionLidarNuscenes[2] - pos[2]);// look backward
-//     } else {
-//         // channel undefined
-//     }
-//     // camera.updateProjectionMatrix();
-//     controls.update();
-// }
-
-// function setCameraToBirdsEyeView() {
-//     camera = new THREE.OrthographicCamera(-40, 40, 20, -20, 0, 2000);
-//     camera.position.set(0, 0, 450);
-//     camera.up.set(0, 1, 0);
-//     camera.lookAt(new THREE.Vector3(0, 0, 0));
-//
-//     controls = new THREE.OrbitControls(camera, renderer.domElement);
-//     controls.enableRotate = false;
-//     controls.enablePan = true;
-//     controls.update();
-// }
-
 function changeDataset(datasetName) {
     labelTool.currentDataset = datasetName;
     labelTool.reset();
@@ -2309,11 +1947,6 @@ function changeSequence(sequence) {
     labelTool.currentSequence = sequence;
     labelTool.reset();
     labelTool.start();
-    // set height of panel slider
-
-    // set height of all svg elements
-
-    // set top of canvas3d element
 }
 
 function readPointCloud() {
@@ -2407,12 +2040,6 @@ function normalizeDistances() {
     }
 }
 
-// function filterPoints(points3D, channel) {
-//     for (let ){
-//
-//     }
-// }
-
 function showProjectedPoints() {
     let points3D = readPointCloud();
     for (let channelIdx = 0; channelIdx < labelTool.camChannels.length; channelIdx++) {
@@ -2475,10 +2102,6 @@ function onDocumentMouseWheel(event) {
 }
 
 function onDocumentMouseMove(event) {
-    // the following line would stop any other event handler from firing
-    // (such as the mouse's TrackballControls)
-    // event.preventDefault();
-
     // update the mouse variable
     mousePos.x = (event.clientX / window.innerWidth) * 2 - 1;
     mousePos.y = -(event.clientY / window.innerHeight) * 2 + 1;
@@ -2636,33 +2259,8 @@ function initSideView() {
     cameraSideView = new THREE.OrthographicCamera(window.innerWidth / -4, window.innerWidth / 4, window.innerHeight / 4, window.innerHeight / -4, -5000, 10000);
     cameraSideView.lookAt(new THREE.Vector3(1, 0, 0));
 
-    // TODO: let user move bounding box also in helperviews (master view)
-    // canvasSideView.addEventListener('mousemove', onDocumentMouseMove, false);
-    //
-    // canvasSideView.onmousedown = function (ev) {
-    //     console.log("mouse down");
-    //     handleMouseDown(ev);
-    // };
-    //
-    // canvasSideView.onmouseup = function (ev) {
-    //     handleMouseUp(ev);
-    // };
-
+    // TODO: let user move bounding box also in helper views (master view)
     scene.add(cameraSideView);
-    // cameraSideView.up.set(0, 0, -1);
-    // cameraSideView.position.set(xPos - 10, yPos, zPos);
-
-    // if (Detector.webgl) {
-    //     rendererSideView = new THREE.WebGLRenderer({
-    //         antialias: true
-    //     });
-    // } else {
-    //     rendererSideView = new CanvasRenderer();
-    // }
-
-
-    // mapControlsSideView = new THREE.MapControls(cameraSideView, canvasSideView);
-    // mapControlsSideView.enableRotate = false;
 }
 
 function updateSideView() {
@@ -2741,12 +2339,6 @@ function mouseUpLogic(ev) {
         }
 
         if (clickedObjects.length > 0 && clickedObjectIndex !== -1) {
-            // one object was selected
-            // for (let mesh in labelTool.cubeArray[labelTool.currentFileIndex]) {
-            //     let meshObject = labelTool.cubeArray[labelTool.currentFileIndex][mesh];
-            // meshObject.material.opacity = 0.1;
-            // }
-            // labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].material.opacity = 0.9;
             // open folder of selected object
             annotationObjects.localOnSelect["PCD"](clickedObjectIndex);
             // set selected object
@@ -2764,15 +2356,6 @@ function mouseUpLogic(ev) {
                     transformControls.attach(labelTool.selectedMesh);
                 }
 
-                // if in birdseyeview then find minimum of longitude and latitude
-                // otherwise find minimum of x, y and z
-                // let smallestSide;
-                // if (birdsEyeViewFlag === true) {
-                //     smallestSide = Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y);
-                // } else {
-                //     smallestSide = Math.min(Math.min(labelTool.selectedMesh.scale.x, labelTool.selectedMesh.scale.y), labelTool.selectedMesh.scale.z);
-                // }
-                // let size = smallestSide / 2.0;
                 transformControls.size = 2;
             } else {
                 labelTool.removeObject("transformControls");
@@ -3315,85 +2898,12 @@ function toggleKeyboardNavigation() {
     }
 }
 
-// function canvas3DKeyUpHandler(event) {
-//     if (keyboardNavigation === true) {
-//         switch (event.keyCode) {
-//             case 38: // up
-//                 break;
-//             case 87: // w
-//                 moveForward = false;
-//                 console.log("move forward false");
-//                 break;
-//             case 37: // left
-//                 break;
-//             case 65: // a
-//                 moveLeft = false;
-//                 console.log("move left false");
-//                 break;
-//             case 40: // down
-//                 break;
-//             case 83: // s
-//                 moveBackward = false;
-//                 break;
-//             case 39: // right
-//                 break;
-//             case 68: // d
-//                 moveRight = false;
-//                 break;
-//         }
-//     }
-// }
-
 function canvas3DKeyDownHandler(event) {
     switch (event.keyCode) {
         case 75: //K
             toggleKeyboardNavigation();
             break;
     }
-    // if (keyboardNavigation === true) {
-    //     switch (event.keyCode) {
-    //         case 38: // up
-    //             break;
-    //         case 87: // w
-    //             moveForward = true;
-    //             console.log("move forward true");
-    //             break;
-    //         case 37: // left
-    //             break;
-    //         case 65: // a
-    //             moveLeft = true;
-    //             console.log("move left true");
-    //             break;
-    //         case 40: // down
-    //             break;
-    //         case 83: // s
-    //             moveBackward = true;
-    //             break;
-    //         case 39: // right
-    //             break;
-    //         case 68: // d
-    //             moveRight = true;
-    //             break;
-    //     }
-    // }
-    // if (keyboardNavigation === true) {
-    //     let delta = 1;
-    //     switch (event.keyCode) {
-    //         case 37: // LEFT
-    //             currentCamera.position.x = currentCamera.position.x - delta;
-    //             break;
-    //         case 38: // UP
-    //             currentCamera.position.z = currentCamera.position.z - delta;
-    //             break;
-    //         case 39: // RIGHT
-    //             currentCamera.position.x = currentCamera.position.x + delta;
-    //             break;
-    //         case 40: // DOWN
-    //             currentCamera.position.z = currentCamera.position.z + delta;
-    //             break;
-    //     }
-    //     currentCamera.updateProjectionMatrix();
-    // }
 }
 
 function loadDetectedBoxes() {
@@ -3464,74 +2974,8 @@ function init() {
     if (WEBGL.isWebGLAvailable() === false) {
         document.body.appendChild(WEBGL.getWebGLErrorMessage());
     }
-    /**
-     * CameraControls
-     */
-    // function CameraControls() {
-    //     //constructor
-    // }
-
-    // CameraControls.prototype = {
-    //     constructor: CameraControls,
-    //     update: function (camera, keyboard, clock) {
-    //         //functionality to go here
-    //         let delta = clock.getDelta(); // seconds.
-    //         let moveDistance = 10 * delta; // 200 pixels per second
-    //         let rotateAngle = delta;   // pi/2 radians (90 degrees) per second
-    //         if (keyboard.pressed("w")) {
-    //             // camera.translateZ(-moveDistance);
-    //             let angle = Math.abs(camera.rotation.y + Math.PI / 2);
-    //             let posX = camera.position.x + Math.cos(angle) * moveDistance;
-    //             let posY = camera.position.y + Math.sin(angle) * moveDistance;
-    //             camera.position.set(posX, posY, camera.position.z);
-    //         }
-    //         if (keyboard.pressed("s")) {
-    //             let angle = Math.abs(camera.rotation.y + Math.PI / 2);
-    //             moveDistance = -moveDistance;
-    //             let posX = camera.position.x + Math.cos(angle) * moveDistance;
-    //             let posY = camera.position.y + Math.sin(angle) * moveDistance;
-    //             camera.position.set(posX, posY, camera.position.z);
-    //             // camera.position.set(0, 0, camera.position.z + moveDistance);
-    //             // camera.translateZ(moveDistance);
-    //         }
-    //         if (keyboard.pressed("a")) {
-    //             camera.translateX(-moveDistance);//great!
-    //         }
-    //         if (keyboard.pressed("d")) {
-    //             camera.translateX(moveDistance);//great!
-    //         }
-    //         if (keyboard.pressed("q")) {
-    //             camera.position.z = camera.position.z - moveDistance;
-    //         }
-    //         if (keyboard.pressed("e")) {
-    //             camera.position.z = camera.position.z + moveDistance;
-    //         }
-    //
-    //         if (keyboard.pressed("left")) {
-    //             camera.rotateOnAxis(new THREE.Vector3(0, 1, 0), rotateAngle);
-    //         }
-    //         if (keyboard.pressed("right")) {
-    //             camera.rotateOnAxis(new THREE.Vector3(0, 1, 0), -rotateAngle);
-    //         }
-    //         // if (keyboard.pressed("up")) {
-    //         //     camera.rotateOnAxis(new THREE.Vector3(1, 0, 0), rotateAngle);
-    //         // }
-    //         // if (keyboard.pressed("down")) {
-    //         //     camera.rotateOnAxis(new THREE.Vector3(1, 0, 0), -rotateAngle);
-    //         // }
-    //
-    //
-    //     }
-    // };
-    //
-    // cameraControls = new CameraControls();
-    // keyboard = new THREEx.KeyboardState();
     keyboard = new KeyboardState();
     clock = new THREE.Clock();
-    // container = document.createElement('div');
-    // document.body.appendChild(container);
-
-
     scene = new THREE.Scene();
 
     scene.background = new THREE.Color(0x323232);
@@ -3805,8 +3249,6 @@ function init() {
                             }
                         }
                     }
-                    // folderBoundingBox3DArray[interpolationObjIndexCurrentFile].removeFolder("Interpolation End Position (frame " + (labelTool.previousFileIndex + 1) + ")");
-                    // folderBoundingBox3DArray[interpolationObjIndexCurrentFile].removeFolder("Interpolation End Size (frame " + (labelTool.previousFileIndex + 1) + ")");
                     // enable checkbox
                     let checkboxElem = document.getElementById("copy-label-to-next-frame-checkbox-" + interpolationObjIndexCurrentFile);
                     enableCopyLabelToNextFrameCheckbox(checkboxElem);
@@ -3867,10 +3309,6 @@ function init() {
         $(item).css("border-left", attribute);
         $(item).css('border-bottom', '0px');
     });
-
-    // let elem = $("#label-tool-log");
-    // elem.val("1. Draw bounding box ");
-    // elem.css("color", "#969696");
 
     initViews();
 
