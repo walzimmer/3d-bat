@@ -4,7 +4,7 @@ let labelTool = {
     currentDataset: 'NuScenes',
     currentSequence: 'One',//[2018-05-23-001-frame-00042917-00043816_small, 2018-05-23-001-frame-00042917-00043816, One]
     // temprorarily set to 100
-    numFramesNuScenes: 120,//[3962,120]
+    numFramesNuScenes: 50,//[3962,50]
     frameScreenshots: [],
     numFrames: 0,
     dataTypes: [],
@@ -766,7 +766,7 @@ let labelTool = {
             labelTool.numFrames = labelTool.numFramesNuScenes;
             setSequences();
             labelTool.currentSequence = labelTool.sequencesNuScenes[0];
-            numFiles = 120;//[3962, 120]
+            numFiles = 50;//[3962, 50]
 
         } else {
 
