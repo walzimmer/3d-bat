@@ -126,6 +126,7 @@ let annotationObjects = {
         // open current folder
         folderBoundingBox3DArray[selectedObjectIndex].open();
         folderPositionArray[selectedObjectIndex].open();
+        folderRotationArray[selectedObjectIndex].open();
         folderSizeArray[selectedObjectIndex].open();
         // update name of selected object
         labelTool.selectedMesh.name = "cube-" + newClassLabel.charAt(0) + nextTrackIdNewClass;

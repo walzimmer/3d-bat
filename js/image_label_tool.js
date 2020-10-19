@@ -80,21 +80,23 @@ annotationObjects.onSelect("CAM_BACK_LEFT", function (newIndex) {
 
 function initialize(camChannel) {
     let canvas = canvasArray[getChannelIndexByName(camChannel)];
-    canvasParamsArray[getChannelIndexByName(camChannel)] = {
-        x: canvas.offsetLeft,
-        y: canvas.offsetTop,
-        width: canvas.offsetWidth,
-        height: canvas.offsetHeight,
-        center: {x: canvas.offsetWidth / 2, y: canvas.offsetHeight / 2}
-    };
-    let width;
-    let height;
-    if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
-        width = 320;
-        height = 180;
+    if (canvas !== undefined) {
+        canvasParamsArray[getChannelIndexByName(camChannel)] = {
+            x: canvas.offsetLeft,
+            y: canvas.offsetTop,
+            width: canvas.offsetWidth,
+            height: canvas.offsetHeight,
+            center: {x: canvas.offsetWidth / 2, y: canvas.offsetHeight / 2}
+        };
+        let width;
+        let height;
+        if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
+            width = 320;
+            height = 180;
+        }
+        changeCanvasSize(width, height, camChannel);
+        labelTool.addResizeEventForImage();
     }
-    changeCanvasSize(width, height, camChannel);
-    labelTool.addResizeEventForImage();
 }
 
 labelTool.onInitialize("CAM_FRONT_LEFT", function () {
@@ -296,16 +298,14 @@ function addEvent(element, trigger, action) {
     if (element.addEventListener) {
         element.addEventListener(trigger, action, false);
         return true;
-    }
-    else if (element.attachEvent) {
+    } else if (element.attachEvent) {
         element['e' + trigger + action] = action;
         element[trigger + action] = function () {
             element['e' + trigger + action](window.event);
         };
         let r = element.attachEvent('on' + trigger, element[trigger + action]);
         return r;
-    }
-    else {
+    } else {
         element['on' + trigger] = action;
         return true;
     }
