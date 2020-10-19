@@ -1,26 +1,26 @@
 let classesBoundingBox = {
-    "Vehicle": {
+    "vehicle": {
         color: '#51C38C',
         index: 0,
         nextTrackId: 1
     },
-    "Truck": {
+    "truck": {
         color: '#EBCF36',
         index: 1,
         nextTrackId: 1
     },
-    "Motorcycle": {
+    "motorcycle": {
         color: '#FF604B',
         index: 2,
         nextTrackId: 1
     },
-    "Bicycle": {
+    "bicycle": {
         color: '#F37CB2',
         index: 3,
         nextTrackId: 1
 
     },
-    "Pedestrian": {
+    "pedestrian": {
         color: '#74BAF5',
         index: 4,
         nextTrackId: 1
@@ -101,6 +101,6 @@ let classesBoundingBox = {
     getCurrentClass: function () {
         return this.currentClass;
     },
-    __target: "Vehicle",
-    currentClass: "Vehicle"
+    __target: "vehicle",
+    currentClass: "vehicle"
 };

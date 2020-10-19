@@ -74,6 +74,7 @@ let interpolationMode = false;
 let showDetections = false;
 let folderBoundingBox3DArray = [];
 let folderPositionArray = [];
+let folderRotationArray = [];
 let folderSizeArray = [];
 let bboxFlag = true;
 let clickFlag = false;
@@ -156,9 +157,19 @@ function interpolate() {
     let xDelta = (Number(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["x"]) - Number(annotationObjects.contents[interpolationStartFileIndex][objectIndexStartFile]["interpolationStart"]["position"]["x"])) / numFrames;
     let yDelta = (Number(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["y"]) - Number(annotationObjects.contents[interpolationStartFileIndex][objectIndexStartFile]["interpolationStart"]["position"]["y"])) / numFrames;
     let zDelta = (Number(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["z"]) - Number(annotationObjects.contents[interpolationStartFileIndex][objectIndexStartFile]["interpolationStart"]["position"]["z"])) / numFrames;
-    let rotationEnd = Number(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["rotationY"]);
-    let rotationStart = Number(annotationObjects.contents[interpolationStartFileIndex][objectIndexStartFile]["interpolationStart"]["position"]["rotationY"]);
-    let rotationDelta = (rotationEnd - rotationStart) / numFrames;
+
+    let rotationYawEnd = Number(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["rotationYaw"]);
+    let rotationYawStart = Number(annotationObjects.contents[interpolationStartFileIndex][objectIndexStartFile]["interpolationStart"]["position"]["rotationYaw"]);
+    let rotationYawDelta = (rotationYawEnd - rotationYawStart) / numFrames;
+
+    let rotationPitchEnd = Number(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["rotationPitch"]);
+    let rotationPitchStart = Number(annotationObjects.contents[interpolationStartFileIndex][objectIndexStartFile]["interpolationStart"]["position"]["rotationPitch"]);
+    let rotationPitchDelta = (rotationPitchEnd - rotationPitchStart) / numFrames;
+
+    let rotationRollEnd = Number(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["rotationRoll"]);
+    let rotationRollStart = Number(annotationObjects.contents[interpolationStartFileIndex][objectIndexStartFile]["interpolationStart"]["position"]["rotationRoll"]);
+    let rotationRollDelta = (rotationRollEnd - rotationRollStart) / numFrames;
+
     let widthDelta = (Number(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["size"]["width"]) - Number(annotationObjects.contents[interpolationStartFileIndex][objectIndexStartFile]["interpolationStart"]["size"]["width"])) / numFrames;
     let lengthDelta = (Number(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["size"]["length"]) - Number(annotationObjects.contents[interpolationStartFileIndex][objectIndexStartFile]["interpolationStart"]["size"]["length"])) / numFrames;
     let heightDelta = (Number(annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["size"]["height"]) - Number(annotationObjects.contents[interpolationStartFileIndex][objectIndexStartFile]["interpolationStart"]["size"]["height"])) / numFrames;
@@ -197,9 +208,17 @@ function interpolate() {
         annotationObjects.contents[interpolationStartFileIndex + i][objectIndexNextFrame]["z"] = newZ;
         labelTool.cubeArray[interpolationStartFileIndex + i][objectIndexNextFrame]["position"]["z"] = newZ;
 
-        let newRotation = Number(annotationObjects.contents[interpolationStartFileIndex][objectIndexStartFile]["interpolationStart"]["position"]["rotationY"]) + i * rotationDelta;
-        annotationObjects.contents[interpolationStartFileIndex + i][objectIndexNextFrame]["rotationY"] = newRotation;
-        labelTool.cubeArray[interpolationStartFileIndex + i][objectIndexNextFrame]["rotation"]["z"] = newRotation;
+        let newRotationYaw = Number(annotationObjects.contents[interpolationStartFileIndex][objectIndexStartFile]["interpolationStart"]["position"]["rotationYaw"]) + i * rotationYawDelta;
+        annotationObjects.contents[interpolationStartFileIndex + i][objectIndexNextFrame]["rotationYaw"] = newRotationYaw;
+        labelTool.cubeArray[interpolationStartFileIndex + i][objectIndexNextFrame]["rotation"]["z"] = newRotationYaw;
+
+        let newRotationPitch = Number(annotationObjects.contents[interpolationStartFileIndex][objectIndexStartFile]["interpolationStart"]["position"]["rotationPitch"]) + i * rotationPitchDelta;
+        annotationObjects.contents[interpolationStartFileIndex + i][objectIndexNextFrame]["rotationPitch"] = newRotationPitch;
+        labelTool.cubeArray[interpolationStartFileIndex + i][objectIndexNextFrame]["rotation"]["x"] = newRotationPitch;
+
+        let newRotationRoll = Number(annotationObjects.contents[interpolationStartFileIndex][objectIndexStartFile]["interpolationStart"]["position"]["rotationRoll"]) + i * rotationRollDelta;
+        annotationObjects.contents[interpolationStartFileIndex + i][objectIndexNextFrame]["rotationRoll"] = newRotationRoll;
+        labelTool.cubeArray[interpolationStartFileIndex + i][objectIndexNextFrame]["rotation"]["y"] = newRotationRoll;
 
         let newWidth = Number(annotationObjects.contents[interpolationStartFileIndex][objectIndexStartFile]["interpolationStart"]["size"]["width"]) + i * widthDelta;
         annotationObjects.contents[interpolationStartFileIndex + i][objectIndexNextFrame]["width"] = newWidth;
@@ -219,16 +238,19 @@ function interpolate() {
     annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationStart"]["position"]["x"] = annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["x"];
     annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationStart"]["position"]["y"] = annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["y"];
     annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationStart"]["position"]["z"] = annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["z"];
-    annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationStart"]["position"]["rotationY"] = annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["rotationY"];
+    annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationStart"]["position"]["rotationYaw"] = annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["rotationYaw"];
+    annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationStart"]["position"]["rotationPitch"] = annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["rotationPitch"];
+    annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationStart"]["position"]["rotationRoll"] = annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["rotationRoll"];
     annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationStart"]["size"]["x"] = annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["size"]["x"];
     annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationStart"]["size"]["y"] = annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["size"]["y"];
     annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationStart"]["size"]["z"] = annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["size"]["z"];
     annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationStartFileIndex"] = labelTool.currentFileIndex;
     // set current frame to start position and start size
     folderPositionArray[interpolationObjIndexCurrentFile].domElement.firstChild.firstChild.innerText = "Interpolation Start Position (frame " + (labelTool.currentFileIndex + 1) + ")";
+    folderRotationArray[interpolationObjIndexCurrentFile].domElement.firstChild.firstChild.innerText = "Interpolation Start Rotation (frame " + (labelTool.currentFileIndex + 1) + ")";
     folderSizeArray[interpolationObjIndexCurrentFile].domElement.firstChild.firstChild.innerText = "Interpolation Start Size (frame " + (labelTool.currentFileIndex + 1) + ")";
     // enable start position and start size
-    enableStartPositionAndSize();
+    enableStartPose();
     // remove end position folder and end position size
     folderBoundingBox3DArray[interpolationObjIndexCurrentFile].removeFolder("Interpolation End Position (frame " + (labelTool.previousFileIndex + 1) + ")");
     folderBoundingBox3DArray[interpolationObjIndexCurrentFile].removeFolder("Interpolation End Size (frame " + (labelTool.previousFileIndex + 1) + ")");
@@ -259,6 +281,8 @@ function undoOperation() {
     }
     let lastOperation = operationStack[operationStack.length - 1];
     let lastOperationType = lastOperation["type"];
+
+    // TODO: implement undo operations of all cases
     switch (lastOperationType) {
         case "classLabel":
             let objectIndex = Number(lastOperation["objectIndex"]);
@@ -556,6 +580,9 @@ annotationObjects.onSelect("PCD", function (selectionIndex) {
     if (folderPositionArray[selectionIndex] !== undefined) {
         folderPositionArray[selectionIndex].open();
     }
+    if (folderRotationArray[selectionIndex] !== undefined) {
+        folderRotationArray[selectionIndex].open();
+    }
     if (folderSizeArray[selectionIndex] !== undefined) {
         folderSizeArray[selectionIndex].open();
     }
@@ -640,7 +667,7 @@ function download() {
     let annotations = labelTool.createAnnotations();
     let outputString = JSON.stringify(annotations);
     outputString = b64EncodeUnicode(outputString);
-    $($('#bounding-box-3d-menu ul li')[0]).children().first().attr('href', 'data:application/octet-stream;base64,' + outputString).attr('download', labelTool.currentDataset + "_" + labelTool.currentSequence + '_annotations.txt');
+    $($('#bounding-box-3d-menu ul li')[0]).children().first().attr('href', 'data:application/octet-stream;base64,' + outputString).attr('download', labelTool.currentDataset + "_" + labelTool.currentSequence + '_annotations.json');
 }
 
 // TODO: test
@@ -737,7 +764,9 @@ function get3DLabel(parameters) {
     let cubeMesh = new THREE.Mesh(cubeGeometry, cubeMaterial);
     cubeMesh.position.set(bbox.x, bbox.y, bbox.z);
     cubeMesh.scale.set(bbox.width, bbox.length, bbox.height);
-    cubeMesh.rotation.z = bbox.rotationY;
+    cubeMesh.rotation.z = bbox.rotationYaw;
+    cubeMesh.rotation.x = bbox.rotationPitch;
+    cubeMesh.rotation.y = bbox.rotationRoll;
     cubeMesh.name = "cube-" + parameters.class.charAt(0) + parameters.trackId;
 
     // get bounding box from object
@@ -770,9 +799,11 @@ function update2DBoundingBox(fileIndex, objectIndex, isSelected) {
                 let width = annotationObjects.contents[fileIndex][objectIndex]["width"];
                 let length = annotationObjects.contents[fileIndex][objectIndex]["length"];
                 let height = annotationObjects.contents[fileIndex][objectIndex]["height"];
-                let rotationY = annotationObjects.contents[fileIndex][objectIndex]["rotationY"];
+                let rotationYaw = annotationObjects.contents[fileIndex][objectIndex]["rotationYaw"];
+                let rotationPitch = annotationObjects.contents[fileIndex][objectIndex]["rotationPitch"];
+                let rotationRoll = annotationObjects.contents[fileIndex][objectIndex]["rotationRoll"];
                 let channel = channelObj.channel;
-                channelObj.projectedPoints = calculateProjectedBoundingBox(x, y, z, width, length, height, channel, rotationY);
+                channelObj.projectedPoints = calculateProjectedBoundingBox(x, y, z, width, length, height, channel, rotationYaw, rotationPitch, rotationRoll);
                 // remove previous drawn lines of all 6 channels
                 for (let lineObj in channelObj.lines) {
                     if (channelObj.lines.hasOwnProperty(lineObj)) {
@@ -888,6 +919,7 @@ function deleteObject(bboxClass, trackId, labelIndex) {
     annotationObjects.remove(labelIndex);
     folderBoundingBox3DArray.splice(labelIndex, 1);
     folderPositionArray.splice(labelIndex, 1);
+    folderRotationArray.splice(labelIndex, 1);
     folderSizeArray.splice(labelIndex, 1);
     annotationObjects.selectEmpty();
     labelTool.spriteArray[labelTool.currentFileIndex].splice(labelIndex, 1);
@@ -948,9 +980,15 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
     let cubeX = folderPosition.add(bbox, 'x').name("x").min(minXPos).max(maxXPos).step(0.01).listen();
     let cubeY = folderPosition.add(bbox, 'y').name("y").min(minYPos).max(maxYPos).step(0.01).listen();
     let cubeZ = folderPosition.add(bbox, 'z').name("z").min(minZPos).max(maxZPos).step(0.01).listen();
-    let cubeYaw = folderPosition.add(bbox, 'rotationY').name("rotation").min(-Math.PI).max(Math.PI).step(0.01).listen();
     folderPosition.close();
     folderPositionArray.push(folderPosition);
+
+    let folderRotation = folderBoundingBox3DArray[insertIndex].addFolder('Rotation');
+    let cubeYaw = folderRotation.add(bbox, 'rotationYaw').name("rotationYaw").min(-Math.PI).max(Math.PI).step(0.01).listen();
+    let cubePitch = folderRotation.add(bbox, 'rotationPitch').name("rotationPitch").min(-Math.PI).max(Math.PI).step(0.01).listen();
+    let cubeRoll = folderRotation.add(bbox, 'rotationRoll').name("rotationRoll").min(-Math.PI).max(Math.PI).step(0.01).listen();
+    folderRotation.close();
+    folderRotationArray.push(folderRotation);
 
     let folderSize = folderBoundingBox3DArray[insertIndex].addFolder('Size');
     let cubeWidth = folderSize.add(bbox, 'width').name("width").min(0.3).max(20).step(0.01).listen();
@@ -991,7 +1029,21 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
     cubeYaw.onChange(function (value) {
         let selectionIndex = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
         labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].rotation.z = value;
-        annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["rotationY"] = value;
+        annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["rotationYaw"] = value;
+        // update bounding box
+        update2DBoundingBox(labelTool.currentFileIndex, selectionIndex, true);
+    });
+    cubePitch.onChange(function (value) {
+        let selectionIndex = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
+        labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].rotation.x = value;
+        annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["rotationPitch"] = value;
+        // update bounding box
+        update2DBoundingBox(labelTool.currentFileIndex, selectionIndex, true);
+    });
+    cubeRoll.onChange(function (value) {
+        let selectionIndex = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
+        labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].rotation.y = value;
+        annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["rotationRoll"] = value;
         // update bounding box
         update2DBoundingBox(labelTool.currentFileIndex, selectionIndex, true);
     });
@@ -1057,16 +1109,19 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
         // change text
         let interpolationStartFileIndex = annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationStartFileIndex"];
         folderPositionArray[interpolationObjIndexNextFile].domElement.firstChild.firstChild.innerText = "Interpolation Start Position (frame " + interpolationStartFileIndex + ")";
+        folderRotationArray[interpolationObjIndexNextFile].domElement.firstChild.firstChild.innerText = "Interpolation Start Rotation (frame " + interpolationStartFileIndex + ")";
         folderSizeArray[interpolationObjIndexNextFile].domElement.firstChild.firstChild.innerText = "Interpolation Start Size (frame " + interpolationStartFileIndex + ")";
 
         if (interpolationStartFileIndex !== bboxEndParams.newFileIndex) {
-            disableStartPositionAndSize();
+            disableStartPose();
             // add folders for end position and end size
             labelTool.folderEndPosition = folderBoundingBox3DArray[interpolationObjIndexNextFile].addFolder("Interpolation End Position (frame " + (labelTool.currentFileIndex + 1) + ")");
             let cubeEndX = labelTool.folderEndPosition.add(bboxEndParams, 'x').name("x").min(minXPos).max(maxXPos).step(0.01).listen();
             let cubeEndY = labelTool.folderEndPosition.add(bboxEndParams, 'y').name("y").min(minYPos).max(maxYPos).step(0.01).listen();
             let cubeEndZ = labelTool.folderEndPosition.add(bboxEndParams, 'z').name("z)").min(minZPos).max(maxZPos).step(0.01).listen();
-            let cubeEndYaw = labelTool.folderEndPosition.add(bboxEndParams, 'rotationY').name("rotation").min(-Math.PI).max(Math.PI).step(0.01).listen();
+            let cubeEndYaw = labelTool.folderEndPosition.add(bboxEndParams, 'rotationYaw').name("rotationYaw").min(-Math.PI).max(Math.PI).step(0.01).listen();
+            let cubeEndPitch = labelTool.folderEndPosition.add(bboxEndParams, 'rotationPitch').name("rotationPitch").min(-Math.PI).max(Math.PI).step(0.01).listen();
+            let cubeEndRoll = labelTool.folderEndPosition.add(bboxEndParams, 'rotationRoll').name("rotationRoll").min(-Math.PI).max(Math.PI).step(0.01).listen();
             labelTool.folderEndPosition.domElement.id = 'interpolation-end-position-folder';
             labelTool.folderEndPosition.open();
             labelTool.folderEndSize = folderBoundingBox3DArray[interpolationObjIndexNextFile].addFolder("Interpolation End Size (frame " + (labelTool.currentFileIndex + 1) + ")");
@@ -1102,8 +1157,22 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
             });
             cubeEndYaw.onChange(function (value) {
                 labelTool.cubeArray[newFileIndex][interpolationObjIndexNextFile].rotation.z = value;
-                annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["interpolationEnd"]["position"]["rotationY"] = value;
-                annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["rotationY"] = value;
+                annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["interpolationEnd"]["position"]["rotationYaw"] = value;
+                annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["rotationYaw"] = value;
+                // update bounding box
+                update2DBoundingBox(labelTool.currentFileIndex, interpolationObjIndexCurrentFile, true);
+            });
+            cubeEndPitch.onChange(function (value) {
+                labelTool.cubeArray[newFileIndex][interpolationObjIndexNextFile].rotation.x = value;
+                annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["interpolationEnd"]["position"]["rotationPitch"] = value;
+                annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["rotationPitch"] = value;
+                // update bounding box
+                update2DBoundingBox(labelTool.currentFileIndex, interpolationObjIndexCurrentFile, true);
+            });
+            cubeEndRoll.onChange(function (value) {
+                labelTool.cubeArray[newFileIndex][interpolationObjIndexNextFile].rotation.y = value;
+                annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["interpolationEnd"]["position"]["rotationRoll"] = value;
+                annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["rotationRoll"] = value;
                 // update bounding box
                 update2DBoundingBox(labelTool.currentFileIndex, interpolationObjIndexCurrentFile, true);
             });
@@ -1209,14 +1278,18 @@ function resetCube(index) {
     reset_bbox.x = reset_bbox.original.x;
     reset_bbox.y = reset_bbox.original.y;
     reset_bbox.z = reset_bbox.original.z;
-    reset_bbox.rotationY = reset_bbox.original.rotationY;
+    reset_bbox.rotationYaw = reset_bbox.original.rotationYaw;
+    reset_bbox.rotationPitch = reset_bbox.original.rotationPitch;
+    reset_bbox.rotationRoll = reset_bbox.original.rotationRoll;
     reset_bbox.width = reset_bbox.original.width;
     reset_bbox.length = reset_bbox.original.length;
     reset_bbox.height = reset_bbox.original.height;
     labelTool.cubeArray[labelTool.currentFileIndex][index].position.x = reset_bbox.x;
     labelTool.cubeArray[labelTool.currentFileIndex][index].position.y = reset_bbox.y;
     labelTool.cubeArray[labelTool.currentFileIndex][index].position.z = reset_bbox.z;
-    labelTool.cubeArray[labelTool.currentFileIndex][index].rotation.z = reset_bbox.rotationY;
+    labelTool.cubeArray[labelTool.currentFileIndex][index].rotation.z = reset_bbox.rotationYaw;
+    labelTool.cubeArray[labelTool.currentFileIndex][index].rotation.x = reset_bbox.rotationPitch;
+    labelTool.cubeArray[labelTool.currentFileIndex][index].rotation.y = reset_bbox.rotationRoll;
     labelTool.cubeArray[labelTool.currentFileIndex][index].scale.x = reset_bbox.width;
     labelTool.cubeArray[labelTool.currentFileIndex][index].scale.y = reset_bbox.length;
     labelTool.cubeArray[labelTool.currentFileIndex][index].scale.z = reset_bbox.height;
@@ -1272,7 +1345,9 @@ function updateObjectPosition() {
     annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["width"] = labelTool.selectedMesh.scale.x;
     annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["length"] = labelTool.selectedMesh.scale.y;
     annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["height"] = labelTool.selectedMesh.scale.z;
-    annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["rotationY"] = labelTool.selectedMesh.rotation.z;
+    annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["rotationYaw"] = labelTool.selectedMesh.rotation.z;
+    annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["rotationPitch"] = labelTool.selectedMesh.rotation.x;
+    annotationObjects.contents[labelTool.currentFileIndex][objectIndexByTrackId]["rotationRoll"] = labelTool.selectedMesh.rotation.y;
     // update cube array
     labelTool.cubeArray[labelTool.currentFileIndex][objectIndexByTrackId]["x"] = labelTool.selectedMesh.position.x;
     labelTool.cubeArray[labelTool.currentFileIndex][objectIndexByTrackId]["y"] = labelTool.selectedMesh.position.y;
@@ -1280,7 +1355,9 @@ function updateObjectPosition() {
     labelTool.cubeArray[labelTool.currentFileIndex][objectIndexByTrackId]["width"] = labelTool.selectedMesh.scale.x;
     labelTool.cubeArray[labelTool.currentFileIndex][objectIndexByTrackId]["length"] = labelTool.selectedMesh.scale.y;
     labelTool.cubeArray[labelTool.currentFileIndex][objectIndexByTrackId]["height"] = labelTool.selectedMesh.scale.z;
-    labelTool.cubeArray[labelTool.currentFileIndex][objectIndexByTrackId]["rotationY"] = labelTool.selectedMesh.rotation.z;
+    labelTool.cubeArray[labelTool.currentFileIndex][objectIndexByTrackId]["rotationYaw"] = labelTool.selectedMesh.rotation.z;
+    labelTool.cubeArray[labelTool.currentFileIndex][objectIndexByTrackId]["rotationPitch"] = labelTool.selectedMesh.rotation.x;
+    labelTool.cubeArray[labelTool.currentFileIndex][objectIndexByTrackId]["rotationRoll"] = labelTool.selectedMesh.rotation.y;
 
     if (interpolationMode === true && labelTool.selectedMesh !== undefined) {
         // let selectionIndex = annotationObjects.getSelectionIndex();
@@ -1289,7 +1366,9 @@ function updateObjectPosition() {
             annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["x"] = labelTool.selectedMesh.position.x;
             annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["y"] = labelTool.selectedMesh.position.y;
             annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["z"] = labelTool.selectedMesh.position.z;
-            annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["rotationY"] = labelTool.selectedMesh.rotation.z;
+            annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["rotationYaw"] = labelTool.selectedMesh.rotation.z;
+            annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["rotationPitch"] = labelTool.selectedMesh.rotation.x;
+            annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["rotationRoll"] = labelTool.selectedMesh.rotation.y;
             annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["size"]["width"] = labelTool.selectedMesh.scale.x;
             annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["size"]["length"] = labelTool.selectedMesh.scale.y;
             annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["size"]["height"] = labelTool.selectedMesh.scale.z;
@@ -1886,7 +1965,8 @@ function rotatePoint(pointX, pointY, originX, originY, angle) {
 }
 
 
-function calculateProjectedBoundingBox(xPos, yPos, zPos, width, length, height, channel, rotationY) {
+function calculateProjectedBoundingBox(xPos, yPos, zPos, width, length, height, channel, rotationYaw, rotationPitch, rotationRoll) {
+    // TODO: incorporate yaw, pitch and roll before projecting the 3D points into image plane
     let idx = getChannelIndexByName(channel);
     // TODO: calculate scaling factor dynamically (based on top position of slider)
     let imageScalingFactor;
@@ -2134,18 +2214,22 @@ function increaseTrackId(label, dataset) {
     return -1;
 }
 
-function disableStartPositionAndSize() {
+function disableStartPose() {
     // disable slider
     folderPositionArray[interpolationObjIndexNextFile].domElement.style.opacity = 0.2;
     folderPositionArray[interpolationObjIndexNextFile].domElement.style.pointerEvents = "none";
+    folderRotationArray[interpolationObjIndexNextFile].domElement.style.opacity = 0.2;
+    folderRotationArray[interpolationObjIndexNextFile].domElement.style.pointerEvents = "none";
     folderSizeArray[interpolationObjIndexNextFile].domElement.style.opacity = 0.2;
     folderSizeArray[interpolationObjIndexNextFile].domElement.style.pointerEvents = "none";
 }
 
-function enableStartPositionAndSize() {
+function enableStartPose() {
     // disable slider
     folderPositionArray[interpolationObjIndexCurrentFile].domElement.style.opacity = 1.0;
     folderPositionArray[interpolationObjIndexCurrentFile].domElement.style.pointerEvents = "all";
+    folderRotationArray[interpolationObjIndexCurrentFile].domElement.style.opacity = 1.0;
+    folderRotationArray[interpolationObjIndexCurrentFile].domElement.style.pointerEvents = "all";
     folderSizeArray[interpolationObjIndexCurrentFile].domElement.style.opacity = 1.0;
     folderSizeArray[interpolationObjIndexCurrentFile].domElement.style.pointerEvents = "all";
 }
@@ -2390,13 +2474,16 @@ function mouseUpLogic(ev) {
                     obj["interpolationStart"]["position"]["x"] = obj["x"];
                     obj["interpolationStart"]["position"]["y"] = obj["y"];
                     obj["interpolationStart"]["position"]["z"] = obj["z"];
-                    obj["interpolationStart"]["position"]["rotationY"] = obj["rotationY"];
+                    obj["interpolationStart"]["position"]["rotationYaw"] = obj["rotationYaw"];
+                    obj["interpolationStart"]["position"]["rotationPitch"] = obj["rotationPitch"];
+                    obj["interpolationStart"]["position"]["rotationRoll"] = obj["rotationRoll"];
                     obj["interpolationStart"]["size"]["width"] = obj["width"];
                     obj["interpolationStart"]["size"]["length"] = obj["length"];
                     obj["interpolationStart"]["size"]["height"] = obj["height"];
                     obj["interpolationStartFileIndex"] = labelTool.currentFileIndex;
 
                     folderPositionArray[interpolationObjIndexCurrentFile].domElement.firstChild.firstChild.innerText = "Interpolation Start Position (frame " + (labelTool.currentFileIndex + 1) + ")";
+                    folderRotationArray[interpolationObjIndexCurrentFile].domElement.firstChild.firstChild.innerText = "Interpolation Start Rotation (frame " + (labelTool.currentFileIndex + 1) + ")";
                     folderSizeArray[interpolationObjIndexCurrentFile].domElement.firstChild.firstChild.innerText = "Interpolation Start Size (frame " + (labelTool.currentFileIndex + 1) + ")";
 
                     if (clickedObjectIndexPrevious !== -1) {
@@ -2409,7 +2496,9 @@ function mouseUpLogic(ev) {
                                 x: -1,
                                 y: -1,
                                 z: -1,
-                                rotationY: -1
+                                rotationYaw: 0,
+                                rotationPitch: 0,
+                                rotationRoll: 0
                             },
                             size: {
                                 width: -1,
@@ -2533,7 +2622,9 @@ function mouseUpLogic(ev) {
                 addBboxParameters.width = Math.abs(groundPointMouseUp.x - groundPointMouseDown.x);
                 addBboxParameters.length = Math.abs(groundPointMouseUp.y - groundPointMouseDown.y);
                 addBboxParameters.height = defaultHeight;
-                addBboxParameters.rotationY = 0;
+                addBboxParameters.rotationYaw = 0;
+                addBboxParameters.rotationPitch = 0;
+                addBboxParameters.rotationRoll = 0;
                 addBboxParameters.original = {
                     class: classesBoundingBox.targetName(),
                     x: (groundPointMouseUp.x + groundPointMouseDown.x) / 2,
@@ -2542,7 +2633,9 @@ function mouseUpLogic(ev) {
                     width: Math.abs(groundPointMouseUp.x - groundPointMouseDown.x),
                     length: Math.abs(groundPointMouseUp.y - groundPointMouseDown.y),
                     height: defaultHeight,
-                    rotationY: 0,
+                    rotationYaw: 0,
+                    rotationPitch: 0,
+                    rotationRoll: 0,
                     trackId: trackId
                 };
                 addBboxParameters.trackId = trackId;
@@ -2554,7 +2647,9 @@ function mouseUpLogic(ev) {
                     addBboxParameters["interpolationStart"]["position"]["x"] = addBboxParameters["x"];
                     addBboxParameters["interpolationStart"]["position"]["y"] = addBboxParameters["y"];
                     addBboxParameters["interpolationStart"]["position"]["z"] = addBboxParameters["z"];
-                    addBboxParameters["interpolationStart"]["position"]["rotationY"] = addBboxParameters["rotationY"];
+                    addBboxParameters["interpolationStart"]["position"]["rotationYaw"] = addBboxParameters["rotationYaw"];
+                    addBboxParameters["interpolationStart"]["position"]["rotationPitch"] = addBboxParameters["rotationPitch"];
+                    addBboxParameters["interpolationStart"]["position"]["rotationRoll"] = addBboxParameters["rotationRoll"];
                     addBboxParameters["interpolationStart"]["size"]["width"] = addBboxParameters["width"];
                     addBboxParameters["interpolationStart"]["size"]["length"] = addBboxParameters["length"];
                     addBboxParameters["interpolationStart"]["size"]["height"] = addBboxParameters["height"];
@@ -2563,7 +2658,7 @@ function mouseUpLogic(ev) {
                 // set channel
                 for (let i = 0; i < labelTool.camChannels.length; i++) {
                     let channel = labelTool.camChannels[i].channel;
-                    let projectedBoundingBox = calculateProjectedBoundingBox(xPos, yPos, addBboxParameters.z, addBboxParameters.width, addBboxParameters.length, addBboxParameters.height, channel, addBboxParameters.rotationY);
+                    let projectedBoundingBox = calculateProjectedBoundingBox(xPos, yPos, addBboxParameters.z, addBboxParameters.width, addBboxParameters.length, addBboxParameters.height, channel, addBboxParameters.rotationYaw, addBboxParameters.rotationPitch, addBboxParameters.rotationRoll);
                     addBboxParameters.channels[i].projectedPoints = projectedBoundingBox;
                 }
                 // calculate line segments
@@ -2909,7 +3004,7 @@ function canvas3DKeyDownHandler(event) {
 function loadDetectedBoxes() {
     let rawFile = new XMLHttpRequest();
     try {
-        rawFile.open("GET", 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/detections/detections_lidar.txt', false);
+        rawFile.open("GET", 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/detections/detections_lidar.json', false);
     } catch (error) {
     }
 
@@ -2944,10 +3039,16 @@ function loadDetectedBoxes() {
                     let tmpLength = parseFloat(attributes[4].trim().split(" ")[2]);
                     let tmpWidth = parseFloat(attributes[5].trim().split(" ")[2]);
                     let tmpHeight = parseFloat(attributes[6].trim().split(" ")[2]);
-                    let rotationY = parseFloat(attributes[7].trim().split(" ")[1]);
-                    params.class = "Vehicle";
-                    params.rotationY = rotationY;
-                    params.original.rotationY = rotationY;
+                    let rotationYaw = parseFloat(attributes[7].trim().split(" ")[1]);
+                    let rotationPitch = parseFloat(attributes[8].trim().split(" ")[1]);
+                    let rotationRoll = parseFloat(attributes[9].trim().split(" ")[1]);
+                    params.class = "vehicle";
+                    params.rotationYaw = rotationYaw;
+                    params.rotationPitch = rotationPitch;
+                    params.rotationRoll = rotationRoll;
+                    params.original.rotationYaw = rotationYaw;
+                    params.original.rotationPitch = rotationPitch;
+                    params.original.rotationRoll = rotationRoll;
                     params.trackId = objectIndexWithinFrame + 1;
                     if (tmpWidth !== 0.0 && tmpLength !== 0.0 && tmpHeight !== 0.0) {
                         tmpWidth = Math.max(tmpWidth, 0.0001);
@@ -3217,12 +3318,15 @@ function init() {
                     obj["interpolationStart"]["position"]["x"] = obj["x"];
                     obj["interpolationStart"]["position"]["y"] = obj["y"];
                     obj["interpolationStart"]["position"]["z"] = obj["z"];
-                    obj["interpolationStart"]["position"]["rotationY"] = obj["rotationY"];
+                    obj["interpolationStart"]["position"]["rotationYaw"] = obj["rotationYaw"];
+                    obj["interpolationStart"]["position"]["rotationPitch"] = obj["rotationPitch"];
+                    obj["interpolationStart"]["position"]["rotationRoll"] = obj["rotationRoll"];
                     obj["interpolationStart"]["size"]["width"] = obj["width"];
                     obj["interpolationStart"]["size"]["length"] = obj["length"];
                     obj["interpolationStart"]["size"]["height"] = obj["height"];
                     // short interpolation start index (Interpolation Start Position (frame 400)
                     folderPositionArray[interpolationObjIndexCurrentFile].domElement.firstChild.firstChild.innerText = "Interpolation Start Position (frame " + (labelTool.currentFileIndex + 1) + ")";
+                    folderRotationArray[interpolationObjIndexCurrentFile].domElement.firstChild.firstChild.innerText = "Interpolation Start Rotation (frame " + (labelTool.currentFileIndex + 1) + ")";
                     folderSizeArray[interpolationObjIndexCurrentFile].domElement.firstChild.firstChild.innerText = "Interpolation Start Size (frame " + (labelTool.currentFileIndex + 1) + ")";
                     // set start index
                     annotationObjects.contents[labelTool.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationStartFileIndex"] = labelTool.currentFileIndex;
@@ -3237,8 +3341,9 @@ function init() {
                 disableInterpolationBtn();
                 if (interpolationObjIndexCurrentFile !== -1) {
                     folderPositionArray[interpolationObjIndexCurrentFile].domElement.firstChild.firstChild.innerText = "Position";
+                    folderRotationArray[interpolationObjIndexCurrentFile].domElement.firstChild.firstChild.innerText = "Rotation";
                     folderSizeArray[interpolationObjIndexCurrentFile].domElement.firstChild.firstChild.innerText = "Size";
-                    enableStartPositionAndSize();
+                    enableStartPose();
                     //[1].__folders[""Interpolation End Position (frame 1)""]
                     for (let i = 0; i < folderBoundingBox3DArray.length; i++) {
                         // get all keys of folders object
