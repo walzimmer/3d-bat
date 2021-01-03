@@ -148,6 +148,8 @@ let labelTool = {
     timeElapsed: 0, // elapsed time in seconds
     timeElapsedScreenshot: 0, // elapsed time between two screenshots
     timeElapsedPlay: 0,
+    pointSize: 1,
+    pointMaterial: new THREE.PointsMaterial( { size: 5, sizeAttenuation: false, vertexColors: THREE.VertexColors } ),
 
     /********** Externally defined functions **********
      * Define these functions in the labeling tools.
@@ -1745,8 +1747,7 @@ function initScreenshotTimer() {
         labelTool.timeElapsedScreenshot = labelTool.timeElapsedScreenshot + 1;
         // take screenshot every 2 seconds
         if (labelTool.takeCanvasScreenshot === true) {
-            if (labelTool.currentFileIndex < 899) {
-                // if (labelTool.currentFileIndex < 450) {
+            if (labelTool.currentFileIndex < labelTool.numFramesNuScenes) {
                 takeScreenshot();
                 labelTool.changeFrame(labelTool.currentFileIndex + 1);
             } else {
