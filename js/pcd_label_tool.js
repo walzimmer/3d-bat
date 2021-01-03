@@ -106,6 +106,7 @@ let useTransformControls;
 let dragControls = false;
 let keyboardNavigation = false;
 let canvas3D;
+let pointSizeMax = 1;
 
 let parametersBoundingBox = {
     "Vehicle": function () {
@@ -318,6 +319,7 @@ function undoOperation() {
 }
 
 let parameters = {
+    point_size: 0.05,
     download_video: function () {
         downloadVideo();
     },
@@ -670,7 +672,6 @@ function download() {
     $($('#bounding-box-3d-menu ul li')[0]).children().first().attr('href', 'data:application/octet-stream;base64,' + outputString).attr('download', labelTool.currentDataset + "_" + labelTool.currentSequence + '_annotations.json');
 }
 
-// TODO: test
 function downloadVideo() {
     if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
         labelTool.takeCanvasScreenshot = true;
@@ -688,6 +689,11 @@ function hideMasterView() {
 //change camera position to bird view position
 function switchView() {
     birdsEyeViewFlag = !birdsEyeViewFlag;
+    if (birdsEyeViewFlag){
+        pointSizeMax = 5;
+    }else{
+        pointSizeMax = 1;
+    }
     if (transformControls !== undefined) {
         labelTool.selectedMesh = undefined;
         transformControls.detach();
@@ -3159,9 +3165,12 @@ function init() {
         guiAnnotationClasses.domElement.id = 'class-picker';
         // 3D BB controls
         guiOptions.add(parameters, 'download').name("Download Annotations");
-        guiOptions.add(parameters, 'download_video').name("Download Video");
+        guiOptions.add(parameters, 'download_video').name("Create and Download Video");
         guiOptions.add(parameters, 'undo').name("Undo");
         guiOptions.add(parameters, 'switch_view').name("Switch view");
+        guiOptions.add(parameters, 'point_size').name("Point Size").min(0.001).max(pointSizeMax).step(0.001).onChange(function(value) {
+            pointCloudScanList[labelTool.currentFileIndex].material.size = value;
+        });
         let showOriginalNuScenesLabelsCheckbox = guiOptions.add(parameters, 'show_nuscenes_labels').name('NuScenes Labels').listen();
         showOriginalNuScenesLabelsCheckbox.onChange(function (value) {
             labelTool.showOriginalNuScenesLabels = value;
