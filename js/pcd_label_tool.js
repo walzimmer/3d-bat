@@ -331,9 +331,7 @@ let parameters = {
         undoOperation();
     },
     i: -1,
-    switch_view: function () {
-        switchView();
-    },
+    views: labelTool.views.orthographic,
     datasets: labelTool.datasets.NuScenes,
     sequences: "ONE",
     show_projected_points: false,
@@ -690,9 +688,9 @@ function hideMasterView() {
 //change camera position to bird view position
 function switchView() {
     birdsEyeViewFlag = !birdsEyeViewFlag;
-    if (birdsEyeViewFlag){
+    if (birdsEyeViewFlag) {
         disablePointSizeSlider();
-    }else{
+    } else {
         enablePointSizeSlider();
     }
     if (transformControls !== undefined) {
@@ -1668,52 +1666,59 @@ function setPointerLockControls() {
     window.addEventListener('keyup', onKeyUp, false);
 }
 
+function setPerspectiveView() {
+    // 3D mode (perspective mode)
+    currentCamera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
+    // currentCamera = perspectiveCamera;
+    if (transformControls !== undefined) {
+        if (labelTool.selectedMesh !== undefined) {
+            addTransformControls();
+            transformControls.size = 2;
+            transformControls.showZ = true;
+        } else {
+            labelTool.removeObject("transformControls");
+        }
+    }
+
+    currentCamera.position.set(0, 0, 5);
+    currentCamera.up.set(0, 0, 1);
+
+    canvas3D.removeEventListener('keydown', canvas3DKeyDownHandler);
+    canvas3D.addEventListener('keydown', canvas3DKeyDownHandler);
+
+    if (keyboardNavigation === true) {
+        setPointerLockControls();
+    } else {
+        setOrbitControls();
+    }
+    // TODO: enable to fly through the 3d scene using keys
+}
+
+function setOrthographicView() {
+    // BEV
+    if (transformControls !== undefined) {
+        transformControls.showZ = false;
+    }
+
+    currentCamera = new THREE.OrthographicCamera(-40, 40, 20, -20, 0.0001, 2000);
+    // currentCamera = orthographicCamera;
+    currentCamera.position.set(0, 0, 5);
+    currentCamera.up.set(0, 0, 1);
+
+    currentOrbitControls = new THREE.OrbitControls(currentCamera, renderer.domElement);
+    currentOrbitControls.enablePan = true;
+    currentOrbitControls.enableRotate = false;
+    currentOrbitControls.autoRotate = false;
+    currentOrbitControls.enableKeys = false;
+    currentOrbitControls.maxPolarAngle = Math.PI / 2;
+}
+
 //set camera type
 function setCamera() {
     if (birdsEyeViewFlag === false) {
-        // 3D mode (perspective mode)
-        currentCamera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
-        // currentCamera = perspectiveCamera;
-        if (transformControls !== undefined) {
-            if (labelTool.selectedMesh !== undefined) {
-                addTransformControls();
-                transformControls.size = 2;
-                transformControls.showZ = true;
-            } else {
-                labelTool.removeObject("transformControls");
-            }
-        }
-
-        currentCamera.position.set(0, 0, 5);
-        currentCamera.up.set(0, 0, 1);
-
-        canvas3D.removeEventListener('keydown', canvas3DKeyDownHandler);
-        canvas3D.addEventListener('keydown', canvas3DKeyDownHandler);
-
-        if (keyboardNavigation === true) {
-            setPointerLockControls();
-        } else {
-            setOrbitControls();
-        }
-        // TODO: enable to fly through the 3d scene using keys
+        setPerspectiveView();
     } else {
-        // BEV
-        if (transformControls !== undefined) {
-            transformControls.showZ = false;
-        }
-
-        currentCamera = new THREE.OrthographicCamera(-40, 40, 20, -20, 0.0001, 2000);
-        // currentCamera = orthographicCamera;
-        currentCamera.position.set(0, 0, 5);
-        currentCamera.up.set(0, 0, 1);
-
-        currentOrbitControls = new THREE.OrbitControls(currentCamera, renderer.domElement);
-        currentOrbitControls.enablePan = true;
-        currentOrbitControls.enableRotate = false;
-        currentOrbitControls.autoRotate = false;
-        currentOrbitControls.enableKeys = false;
-        currentOrbitControls.maxPolarAngle = Math.PI / 2;
-
+        setOrthographicView();
     }
     if (keyboardNavigation === false) {
         currentOrbitControls.update();
@@ -1978,7 +1983,6 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, length, height, 
     // TODO: calculate scaling factor dynamically (based on top position of slider)
     let imageScalingFactor;
     let imagePanelHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
-    console.log("image panel height: "+imagePanelHeight)
     if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
         imageScalingFactor = 900 / imagePanelHeight;//5
         xPos = xPos + labelTool.translationVectorLidarToCamFront[1];//lat
@@ -3180,10 +3184,31 @@ function init() {
         guiOptions.add(parameters, 'download').name("Download Annotations");
         guiOptions.add(parameters, 'download_video').name("Create and Download Video");
         guiOptions.add(parameters, 'undo').name("Undo");
-        guiOptions.add(parameters, 'switch_view').name("Switch view");
-        pointSizeSlider = guiOptions.add(parameters, 'point_size').name("Point Size").min(0.001).max(pointSizeMax).step(0.001).onChange(function(value) {
+        guiOptions.add(parameters, 'views', ['perspective','orthographic']).name("Select View").onChange(function (value) {
+            if (transformControls !== undefined) {
+                labelTool.selectedMesh = undefined;
+                transformControls.detach();
+                transformControls = undefined;
+                hideMasterView();
+            }
+            if (value === labelTool.views.orthographic) {
+                birdsEyeViewFlag = true;
+                disablePointSizeSlider();
+                setOrthographicView();
+            } else {
+                birdsEyeViewFlag = false;
+                enablePointSizeSlider();
+                setPerspectiveView();
+            }
+            if (keyboardNavigation === false) {
+                currentOrbitControls.update();
+            }
+            labelTool.removeObject("planeObject");
+        });
+        pointSizeSlider = guiOptions.add(parameters, 'point_size').name("Point Size").min(0.001).max(pointSizeMax).step(0.001).onChange(function (value) {
             pointCloudScanList[labelTool.currentFileIndex].material.size = value;
         });
+        disablePointSizeSlider();
         let showOriginalNuScenesLabelsCheckbox = guiOptions.add(parameters, 'show_nuscenes_labels').name('NuScenes Labels').listen();
         showOriginalNuScenesLabelsCheckbox.onChange(function (value) {
             labelTool.showOriginalNuScenesLabels = value;
