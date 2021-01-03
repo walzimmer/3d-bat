@@ -58,6 +58,7 @@ let cube;
 let interpolationObjIndexCurrentFile = -1;
 let interpolationObjIndexNextFile = -1;
 let interpolateBtn;
+let pointSizeSlider;
 
 // let keyboard = new KeyboardState();
 
@@ -690,9 +691,9 @@ function hideMasterView() {
 function switchView() {
     birdsEyeViewFlag = !birdsEyeViewFlag;
     if (birdsEyeViewFlag){
-        pointSizeMax = 5;
+        disablePointSizeSlider();
     }else{
-        pointSizeMax = 1;
+        enablePointSizeSlider();
     }
     if (transformControls !== undefined) {
         labelTool.selectedMesh = undefined;
@@ -2222,11 +2223,11 @@ function increaseTrackId(label, dataset) {
 
 function disableStartPose() {
     // disable slider
-    folderPositionArray[interpolationObjIndexNextFile].domElement.style.opacity = 0.2;
+    folderPositionArray[interpolationObjIndexNextFile].domElement.style.opacity = 0.5;
     folderPositionArray[interpolationObjIndexNextFile].domElement.style.pointerEvents = "none";
-    folderRotationArray[interpolationObjIndexNextFile].domElement.style.opacity = 0.2;
+    folderRotationArray[interpolationObjIndexNextFile].domElement.style.opacity = 0.5;
     folderRotationArray[interpolationObjIndexNextFile].domElement.style.pointerEvents = "none";
-    folderSizeArray[interpolationObjIndexNextFile].domElement.style.opacity = 0.2;
+    folderSizeArray[interpolationObjIndexNextFile].domElement.style.opacity = 0.5;
     folderSizeArray[interpolationObjIndexNextFile].domElement.style.pointerEvents = "none";
 }
 
@@ -2386,6 +2387,7 @@ function enableInterpolationModeCheckbox(interpolationModeCheckbox) {
 function enableInterpolationBtn() {
     interpolateBtn.domElement.parentElement.parentElement.style.pointerEvents = "all";
     interpolateBtn.domElement.parentElement.parentElement.style.opacity = 1.0;
+    $(interpolateBtn.domElement.firstChild).removeAttr("tabIndex");
 }
 
 function mouseUpLogic(ev) {
@@ -2926,13 +2928,13 @@ function initViews() {
 }
 
 function disableInterpolationModeCheckbox(interpolationModeCheckbox) {
-    interpolationModeCheckbox.parentElement.parentElement.style.opacity = 0.2;
+    interpolationModeCheckbox.parentElement.parentElement.style.opacity = 0.5;
     interpolationModeCheckbox.parentElement.parentElement.style.pointerEvents = "none";
     interpolationModeCheckbox.firstChild.setAttribute("tabIndex", "-1");
 }
 
 function disableCopyLabelToNextFrameCheckbox(copyLabelToNextFrameCheckbox) {
-    copyLabelToNextFrameCheckbox.parentElement.parentElement.style.opacity = 0.2;
+    copyLabelToNextFrameCheckbox.parentElement.parentElement.style.opacity = 0.5;
     copyLabelToNextFrameCheckbox.parentElement.parentElement.style.pointerEvents = "none";
     copyLabelToNextFrameCheckbox.firstChild.setAttribute("tabIndex", "-1");
 }
@@ -2945,12 +2947,23 @@ function enableCopyLabelToNextFrameCheckbox(copyLabelToNextFrameCheckbox) {
 
 function disableInterpolationBtn() {
     interpolateBtn.domElement.parentElement.parentElement.style.pointerEvents = "none";
-    interpolateBtn.domElement.parentElement.parentElement.style.opacity = 0.2;
+    interpolateBtn.domElement.parentElement.parentElement.style.opacity = 0.5;
+    interpolateBtn.domElement.firstChild.setAttribute("tabIndex", "-1");
+}
+
+function enablePointSizeSlider() {
+    pointSizeSlider.domElement.parentElement.parentElement.style.pointerEvents = "all";
+    pointSizeSlider.domElement.parentElement.parentElement.style.opacity = 1.0;
+}
+
+function disablePointSizeSlider() {
+    pointSizeSlider.domElement.parentElement.parentElement.style.pointerEvents = "none";
+    pointSizeSlider.domElement.parentElement.parentElement.style.opacity = 0.5;
 }
 
 function disableShowNuscenesLabelsCheckbox(showNuScenesLabelsCheckbox) {
     showNuScenesLabelsCheckbox.parentElement.parentElement.parentElement.style.pointerEvents = "none";
-    showNuScenesLabelsCheckbox.parentElement.parentElement.parentElement.style.opacity = 0.2;
+    showNuScenesLabelsCheckbox.parentElement.parentElement.parentElement.style.opacity = 0.5;
     showNuScenesLabelsCheckbox.tabIndex = -1;
 }
 
@@ -2968,7 +2981,7 @@ function enableChooseSequenceDropDown(chooseSequenceDropDown) {
 
 function disableChooseSequenceDropDown(chooseSequenceDropDown) {
     chooseSequenceDropDown.parentElement.parentElement.style.pointerEvents = "none";
-    chooseSequenceDropDown.parentElement.parentElement.style.opacity = 0.2;
+    chooseSequenceDropDown.parentElement.parentElement.style.opacity = 0.5;
     chooseSequenceDropDown.tabIndex = -1;
 }
 
@@ -3168,7 +3181,7 @@ function init() {
         guiOptions.add(parameters, 'download_video').name("Create and Download Video");
         guiOptions.add(parameters, 'undo').name("Undo");
         guiOptions.add(parameters, 'switch_view').name("Switch view");
-        guiOptions.add(parameters, 'point_size').name("Point Size").min(0.001).max(pointSizeMax).step(0.001).onChange(function(value) {
+        pointSizeSlider = guiOptions.add(parameters, 'point_size').name("Point Size").min(0.001).max(pointSizeMax).step(0.001).onChange(function(value) {
             pointCloudScanList[labelTool.currentFileIndex].material.size = value;
         });
         let showOriginalNuScenesLabelsCheckbox = guiOptions.add(parameters, 'show_nuscenes_labels').name('NuScenes Labels').listen();
