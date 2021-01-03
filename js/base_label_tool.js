@@ -150,7 +150,7 @@ let labelTool = {
     timeElapsedPlay: 0,
     pointSize: 1,
     pointMaterial: new THREE.PointsMaterial( { size: 5, sizeAttenuation: false, vertexColors: THREE.VertexColors } ),
-
+    views: {perspective: "perspective", orthographic: "orthographic"},
     /********** Externally defined functions **********
      * Define these functions in the labeling tools.
      **************************************************/
