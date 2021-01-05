@@ -111,27 +111,27 @@ let pointSizeMax = 1;
 
 let parametersBoundingBox = {
     "Vehicle": function () {
-        classesBoundingBox.select("Vehicle");
+        classesBoundingBox.select("vehicle");
         $('#class-picker ul li').css('background-color', '#323232');
         $($('#class-picker ul li')[0]).css('background-color', '#525252');
     },
     "Truck": function () {
-        classesBoundingBox.select("Truck");
+        classesBoundingBox.select("truck");
         $('#class-picker ul li').css('background-color', '#323232');
         $($('#class-picker ul li')[1]).css('background-color', '#525252');
     },
     "Motorcycle": function () {
-        classesBoundingBox.select("Motorcycle");
+        classesBoundingBox.select("motorcycle");
         $('#class-picker ul li').css('background-color', '#323232');
         $($('#class-picker ul li')[2]).css('background-color', '#525252');
     },
     "Bicycle": function () {
-        classesBoundingBox.select("Bicycle");
+        classesBoundingBox.select("bicycle");
         $('#class-picker ul li').css('background-color', '#323232');
         $($('#class-picker ul li')[3]).css('background-color', '#525252');
     },
     "Pedestrian": function () {
-        classesBoundingBox.select("Pedestrian");
+        classesBoundingBox.select("pedestrian");
         $('#class-picker ul li').css('background-color', '#323232');
         $($('#class-picker ul li')[4]).css('background-color', '#525252');
     },

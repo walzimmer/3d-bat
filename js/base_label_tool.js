@@ -3,7 +3,7 @@ let labelTool = {
     sequencesNuScenes: [],
     currentDataset: 'NuScenes', // [NuScenes, providentia]
     currentSequence: 'One',//[2018-05-23-001-frame-00042917-00043816_small, 2018-05-23-001-frame-00042917-00043816, One, 20201010_sequence]
-    pointCloudOnlyAnnotation: true,
+    pointCloudOnlyAnnotation: false,
     numFramesNuScenes: 50,//[3962,50]
     frameScreenshots: [],
     numFrames: 0,
@@ -1878,52 +1878,4 @@ function initPlayTimer() {
         }
 
     }, labelTool.timeDelayPlay);
-}
-
-function initFrameSelector() {
-    // add bar segments to frame selection bar
-    for (let i = 0; i < labelTool.numFrames; i++) {
-        let selectedClass = "";
-        if (i === 0) {
-            selectedClass = "selected";
-        }
-        let divElem = $("<div data-tip=" + i + " data-for=\"frame-selector\" class=\"frame default " + selectedClass + "\"></div>");
-        $(divElem).on("click", function (item) {
-            $("div.frame").attr("class", "frame default");
-            item.target.className = "frame default selected";
-            let elemIndex = Number(item.target.dataset.tip);
-            labelTool.changeFrame(elemIndex);
-        });
-        $(".frame-selector__frames").append(divElem);
-
-    }
-}
-
-function setPanelSize(newFileIndex) {
-    let panelHeight = labelTool.imageSizes["NuScenes"]["minHeightNormal"];
-    $("#layout_layout_panel_top").css("height", panelHeight);
-    $("#layout_layout_resizer_top").css("top", panelHeight);
-    $("#layout_layout_panel_main").css("top", panelHeight);
-    $("#image-cam-front-left").css("height", panelHeight);
-    $("#image-cam-front").css("height", panelHeight);
-    $("#image-cam-front-right").css("height", panelHeight);
-    $("#image-cam-back-right").css("height", panelHeight);
-    $("#image-cam-back").css("height", panelHeight);
-    $("#image-cam-back-left").css("height", panelHeight);
-
-
-    for (let i = 0; i < labelTool.camChannels.length; i++) {
-        let id = "#image-" + labelTool.camChannels[i].channel.toLowerCase().replace(/_/g, '-');
-        // bring all svgs into background
-        let allSvg = $(id + " svg");
-        for (let j = 0; j < allSvg.length; j++) {
-            allSvg[j].style.zIndex = 0;
-        }
-        allSvg[labelTool.numFrames - newFileIndex - 1].style.zIndex = 2;
-        let imgWidth = window.innerWidth / 6;
-        console.log("image_width_svg: " + imgWidth)
-        allSvg[labelTool.numFrames - newFileIndex - 1].style.width = imgWidth;
-        allSvg[labelTool.numFrames - newFileIndex - 1].style.height = imgWidth / labelTool.imageAspectRatioNuScenes;
-    }
-
 }
