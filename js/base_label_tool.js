@@ -3,7 +3,7 @@ let labelTool = {
     sequencesNuScenes: [],
     currentDataset: 'NuScenes', // [NuScenes, providentia]
     currentSequence: 'One',//[2018-05-23-001-frame-00042917-00043816_small, 2018-05-23-001-frame-00042917-00043816, One, 20201010_sequence]
-    // temprorarily set to 100
+    pointCloudOnlyAnnotation: true,
     numFramesNuScenes: 50,//[3962,50]
     frameScreenshots: [],
     numFrames: 0,
@@ -149,7 +149,7 @@ let labelTool = {
     timeElapsedScreenshot: 0, // elapsed time between two screenshots
     timeElapsedPlay: 0,
     pointSize: 1,
-    pointMaterial: new THREE.PointsMaterial( { size: 5, sizeAttenuation: false, vertexColors: THREE.VertexColors } ),
+    pointMaterial: new THREE.PointsMaterial({size: 5, sizeAttenuation: false, vertexColors: THREE.VertexColors}),
     views: {perspective: "perspective", orthographic: "orthographic"},
     /********** Externally defined functions **********
      * Define these functions in the labeling tools.
@@ -286,10 +286,7 @@ let labelTool = {
 
             function () {
             }
-    },
-
-// Visualize 2d and 3d data
-    showData: function () {
+    }, loadImageData: function () {
         if (labelTool.cameraImagesLoaded === false) {
             for (let i = 0; i < this.numFrames; i++) {
                 for (let camChannelObj in this.camChannels) {
@@ -306,8 +303,6 @@ let labelTool = {
         for (let i = 0; i < 6; i++) {
             imageArrayAll[labelTool.currentFileIndex][i].toBack();
         }
-
-
         // draw 2D bb for all objects
         // note that last element is the 'insertIndex' -> iterate until length-1
         if (annotationObjects.contents !== undefined && annotationObjects.contents.length > 0) {
@@ -321,7 +316,62 @@ let labelTool = {
                 }
             }
         }
-        loadPCDData();
+    }, loadPointCloudData: function () {
+        // ASCII pcd files
+        let pcdLoader = new THREE.PCDLoader();
+        let pointCloudFullURL;
+        let pointCloudWithoutGroundURL;
+        pointCloudWithoutGroundURL = 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/' + 'pointclouds_without_ground/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
+
+        // load all point cloud scans in the beginning
+        if (labelTool.pointCloudLoaded === false) {
+            for (let i = 0; i < labelTool.numFrames; i++) {
+                pointCloudFullURL = 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/' + 'pointclouds/' + labelTool.fileNames[i] + '.pcd';
+                pcdLoader.load(pointCloudFullURL, function (mesh) {
+                    mesh.name = 'pointcloud-scan-' + i;
+                    pointCloudScanList.push(mesh);
+                    if (i === labelTool.currentFileIndex) {
+                        scene.add(mesh);
+                    }
+                });
+                pcdLoader.load(pointCloudWithoutGroundURL, function (mesh) {
+                    mesh.name = 'pointcloud-scan-no-ground-' + i;
+                    pointCloudScanNoGroundList.push(mesh);
+                });
+            }
+            labelTool.pointCloudLoaded = true;
+        } else {
+            scene.add(pointCloudScanList[labelTool.currentFileIndex]);
+        }
+
+
+        // show FOV of camera within 3D pointcloud
+        labelTool.removeObject('rightplane');
+        labelTool.removeObject('leftplane');
+        labelTool.removeObject('prism');
+        if (labelTool.showFieldOfView === true) {
+            labelTool.drawFieldOfView();
+        }
+
+        // draw positions of cameras
+        if (labelTool.showCameraPosition === true) {
+            drawCameraPosition();
+        }
+
+        // draw ego vehicle
+        let lexusTexture = new THREE.TextureLoader().load('assets/models/lexus/lexus.jpg');
+        let lexusMaterial = new THREE.MeshBasicMaterial({map: lexusTexture});
+        let objLoader = new THREE.OBJLoader();
+        objLoader.load('assets/models/lexus/lexus_hs.obj', function (object) {
+            let lexusGeometry = object.children[0].geometry;
+            let lexusMesh = new THREE.Mesh(lexusGeometry, lexusMaterial);
+
+            lexusMesh.scale.set(0.065, 0.065, 0.065);
+            lexusMesh.rotation.set(0, 0, -Math.PI / 2);
+            lexusMesh.position.set(0, 0, -labelTool.positionLidarNuscenes[2]);
+
+            scene.add(lexusMesh)
+        });
     },
 
     setTrackIds: function () {
@@ -385,7 +435,9 @@ let labelTool = {
                 }
                 params.fileIndex = fileIndex;
                 // project 3D position into 2D camera image
-                draw2DProjections(params);
+                if (labelTool.pointCloudOnlyAnnotation === false) {
+                    draw2DProjections(params);
+                }
                 // add new entry to contents array
                 annotationObjects.set(annotationObjects.__insertIndex, params);
                 annotationObjects.__insertIndex++;
@@ -477,9 +529,11 @@ let labelTool = {
             }
         }
         // project 3D positions of current frame into 2D camera images
-        if (annotationObjects.contents[this.currentFileIndex].length > 0) {
-            for (let i = 0; i < annotationObjects.contents[this.currentFileIndex].length; i++) {
-                draw2DProjections(annotationObjects.contents[this.currentFileIndex][i]);
+        if (labelTool.pointCloudOnlyAnnotation === false) {
+            if (annotationObjects.contents[this.currentFileIndex].length > 0) {
+                for (let i = 0; i < annotationObjects.contents[this.currentFileIndex].length; i++) {
+                    draw2DProjections(annotationObjects.contents[this.currentFileIndex][i]);
+                }
             }
         }
     },
@@ -585,12 +639,164 @@ let labelTool = {
         return allAnnotations;
     },
 
-    initialize: function () {
-        initPanes();
+    initializePointCloudWindow: function () {
+        let pointCloudContainer;
+        if (labelTool.pointCloudOnlyAnnotation === true) {
+            pointCloudContainer = $("#label-tool-wrapper");
+        } else {
+            pointCloudContainer = $("#layout_layout_panel_main .w2ui-panel-content");
+        }
+        pointCloudContainer.append('<div id="canvas3d" style="z-index: 0;"></div>');
+        this.localOnInitialize["PCD"]();
+    }, initializeClassPicker: function () {
+        $(function () {
+            $('#class-picker>ul>li').hover(function () {
+                $(this).css('background-color', "#535353");
+            }, function () {
+                // on mouseout, reset the background color if not selected
+                let currentClass = classesBoundingBox.getCurrentClass();
+                let currentClassIndex = classesBoundingBox[currentClass].index;
+                let currentHoverIndex = $("#class-picker>ul>li").index(this);
+                if (currentClassIndex !== currentHoverIndex) {
+                    $(this).css('background-color', "#353535");
+                }
+            });
+        });
 
-        initFrameSelector();
+        let toasts = $(".toasts")[0];
+        this.logger = new Toast(toasts);
+    }, setPanelSize: function (newFileIndex) {
+        let panelHeight = labelTool.imageSizes["NuScenes"]["minHeightNormal"];
+        $("#layout_layout_panel_top").css("height", panelHeight);
+        $("#layout_layout_resizer_top").css("top", panelHeight);
+        $("#layout_layout_panel_main").css("top", panelHeight);
+        $("#image-cam-front-left").css("height", panelHeight);
+        $("#image-cam-front").css("height", panelHeight);
+        $("#image-cam-front-right").css("height", panelHeight);
+        $("#image-cam-back-right").css("height", panelHeight);
+        $("#image-cam-back").css("height", panelHeight);
+        $("#image-cam-back-left").css("height", panelHeight);
+
+
+        for (let i = 0; i < labelTool.camChannels.length; i++) {
+            let id = "#image-" + labelTool.camChannels[i].channel.toLowerCase().replace(/_/g, '-');
+            // bring all svgs into background
+            let allSvg = $(id + " svg");
+            for (let j = 0; j < allSvg.length; j++) {
+                allSvg[j].style.zIndex = 0;
+            }
+            allSvg[labelTool.numFrames - newFileIndex - 1].style.zIndex = 2;
+            let imgWidth = window.innerWidth / 6;
+            allSvg[labelTool.numFrames - newFileIndex - 1].style.width = imgWidth;
+            allSvg[labelTool.numFrames - newFileIndex - 1].style.height = imgWidth / labelTool.imageAspectRatioNuScenes;
+        }
+    }, setImageSize: function () {
+        // calculate the image width given the window width
+        labelTool.imageSizes = {
+            "NuScenes": {
+                minWidthNormal: Math.floor(window.innerWidth / 6),
+                minHeightNormal: Math.floor(window.innerWidth / (6 * 1.77778)),
+                maxWidthNormal: 640,
+                maxHeightNormal: 360
+            }
+        };
+    }, initPanes: function () {
+        let maxHeight;
+        let minHeight;
+        if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
+            minHeight = labelTool.imageSizes["NuScenes"]["minHeightNormal"];
+            maxHeight = labelTool.imageSizes["NuScenes"]["maxHeightNormal"];
+        }
+
+        let topStyle = 'background-color: #F5F6F7; border: 1px solid #dfdfdf; padding: 0px;';
+        $('#label-tool-wrapper').w2layout({
+            name: 'layout',
+            panels: [
+                {type: 'top', size: minHeight, resizable: true, style: topStyle, minSize: minHeight, maxSize: maxHeight}
+            ],
+            onResizing: function (event) {
+                let topElem = $("#layout_layout_panel_top")[0];
+                let newImagePanelHeight = topElem.offsetHeight;
+                let newWidth;
+                let newWidthBackFront;
+                if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
+                    newWidth = newImagePanelHeight * labelTool.imageAspectRatioNuScenes;
+                }
+                if (newImagePanelHeight === 0 || newWidth === 0) {
+                    return;
+                }
+                for (let channelIdx in labelTool.camChannels) {
+                    if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
+                        let channelObj = labelTool.camChannels[channelIdx];
+                        let channel = channelObj.channel;
+                        if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
+                            changeCanvasSize(newWidth, newImagePanelHeight, channel);
+                        }
+                    }
+                }
+                w2ui['layout'].set('top', {size: newImagePanelHeight});
+                // adjust height of helper views
+                let newCanvasHeight = (window.innerHeight - headerHeight - newImagePanelHeight) / 3;
+                console.log(headerHeight + newImagePanelHeight);
+                $("#canvasSideView").css("height", newCanvasHeight);
+                $("#canvasSideView").css("top", headerHeight + newImagePanelHeight);
+                views[1].height = newCanvasHeight;
+                views[1].top = 0;
+                $("#canvasFrontView").css("height", newCanvasHeight);
+                $("#canvasFrontView").css("top", headerHeight + newImagePanelHeight + newCanvasHeight);
+                views[2].height = newCanvasHeight;
+                views[2].top = newCanvasHeight;
+                $("#canvasBev").css("height", newCanvasHeight);
+                $("#canvasBev").css("top", headerHeight + newImagePanelHeight + 2 * newCanvasHeight);
+                views[3].height = newCanvasHeight;
+                views[3].top = 2 * newCanvasHeight;
+                // update camera of helper views
+                for (let i = 1; i < views.length; i++) {
+                    let view = views[i];
+                    view.height = newCanvasHeight;
+                    let top = 4;
+                    let bottom = -4;
+                    let aspectRatio = view.width / view.height;
+                    let left = bottom * aspectRatio;
+                    let right = top * aspectRatio;
+                    let camera = view.camera;
+                    camera.left = left;
+                    camera.right = right;
+                    camera.top = top;
+                    camera.bottom = bottom;
+                    camera.updateProjectionMatrix();
+                }
+                // update projection of bounding boxes on camera images
+                // delete all labels
+                remove2DBoundingBoxes();
+                // draw all labels
+                for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
+                    let annotationObj = annotationObjects.contents[labelTool.currentFileIndex][i];
+                    let params = setObjectParameters(annotationObj);
+                    draw2DProjections(params);
+                }
+                // update position of controls
+                $("#bounding-box-3d-menu").css("top", headerHeight + newImagePanelHeight);
+            },
+            onRefresh: function (event) {
+                console.log('object ' + event.target + ' is refreshed');
+                event.onComplete = function () {
+                    $("#layout_layout_resizer_top").on('click', function () {
+                        w2ui['layout'].resize();
+                    });
+                    $("#layout_layout_resizer_top").on('drag', function () {
+                        w2ui['layout'].resize();
+                    });
+                }
+            }
+        });
+        w2ui['layout'].resizer = 10;
+        w2ui['layout'].resize();
+        w2ui['layout'].refresh();
+    }, initializeCameraWindows: function () {
+        this.setImageSize();
+        this.initPanes();
         $(".current").text((labelTool.currentFileIndex + 1) + "/" + this.fileNames.length);
-
         let imageContainer = $("#layout_layout_panel_top .w2ui-panel-content");
         let imageWidth;
         let canvasElem;
@@ -625,31 +831,9 @@ let labelTool = {
         $("#layout_layout_panel_top .w2ui-panel-content").addClass("dragscroll");
         $("#layout_layout_panel_top .w2ui-panel-content").css("overflow", "scroll");
 
-        let pointCloudContainer = $("#layout_layout_panel_main .w2ui-panel-content");
-        pointCloudContainer.append('<div id="canvas3d" style="z-index: 0;"></div>');
-
-        // this.pageBox.placeholder = (this.currentFileIndex + 1) + "/" + this.fileNames.length;
         this.camChannels.forEach(function (channelObj) {
             this.localOnInitialize[channelObj.channel]();
         }.bind(this));
-        this.localOnInitialize["PCD"]();
-
-        $(function () {
-            $('#class-picker>ul>li').hover(function () {
-                $(this).css('background-color', "#535353");
-            }, function () {
-                // on mouseout, reset the background color if not selected
-                let currentClass = classesBoundingBox.getCurrentClass();
-                let currentClassIndex = classesBoundingBox[currentClass].index;
-                let currentHoverIndex = $("#class-picker>ul>li").index(this);
-                if (currentClassIndex !== currentHoverIndex) {
-                    $(this).css('background-color', "#353535");
-                }
-            });
-        });
-
-        let toasts = $(".toasts")[0];
-        this.logger = new Toast(toasts);
 
         if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
             for (let channelIdx in labelTool.camChannels) {
@@ -663,9 +847,10 @@ let labelTool = {
                 }
             }
         }
+        this.setPanelSize(labelTool.currentFileIndex);
     },
 
-    getAnnotations() {
+    loadAnnotations() {
         let fileName;
         if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
             if (labelTool.showOriginalNuScenesLabels === true) {
@@ -703,7 +888,8 @@ let labelTool = {
             }
         } else if (labelTool.currentDataset === labelTool.datasets.providentia) {
             // TODO: load all available file names
-            let fileNames = [labelTool.currentDataset + "_" + labelTool.currentSequence + "_annotations.json"];
+            // let fileNames = [labelTool.currentDataset + "_" + labelTool.currentSequence + "_annotations.json"];
+            let fileNames = [labelTool.currentDataset + "_" + labelTool.currentSequence + "_inference_results.json"];
             for (let i = 0; i < fileNames.length; i++) {
                 fileName = fileNames[i];
                 request({
@@ -794,18 +980,58 @@ let labelTool = {
         $("#frame-selector__frames").empty();
     },
 
-    start() {
-        initTimer();
-        setImageSize();
-        labelTool.fileNames = this.getFileNames();
-        this.initialize();
-        setPanelSize(labelTool.currentFileIndex);
-        this.showData();
-        this.getAnnotations();
+    initFrameSelector: function () {
+        // add bar segments to frame selection bar
+        for (let i = 0; i < labelTool.numFrames; i++) {
+            let selectedClass = "";
+            if (i === 0) {
+                selectedClass = "selected";
+            }
+            let divElem = $("<div data-tip=" + i + " data-for=\"frame-selector\" class=\"frame default " + selectedClass + "\"></div>");
+            $(divElem).on("click", function (item) {
+                $("div.frame").attr("class", "frame default");
+                item.target.className = "frame default selected";
+                let elemIndex = Number(item.target.dataset.tip);
+                labelTool.changeFrame(elemIndex);
+            });
+            $(".frame-selector__frames").append(divElem);
+
+        }
+    }, initTimer: function () {
+        labelTool.timeElapsed = 0;
+        let hours = 0;
+        let minutes = 0;
+        let seconds = 0;
+        let timeString = "";
+
+        setInterval(function () {
+            // increase elapsed time every second
+            labelTool.timeElapsed = labelTool.timeElapsed + 1;
+            seconds = labelTool.timeElapsed % 60;
+            minutes = Math.floor(labelTool.timeElapsed / 60);
+            if (minutes > 59) {
+                minutes = 0;
+            }
+            hours = Math.floor(labelTool.timeElapsed / (60 * 60));
+            timeString = pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2);
+            $("#time-elapsed").text(timeString);
+        }, labelTool.timeDelay);
+    }, start() {
+        this.initTimer();
+        this.setFileNames();
+        this.initializeClassPicker();
+        this.initFrameSelector();
+        if (labelTool.pointCloudOnlyAnnotation === false) {
+            this.initializeCameraWindows();
+            this.loadImageData();
+        }
+        this.initializePointCloudWindow();
+        this.loadPointCloudData();
+        this.loadAnnotations();
     },
 
 
-    getFileNames() {
+    setFileNames() {
         let numFiles;
         let fileNameArray = [];
         if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
@@ -823,8 +1049,7 @@ let labelTool = {
             numFiles = 1;
             fileNameArray.push("1591961101605876");
         }
-
-        return fileNameArray;
+        labelTool.fileNames = fileNameArray;
     },
 
     previousFrame: function () {
@@ -954,7 +1179,9 @@ let labelTool = {
         labelTool.removeObject("pointcloud-scan-no-ground-" + this.currentFileIndex);
 
         // bring current image into background instead of removing it
-        setPanelSize(newFileIndex);
+        if (labelTool.pointCloudOnlyAnnotation === false){
+            this.setPanelSize(newFileIndex);
+        }
 
 
         // remove all 3D BB objects from scene
@@ -1203,10 +1430,10 @@ let labelTool = {
         this.currentFileIndex = newFileIndex;
         interpolationObjIndexCurrentFile = interpolationObjIndexNextFile;
         annotationObjects.__selectionIndexCurrentFrame = annotationObjects.__selectionIndexNextFrame;
-        this.showData();
-
-        // adjust panel height
-
+        if (labelTool.pointCloudOnlyAnnotation === false) {
+            this.loadImageData();
+        }
+        this.loadPointCloudData();
     },
 
     addResizeEventForImage: function () {
@@ -1291,18 +1518,6 @@ let labelTool = {
         }
     }
 };
-
-function setImageSize() {
-    // calculate the image width given the window width
-    labelTool.imageSizes = {
-        "NuScenes": {
-            minWidthNormal: Math.floor(window.innerWidth / 6),
-            minHeightNormal: Math.floor(window.innerWidth / (6 * 1.77778)),
-            maxWidthNormal: 640,
-            maxHeightNormal: 360
-        }
-    };
-}
 
 function setObjectParameters(annotationObj) {
     let params = {
@@ -1518,101 +1733,6 @@ function remove2DBoundingBoxes() {
     }
 }
 
-function initPanes() {
-    let maxHeight;
-    let minHeight;
-    if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
-        minHeight = labelTool.imageSizes["NuScenes"]["minHeightNormal"];
-        maxHeight = labelTool.imageSizes["NuScenes"]["maxHeightNormal"];
-    }
-
-    let topStyle = 'background-color: #F5F6F7; border: 1px solid #dfdfdf; padding: 0px;';
-    $('#label-tool-wrapper').w2layout({
-        name: 'layout',
-        panels: [
-            {type: 'top', size: minHeight, resizable: true, style: topStyle, minSize: minHeight, maxSize: maxHeight}
-        ],
-        onResizing: function (event) {
-            let topElem = $("#layout_layout_panel_top")[0];
-            let newImagePanelHeight = topElem.offsetHeight;
-            let newWidth;
-            let newWidthBackFront;
-            if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
-                newWidth = newImagePanelHeight * labelTool.imageAspectRatioNuScenes;
-            }
-            if (newImagePanelHeight === 0 || newWidth === 0) {
-                return;
-            }
-            for (let channelIdx in labelTool.camChannels) {
-                if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
-                    let channelObj = labelTool.camChannels[channelIdx];
-                    let channel = channelObj.channel;
-                    if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
-                        changeCanvasSize(newWidth, newImagePanelHeight, channel);
-                    }
-                }
-            }
-            w2ui['layout'].set('top', {size: newImagePanelHeight});
-            // adjust height of helper views
-            let newCanvasHeight = (window.innerHeight - headerHeight - newImagePanelHeight) / 3;
-            console.log(headerHeight + newImagePanelHeight);
-            $("#canvasSideView").css("height", newCanvasHeight);
-            $("#canvasSideView").css("top", headerHeight + newImagePanelHeight);
-            views[1].height = newCanvasHeight;
-            views[1].top = 0;
-            $("#canvasFrontView").css("height", newCanvasHeight);
-            $("#canvasFrontView").css("top", headerHeight + newImagePanelHeight + newCanvasHeight);
-            views[2].height = newCanvasHeight;
-            views[2].top = newCanvasHeight;
-            $("#canvasBev").css("height", newCanvasHeight);
-            $("#canvasBev").css("top", headerHeight + newImagePanelHeight + 2 * newCanvasHeight);
-            views[3].height = newCanvasHeight;
-            views[3].top = 2 * newCanvasHeight;
-            // update camera of helper views
-            for (let i = 1; i < views.length; i++) {
-                let view = views[i];
-                view.height = newCanvasHeight;
-                let top = 4;
-                let bottom = -4;
-                let aspectRatio = view.width / view.height;
-                let left = bottom * aspectRatio;
-                let right = top * aspectRatio;
-                let camera = view.camera;
-                camera.left = left;
-                camera.right = right;
-                camera.top = top;
-                camera.bottom = bottom;
-                camera.updateProjectionMatrix();
-            }
-            // update projection of bounding boxes on camera images
-            // delete all labels
-            remove2DBoundingBoxes();
-            // draw all labels
-            for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
-                let annotationObj = annotationObjects.contents[labelTool.currentFileIndex][i];
-                let params = setObjectParameters(annotationObj);
-                draw2DProjections(params);
-            }
-            // update position of controls
-            $("#bounding-box-3d-menu").css("top", headerHeight + newImagePanelHeight);
-        },
-        onRefresh: function (event) {
-            console.log('object ' + event.target + ' is refreshed');
-            event.onComplete = function () {
-                $("#layout_layout_resizer_top").on('click', function () {
-                    w2ui['layout'].resize();
-                });
-                $("#layout_layout_resizer_top").on('drag', function () {
-                    w2ui['layout'].resize();
-                });
-            }
-        }
-    });
-    w2ui['layout'].resizer = 10;
-    w2ui['layout'].resize();
-    w2ui['layout'].refresh();
-}
-
 $("#previous-frame-button").keyup(function (e) {
     if (e.which === 32) {
         return false;
@@ -1717,27 +1837,6 @@ function getZipVideoFrames() {
         zip.file(pad(i, 6) + ".png", byteArray);
     }
     return zip;
-}
-
-function initTimer() {
-    labelTool.timeElapsed = 0;
-    let hours = 0;
-    let minutes = 0;
-    let seconds = 0;
-    let timeString = "";
-
-    setInterval(function () {
-        // increase elapsed time every second
-        labelTool.timeElapsed = labelTool.timeElapsed + 1;
-        seconds = labelTool.timeElapsed % 60;
-        minutes = Math.floor(labelTool.timeElapsed / 60);
-        if (minutes > 59) {
-            minutes = 0;
-        }
-        hours = Math.floor(labelTool.timeElapsed / (60 * 60));
-        timeString = pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2);
-        $("#time-elapsed").text(timeString);
-    }, labelTool.timeDelay);
 }
 
 function initScreenshotTimer() {
