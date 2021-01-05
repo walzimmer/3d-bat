@@ -72,19 +72,19 @@ let classesBoundingBox = {
     select: function (label) {
         this.onChange(label);
 
-        let changeClassOperation = {
-            "type": "classLabel",
-            "objectIndex": annotationObjects.__selectionIndexCurrentFrame,
-            "previousClass": annotationObjects.contents[labelTool.currentFileIndex][annotationObjects.__selectionIndexCurrentFrame]["class"],
-            "currentClass": label
-        };
-
         if (annotationObjects.getSelectedBoundingBox() !== undefined) {
             annotationObjects.changeClass(annotationObjects.__selectionIndexCurrentFrame, label);
         }
 
-        operationStack.push(changeClassOperation);
-
+        if (annotationObjects.__selectionIndexCurrentFrame !== -1) {
+            let changeClassOperation = {
+                "type": "classLabel",
+                "objectIndex": annotationObjects.__selectionIndexCurrentFrame,
+                "previousClass": annotationObjects.contents[labelTool.currentFileIndex][annotationObjects.__selectionIndexCurrentFrame]["class"],
+                "currentClass": label
+            };
+            operationStack.push(changeClassOperation);
+        }
 
         this.__target = label;
         this.currentClass = label;
