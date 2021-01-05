@@ -508,66 +508,6 @@ function drawCameraPosition() {
     addObject(camFrontLeftMesh, 'cam-front-left-object');
 }
 
-// Visualize 2d and 3d data
-function loadPCDData() {
-    // ASCII pcd files
-    let pcdLoader = new THREE.PCDLoader();
-    let pointCloudFullURL;
-    let pointCloudWithoutGroundURL;
-    pointCloudWithoutGroundURL = 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/' + 'pointclouds_without_ground/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
-
-    // load all point cloud scans in the beginning
-    if (labelTool.pointCloudLoaded === false) {
-        for (let i = 0; i < labelTool.numFrames; i++) {
-            pointCloudFullURL = 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/' + 'pointclouds/' + labelTool.fileNames[i] + '.pcd';
-            pcdLoader.load(pointCloudFullURL, function (mesh) {
-                mesh.name = 'pointcloud-scan-' + i;
-                pointCloudScanList.push(mesh);
-                if (i === labelTool.currentFileIndex) {
-                    scene.add(mesh);
-                }
-            });
-            pcdLoader.load(pointCloudWithoutGroundURL, function (mesh) {
-                mesh.name = 'pointcloud-scan-no-ground-' + i;
-                pointCloudScanNoGroundList.push(mesh);
-            });
-        }
-        labelTool.pointCloudLoaded = true;
-    } else {
-        scene.add(pointCloudScanList[labelTool.currentFileIndex]);
-    }
-
-
-    // show FOV of camera within 3D pointcloud
-    labelTool.removeObject('rightplane');
-    labelTool.removeObject('leftplane');
-    labelTool.removeObject('prism');
-    if (labelTool.showFieldOfView === true) {
-        labelTool.drawFieldOfView();
-    }
-
-    // draw positions of cameras
-    if (labelTool.showCameraPosition === true) {
-        drawCameraPosition();
-    }
-
-    // draw ego vehicle
-    let lexusTexture = new THREE.TextureLoader().load('assets/models/lexus/lexus.jpg');
-    let lexusMaterial = new THREE.MeshBasicMaterial({map: lexusTexture});
-    let objLoader = new THREE.OBJLoader();
-    objLoader.load('assets/models/lexus/lexus_hs.obj', function (object) {
-        let lexusGeometry = object.children[0].geometry;
-        let lexusMesh = new THREE.Mesh(lexusGeometry, lexusMaterial);
-
-        lexusMesh.scale.set(0.065, 0.065, 0.065);
-        lexusMesh.rotation.set(0, 0, -Math.PI / 2);
-        lexusMesh.position.set(0, 0, -labelTool.positionLidarNuscenes[2]);
-
-        scene.add(lexusMesh)
-    });
-}
-
-
 annotationObjects.onSelect("PCD", function (selectionIndex) {
     clickedPlaneArray = [];
     for (let i = 0; i < folderBoundingBox3DArray.length; i++) {

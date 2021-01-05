@@ -9,13 +9,13 @@
 2. Install npm 
    + Linux: `sudo apt-get install npm`
    + Windows: https://nodejs.org/dist/v10.15.0/node-v10.15.0-x86.msi
-3. Install PHP Storm (IDE with integrated server): https://www.jetbrains.com/phpstorm/download/download-thanks.html
+3. Install PHP Storm (IDE with integrated web server): https://www.jetbrains.com/phpstorm/download/download-thanks.html
 4. [OPTIONAL] Install WhatPulse to measure the number of clicks and key strokes while labeling: https://whatpulse.org/
 5. Open folder `3d-bat` in PHP Storm.
 5. Move into directory: `cd 3d-bat`.
-6. Download a part of the NuScenes dataset from [here](https://github.com/walzimmer/3d-bat/releases/download/v0.1.0/NuScenes.zip) and extract the content into the `3d-bat/input/` folder.
+6. Download sample scenes extracted from the NuScenes dataset from [here](https://github.com/walzimmer/3d-bat/releases/download/v0.1.0/NuScenes.zip) and extract the content into the `3d-bat/input/` folder.
 7. Install required packages: `npm install`
-8. Open `index.html` with chromium-browser (Linux) or Chrome (Windows) within the IDE.
+8. Open `index.html` with chromium-browser (Linux) or Chrome (Windows) within the IDE. Right click on index.html -> Open in Browser -> Chrome/Chromium
 
 # Overview
 ![Overview](https://github.com/walzimmer/3d-bat/blob/master/assets/img/overview.png)
@@ -30,6 +30,43 @@ Reference: https://arxiv.org/abs/1905.00525
 # Video
 ![Video](https://github.com/walzimmer/3d-bat/blob/master/assets/img/video.png)
 Link: https://www.youtube.com/watch?v=gSGG4Lw8BSU
+
+# Annotate you own data (point cloud and image or point cloud only)
+To annotate your own data, follow this steps:
+1. Create a new folder under the input folder (e.g. `3d-bat/input/waymo`)
+2. For each annotation sequence create a separate folder e.g.
+
+`input/waymo/20210103_waymo`
+
+`input/waymo/20210104_waymo`
+
+3. Under each sequence create the following folders:
+
+`input/waymo/20210103_waymo/annotations` (this folder will contain the downloaded annotations)
+
+`input/waymo/20210103_waymo/pointclouds` (place your point cloud scans (in `.pcd` ascii format) here)
+
+`input/waymo/20210103_waymo/pointclouds_without_ground` (optional: Remove the ground using the `scripts/nuscenes_devkit/python-sdk/scripts/export_pointcloud_without_ground_nuscenes.py` script to use the checkbox "Filter ground". Change the threshold of -1.7 to the height of the LiDAR sensor.)
+
+`input/waymo/20210103_waymo/images` (optional: For each camera image, create a folder: e.g. `CAM_BACK`, `CAM_BACK_LEFT`, `CAM_BACK_RIGHT`, `CAM_FRONT`, `CAM_FRONT_LEFT`, `CAM_FRONT_RIGHT`)
+
+Make sure, that the LiDAR scan file name (e.g. `000000.pcd` is the same as the image file name (e.g. `000000.png`) and the annotation file name (e.g. `000000.json`).
+
+4. In `js/base_label_tool.js` add the new dataset under datasets:
+
+`datasets: {NuScenes: "NuScenes", waymo: "waymo"}`
+
+5.  In `js/base_label_tool.js` set the current dataset and sequence you want to start with: 
+
+`currentSequence: '20210103_waymo'`
+
+`currentDataset: 'waymo'`
+
+6. When annotating only point cloud data, make sure to set this variable to `true` in `js/base_label_tool.js`:
+
+`pointCloudOnlyAnnotation: true` 
+
+
 
 # 3D Bounding Box Labelling Instructions
 1. Watch raw video (10 sec) to get familiar with the sequence and to see where interpolation makes sense
