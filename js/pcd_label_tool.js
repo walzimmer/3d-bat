@@ -2466,7 +2466,7 @@ function mouseUpLogic(ev) {
             }
 
             // move button to right
-            $("#left-btn").css("left", window.innerWidth / 3 - 70);
+            $("#left-btn").css("left", window.innerWidth / 3);
 
             let obj = annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex];
             showHelperViews(obj["x"], obj["y"], obj["z"]);
@@ -3470,9 +3470,9 @@ function init() {
     $("#bounding-box-3d-menu .close-button").click(function () {
         guiOptionsOpened = !guiOptionsOpened;
         if (guiOptionsOpened === true) {
-            $("#right-btn").css("right", 430);
+            $("#right-btn").css("right", 500);
         } else {
-            $("#right-btn").css("right", -50);
+            $("#right-btn").css("right", 0);
         }
     });
 
