@@ -108,6 +108,8 @@ let dragControls = false;
 let keyboardNavigation = false;
 let canvas3D;
 let pointSizeMax = 1;
+let defaultBoxHeight = 1.468628;
+let gridSize = 200;
 
 let parametersBoundingBox = {
     "Vehicle": function () {
@@ -135,6 +137,60 @@ let parametersBoundingBox = {
         $('#class-picker ul li').css('background-color', '#323232');
         $($('#class-picker ul li')[4]).css('background-color', '#525252');
     },
+};
+
+let parameters = {
+    point_size: 0.05,
+    download_video: function () {
+        downloadVideo();
+    },
+    download: function () {
+        download();
+    },
+    undo: function () {
+        undoOperation();
+    },
+    i: -1,
+    views: labelTool.views.orthographic,
+    show_projected_points: false,
+    show_nuscenes_labels: labelTool.showOriginalNuScenesLabels,
+    show_field_of_view: false,
+    show_grid: false,
+    filter_ground: false,
+    hide_other_annotations: hideOtherAnnotations,
+    select_all_copy_label_to_next_frame: function () {
+        for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
+            annotationObjects.contents[labelTool.currentFileIndex][i]["copyLabelToNextFrame"] = true;
+            let checkboxElem = document.getElementById("copy-label-to-next-frame-checkbox-" + i);
+            checkboxElem.firstChild.checked = true;
+        }
+    },
+    unselect_all_copy_label_to_next_frame: function () {
+        for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
+            // set all to false, expect the selected object (if interpolation mode active)
+            if (interpolationMode === false || i !== annotationObjects.getSelectionIndex()) {
+                annotationObjects.contents[labelTool.currentFileIndex][i]["copyLabelToNextFrame"] = false;
+                let checkboxElem = document.getElementById("copy-label-to-next-frame-checkbox-" + i);
+                checkboxElem.firstChild.checked = false;
+                $(checkboxElem).children().first().removeAttr("checked");
+            } else {
+                annotationObjects.contents[labelTool.currentFileIndex][i]["copyLabelToNextFrame"] = true;
+                let checkboxElem = document.getElementById("copy-label-to-next-frame-checkbox-" + i);
+                checkboxElem.firstChild.checked = true;
+            }
+        }
+    },
+    show_detections: false,
+    interpolation_mode: false,
+    interpolate: function () {
+        if (interpolationMode === true) {
+            interpolate();
+        }
+    },
+    reset_all: function () {
+        labelTool.resetBoxes()
+    },
+    skip_frames: labelTool.skipFrameCount
 };
 
 function getObjectIndexByTrackIdAndClass(trackId, className, fileIdx) {
@@ -318,62 +374,6 @@ function undoOperation() {
         // TODO: disable undo button
     }
 }
-
-let parameters = {
-    point_size: 0.05,
-    download_video: function () {
-        downloadVideo();
-    },
-    download: function () {
-        download();
-    },
-    undo: function () {
-        undoOperation();
-    },
-    i: -1,
-    views: labelTool.views.orthographic,
-    datasets: labelTool.datasets.NuScenes,
-    sequences: "ONE",
-    show_projected_points: false,
-    show_nuscenes_labels: labelTool.showOriginalNuScenesLabels,
-    show_field_of_view: false,
-    show_grid: false,
-    filter_ground: false,
-    hide_other_annotations: hideOtherAnnotations,
-    select_all_copy_label_to_next_frame: function () {
-        for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
-            annotationObjects.contents[labelTool.currentFileIndex][i]["copyLabelToNextFrame"] = true;
-            let checkboxElem = document.getElementById("copy-label-to-next-frame-checkbox-" + i);
-            checkboxElem.firstChild.checked = true;
-        }
-    },
-    unselect_all_copy_label_to_next_frame: function () {
-        for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
-            // set all to false, expect the selected object (if interpolation mode active)
-            if (interpolationMode === false || i !== annotationObjects.getSelectionIndex()) {
-                annotationObjects.contents[labelTool.currentFileIndex][i]["copyLabelToNextFrame"] = false;
-                let checkboxElem = document.getElementById("copy-label-to-next-frame-checkbox-" + i);
-                checkboxElem.firstChild.checked = false;
-                $(checkboxElem).children().first().removeAttr("checked");
-            } else {
-                annotationObjects.contents[labelTool.currentFileIndex][i]["copyLabelToNextFrame"] = true;
-                let checkboxElem = document.getElementById("copy-label-to-next-frame-checkbox-" + i);
-                checkboxElem.firstChild.checked = true;
-            }
-        }
-    },
-    show_detections: false,
-    interpolation_mode: false,
-    interpolate: function () {
-        if (interpolationMode === true) {
-            interpolate();
-        }
-    },
-    reset_all: function () {
-        labelTool.resetBoxes()
-    },
-    skip_frames: labelTool.skipFrameCount
-};
 
 /*********** Event handlers **************/
 
@@ -605,10 +605,13 @@ function paddingRight(s, c, n) {
 }
 
 function download() {
-    let annotations = labelTool.createAnnotations();
-    let outputString = JSON.stringify(annotations);
-    outputString = b64EncodeUnicode(outputString);
-    $($('#bounding-box-3d-menu ul li')[0]).children().first().attr('href', 'data:application/octet-stream;base64,' + outputString).attr('download', labelTool.currentDataset + "_" + labelTool.currentSequence + '_annotations.json');
+    let annotationFiles = labelTool.createAnnotationFiles();
+    let zip = new JSZip();
+    for (let i = 0; i < annotationFiles.length; i++) {
+        zip.add(labelTool.fileNames[i] + ".json", annotationFiles[i]);
+    }
+    let zipContent = zip.generate();
+    $($('#bounding-box-3d-menu ul li')[0]).children().first().attr('href', 'data:application/zip;base64,' + zipContent).attr('download', labelTool.currentDataset + "_" + labelTool.sequence + '_annotations.zip');
 }
 
 function downloadVideo() {
@@ -771,8 +774,10 @@ function updateXPos(newFileIndex, value) {
     labelTool.cubeArray[newFileIndex][interpolationObjIndexNextFile].position.x = value;
     annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["interpolationEnd"]["position"]["x"] = value;
     annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["x"] = value;
-    // update bounding box
-    update2DBoundingBox(labelTool.currentFileIndex, interpolationObjIndexCurrentFile, true);
+    if (labelTool.pointCloudOnlyAnnotation === false) {
+        // update bounding box
+        update2DBoundingBox(labelTool.currentFileIndex, interpolationObjIndexCurrentFile, true);
+    }
 }
 
 /**
@@ -915,11 +920,21 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
     folderBoundingBox3DArray.push(bb);
 
     let minXPos = -100;
-    let minYPos = -100;
-    let minZPos = -3;
     let maxXPos = 100;
+    let minYPos = -100;
     let maxYPos = 100;
-    let maxZPos = 3;
+
+    let minZPos;
+    let maxZPos;
+
+    if (labelTool.currentDataset === labelTool.datasets.providentia) {
+        minZPos = -7;
+        maxZPos = -1;
+    } else {
+        minZPos = -3;
+        maxZPos = 3;
+    }
+
 
     let folderPosition = folderBoundingBox3DArray[insertIndex].addFolder('Position');
     let cubeX = folderPosition.add(bbox, 'x').name("x").min(minXPos).max(maxXPos).step(0.01).listen();
@@ -949,8 +964,10 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
             let selectionIndex = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
             labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].position.x = value;
             annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["x"] = value;
-            // update bounding box
-            update2DBoundingBox(labelTool.currentFileIndex, selectionIndex, true);
+            if (labelTool.pointCloudOnlyAnnotation === false) {
+                // update bounding box
+                update2DBoundingBox(labelTool.currentFileIndex, selectionIndex, true);
+            }
         }
     });
     cubeY.onChange(function (value) {
@@ -958,8 +975,10 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
             let selectionIndex = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
             labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].position.y = value;
             annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["y"] = value;
-            // update bounding box
-            update2DBoundingBox(labelTool.currentFileIndex, selectionIndex, true);
+            if (labelTool.pointCloudOnlyAnnotation === false) {
+                // update bounding box
+                update2DBoundingBox(labelTool.currentFileIndex, selectionIndex, true);
+            }
         }
     });
     cubeZ.onChange(function (value) {
@@ -967,30 +986,38 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
             let selectionIndex = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
             labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].position.z = value;
             annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["z"] = value;
-            // update bounding box
-            update2DBoundingBox(labelTool.currentFileIndex, selectionIndex, true);
+            if (labelTool.pointCloudOnlyAnnotation === false) {
+                // update bounding box
+                update2DBoundingBox(labelTool.currentFileIndex, selectionIndex, true);
+            }
         }
     });
     cubeYaw.onChange(function (value) {
         let selectionIndex = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
         labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].rotation.z = value;
         annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["rotationYaw"] = value;
-        // update bounding box
-        update2DBoundingBox(labelTool.currentFileIndex, selectionIndex, true);
+        if (labelTool.pointCloudOnlyAnnotation === false) {
+            // update bounding box
+            update2DBoundingBox(labelTool.currentFileIndex, selectionIndex, true);
+        }
     });
     cubePitch.onChange(function (value) {
         let selectionIndex = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
         labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].rotation.x = value;
         annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["rotationPitch"] = value;
-        // update bounding box
-        update2DBoundingBox(labelTool.currentFileIndex, selectionIndex, true);
+        if (labelTool.pointCloudOnlyAnnotation === false) {
+            // update bounding box
+            update2DBoundingBox(labelTool.currentFileIndex, selectionIndex, true);
+        }
     });
     cubeRoll.onChange(function (value) {
         let selectionIndex = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
         labelTool.cubeArray[labelTool.currentFileIndex][selectionIndex].rotation.y = value;
         annotationObjects.contents[labelTool.currentFileIndex][selectionIndex]["rotationRoll"] = value;
-        // update bounding box
-        update2DBoundingBox(labelTool.currentFileIndex, selectionIndex, true);
+        if (labelTool.pointCloudOnlyAnnotation === false) {
+            // update bounding box
+            update2DBoundingBox(labelTool.currentFileIndex, selectionIndex, true);
+        }
     });
     cubeWidth.onChange(function (value) {
         for (let i = 0; i < labelTool.numFrames; i++) {
@@ -1012,8 +1039,10 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
                 annotationObjects.contents[i][selectionIndex]["width"] = value;
             }
         }
-        let selectionIndexCurrentFrame = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
-        update2DBoundingBox(labelTool.currentFileIndex, selectionIndexCurrentFrame, true);
+        if (labelTool.pointCloudOnlyAnnotation === false) {
+            let selectionIndexCurrentFrame = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
+            update2DBoundingBox(labelTool.currentFileIndex, selectionIndexCurrentFrame, true);
+        }
     });
     cubeLength.onChange(function (value) {
         for (let i = 0; i < labelTool.numFrames; i++) {
@@ -1031,8 +1060,10 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
                 annotationObjects.contents[i][selectionIndex]["length"] = value;
             }
         }
-        let selectionIndexCurrent = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
-        update2DBoundingBox(labelTool.currentFileIndex, selectionIndexCurrent, true);
+        if (labelTool.pointCloudOnlyAnnotation === false) {
+            let selectionIndexCurrent = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
+            update2DBoundingBox(labelTool.currentFileIndex, selectionIndexCurrent, true);
+        }
     });
     cubeHeight.onChange(function (value) {
         for (let i = 0; i < labelTool.numFrames; i++) {
@@ -1043,8 +1074,10 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
             labelTool.cubeArray[i][selectionIndex].scale.z = value;
             annotationObjects.contents[i][selectionIndex]["height"] = value;
         }
-        let selectionIndexCurrent = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
-        update2DBoundingBox(labelTool.currentFileIndex, selectionIndexCurrent, true);
+        if (labelTool.pointCloudOnlyAnnotation === false) {
+            let selectionIndexCurrent = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
+            update2DBoundingBox(labelTool.currentFileIndex, selectionIndexCurrent, true);
+        }
 
     });
 
@@ -1087,8 +1120,10 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
                     labelTool.cubeArray[newFileIndex][interpolationObjIndexNextFile].position.y = value;
                     annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["interpolationEnd"]["position"]["y"] = value;
                     annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["y"] = value;
-                    // update bounding box
-                    update2DBoundingBox(labelTool.currentFileIndex, interpolationObjIndexCurrentFile, true);
+                    if (labelTool.pointCloudOnlyAnnotation === false) {
+                        // update bounding box
+                        update2DBoundingBox(labelTool.currentFileIndex, interpolationObjIndexCurrentFile, true);
+                    }
                 }
             });
             cubeEndZ.onChange(function (value) {
@@ -1096,30 +1131,38 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
                     labelTool.cubeArray[newFileIndex][interpolationObjIndexNextFile].position.z = value;
                     annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["interpolationEnd"]["position"]["z"] = value;
                     annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["z"] = value;
-                    // update bounding box
-                    update2DBoundingBox(labelTool.currentFileIndex, interpolationObjIndexCurrentFile, true);
+                    if (labelTool.pointCloudOnlyAnnotation === false) {
+                        // update bounding box
+                        update2DBoundingBox(labelTool.currentFileIndex, interpolationObjIndexCurrentFile, true);
+                    }
                 }
             });
             cubeEndYaw.onChange(function (value) {
                 labelTool.cubeArray[newFileIndex][interpolationObjIndexNextFile].rotation.z = value;
                 annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["interpolationEnd"]["position"]["rotationYaw"] = value;
                 annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["rotationYaw"] = value;
-                // update bounding box
-                update2DBoundingBox(labelTool.currentFileIndex, interpolationObjIndexCurrentFile, true);
+                if (labelTool.pointCloudOnlyAnnotation === false) {
+                    // update bounding box
+                    update2DBoundingBox(labelTool.currentFileIndex, interpolationObjIndexCurrentFile, true);
+                }
             });
             cubeEndPitch.onChange(function (value) {
                 labelTool.cubeArray[newFileIndex][interpolationObjIndexNextFile].rotation.x = value;
                 annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["interpolationEnd"]["position"]["rotationPitch"] = value;
                 annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["rotationPitch"] = value;
-                // update bounding box
-                update2DBoundingBox(labelTool.currentFileIndex, interpolationObjIndexCurrentFile, true);
+                if (labelTool.pointCloudOnlyAnnotation === false) {
+                    // update bounding box
+                    update2DBoundingBox(labelTool.currentFileIndex, interpolationObjIndexCurrentFile, true);
+                }
             });
             cubeEndRoll.onChange(function (value) {
                 labelTool.cubeArray[newFileIndex][interpolationObjIndexNextFile].rotation.y = value;
                 annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["interpolationEnd"]["position"]["rotationRoll"] = value;
                 annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["rotationRoll"] = value;
-                // update bounding box
-                update2DBoundingBox(labelTool.currentFileIndex, interpolationObjIndexCurrentFile, true);
+                if (labelTool.pointCloudOnlyAnnotation === false) {
+                    // update bounding box
+                    update2DBoundingBox(labelTool.currentFileIndex, interpolationObjIndexCurrentFile, true);
+                }
             });
             cubeEndWidth.onChange(function (value) {
                 let newXPos = labelTool.cubeArray[newFileIndex][interpolationObjIndexNextFile].position.x + (value - labelTool.cubeArray[newFileIndex][interpolationObjIndexNextFile].scale.x)
@@ -1141,7 +1184,9 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
 
                 annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["interpolationEnd"]["size"]["width"] = value;
                 annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["width"] = value;
-                update2DBoundingBox(labelTool.currentFileIndex, interpolationObjIndexCurrentFile, true);
+                if (labelTool.pointCloudOnlyAnnotation === false) {
+                    update2DBoundingBox(labelTool.currentFileIndex, interpolationObjIndexCurrentFile, true);
+                }
             });
             cubeEndLength.onChange(function (value) {
                 let newXPos = labelTool.cubeArray[newFileIndex][interpolationObjIndexNextFile].position.x + (value - labelTool.cubeArray[newFileIndex][interpolationObjIndexNextFile].scale.y) * Math.sin(labelTool.cubeArray[newFileIndex][interpolationObjIndexCurrentFile].rotation.z) / 2;
@@ -1157,7 +1202,9 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
                 labelTool.cubeArray[newFileIndex][interpolationObjIndexNextFile].scale.y = value;
                 annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["interpolationEnd"]["size"]["length"] = value;
                 annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["length"] = value;
-                update2DBoundingBox(labelTool.currentFileIndex, interpolationObjIndexCurrentFile, true);
+                if (labelTool.pointCloudOnlyAnnotation === false) {
+                    update2DBoundingBox(labelTool.currentFileIndex, interpolationObjIndexCurrentFile, true);
+                }
             });
             cubeEndHeight.onChange(function (value) {
                 let newZPos = labelTool.cubeArray[newFileIndex][interpolationObjIndexNextFile].position.z + (value - labelTool.cubeArray[newFileIndex][interpolationObjIndexNextFile].scale.z) / 2;
@@ -1165,7 +1212,9 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
                 labelTool.cubeArray[newFileIndex][interpolationObjIndexNextFile].scale.z = value;
                 annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["interpolationEnd"]["size"]["height"] = value;
                 annotationObjects.contents[newFileIndex][interpolationObjIndexNextFile]["height"] = value;
-                update2DBoundingBox(labelTool.currentFileIndex, interpolationObjIndexCurrentFile, true);
+                if (labelTool.pointCloudOnlyAnnotation === false) {
+                    update2DBoundingBox(labelTool.currentFileIndex, interpolationObjIndexCurrentFile, true);
+                }
             });
         }
     }
@@ -1275,7 +1324,7 @@ function onWindowResize() {
 function getObjectIndexByName(objectName) {
     let idToFind = objectName.split("-")[1];// e.g. cube-V1
     for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
-        let uniqueId = annotationObjects.contents[labelTool.currentFileIndex][i]["class"].toUpperCase().charAt(0) + annotationObjects.contents[labelTool.currentFileIndex][i]["trackId"];
+        let uniqueId = annotationObjects.contents[labelTool.currentFileIndex][i]["class"].toLowerCase().charAt(0) + annotationObjects.contents[labelTool.currentFileIndex][i]["trackId"];
         if (uniqueId === idToFind) {
             return i;
         }
@@ -1324,17 +1373,17 @@ function updateObjectPosition() {
 function onChangeHandler(event) {
     useTransformControls = true;
     // update 2d bounding box
-    if (dragControls === true) {
-        if (labelTool.selectedMesh !== undefined) {
-            updateObjectPosition();
-            let objectIndexByTrackId = getObjectIndexByName(labelTool.selectedMesh.name);
-            update2DBoundingBox(labelTool.currentFileIndex, objectIndexByTrackId, true);
-            render();
+    if (labelTool.pointCloudOnlyAnnotation === false) {
+        if (dragControls === true) {
+            if (labelTool.selectedMesh !== undefined) {
+                updateObjectPosition();
+                let objectIndexByTrackId = getObjectIndexByName(labelTool.selectedMesh.name);
+                update2DBoundingBox(labelTool.currentFileIndex, objectIndexByTrackId, true);
+                render();
+            }
         }
     }
-
     render();
-
 }
 
 function onDraggingChangedHandler(event) {
@@ -1343,11 +1392,12 @@ function onDraggingChangedHandler(event) {
     // update 2d bounding box
     if (labelTool.selectedMesh !== undefined) {
         updateObjectPosition();
-        let objectIndexByTrackId = getObjectIndexByName(labelTool.selectedMesh.name);
-        update2DBoundingBox(labelTool.currentFileIndex, objectIndexByTrackId, true);
+        if (labelTool.pointCloudOnlyAnnotation === false) {
+            let objectIndexByTrackId = getObjectIndexByName(labelTool.selectedMesh.name);
+            update2DBoundingBox(labelTool.currentFileIndex, objectIndexByTrackId, true);
+        }
         render();
     }
-    // dragObject = false;
     // executed after drag finished
     // TODO: scale only on one side
     if (transformControls.getMode() === "scale") {
@@ -1724,17 +1774,17 @@ function updateScreenPosition() {
     for (let i = 0; i < labelTool.cubeArray[labelTool.currentFileIndex].length; i++) {
         let cubeObj = labelTool.cubeArray[labelTool.currentFileIndex][i];
         let annotationObj = annotationObjects.contents[labelTool.currentFileIndex][i];
-        const vector = new THREE.Vector3(cubeObj.position.x, cubeObj.position.y, cubeObj.position.z + cubeObj.scale.z / 2);
+        const cubePosition = new THREE.Vector3(cubeObj.position.x, cubeObj.position.y, cubeObj.position.z + cubeObj.scale.z / 2);
         const canvas = renderer.domElement;
-        vector.project(currentCamera);
-        vector.x = Math.round((0.5 + vector.x / 2) * (canvas.width));
-        vector.y = Math.round((0.5 - vector.y / 2) * (canvas.height));
+        cubePosition.project(currentCamera);
+        cubePosition.x = Math.round((0.5 + cubePosition.x / 2) * (canvas.width));
+        cubePosition.y = Math.round((0.5 - cubePosition.y / 2) * (canvas.height));
         if (annotationObj.trackId !== undefined) {
             let classTooltip = $("#tooltip-" + annotationObj.class.charAt(0) + annotationObj.trackId)[0];
             if (classTooltip !== undefined) {
                 let imagePaneHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
-                classTooltip.style.top = `${vector.y + headerHeight + imagePaneHeight - 21}px`;
-                classTooltip.style.left = `${vector.x}px`;
+                classTooltip.style.top = `${cubePosition.y + headerHeight + imagePaneHeight - 21}px`;
+                classTooltip.style.left = `${cubePosition.x}px`;
                 classTooltip.style.opacity = spriteBehindObject ? 0.25 : 1;
             }
         }
@@ -1969,13 +2019,15 @@ function calculateProjectedBoundingBox(xPos, yPos, zPos, width, length, height, 
 }
 
 function changeDataset(datasetName) {
-    labelTool.currentDataset = datasetName;
     labelTool.reset();
+    labelTool.currentDataset = datasetName;
+    labelTool.currentDatasetIdx = labelTool.datasetArray.indexOf(datasetName);
+    labelTool.sequence = labelTool.dataStructure.datasets[labelTool.datasetArray.indexOf(datasetName)].sequences[0];
     labelTool.start();
 }
 
 function changeSequence(sequence) {
-    labelTool.currentSequence = sequence;
+    labelTool.sequence = sequence;
     labelTool.reset();
     labelTool.start();
 }
@@ -1986,7 +2038,7 @@ function readPointCloud() {
         if (labelTool.showOriginalNuScenesLabels === true) {
             rawFile.open("GET", 'input/' + labelTool.currentDataset + '/pointclouds/' + pad(labelTool.currentFileIndex, 6) + '.pcd', false);
         } else {
-            rawFile.open("GET", 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/pointclouds/' + pad(labelTool.currentFileIndex, 6) + '.pcd', false);
+            rawFile.open("GET", 'input/' + labelTool.currentDataset + '/' + labelTool.sequence + '/pointclouds/' + pad(labelTool.currentFileIndex, 6) + '.pcd', false);
         }
     } catch (error) {
         // no labels available for this camera image
@@ -2403,15 +2455,18 @@ function mouseUpLogic(ev) {
                     annotationObjects.select(clickedObjectIndex, camChannel);
                 }
             }
-            // uncolor previous selected object
-            if (clickedObjectIndexPrevious !== -1) {
-                update2DBoundingBox(labelTool.currentFileIndex, clickedObjectIndexPrevious, false);
+
+            if (labelTool.pointCloudOnlyAnnotation === false) {
+                // uncolor previous selected object in image view
+                if (clickedObjectIndexPrevious !== -1) {
+                    update2DBoundingBox(labelTool.currentFileIndex, clickedObjectIndexPrevious, false);
+                }
+                // select object in cam images
+                update2DBoundingBox(labelTool.currentFileIndex, clickedObjectIndex, true);
             }
 
-            // select object in cam images
-            update2DBoundingBox(labelTool.currentFileIndex, clickedObjectIndex, true);
             // move button to right
-            $("#left-btn").css("left", window.innerWidth / 3 - 70);
+            $("#left-btn").css("left", window.innerWidth / 3);
 
             let obj = annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex];
             showHelperViews(obj["x"], obj["y"], obj["z"]);
@@ -2479,11 +2534,13 @@ function mouseUpLogic(ev) {
 
 
         } else {
-            // remove selection in camera view if 2d label exist
-            for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
-                if (annotationObjects.contents[labelTool.currentFileIndex][i]["rect"] !== undefined) {
-                    // removeBoundingBoxHighlight(i);
-                    removeTextBox(i);
+            if (labelTool.pointCloudOnlyAnnotation === false) {
+                // remove selection in camera view if 2d label exist
+                for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
+                    if (annotationObjects.contents[labelTool.currentFileIndex][i]["rect"] !== undefined) {
+                        // removeBoundingBoxHighlight(i);
+                        removeTextBox(i);
+                    }
                 }
             }
 
@@ -2514,7 +2571,7 @@ function mouseUpLogic(ev) {
             disableInterpolationModeCheckbox(interpolationModeCheckbox);
 
             // move button to left
-            $("#left-btn").css("left", -70);
+            $("#left-btn").css("left", 0);
 
         }
 
@@ -2550,7 +2607,7 @@ function mouseUpLogic(ev) {
                 if (annotationObjects.__selectionIndexCurrentFrame === -1) {
                     trackId = classesBoundingBox[classesBoundingBox.targetName()].nextTrackId;
                     insertIndex = annotationObjects.contents[labelTool.currentFileIndex].length;
-                    clickedObjectIndexPrevious = annotationObjects.contents[labelTool.currentFileIndex].length;
+                    clickedObjectIndexPrevious = annotationObjects.__selectionIndexCurrentFrame;
                 } else {
                     trackId = annotationObjects.contents[labelTool.currentFileIndex][annotationObjects.__selectionIndexCurrentFrame]["trackId"];
                     insertIndex = annotationObjects.__selectionIndexCurrentFrame;
@@ -2565,15 +2622,18 @@ function mouseUpLogic(ev) {
                 let zPos = 0;
 
                 // average car height in meters (ref: https://www.carfinderservice.com/car-advice/a-careful-look-at-different-sedan-dimensions)
-                let defaultHeight = 1.468628;
                 let addBboxParameters = getDefaultObject();
                 addBboxParameters.class = classesBoundingBox.targetName();
                 addBboxParameters.x = xPos;
                 addBboxParameters.y = yPos;
-                addBboxParameters.z = zPos + defaultHeight / 2 - labelTool.positionLidarNuscenes[2];
+                if (labelTool.currentDataset === labelTool.datasets.providentia) {
+                    addBboxParameters.z = zPos + defaultBoxHeight / 2 - labelTool.positionLidar[2];
+                } else {
+                    addBboxParameters.z = zPos + defaultBoxHeight / 2 - labelTool.positionLidarNuscenes[2];
+                }
                 addBboxParameters.width = Math.abs(groundPointMouseUp.x - groundPointMouseDown.x);
                 addBboxParameters.length = Math.abs(groundPointMouseUp.y - groundPointMouseDown.y);
-                addBboxParameters.height = defaultHeight;
+                addBboxParameters.height = defaultBoxHeight;
                 addBboxParameters.rotationYaw = 0;
                 addBboxParameters.rotationPitch = 0;
                 addBboxParameters.rotationRoll = 0;
@@ -2581,10 +2641,10 @@ function mouseUpLogic(ev) {
                     class: classesBoundingBox.targetName(),
                     x: (groundPointMouseUp.x + groundPointMouseDown.x) / 2,
                     y: (groundPointMouseUp.y + groundPointMouseDown.y) / 2,
-                    z: zPos + defaultHeight / 2 - labelTool.positionLidarNuscenes[2],
+                    z: zPos + defaultBoxHeight / 2 - labelTool.positionLidarNuscenes[2],
                     width: Math.abs(groundPointMouseUp.x - groundPointMouseDown.x),
                     length: Math.abs(groundPointMouseUp.y - groundPointMouseDown.y),
-                    height: defaultHeight,
+                    height: defaultBoxHeight,
                     rotationYaw: 0,
                     rotationPitch: 0,
                     rotationRoll: 0,
@@ -2607,22 +2667,26 @@ function mouseUpLogic(ev) {
                     addBboxParameters["interpolationStart"]["size"]["height"] = addBboxParameters["height"];
                     addBboxParameters["interpolationStartFileIndex"] = labelTool.currentFileIndex;
                 }
-                // set channel
-                for (let i = 0; i < labelTool.camChannels.length; i++) {
-                    let channel = labelTool.camChannels[i].channel;
-                    let projectedBoundingBox = calculateProjectedBoundingBox(xPos, yPos, addBboxParameters.z, addBboxParameters.width, addBboxParameters.length, addBboxParameters.height, channel, addBboxParameters.rotationYaw, addBboxParameters.rotationPitch, addBboxParameters.rotationRoll);
-                    addBboxParameters.channels[i].projectedPoints = projectedBoundingBox;
-                }
-                // calculate line segments
-                for (let i = 0; i < addBboxParameters.channels.length; i++) {
-                    let channelObj = addBboxParameters.channels[i];
-                    if (channelObj.channel !== undefined && channelObj.channel !== '') {
-                        if (addBboxParameters.channels[i].projectedPoints !== undefined && addBboxParameters.channels[i].projectedPoints.length === 8) {
-                            let horizontal = addBboxParameters.width > addBboxParameters.length;
-                            addBboxParameters.channels[i]["lines"] = calculateAndDrawLineSegments(channelObj, classesBoundingBox.targetName(), horizontal, true);
+                if (labelTool.pointCloudOnlyAnnotation === false) {
+                    // calculate projected points for each channel
+                    for (let i = 0; i < labelTool.camChannels.length; i++) {
+                        let channel = labelTool.camChannels[i].channel;
+                        let projectedBoundingBox = calculateProjectedBoundingBox(xPos, yPos, addBboxParameters.z, addBboxParameters.width, addBboxParameters.length, addBboxParameters.height, channel, addBboxParameters.rotationYaw, addBboxParameters.rotationPitch, addBboxParameters.rotationRoll);
+                        addBboxParameters.channels[i].projectedPoints = projectedBoundingBox;
+                    }
+
+                    // calculate 2D line segments
+                    for (let i = 0; i < addBboxParameters.channels.length; i++) {
+                        let channelObj = addBboxParameters.channels[i];
+                        if (channelObj.channel !== undefined && channelObj.channel !== '') {
+                            if (addBboxParameters.channels[i].projectedPoints !== undefined && addBboxParameters.channels[i].projectedPoints.length === 8) {
+                                let horizontal = addBboxParameters.width > addBboxParameters.length;
+                                addBboxParameters.channels[i]["lines"] = calculateAndDrawLineSegments(channelObj, classesBoundingBox.targetName(), horizontal, true);
+                            }
                         }
                     }
                 }
+
                 annotationObjects.set(insertIndex, addBboxParameters);
                 labelTool.selectedMesh = labelTool.cubeArray[labelTool.currentFileIndex][insertIndex];
                 if (labelTool.selectedMesh !== undefined) {
@@ -2780,7 +2844,12 @@ function isFullscreen() {
 }
 
 function initViews() {
-    let imagePanelTopPos = parseInt($("#layout_layout_resizer_top").css("top"), 10);
+    let imagePanelTopPos;
+    if (labelTool.pointCloudOnlyAnnotation === false) {
+        imagePanelTopPos = parseInt($("#layout_layout_resizer_top").css("top"), 10);
+    } else {
+        imagePanelTopPos = 0;
+    }
     let viewHeight;
     if (isFullscreen() === true) {
         viewHeight = Math.round((window.innerHeight - headerHeight - imagePanelTopPos) / 3);
@@ -2844,7 +2913,6 @@ function initViews() {
         }
     ];
     $("#canvasSideView").css("height", viewHeight);
-    console.log("init view: " + viewHeight);
     $("#canvasSideView").css("top", headerHeight + imagePanelTopPos);
     $("#canvasFrontView").css("height", viewHeight);
     $("#canvasFrontView").css("top", headerHeight + imagePanelTopPos + viewHeight);
@@ -2931,10 +2999,12 @@ function disableChooseSequenceDropDown(chooseSequenceDropDown) {
 
 function createGrid() {
     labelTool.removeObject("grid");
-    grid = new THREE.GridHelper(100, 100);
+    grid = new THREE.GridHelper(gridSize,gridSize);
     let posZLidar;
     if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
         posZLidar = labelTool.positionLidarNuscenes[2];
+    }else{
+        posZLidar = labelTool.positionLidar[2];
     }
     grid.translateZ(-posZLidar);
     grid.rotateX(Math.PI / 2);
@@ -2967,7 +3037,7 @@ function canvas3DKeyDownHandler(event) {
 function loadDetectedBoxes() {
     let rawFile = new XMLHttpRequest();
     try {
-        rawFile.open("GET", 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/detections/detections_lidar.json', false);
+        rawFile.open("GET", 'input/' + labelTool.currentDataset + '/' + labelTool.sequence + '/detections/detections_lidar.json', false);
     } catch (error) {
     }
 
@@ -3124,7 +3194,7 @@ function init() {
         guiOptions.add(parameters, 'download').name("Download Annotations");
         guiOptions.add(parameters, 'download_video').name("Create and Download Video");
         guiOptions.add(parameters, 'undo').name("Undo");
-        guiOptions.add(parameters, 'views', ['perspective','orthographic']).name("Select View").onChange(function (value) {
+        guiOptions.add(parameters, 'views', ['perspective', 'orthographic']).name("Select View").onChange(function (value) {
             if (transformControls !== undefined) {
                 labelTool.selectedMesh = undefined;
                 transformControls.detach();
@@ -3169,20 +3239,21 @@ function init() {
         if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
             enableShowNuscenesLabelsCheckbox(showNuScenesLabelsCheckbox);
         }
-        let chooseSequenceDropDown;
-        guiOptions.add(parameters, 'datasets', ['NuScenes']).name("Choose dataset")
+
+        let chooseSequenceDropDownController;
+        let currentDatasetDropDownController = guiOptions.add(labelTool, 'currentDataset', labelTool.datasetArray).name("Choose dataset")
             .onChange(function (value) {
                 changeDataset(value);
+                chooseSequenceDropDownController = chooseSequenceDropDownController.options(labelTool.dataStructure.datasets[labelTool.currentDatasetIdx].sequences);
                 let allCheckboxes = $(":checkbox");
                 let showNuScenesLabelsCheckbox = allCheckboxes[0];
                 if (value === labelTool.datasets.NuScenes) {
                     enableShowNuscenesLabelsCheckbox(showNuScenesLabelsCheckbox);
-                    disableChooseSequenceDropDown(chooseSequenceDropDown.domElement);
                 }
                 hideMasterView();
             });
-        chooseSequenceDropDown = guiOptions.add(parameters, 'sequences', [
-            labelTool.sequencesNuScenes[0]]).name("Choose Sequence")
+
+        chooseSequenceDropDownController = guiOptions.add(labelTool, 'sequence', labelTool.dataStructure.datasets[labelTool.currentDatasetIdx].sequences).name("Choose Sequence")
             .onChange(function (value) {
                 changeSequence(value);
                 hideMasterView();
@@ -3202,15 +3273,19 @@ function init() {
                 labelTool.removeObject('prism');
             }
         });
-        let showProjectedPointsCheckbox = guiOptions.add(parameters, 'show_projected_points').name('Show projected points').listen();
-        showProjectedPointsCheckbox.onChange(function (value) {
-            showProjectedPointsFlag = value;
-            if (showProjectedPointsFlag === true) {
-                showProjectedPoints();
-            } else {
-                hideProjectedPoints();
-            }
-        });
+
+        if (labelTool.pointCloudOnlyAnnotation === false) {
+            let showProjectedPointsCheckbox = guiOptions.add(parameters, 'show_projected_points').name('Show projected points').listen();
+            showProjectedPointsCheckbox.onChange(function (value) {
+                showProjectedPointsFlag = value;
+                if (showProjectedPointsFlag === true) {
+                    showProjectedPoints();
+                } else {
+                    hideProjectedPoints();
+                }
+            });
+        }
+
         let showGridCheckbox = guiOptions.add(parameters, 'show_grid').name('Show grid').listen();
         showGridCheckbox.onChange(function (value) {
             showGridFlag = value;
@@ -3245,36 +3320,42 @@ function init() {
                     // remove 3D labels
                     let mesh = labelTool.cubeArray[labelTool.currentFileIndex][i];
                     mesh.material.opacity = 0;
-                    // remove all 2D labels
-                    for (let j = 0; j < annotationObjects.contents[labelTool.currentFileIndex][i].channels.length; j++) {
-                        let channelObj = annotationObjects.contents[labelTool.currentFileIndex][i].channels[j];
-                        // remove drawn lines of all 6 channels
-                        for (let lineObj in channelObj.lines) {
-                            if (channelObj.lines.hasOwnProperty(lineObj)) {
-                                let line = channelObj.lines[lineObj];
-                                if (line !== undefined) {
-                                    line.remove();
+                    if (labelTool.pointCloudOnlyAnnotation === false) {
+                        // remove all 2D labels
+                        for (let j = 0; j < annotationObjects.contents[labelTool.currentFileIndex][i].channels.length; j++) {
+                            let channelObj = annotationObjects.contents[labelTool.currentFileIndex][i].channels[j];
+                            // remove drawn lines of all 6 channels
+                            for (let lineObj in channelObj.lines) {
+                                if (channelObj.lines.hasOwnProperty(lineObj)) {
+                                    let line = channelObj.lines[lineObj];
+                                    if (line !== undefined) {
+                                        line.remove();
+                                    }
                                 }
                             }
                         }
                     }
                 }
-                if (selectionIndex !== -1) {
-                    // draw selected object in 2D and 3D
-                    update2DBoundingBox(labelTool.currentFileIndex, selectionIndex, true);
+                if (labelTool.pointCloudOnlyAnnotation === false) {
+                    if (selectionIndex !== -1) {
+                        // draw selected object in 2D and 3D
+                        update2DBoundingBox(labelTool.currentFileIndex, selectionIndex, true);
+                    }
                 }
             } else {
                 for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
                     // show 3D labels
                     let mesh = labelTool.cubeArray[labelTool.currentFileIndex][i];
                     mesh.material.opacity = 0.9;
-                    // show 2D labels
-                    if (selectionIndex === i) {
-                        // draw selected object in 2D and 3D
-                        update2DBoundingBox(labelTool.currentFileIndex, selectionIndex, true);
-                    } else {
-                        if (selectionIndex !== -1) {
-                            update2DBoundingBox(labelTool.currentFileIndex, i, false);
+                    if (labelTool.pointCloudOnlyAnnotation === false) {
+                        // show 2D labels
+                        if (selectionIndex === i) {
+                            // draw selected object in 2D and 3D
+                            update2DBoundingBox(labelTool.currentFileIndex, selectionIndex, true);
+                        } else {
+                            if (selectionIndex !== -1) {
+                                update2DBoundingBox(labelTool.currentFileIndex, i, false);
+                            }
                         }
                     }
 
@@ -3290,7 +3371,7 @@ function init() {
         let interpolationModeCheckbox = guiOptions.add(parameters, 'interpolation_mode').name('Interpolation Mode');
         interpolationModeCheckbox.domElement.id = 'interpolation-checkbox';
         // if scene contains no objects then deactivate checkbox
-        if (annotationFileExist(undefined, undefined) === false || interpolationMode === false) {
+        if (annotationFileExist(0, undefined) === false || interpolationMode === false) {
             // no annotation file exist -> deactivate checkbox
             disableInterpolationModeCheckbox(interpolationModeCheckbox.domElement);
         }
@@ -3370,10 +3451,12 @@ function init() {
         let downloadAnnotationsDivItem = downloadAnnotationsItem.children().first();
         downloadAnnotationsDivItem.wrap("<a href=\"\"></a>");
         loadColorMap();
-        if (showProjectedPointsFlag === true) {
-            showProjectedPoints();
-        } else {
-            hideProjectedPoints();
+        if (labelTool.pointCloudOnlyAnnotation === false) {
+            if (showProjectedPointsFlag === true) {
+                showProjectedPoints();
+            } else {
+                hideProjectedPoints();
+            }
         }
     }
     let classPickerElem = $('#class-picker ul li');

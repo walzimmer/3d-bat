@@ -1,16 +1,22 @@
 let labelTool = {
-    datasets: {NuScenes: "NuScenes", providentia: "providentia"},
+    configFileName: 'config.json',
+    dataStructure: undefined,
+    datasets: {},
+    datasetArray: [],
     sequencesNuScenes: [],
-    currentDataset: 'NuScenes', // [NuScenes, providentia]
-    currentSequence: 'One',//[2018-05-23-001-frame-00042917-00043816_small, 2018-05-23-001-frame-00042917-00043816, One, 20201010_sequence]
-    pointCloudOnlyAnnotation: false,
-    numFramesNuScenes: 50,//[3962,50]
+    currentDataset: "",
+    currentDatasetIdx: 0,
+    sequence: "",
+    pointCloudOnlyAnnotation: true,
+    numFramesNuScenes: 50,
+    numFramesProvidentia: 50,
     frameScreenshots: [],
     numFrames: 0,
     dataTypes: [],
     playSequence: false,
     currentFileIndex: 0,
-    showCameraPosition: true,
+    showCameraPosition: false,
+    drawEgoVehicle: false,
     previousFileIndex: 0,
     fileNames: [],
     takeCanvasScreenshot: false,
@@ -137,6 +143,7 @@ let labelTool = {
     currentChannelLabel: document.getElementById('cam_channel'),
     // position of the lidar sensor in ego vehicle space
     positionLidarNuscenes: [0.891067, 0.0, 1.84292],//(long, lat, vert)
+    positionLidar: [0.0, 0.0, 6.9],//(long, lat, vert)
     translationVectorLidarToCamFront: [0.77, -0.02, -0.3],
     showOriginalNuScenesLabels: false,
     imageAspectRatioNuScenes: 1.777777778,
@@ -321,12 +328,12 @@ let labelTool = {
         let pcdLoader = new THREE.PCDLoader();
         let pointCloudFullURL;
         let pointCloudWithoutGroundURL;
-        pointCloudWithoutGroundURL = 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/' + 'pointclouds_without_ground/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
+        pointCloudWithoutGroundURL = 'input/' + labelTool.currentDataset + '/' + labelTool.sequence + '/' + 'pointclouds_without_ground/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
 
         // load all point cloud scans in the beginning
         if (labelTool.pointCloudLoaded === false) {
             for (let i = 0; i < labelTool.numFrames; i++) {
-                pointCloudFullURL = 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/' + 'pointclouds/' + labelTool.fileNames[i] + '.pcd';
+                pointCloudFullURL = 'input/' + labelTool.currentDataset + '/' + labelTool.sequence + '/' + 'pointclouds/' + labelTool.fileNames[i] + '.pcd';
                 pcdLoader.load(pointCloudFullURL, function (mesh) {
                     mesh.name = 'pointcloud-scan-' + i;
                     pointCloudScanList.push(mesh);
@@ -359,19 +366,21 @@ let labelTool = {
         }
 
         // draw ego vehicle
-        let lexusTexture = new THREE.TextureLoader().load('assets/models/lexus/lexus.jpg');
-        let lexusMaterial = new THREE.MeshBasicMaterial({map: lexusTexture});
-        let objLoader = new THREE.OBJLoader();
-        objLoader.load('assets/models/lexus/lexus_hs.obj', function (object) {
-            let lexusGeometry = object.children[0].geometry;
-            let lexusMesh = new THREE.Mesh(lexusGeometry, lexusMaterial);
+        if (labelTool.drawEgoVehicle === true) {
+            let lexusTexture = new THREE.TextureLoader().load('assets/models/lexus/lexus.jpg');
+            let lexusMaterial = new THREE.MeshBasicMaterial({map: lexusTexture});
+            let objLoader = new THREE.OBJLoader();
+            objLoader.load('assets/models/lexus/lexus_hs.obj', function (object) {
+                let lexusGeometry = object.children[0].geometry;
+                let lexusMesh = new THREE.Mesh(lexusGeometry, lexusMaterial);
 
-            lexusMesh.scale.set(0.065, 0.065, 0.065);
-            lexusMesh.rotation.set(0, 0, -Math.PI / 2);
-            lexusMesh.position.set(0, 0, -labelTool.positionLidarNuscenes[2]);
+                lexusMesh.scale.set(0.065, 0.065, 0.065);
+                lexusMesh.rotation.set(0, 0, -Math.PI / 2);
+                lexusMesh.position.set(0, 0, -labelTool.positionLidarNuscenes[2]);
 
-            scene.add(lexusMesh)
-        });
+                scene.add(lexusMesh)
+            });
+        }
     },
 
     setTrackIds: function () {
@@ -382,8 +391,6 @@ let labelTool = {
         }
     },
     loadAnnotationsNuscenes: function (annotations, fileIndex) {
-        // Remove old bounding boxes of current frame.
-        annotationObjects.clear();
         // Add new bounding boxes.
         for (let i in annotations) {
             // convert 2D bounding box to integer values
@@ -446,76 +453,74 @@ let labelTool = {
         }
     },
     // Set values to this.annotationObjects from allAnnotations
-    loadAnnotationsNuScenesJSON: function (allAnnotations) {
+    loadAnnotationsNuScenesJSON: function (frameObject) {
         // Remove old bounding boxes of current frame.
-        annotationObjects.clear();
         let maxTrackIds = [0, 0, 0, 0, 0];// vehicle, truck, motorcycle, bicycle, pedestrian
-        // Add new bounding boxes.
-        for (let i = 0; i < labelTool.numFrames; i++) {
-            // convert 2D bounding box to integer values
-            let frameAnnotations = allAnnotations[i];
-
-            for (let annotationIdx in frameAnnotations) {
-                if (frameAnnotations.hasOwnProperty(annotationIdx)) {
-                    let annotation = frameAnnotations[annotationIdx];
-                    let params = getDefaultObject();
-                    params.class = annotation.class;
-                    params.rotationYaw = parseFloat(annotation.rotationYaw);
-                    params.original.rotationYaw = parseFloat(annotation.rotationYaw);
-                    let classIdx;
-                    params.trackId = annotation.trackId;
-                    classIdx = classesBoundingBox[annotation.class].index;
-                    if (params.trackId > maxTrackIds[classIdx]) {
-                        maxTrackIds[classIdx] = params.trackId;
-                    }
-                    // Nuscenes labels are stored in global frame in the database
-                    // Nuscenes: labels (3d positions) are transformed from global frame to point cloud (global -> ego, ego -> point cloud) before exporting them
-                    params.x = parseFloat(annotation.x);
-                    params.y = parseFloat(annotation.y);
-                    params.z = parseFloat(annotation.z);
-                    params.original.x = parseFloat(annotation.x);
-                    params.original.y = parseFloat(annotation.y);
-                    params.original.z = parseFloat(annotation.z);
-                    let tmpWidth = parseFloat(annotation.width);
-                    // swap length with height
-                    let tmpLength = parseFloat(annotation.height);
-                    let tmpHeight = parseFloat(annotation.length);
-                    if (tmpWidth > 0.3 && tmpLength > 0.3 && tmpHeight > 0.3) {
-                        tmpWidth = Math.max(tmpWidth, 0.0001);
-                        tmpLength = Math.max(tmpLength, 0.0001);
-                        tmpHeight = Math.max(tmpHeight, 0.0001);
-                        params.delta_x = 0;
-                        params.delta_y = 0;
-                        params.delta_z = 0;
-                        params.width = tmpWidth;
-                        params.length = tmpLength;
-                        params.height = tmpHeight;
-                        params.original.width = tmpWidth;
-                        params.original.length = tmpLength;
-                        params.original.height = tmpHeight;
-                    }
-                    params.fileIndex = Number(i);
-                    // add new entry to contents array
-                    annotationObjects.set(annotationObjects.__insertIndex, params);
-                    annotationObjects.__insertIndex++;
-                    if (labelTool.showOriginalNuScenesLabels === true) {
-                        classesBoundingBox.content[classesBoundingBox.targetName()].nextTrackId++;
-                    } else {
-                        classesBoundingBox.target().nextTrackId++;
-                    }
-
-
+        let frameAnnotations = frameObject.labels;
+        // Add new bounding boxes
+        for (let annotationIdx in frameAnnotations) {
+            if (frameAnnotations.hasOwnProperty(annotationIdx)) {
+                let annotation = frameAnnotations[annotationIdx];
+                let params = getDefaultObject();
+                params.class = annotation.category;
+                params.rotationYaw = parseFloat(annotation.box3d.orientation.rotationYaw);
+                params.original.rotationYaw = parseFloat(annotation.box3d.orientation.rotationYaw);
+                params.rotationPitch = parseFloat(annotation.box3d.orientation.rotationPitch);
+                params.original.rotationPitch = parseFloat(annotation.box3d.orientation.rotationPitch);
+                params.rotationRoll = parseFloat(annotation.box3d.orientation.rotationRoll);
+                params.original.rotationRoll = parseFloat(annotation.box3d.orientation.rotationRoll);
+                let classIdx;
+                params.trackId = annotation.id;
+                classIdx = classesBoundingBox[annotation.category].index;
+                if (params.trackId > maxTrackIds[classIdx]) {
+                    maxTrackIds[classIdx] = params.id;
                 }
-            }//end for loop frame annotations
-            // reset track ids for next frame if nuscenes dataset and showLabels=true
-            if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
-                for (let i = 0; i < classesBoundingBox.classNameArray.length; i++) {
-                    classesBoundingBox.content[classesBoundingBox.classNameArray[i]].nextTrackId = 0;
+                // Nuscenes labels are stored in global frame in the database
+                // Nuscenes: labels (3d positions) are transformed from global frame to point cloud (global -> ego, ego -> point cloud) before exporting them
+                params.x = parseFloat(annotation.box3d.location.x);
+                params.y = parseFloat(annotation.box3d.location.y);
+                params.z = parseFloat(annotation.box3d.location.z);
+                params.original.x = parseFloat(annotation.box3d.location.x);
+                params.original.y = parseFloat(annotation.box3d.location.y);
+                params.original.z = parseFloat(annotation.box3d.location.z);
+                let tmpWidth = parseFloat(annotation.box3d.dimension.width);
+                let tmpLength = parseFloat(annotation.box3d.dimension.length);
+                let tmpHeight = parseFloat(annotation.box3d.dimension.height);
+                if (tmpWidth > 0.3 && tmpLength > 0.3 && tmpHeight > 0.3) {
+                    tmpWidth = Math.max(tmpWidth, 0.0001);
+                    tmpLength = Math.max(tmpLength, 0.0001);
+                    tmpHeight = Math.max(tmpHeight, 0.0001);
+                    params.delta_x = 0;
+                    params.delta_y = 0;
+                    params.delta_z = 0;
+                    params.width = tmpWidth;
+                    params.length = tmpLength;
+                    params.height = tmpHeight;
+                    params.original.width = tmpWidth;
+                    params.original.length = tmpLength;
+                    params.original.height = tmpHeight;
                 }
+                params.fileIndex = Number(frameObject.index);
+                // add new entry to contents array
+                annotationObjects.set(annotationObjects.__insertIndex, params);
+                annotationObjects.__insertIndex++;
+                if (labelTool.showOriginalNuScenesLabels === true) {
+                    classesBoundingBox.content[classesBoundingBox.targetName()].nextTrackId++;
+                } else {
+                    classesBoundingBox.target().nextTrackId++;
+                }
+
+
             }
-            // reset insert index
-            annotationObjects.__insertIndex = 0;
-        }// end for loop all annotations
+        }//end for loop frame annotations
+        // reset track ids for next frame if nuscenes dataset and showLabels=true
+        if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
+            for (let i = 0; i < classesBoundingBox.classNameArray.length; i++) {
+                classesBoundingBox.content[classesBoundingBox.classNameArray[i]].nextTrackId = 0;
+            }
+        }
+        // reset insert index
+        annotationObjects.__insertIndex = 0;
 
         if (labelTool.showOriginalNuScenesLabels === true) {
             let keys = Object.keys(classesBoundingBox.content);
@@ -538,24 +543,22 @@ let labelTool = {
         }
     },
     loadFrameAnnotationsProvidentiaJSON: function (frameObject) {
-        // Remove old bounding boxes of current frame.
-        annotationObjects.clear();
         let maxTrackIds = [0, 0, 0, 0, 0];// vehicle, truck, motorcycle, bicycle, pedestrian
         // convert 2D bounding box to integer values
-        frameAnnotations = frameObject.labels;
+        let frameAnnotations = frameObject.labels;
 
         for (let annotationIdx in frameAnnotations) {
             if (frameAnnotations.hasOwnProperty(annotationIdx)) {
                 let annotation = frameAnnotations[annotationIdx];
                 let params = getDefaultObject();
                 params.class = annotation.category;
-                params.rotationYaw = parseFloat(annotation.box3d.orientation[2]);
-                params.original.rotationYaw = parseFloat(annotation.box3d.orientation[2]);
+                params.rotationYaw = parseFloat(annotation.box3d.orientation.rotationRoll);
+                params.original.rotationYaw = parseFloat(annotation.box3d.orientation.rotationRoll);
                 // TODO: check whether index of pitch and roll needs to be swapped
-                params.rotationPitch = parseFloat(annotation.box3d.orientation[0]);
-                params.original.rotationPitch = parseFloat(annotation.box3d.orientation[0]);
-                params.rotationRoll = parseFloat(annotation.box3d.orientation[1]);
-                params.original.rotationRoll = parseFloat(annotation.box3d.orientation[1]);
+                params.rotationPitch = parseFloat(annotation.box3d.orientation.rotationYaw);
+                params.original.rotationPitch = parseFloat(annotation.box3d.orientation.rotationYaw);
+                params.rotationRoll = parseFloat(annotation.box3d.orientation.rotationPitch);
+                params.original.rotationRoll = parseFloat(annotation.box3d.orientation.rotationPitch);
                 let classIdx;
                 params.trackId = annotation.id;
                 classIdx = classesBoundingBox[annotation.category].index;
@@ -564,16 +567,15 @@ let labelTool = {
                 }
                 // Nuscenes labels are stored in global frame in the database
                 // Nuscenes: labels (3d positions) are transformed from global frame to point cloud (global -> ego, ego -> point cloud) before exporting them
-                params.x = parseFloat(annotation.box3d.location[0]);
-                params.y = parseFloat(annotation.box3d.location[1]);
-                params.z = parseFloat(annotation.box3d.location[2]);
-                params.original.x = parseFloat(annotation.box3d.location[0]);
-                params.original.y = parseFloat(annotation.box3d.location[1]);
-                params.original.z = parseFloat(annotation.box3d.location[2]);
-                let tmpWidth = parseFloat(annotation.box3d.dimension[0]);
-                // swap length with height
-                let tmpLength = parseFloat(annotation.box3d.dimension[1]);
-                let tmpHeight = parseFloat(annotation.box3d.dimension[2]);
+                params.x = parseFloat(annotation.box3d.location.x);
+                params.y = parseFloat(annotation.box3d.location.y);
+                params.z = parseFloat(annotation.box3d.location.z);
+                params.original.x = parseFloat(annotation.box3d.location.x);
+                params.original.y = parseFloat(annotation.box3d.location.y);
+                params.original.z = parseFloat(annotation.box3d.location.z);
+                let tmpWidth = parseFloat(annotation.box3d.dimension.width);
+                let tmpLength = parseFloat(annotation.box3d.dimension.length);
+                let tmpHeight = parseFloat(annotation.box3d.dimension.height);
                 if (tmpWidth > 0.3 && tmpLength > 0.3 && tmpHeight > 0.3) {
                     tmpWidth = Math.max(tmpWidth, 0.0001);
                     tmpLength = Math.max(tmpLength, 0.0001);
@@ -588,16 +590,15 @@ let labelTool = {
                     params.original.length = tmpLength;
                     params.original.height = tmpHeight;
                 }
-                // TODO: set correct file index
-                params.fileIndex = Number(0);
+                params.fileIndex = Number(frameObject.index);
                 // add new entry to contents array
                 annotationObjects.set(annotationObjects.__insertIndex, params);
                 annotationObjects.__insertIndex++;
                 classesBoundingBox.target().nextTrackId++;
             }
-            // reset insert index
-            annotationObjects.__insertIndex = 0;
         }
+        // reset insert index
+        annotationObjects.__insertIndex = 0;
 
         let keys = Object.keys(classesBoundingBox);
         for (let i = 0; i < maxTrackIds.length; i++) {
@@ -606,37 +607,49 @@ let labelTool = {
     },
 
     // Create annotations from this.annotationObjects
-    createAnnotations: function () {
-        let allAnnotations = [];
+    createAnnotationFiles: function () {
+        let annotationFiles = [];
         for (let j = 0; j < this.numFrames; j++) {
             let annotationsInFrame = [];
             for (let i = 0; i < annotationObjects.contents[j].length; i++) {
                 if (annotationObjects.contents[j][i] !== undefined && this.cubeArray[j][i] !== undefined) {
                     let annotationObj = annotationObjects.contents[j][i];
                     // Nuscenes labels are stored in global frame within database
-                    // [optional] Nuscenes: transform 3d positions from point cloud to global frame (point cloud-> ego, ego -> global)
-                    let annotation = {
-                        class: annotationObj["class"],
-                        // TODO: store information of 3D objects also in annotationObjects.contents instead of cubeArray
-                        width: this.cubeArray[j][i].scale.x,
-                        // swap length with height
-                        height: this.cubeArray[j][i].scale.z,
-                        length: this.cubeArray[j][i].scale.y,
-                        x: this.cubeArray[j][i].position.x,
-                        y: this.cubeArray[j][i].position.y,
-                        z: this.cubeArray[j][i].position.z,
-                        rotationYaw: this.cubeArray[j][i].rotation.z,
-                        rotationPitch: this.cubeArray[j][i].rotation.x,
-                        rotationRoll: this.cubeArray[j][i].rotation.y,
-                        trackId: annotationObj["trackId"],
-                        frameIdx: j
-                    };
-                    annotationsInFrame.push(annotation);
+                    // [optional] Nuscenes: transform 3d positions from lidar frame to global frame (lidar -> ego, ego -> global)
+                    let annotationObjectJSON =
+                        {
+                            "id": annotationObj["trackId"],
+                            "category": annotationObj["class"],
+                            "box3d": {
+                                "dimension": {
+                                    "width": this.cubeArray[j][i].scale.x,
+                                    "length": this.cubeArray[j][i].scale.y,
+                                    "height": this.cubeArray[j][i].scale.z
+                                },
+                                "location": {
+                                    "x": this.cubeArray[j][i].position.x,
+                                    "y": this.cubeArray[j][i].position.y,
+                                    "z": this.cubeArray[j][i].position.z
+                                },
+                                "orientation": {
+                                    "rotationYaw": this.cubeArray[j][i].rotation.z,
+                                    "rotationPitch": this.cubeArray[j][i].rotation.x,
+                                    "rotationRoll": this.cubeArray[j][i].rotation.y
+                                }
+                            }
+                        }
+                    annotationsInFrame.push(annotationObjectJSON);
                 }
             }
-            allAnnotations.push(annotationsInFrame);
+            let annotationsInFrameJSON = {
+                "name": labelTool.fileNames[j],
+                "timestamp": 0,
+                "index": j,
+                "labels": annotationsInFrame
+            };
+            annotationFiles.push(JSON.stringify(annotationsInFrameJSON));
         }
-        return allAnnotations;
+        return annotationFiles;
     },
 
     initializePointCloudWindow: function () {
@@ -796,7 +809,6 @@ let labelTool = {
     }, initializeCameraWindows: function () {
         this.setImageSize();
         this.initPanes();
-        $(".current").text((labelTool.currentFileIndex + 1) + "/" + this.fileNames.length);
         let imageContainer = $("#layout_layout_panel_top .w2ui-panel-content");
         let imageWidth;
         let canvasElem;
@@ -852,6 +864,7 @@ let labelTool = {
 
     loadAnnotations() {
         let fileName;
+        annotationObjects.clear();
         if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
             if (labelTool.showOriginalNuScenesLabels === true) {
                 for (let i = 0; i < this.fileNames.length; i++) {
@@ -871,27 +884,27 @@ let labelTool = {
                     });
                 }
             } else {
-                fileName = labelTool.currentDataset + "_" + labelTool.currentSequence + "_annotations.json";
-                request({
-                    url: '/label/annotations/',
-                    type: 'GET',
-                    dataType: 'json',
-                    data: {
-                        file_name: fileName
-                    },
-                    success: function (res) {
-                        this.loadAnnotationsNuScenesJSON(res);
-                    }.bind(this),
-                    error: function (res) {
-                    }.bind(this)
-                });
+                for (let i = 0; i < labelTool.fileNames.length; i++) {
+                    fileName = labelTool.fileNames[i];
+                    request({
+                        url: '/label/annotations/',
+                        type: 'GET',
+                        dataType: 'json',
+                        data: {
+                            file_name: fileName
+                        },
+                        success: function (res) {
+                            this.loadAnnotationsNuScenesJSON(res);
+                        }.bind(this),
+                        error: function (res) {
+                        }.bind(this)
+                    });
+                }
             }
         } else if (labelTool.currentDataset === labelTool.datasets.providentia) {
             // TODO: load all available file names
-            // let fileNames = [labelTool.currentDataset + "_" + labelTool.currentSequence + "_annotations.json"];
-            let fileNames = [labelTool.currentDataset + "_" + labelTool.currentSequence + "_inference_results.json"];
-            for (let i = 0; i < fileNames.length; i++) {
-                fileName = fileNames[i];
+            for (let i = 0; i < labelTool.fileNames.length; i++) {
+                fileName = labelTool.fileNames[i];
                 request({
                     url: '/label/annotations/',
                     type: 'GET',
@@ -919,7 +932,7 @@ let labelTool = {
         this.currentFileIndex = 0;
         this.fileNames = [];
         this.originalAnnotations = [];
-        this.targetClass = "Vehicle";
+        this.targetClass = "vehicle";
         this.savedFrames = [];
         this.cubeArray = [];
         this.currentCameraChannelIndex = 0;
@@ -931,21 +944,12 @@ let labelTool = {
         $(".class-tooltip").remove();
         this.spriteArray = [];
         this.selectedMesh = undefined;
-        this.imageCanvasInitialized = false;
-        this.cameraImagesLoaded = false;
         this.pointCloudLoaded = false;
-        $(".frame-selector__frames").empty();
 
         // classesBoundingBox
         classesBoundingBox.colorIdx = 0;
         classesBoundingBox.__target = Object.keys(classesBoundingBox)[0];
 
-        // image label tool
-        canvasArray = [];
-        canvasParamsArray = [];
-        paperArray = [];
-        paperArrayAll = [];
-        imageArray = [];
         // pcd label tool
         folderBoundingBox3DArray = [];
         folderPositionArray = [];
@@ -966,18 +970,29 @@ let labelTool = {
             $(item).css('border-bottom', '0px');
         });
 
-        // remove image divs
-        $("#layout_layout_panel_top .w2ui-panel-content").empty();
+        if (labelTool.pointCloudOnlyAnnotation === false) {
+            // image label tool
+            this.imageCanvasInitialized = false;
+            this.cameraImagesLoaded = false;
+            canvasArray = [];
+            canvasParamsArray = [];
+            paperArray = [];
+            paperArrayAll = [];
+            imageArray = [];
 
-        if (this.currentDataset === this.datasets.NuScenes) {
-            w2ui['layout'].panels[0].minSize = Math.ceil(window.innerWidth) / (6 * 1.7778);
-            w2ui['layout'].panels[0].maxSize = 360;
-            w2ui['layout'].panels[0].size = Math.ceil(window.innerWidth) / (6 * 1.7778);
+            // remove image divs
+            $("#layout_layout_panel_top .w2ui-panel-content").empty();
+
+            if (this.currentDataset === this.datasets.NuScenes) {
+                w2ui['layout'].panels[0].minSize = Math.ceil(window.innerWidth) / (6 * 1.7778);
+                w2ui['layout'].panels[0].maxSize = 360;
+                w2ui['layout'].panels[0].size = Math.ceil(window.innerWidth) / (6 * 1.7778);
+            }
+            w2ui['layout'].resize();
         }
-        w2ui['layout'].resize();
 
         classesBoundingBox.content = [];
-        $("#frame-selector__frames").empty();
+        $(".frame-selector__frames").empty();
     },
 
     initFrameSelector: function () {
@@ -997,6 +1012,7 @@ let labelTool = {
             $(".frame-selector__frames").append(divElem);
 
         }
+        $(".current").text((labelTool.currentFileIndex + 1) + "/" + this.fileNames.length);
     }, initTimer: function () {
         labelTool.timeElapsed = 0;
         let hours = 0;
@@ -1029,25 +1045,32 @@ let labelTool = {
         this.loadPointCloudData();
         this.loadAnnotations();
     },
-
+    loadConfig() {
+        labelTool.dataStructure = loadConfigFile(labelTool.configFileName);
+        for (let i = 0; i < labelTool.dataStructure.datasets.length; i++) {
+            let datasetName = labelTool.dataStructure.datasets[i].name;
+            labelTool.datasetArray.push(datasetName);
+            labelTool.datasets[datasetName] = datasetName;
+        }
+        labelTool.currentDataset = labelTool.datasetArray[0];
+        parameters.currentDataset = labelTool.datasetArray[0];
+        labelTool.currentDatasetIdx = 0;
+        labelTool.sequence= labelTool.dataStructure.datasets[0].sequences[0];
+    },
 
     setFileNames() {
-        let numFiles;
         let fileNameArray = [];
         if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
             labelTool.numFrames = labelTool.numFramesNuScenes;
-            setSequences();
-            labelTool.currentSequence = labelTool.sequencesNuScenes[0];
-            numFiles = 50;//[3962, 50]
-            for (let i = 0; i < numFiles; i++) {
+            for (let i = 0; i < labelTool.numFrames; i++) {
                 fileNameArray.push(pad(i, 6))
             }
 
         } else if (labelTool.currentDataset === labelTool.datasets.providentia) {
-            labelTool.numFrames = 1;
-            labelTool.currentSequence = "20201010_sequence";
-            numFiles = 1;
-            fileNameArray.push("1591961101605876");
+            labelTool.numFrames = labelTool.numFramesProvidentia;
+            for (let i = 0; i < labelTool.numFrames; i++) {
+                fileNameArray.push(pad(i, 6))
+            }
         }
         labelTool.fileNames = fileNameArray;
     },
@@ -1163,10 +1186,10 @@ let labelTool = {
         }
     },
     changeFrame: function (newFileIndex) {
-        if (newFileIndex === labelTool.numFrames - 1 && labelTool.playSequence === true) {
-            // last frame will be shown
-            // stop playing sequence
+        if (newFileIndex === labelTool.numFrames && labelTool.playSequence === true) {
+            // start from first frame
             labelTool.playSequence = false;
+            newFileIndex = 0;
         }
 
         interpolationObjIndexCurrentFile = annotationObjects.getSelectionIndex();
@@ -1179,7 +1202,7 @@ let labelTool = {
         labelTool.removeObject("pointcloud-scan-no-ground-" + this.currentFileIndex);
 
         // bring current image into background instead of removing it
-        if (labelTool.pointCloudOnlyAnnotation === false){
+        if (labelTool.pointCloudOnlyAnnotation === false) {
             this.setPanelSize(newFileIndex);
         }
 
@@ -1616,13 +1639,6 @@ function numberToText(n) {
     }
 }
 
-function setSequences() {
-    for (let i = 1; i <= 100; i++) {
-        let numberAsText = numberToText(i).toUpperCase();
-        labelTool.sequencesNuScenes.push(numberAsText);
-    }
-}
-
 function getDefaultObject() {
     let params = {
         class: "",
@@ -1854,7 +1870,7 @@ function initScreenshotTimer() {
                 let zip = getZipVideoFrames();
                 zip.generateAsync({type: "blob"})
                     .then(function (content) {
-                        saveAs(content, labelTool.currentDataset + "_" + labelTool.currentSequence + '_video_frames.zip')
+                        saveAs(content, labelTool.currentDataset + "_" + labelTool.sequence + '_video_frames.zip')
                     });
             }
         } else {
@@ -1868,7 +1884,7 @@ function initPlayTimer() {
     let playIntervalHandle = setInterval(function () {
         labelTool.timeElapsedPlay = labelTool.timeElapsedPlay + 1;
         if (labelTool.playSequence === true) {
-            if (labelTool.currentFileIndex < 900) {
+            if (labelTool.currentFileIndex < labelTool.numFrames) {
                 labelTool.changeFrame(labelTool.currentFileIndex + 1);
             } else {
                 clearInterval(playIntervalHandle);

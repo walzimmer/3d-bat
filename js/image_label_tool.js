@@ -124,7 +124,7 @@ labelTool.onInitialize("CAM_BACK_LEFT", function () {
 });
 
 function loadCameraImages(camChannel, fileIndex) {
-    let imgPath = "input/" + labelTool.currentDataset + "/" + labelTool.currentSequence + "/images/" + camChannel + "/" + labelTool.fileNames[fileIndex] + ".jpg";
+    let imgPath = "input/" + labelTool.currentDataset + "/" + labelTool.sequence + "/images/" + camChannel + "/" + labelTool.fileNames[fileIndex] + ".jpg";
     let channelIdx = getChannelIndexByName(camChannel);
     let paper = paperArrayAll[fileIndex][channelIdx];
     imageArray[channelIdx] = paper.image(imgPath, 0, 0, "100%", "100%");
@@ -343,9 +343,6 @@ function changeCanvasSize(width, height, camChannel) {
         height: canvas.offsetHeight,
         center: {x: canvas.offsetWidth / 2, y: canvas.offsetHeight / 2}
     };
-}
-
-function adjustAllBBoxes(camChannel) {
 }
 
 function addTextBox(bbIndex, camChannel) {
