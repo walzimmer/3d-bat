@@ -31,7 +31,7 @@ Reference: https://arxiv.org/abs/1905.00525
 ![Video](https://github.com/walzimmer/3d-bat/blob/master/assets/img/video.png)
 Link: https://www.youtube.com/watch?v=gSGG4Lw8BSU
 
-# Annotate you own data (point cloud and image or point cloud only)
+# Annotate your own data (point cloud and image or point cloud only)
 To annotate your own data, follow this steps:
 1. Create a new folder under the input folder (e.g. `3d-bat/input/waymo`)
 2. For each annotation sequence create a separate folder e.g.
@@ -50,21 +50,13 @@ To annotate your own data, follow this steps:
 
 `input/waymo/20210103_waymo/images` (optional: For each camera image, create a folder: e.g. `CAM_BACK`, `CAM_BACK_LEFT`, `CAM_BACK_RIGHT`, `CAM_FRONT`, `CAM_FRONT_LEFT`, `CAM_FRONT_RIGHT`)
 
-Make sure, that the LiDAR scan file name (e.g. `000000.pcd` is the same as the image file name (e.g. `000000.png`) and the annotation file name (e.g. `000000.json`).
+Make sure, that the LiDAR scan file names follow this naming format `000000.pcd, 000001.pcd, 000002.pcd` and so on. Same for image file names: `000000.png, 000001.png, 000002.png`) and the annotation file names: `000000.json, 000001.json, 000002.json`).
 
-4. In `js/base_label_tool.js` add the new dataset under datasets:
-
-`datasets: {NuScenes: "NuScenes", waymo: "waymo"}`
-
-5.  In `js/base_label_tool.js` set the current dataset and sequence you want to start with: 
-
-`currentSequence: '20210103_waymo'`
-
-`currentDataset: 'waymo'`
-
-6. When annotating only point cloud data, make sure to set this variable to `true` in `js/base_label_tool.js`:
+4. When annotating only point cloud data, make sure to set this variable to `true` in `js/base_label_tool.js`:
 
 `pointCloudOnlyAnnotation: true` 
+
+5. Open the annotation tool in you web browser and change the dataset from NuScenes to your own dataset (e.g. waymo) in the drop down field.
 
 
 
