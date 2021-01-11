@@ -530,7 +530,7 @@ td.fold-hard {
     user-select: none;
     position: absolute;
     bottom: 10px;
-    width: calc(100% - 135px);
+    width: calc(100% - 620px);
     left: 100px;
 }
 
