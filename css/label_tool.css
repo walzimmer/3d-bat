@@ -118,14 +118,14 @@ body {
 
 #left-btn {
     position: absolute;
-    left: -70px;
+    left: 0px;
     top: 50%;
     cursor: -webkit-grabbing;
 }
 
 #right-btn {
     position: absolute;
-    right: 430px;
+    right: 495px;
     top: 50%;
     cursor: -webkit-grabbing;
 }
