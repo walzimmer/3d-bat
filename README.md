@@ -1,39 +1,39 @@
 # 3D BAT
-![3D BAT](https://github.com/walzimmer/3d-bat/blob/master/assets/img/3d-bat.png)
+![3D BAT](https://github.com/walzimmer/bat-3d/blob/master/assets/img/3d-bat.png)
 
 # 3D Bounding Box Annotation Tool
-![3D Bounding Box Annotation Tool](https://github.com/walzimmer/3d-bat/blob/master/assets/img/3d_boxes.png)
+![3D Bounding Box Annotation Tool](https://github.com/walzimmer/bat-3d/blob/master/assets/img/3d_boxes.png)
 
 # Installation
-1. Clone repository: `git clone https://github.com/walzimmer/3d-bat.git`
+1. Clone repository: `git clone https://github.com/walzimmer/bat-3d.git`
 2. Install npm 
    + Linux: `sudo apt-get install npm`
    + Windows: https://nodejs.org/dist/v10.15.0/node-v10.15.0-x86.msi
 3. Install PHP Storm (IDE with integrated web server): https://www.jetbrains.com/phpstorm/download/download-thanks.html
 4. [OPTIONAL] Install WhatPulse to measure the number of clicks and key strokes while labeling: https://whatpulse.org/
-5. Open folder `3d-bat` in PHP Storm.
-5. Move into directory: `cd 3d-bat`.
-6. Download sample scenes extracted from the NuScenes dataset from [here](https://github.com/walzimmer/3d-bat/releases/download/v0.1.0/NuScenes.zip) and extract the content into the `3d-bat/input/` folder.
+5. Open folder `bat-3d` in PHP Storm.
+5. Move into directory: `cd bat-3d`.
+6. Download sample scenes extracted from the NuScenes dataset from [here](https://github.com/walzimmer/bat-3d/releases/download/v0.1.0/NuScenes.zip) and extract the content into the `bat-3d/input/` folder.
 7. Install required packages: `npm install`
 8. Open `index.html` with chromium-browser (Linux) or Chrome (Windows) within the IDE. Right click on index.html -> Open in Browser -> Chrome/Chromium
 
 # Overview
-![Overview](https://github.com/walzimmer/3d-bat/blob/master/assets/img/overview.png)
+![Overview](https://github.com/walzimmer/bat-3d/blob/master/assets/img/overview.png)
 
 # Paper
-![Paper](https://github.com/walzimmer/3d-bat/blob/master/assets/img/paper.png)
+![Paper](https://github.com/walzimmer/bat-3d/blob/master/assets/img/paper.png)
 Reference: https://arxiv.org/abs/1905.00525
 
 # Animation
-![Animation](https://github.com/walzimmer/3d-bat/blob/master/assets/img/animation.gif)
+![Animation](https://github.com/walzimmer/bat-3d/blob/master/assets/img/animation.gif)
 
 # Video
-![Video](https://github.com/walzimmer/3d-bat/blob/master/assets/img/video.png)
+![Video](https://github.com/walzimmer/bat-3d/blob/master/assets/img/video.png)
 Link: https://www.youtube.com/watch?v=gSGG4Lw8BSU
 
 # Annotate your own data (point cloud and image or point cloud only)
 To annotate your own data, follow this steps:
-1. Create a new folder under the input folder (e.g. `3d-bat/input/waymo`)
+1. Create a new folder under the input folder (e.g. `bat-3d/input/waymo`)
 2. For each annotation sequence create a separate folder e.g.
 
 `input/waymo/20210103_waymo`
@@ -82,75 +82,75 @@ Make sure, that the LiDAR scan file names follow this naming format `000000.pcd,
 # Keyboard Shortcuts
 | Key | Description   | |
 | --- | ------------- |---|
-|  ![V](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/c.png)  | Toggle view (3D view/Bird's-Eye-View)||
-|     |  ![W](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/w.png)  | Move forward in 3D view (TODO)|
-|     |  ![A](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/a.png)  | Move left in 3D view (TODO)|
-|     |  ![S](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/s.png)  | Move backward in 3D view (TODO)|
-|     |  ![D](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/d.png)  | Move right in 3D view (TODO)|
-|     |  ![Q](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/q.png)  | Move down in 3D view (TODO)|
-|     |  ![E](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/e.png)  | Move up in 3D view (TODO)|
-|  ![C](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/c.png)  | Enlarge camera image||
-|  ![N](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/n.png)  | Next frame     ||
-|  ![P](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/p.png)  | Previous frame   ||
-|  ![I](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/i.png)  | Interpolate    ||
-|  ![CTRL](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/ctrl.png)![MOUSELEFT](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/mouseleft.png) | Snap to grid in 0.5m steps (floor alignment mode)  ||
-|  ![T](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/t.png)  | Enable/Disable Translation mode||
-|     |  ![W](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/w.png)  | Move selected object forward (TODO)|
-|     |  ![A](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/a.png)  | Move selected object to left (TODO)|
-|     |  ![S](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/s.png)  | Move selected object backward (TODO)|
-|     |  ![D](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/d.png)  | Move selected object to right (TODO)|
-|     |  ![Q](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/q.png)  | Move selected object down (TODO)|
-|     |  ![E](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/e.png)  | Move selected object up (TODO)|
-|  ![R](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/r.png)  | Enable/Disable Rotation mode||
-|     |  ![LEFT](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/left.png) | Rotate selected object counter-clock-wise (TODO)|
-|     |  ![RIGHT](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/right.png)  | Rotate selected object clock-wise (TODO)|
-|  ![Y](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/y.png)  | Enable/Disable Scaling mode ||
-|     | ![UP](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/up.png) | Increase length along longitudinal axis (y-axis) (TODO)|
-|     | ![DOWN](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/down.png) | Decrease length along longitudinal axis (y-axis) (TODO)|
-|     | ![LEFT](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/left.png)  | Decrease width along lateral axis (x-axis) (TODO)|
-|     | ![RIGHT](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/right.png)  | Increase width along lateral axis (x-axis) (TODO)|
-|     | ![SHIFT](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/shift.png)![RIGHT](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/right.png)  | Increase height along vertical axis (z-axis) (TODO)|
-|     | ![CTRL](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/ctrl.png)![RIGHT](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/right.png) | Decrease height along vertical axis (z-axis) (TODO)|
-|  ![PLUS](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/plus.png)  | Increase arrow size ||
-|  ![MINUS](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/minus.png)  | Decrease arrow size ||
-|  ![X](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/x.png)  | Show/Hide X-axis ||
-|  ![Y](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/y.png)  | Show/Hide Y-axis ||
-|  ![Z](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/z.png)  | Show/Hide Z-axis (only in 3D mode)||
-|  ![SPACE](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/space.png)  | Switch between different operation modes (translate, rotate, scale) (TODO) ||
-|  ![TAB](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/tab.png)  | Select next object (TODO)||
-| ![DEL](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/del.png) OR ![BACKSPACE](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/backspace.png) | Delete selected object (TODO)||
-|  ![M](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/m.png)  | Marking mode (TODO)||
-|     | ![LEFT](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/left.png) | Move orientation of object counter-clock-wise (TODO)|
-|     | ![RIGHT](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/right.png)| Move orientation of object clock-wise (TODO)|
-|  ![ONE](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/1.png)  | Select class CAR (TODO)||
-|  ![TWO](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/2.png)  | Select class Truck (TODO)||
-|  ![THREE](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/3.png)  | Select class Motorcycle (TODO)||
-|  ![FOUR](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/4.png)  | Select class Bicycle (TODO)||  
-|  ![FIVE](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/5.png)  | Select class Pedestrian (TODO)||
-| ![MOUSELEFT](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/mouseleft.png) | On a 2D/3D object: Show bounding box||
+|  ![V](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/c.png)  | Toggle view (3D view/Bird's-Eye-View)||
+|     |  ![W](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/w.png)  | Move forward in 3D view (TODO)|
+|     |  ![A](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/a.png)  | Move left in 3D view (TODO)|
+|     |  ![S](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/s.png)  | Move backward in 3D view (TODO)|
+|     |  ![D](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/d.png)  | Move right in 3D view (TODO)|
+|     |  ![Q](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/q.png)  | Move down in 3D view (TODO)|
+|     |  ![E](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/e.png)  | Move up in 3D view (TODO)|
+|  ![C](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/c.png)  | Enlarge camera image||
+|  ![N](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/n.png)  | Next frame     ||
+|  ![P](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/p.png)  | Previous frame   ||
+|  ![I](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/i.png)  | Interpolate    ||
+|  ![CTRL](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/ctrl.png)![MOUSELEFT](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/mouseleft.png) | Snap to grid in 0.5m steps (floor alignment mode)  ||
+|  ![T](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/t.png)  | Enable/Disable Translation mode||
+|     |  ![W](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/w.png)  | Move selected object forward (TODO)|
+|     |  ![A](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/a.png)  | Move selected object to left (TODO)|
+|     |  ![S](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/s.png)  | Move selected object backward (TODO)|
+|     |  ![D](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/d.png)  | Move selected object to right (TODO)|
+|     |  ![Q](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/q.png)  | Move selected object down (TODO)|
+|     |  ![E](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/e.png)  | Move selected object up (TODO)|
+|  ![R](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/r.png)  | Enable/Disable Rotation mode||
+|     |  ![LEFT](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/left.png) | Rotate selected object counter-clock-wise (TODO)|
+|     |  ![RIGHT](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/right.png)  | Rotate selected object clock-wise (TODO)|
+|  ![Y](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/y.png)  | Enable/Disable Scaling mode ||
+|     | ![UP](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/up.png) | Increase length along longitudinal axis (y-axis) (TODO)|
+|     | ![DOWN](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/down.png) | Decrease length along longitudinal axis (y-axis) (TODO)|
+|     | ![LEFT](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/left.png)  | Decrease width along lateral axis (x-axis) (TODO)|
+|     | ![RIGHT](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/right.png)  | Increase width along lateral axis (x-axis) (TODO)|
+|     | ![SHIFT](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/shift.png)![RIGHT](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/right.png)  | Increase height along vertical axis (z-axis) (TODO)|
+|     | ![CTRL](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/ctrl.png)![RIGHT](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/right.png) | Decrease height along vertical axis (z-axis) (TODO)|
+|  ![PLUS](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/plus.png)  | Increase arrow size ||
+|  ![MINUS](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/minus.png)  | Decrease arrow size ||
+|  ![X](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/x.png)  | Show/Hide X-axis ||
+|  ![Y](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/y.png)  | Show/Hide Y-axis ||
+|  ![Z](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/z.png)  | Show/Hide Z-axis (only in 3D mode)||
+|  ![SPACE](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/space.png)  | Switch between different operation modes (translate, rotate, scale) (TODO) ||
+|  ![TAB](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/tab.png)  | Select next object (TODO)||
+| ![DEL](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/del.png) OR ![BACKSPACE](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/backspace.png) | Delete selected object (TODO)||
+|  ![M](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/m.png)  | Marking mode (TODO)||
+|     | ![LEFT](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/left.png) | Move orientation of object counter-clock-wise (TODO)|
+|     | ![RIGHT](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/right.png)| Move orientation of object clock-wise (TODO)|
+|  ![ONE](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/1.png)  | Select class CAR (TODO)||
+|  ![TWO](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/2.png)  | Select class Truck (TODO)||
+|  ![THREE](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/3.png)  | Select class Motorcycle (TODO)||
+|  ![FOUR](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/4.png)  | Select class Bicycle (TODO)||  
+|  ![FIVE](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/5.png)  | Select class Pedestrian (TODO)||
+| ![MOUSELEFT](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/mouseleft.png) | On a 2D/3D object: Show bounding box||
 |            | On a camera image: Enlarge/Shrink camera image (TODO)||
 |            | On ego vehicle: Show field-of-view (TODO)||
-|            | ![LEFT](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/left.png)![RIGHT](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/right.png): Switch FOV to next channel||
-| ![R](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/r.png)| Reset all selected bounding boxes (TODO)||
-| ![F11](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/f11.png) | Full Screen Mode||
-| ![P](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/p.png) | Play video (TODO)||
-| ![K](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/k.png) | Keyboard navigation (only in 3D view) (TODO)||
-| ![L](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/l.png) | Toggle Lighting (TODO)||
-| ![L](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/l.png)![ONE](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/1.png) | Label random color (TODO)||
-| ![L](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/l.png)![TWO](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/2.png) | Label class color (TODO)||
-| ![T](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/t.png) | Show/Hide trajectory (TODO)||
-| ![SHIFT](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/shift.png)![S](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/s.png)| Save current screen into file (requires request to server) (TODO)||
-| ![SHIFT](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/shift.png)![D](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/d.png)| Download annotation file (TODO)||
-| ![CTRL](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/ctrl.png)![Z](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/z.png)| Undo operation (TODO)||
-| ![CTRL](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/ctrl.png)![Y](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/y.png)| Redo operation (TODO)||
-| ![CTRL](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/ctrl.png)![W](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/w.png)| Close tab (exit)||
-| ![G](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/g.png) | Show/Hide grid (TODO)||
-| ![H](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/h.png) | Toggle aggregated pointcloud (TODO)||
-| ![J](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/j.png) | Hide all labels except selected object (Press again to show all labels) (TODO)||
-| ![QUESTIONMARK](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/questionmark.png) | Show keyboard shortcuts||
-| ![ESC](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/esc.png) | Unselect box (TODO)||
+|            | ![LEFT](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/left.png)![RIGHT](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/right.png): Switch FOV to next channel||
+| ![R](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/r.png)| Reset all selected bounding boxes (TODO)||
+| ![F11](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/f11.png) | Full Screen Mode||
+| ![P](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/p.png) | Play video (TODO)||
+| ![K](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/k.png) | Keyboard navigation (only in 3D view) (TODO)||
+| ![L](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/l.png) | Toggle Lighting (TODO)||
+| ![L](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/l.png)![ONE](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/1.png) | Label random color (TODO)||
+| ![L](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/l.png)![TWO](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/2.png) | Label class color (TODO)||
+| ![T](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/t.png) | Show/Hide trajectory (TODO)||
+| ![SHIFT](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/shift.png)![S](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/s.png)| Save current screen into file (requires request to server) (TODO)||
+| ![SHIFT](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/shift.png)![D](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/d.png)| Download annotation file (TODO)||
+| ![CTRL](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/ctrl.png)![Z](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/z.png)| Undo operation (TODO)||
+| ![CTRL](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/ctrl.png)![Y](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/y.png)| Redo operation (TODO)||
+| ![CTRL](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/ctrl.png)![W](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/w.png)| Close tab (exit)||
+| ![G](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/g.png) | Show/Hide grid (TODO)||
+| ![H](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/h.png) | Toggle aggregated pointcloud (TODO)||
+| ![J](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/j.png) | Hide all labels except selected object (Press again to show all labels) (TODO)||
+| ![QUESTIONMARK](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/questionmark.png) | Show keyboard shortcuts||
+| ![ESC](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/esc.png) | Unselect box (TODO)||
 |                                                                                                                               | Quit fullscreen cam image (TODO)||
-| ![ALT](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/alt.png)![MOUSELEFT](https://github.com/walzimmer/3d-bat/blob/master/assets/textures/keyboard_small/mouseleft.png) | Copy bounding box (by dragging) (TODO)||
+| ![ALT](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/alt.png)![MOUSELEFT](https://github.com/walzimmer/bat-3d/blob/master/assets/textures/keyboard_small/mouseleft.png) | Copy bounding box (by dragging) (TODO)||
 
 Hints:
 + Select `Copy label to next frame` checkbox if you want to keep the label (position, size, class) for next frame
@@ -159,7 +159,7 @@ Hints:
 + **Do not** apply more than one box to a single object.
 + Check every cuboid in every frame, to make sure all points are inside the cuboid and **look reasonable in the image view**.
 + The program has been quite stable in my use cases, but there is no guarantee that it won't crash. So please back up (download) your annotated scenes (~every 10 min). Saving to local storage (browser) is done automatically.
-+ Download the annotation file into the following folder: `3d-bat/input/<DATASET>/<SEQUENCE>/annotations`
++ Download the annotation file into the following folder: `bat-3d/input/<DATASET>/<SEQUENCE>/annotations`
 + Please open new issue tickets on Github for questions and bug reports or write me an email (wzimmer@eng.ucsd.edu). Thanks!
 
 # Special Rules
