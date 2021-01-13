@@ -1,0 +1,12 @@
+{
+  "datasets": [
+    {
+      "name": "NuScenes",
+      "sequences": ["ONE"]
+    },
+    {
+      "name": "providentia",
+      "sequences": ["20201010_sequence1"]
+    }
+  ]
+}

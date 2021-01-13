@@ -1,0 +1,606 @@
+
+.form-control {
+    color: black;
+}
+
+select.form-control {
+    width: calc(100% - 26px) !important;
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+}
+
+.glyphicon {
+    margin-right: 10px;
+}
+
+.glyphicon-download-alt {
+    color: red;
+}
+
+.glyphicon-edit {
+    color: green;
+}
+
+/* body { */
+/*     font-family: "Avenir", "Open Sans" , "Helvetica Neue" , Helvetica , Arial , Verdana , Roboto , "游ゴシック" , "Yu Gothic" , "游ゴシック体" , "YuGothic" , "ヒラギノ角ゴ Pro W3" , "Hiragino Kaku Gothic Pro" , "Meiryo UI" , "メイリオ" , Meiryo , "ＭＳ Ｐゴシック" , "MS PGothic" , sans-serif; */
+/* } */
+body {
+    /*background-color: #303946;*/
+    background-color: #ffffff;
+}
+
+#wrapper {
+    width: 100%;
+}
+
+#page-wrapper {
+    padding: 0 15px;
+    min-height: 568px;
+    background-color: #fafafa;
+}
+
+@media (min-width: 768px) {
+    #page-wrapper {
+        position: inherit;
+        margin: 0 0 0 200px;
+        padding: 0 30px;
+        border-left: 1px solid #e7e7e7;
+    }
+}
+
+#toggle-button {
+    margin: 4px;
+}
+
+td.fold-hard {
+    word-break: break-all;
+}
+
+.sidebar {
+    margin-top: 40px;
+    /* border-top: 1px solid #d0d9f6; */
+    background-color: #303936;
+}
+
+.sidebar .sidebar-nav {
+    padding-left: 0;
+    padding-right: 0;
+    width: 100%;
+}
+
+/* .sidebar ul li { */
+/*     border-bottom: 1px solid #e7e7e7; */
+/* } */
+.sidebar ul .sidebar-item a {
+    color: #9099a6;
+    font-weight: 200;
+    font-size: 17px;
+}
+
+.sidebar ul .sidebar-item:hover a {
+    background-color: #d0d9f6;
+    transition: background;
+    transition-duration: 0.4s;
+    color: #000916;
+}
+
+.navbar .navbar-top-links li a, .navbar .navbar-top-links li a:hover {
+    background-color: transparent;
+}
+
+.navbar .navbar-top-links li a i {
+    font-size: 18px;
+    color: white;
+}
+
+.navbar-top-links li a {
+    /* border-left: 1px solid #a1a3b1; */
+}
+
+.navbar-top-links li a:hover {
+    background-color: #c0c0c0;
+}
+
+.btn-group {
+    position: fixed !important;
+    display: block !important;
+    right: 50px;
+    top: 3px;
+}
+
+@media (min-width: 768px) {
+    .sidebar {
+        background-color: #303946;
+        z-index: 1;
+        position: absolute;
+        width: 200px;
+        margin-top: 40px;
+    }
+}
+
+.navbar {
+    height: 40px;
+    /* background-color: #1883A7; */
+    background-image: -webkit-gradient(
+            linear,
+            left top,
+            left bottom,
+            from(#2893B7),
+            to(#087397));
+}
+
+.navbar {
+    min-height: 40px;
+    border: none;
+}
+
+/*.navbar .navbar-brand .navbar-brand:hover {*/
+/*height: 40px;*/
+/*width: 200px;*/
+/*background-image: -webkit-gradient(*/
+/*linear,*/
+/*left top,*/
+/*left bottom,*/
+/*from(#2893B7),*/
+/*to(#087397));*/
+/*font-weight: 700;*/
+/*color: #f5f5f5;*/
+/*padding: 10px 20px 20px 20px;*/
+/*}*/
+
+.navbar .navbar-header {
+    float: left;
+}
+
+.navbar .navbar-top-links {
+    float: right;
+}
+
+/*.navbar-brand {*/
+/*background: url("/static/img/automan_icon_white.png") no-repeat left center;*/
+/*background-size: contain;*/
+/*height: 40px;*/
+/*width: 200px;*/
+/*}*/
+
+.container {
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .container {
+        width: 100%;
+    }
+
+    .panel .panel-heading {
+        min-height: 37px;
+        background-image: -webkit-gradient(
+                linear,
+                left top,
+                left bottom,
+                from(#fff),
+                to(#f1f1f1));
+    }
+
+    button.fancy_btn {
+        outline: 0;
+        font-size: 1.4em;
+        font-weight: bold;
+        padding: 3px 10px;
+        color: #fff;
+        border-style: none;
+        background-image: -webkit-gradient(
+                linear,
+                left bottom,
+                left top,
+                from(#1853a7),
+                to(#4883d7));
+        -moz-border-radius: 5px;
+        -webkit-border-radius: 5px;
+        border-radius: 5px;
+        border: 1px solid #084397;
+    }
+
+    button.fancy_btn:hover {
+        outline: 0;
+        background-image: -webkit-gradient(
+                linear,
+                left bottom,
+                left top,
+                from(#084397),
+                to(#3873c7));
+    }
+
+    button.fancy_btn:active {
+        outline: 0;
+        background-image: -webkit-gradient(
+                linear,
+                left top,
+                left bottom,
+                from(#033892),
+                to(#3368c2));
+    }
+
+    .color-white {
+        margin-right: 0 !important;
+        left: 0px;
+        outline: 0;
+        color: white;
+        font-size: 20px;
+    }
+
+    .color-white.glyphicon-remove {
+        left: -2px;
+        top: 1px;
+    }
+
+    .panel-right-button {
+        outline: 0;
+        float: right;
+        padding-top: 4px;
+        padding-right: 4px;
+    }
+
+    button.size-30x30-green {
+        outline: 0;
+        outline-color: #fff;
+        width: 30px;
+        height: 30px;
+        background-image: -webkit-gradient(
+                linear,
+                left top,
+                left bottom,
+                from(#2ff287),
+                to(#0fd267));
+    }
+
+    button.size-30x30-green:active {
+        outline: 0;
+        background-image: -webkit-gradient(
+                linear,
+                left bottom,
+                left top,
+                from(#2ff287),
+                to(#0fd267));
+    }
+
+    button.size-30x30-green:hover {
+        outline: 0;
+        background-image: -webkit-gradient(
+                linear,
+                left top,
+                left bottom,
+                from(#29dd82),
+                to(#09bd62));
+    }
+
+    .size-30x30-red {
+        outline: 0;
+        width: 27px;
+        height: 27px;
+        background-image: -webkit-gradient(
+                linear,
+                left top,
+                left bottom,
+                from(#f22222),
+                to(#d20202));
+    }
+
+    .size-30x30-red:active {
+        outline: 0;
+        background-image: -webkit-gradient(
+                linear,
+                left bottom,
+                left top,
+                from(#f22222),
+                to(#d20202));
+    }
+
+    .size-30x30-red:hover {
+        outline: 0;
+        background-image: -webkit-gradient(
+                linear,
+                left top,
+                left bottom,
+                from(#e21212),
+                to(#c20202));
+    }
+
+    .size-30x30-blue {
+        outline: 0;
+        width: 30px;
+        height: 30px;
+        background-image: -webkit-gradient(
+                linear,
+                left top,
+                left bottom,
+                from(#4883d7),
+                to(#1853a7));
+    }
+
+    .size-30x30-blue:active {
+        outline: 0;
+        background-image: -webkit-gradient(
+                linear,
+                left bottom,
+                left top,
+                from(#4883d7),
+                to(#1853a7));
+    }
+
+    .size-30x30-blue:hover {
+        outline: 0;
+        background-image: -webkit-gradient(
+                linear,
+                left top,
+                left bottom,
+                from(#3873c7),
+                to(#084397));
+    }
+
+    .panel-heading {
+        padding: 0px;
+    }
+
+    .panel-title {
+        padding: 10px;
+    }
+
+    #overlay {
+        overflow: auto;
+        position: fixed;
+        top: 40px;
+        right: 0px;
+        bottom: 0px;
+        /* width: 100%; */
+        /* height: 100%; */
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 10;
+    }
+
+    @media (min-width: 768px) {
+        #overlay {
+            left: 200px;
+        }
+    }
+    .popup-table {
+        margin-top: 50px;
+        margin-left: 50px;
+        margin-right: 50px;
+    }
+
+    .popup-panel {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        bottom: 0px;
+        left: 0px;
+        margin: auto;
+        width: 50%;
+        height: 150px;
+    }
+
+    .progress {
+        margin-bottom: 0 !important;
+    }
+
+    .panel-next-button {
+        float: right;
+        position: relative;
+        bottom: -20px;
+        right: 10px;
+    }
+
+    .panel-back-button {
+        float: left;
+        padding-bottom: 5px;
+        padding-left: 5px;
+    }
+
+    .min-height-407 {
+        min-height: 407px;
+    }
+
+    .panel-body .panel-next-button {
+        margin-bottom: 20px;
+    }
+
+    .icon::before {
+        display: inline-block;
+        margin-right: .5em;
+        font-family: fontawesome;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    .table {
+        margin-top: 10px;
+        border-top: 1px solid #cccccc;
+    }
+
+    tbody tr:nth-child(odd) {
+        background: #f3f3f3;
+    }
+
+    thead {
+        font-weight: 900;
+        background: #ffffff;
+    }
+
+    select {
+        color: black;
+    }
+
+    #class-picker span {
+        width: 100%;
+    }
+
+    #banner {
+        height: 100%;
+        float: right;
+    }
+
+}
+
+.material-icons {
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px; /* Preferred icon size */
+    display: inline-block;
+    line-height: 1;
+    text-transform: none;
+    letter-spacing: normal;
+    word-wrap: normal;
+    white-space: nowrap;
+    direction: ltr;
+
+    /* Support for all WebKit browsers. */
+    -webkit-font-smoothing: antialiased;
+    /* Support for Safari and Chrome. */
+    text-rendering: optimizeLegibility;
+
+    /* Support for Firefox. */
+    -moz-osx-font-smoothing: grayscale;
+
+    /* Support for IE. */
+    font-feature-settings: 'liga';
+}
+
+.dg {
+    border-bottom: 0px;
+}
+
+/*#bounding-box-3d-menu {*/
+/*width: 290px!important;*/
+/*}*/
+
+/**
+ * Frame selection bar
+ */
+.frame-selector__frames {
+    align-self: stretch;
+    flex-grow: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    white-space: nowrap;
+    justify-content: stretch;
+}
+
+.frame {
+    flex-grow: 1;
+}
+
+.frame {
+    background-color: rgba(255, 255, 255, 1);
+    cursor: pointer;
+    transition: all 250ms ease-out;
+}
+
+.frame.loading {
+    background-color: rgba(255, 255, 255, .7);
+}
+
+.frame.default:hover, .frame.default.selected {
+    background-color: #22a6d3;
+}
+
+.frame.default:hover {
+    background: #ccc;
+}
+
+.frame.selected {
+    cursor: grab;
+}
+
+.frame.dragging {
+    cursor: grabbing;
+}
+
+.frame-selector {
+    /*display: flex;*/
+    display: block;
+    align-items: center;
+    flex-grow: 1;
+    /*opacity: 0;*/
+    opacity: 50;
+    z-index: 100000000;
+    transition: opacity 250ms ease-in-out;
+    user-select: none;
+    position: absolute;
+    bottom: 10px;
+    width: calc(100% - 620px);
+    left: 100px;
+}
+
+.frame-selector.active, .frame-selector.touch, .frame-selector:hover {
+    opacity: 1;
+}
+
+.current {
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    user-select: none;
+    height: 16px;
+    position: absolute;
+    bottom: 0px;
+    left: -65px;
+}
+
+.list-wrapper {
+    height: 10px;
+    width: 100%;
+    margin: 0 20px;
+    display: flex;
+    align-items: stretch;
+    justify-content: stretch;
+}
+
+.frame-selector.touch .list-wrapper {
+    margin: 0 0 0 20px;
+}
+
+#image-cam-front-left svg {
+    position: absolute !important;
+    left: 0px !important;
+    width: 16.66666vw;
+    z-index: 0;
+}
+
+#image-cam-front svg {
+    position: absolute !important;
+    left: calc(16.66666vw * 1) !important;
+    width: 16.66666vw;
+    z-index: 0;
+}
+
+#image-cam-front-right svg {
+    position: absolute !important;
+    left: calc(16.66666vw * 2) !important;
+    width: 16.66666vw;
+    z-index: 0;
+}
+
+#image-cam-back-right svg {
+    position: absolute !important;
+    left: calc(16.66666vw * 3) !important;
+    width: 16.66666vw;
+    z-index: 0;
+}
+
+#image-cam-back svg {
+    position: absolute !important;
+    left: calc(16.66666vw * 4) !important;
+    width: 16.66666vw;
+    z-index: 0;
+}
+
+#image-cam-back-left svg {
+    position: absolute !important;
+    left: calc(16.66666vw * 5) !important;
+    width: 16.66666vw;
+    z-index: 0;
+}
+
