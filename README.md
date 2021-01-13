@@ -1,10 +1,8 @@
-# 3D BAT
-
 <p align="center" width="100%">
     <img width="33%" src="https://github.com/walzimmer/bat-3d/blob/master/assets/img/3d-bat.png"> 
 </p>
 
-# 3D Bounding Box Annotation Tool
+# 3D Bounding Box Annotation Tool (3D BAT)
 ![3D Bounding Box Annotation Tool](https://github.com/walzimmer/bat-3d/blob/master/assets/img/3d_boxes.png)
 
 # Installation
