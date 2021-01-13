@@ -1,26 +1,26 @@
 let classesBoundingBox = {
-    "Vehicle": {
+    "vehicle": {
         color: '#51C38C',
         index: 0,
         nextTrackId: 1
     },
-    "Truck": {
+    "truck": {
         color: '#EBCF36',
         index: 1,
         nextTrackId: 1
     },
-    "Motorcycle": {
+    "motorcycle": {
         color: '#FF604B',
         index: 2,
         nextTrackId: 1
     },
-    "Bicycle": {
+    "bicycle": {
         color: '#F37CB2',
         index: 3,
         nextTrackId: 1
 
     },
-    "Pedestrian": {
+    "pedestrian": {
         color: '#74BAF5',
         index: 4,
         nextTrackId: 1
@@ -72,19 +72,19 @@ let classesBoundingBox = {
     select: function (label) {
         this.onChange(label);
 
-        let changeClassOperation = {
-            "type": "classLabel",
-            "objectIndex": annotationObjects.__selectionIndexCurrentFrame,
-            "previousClass": annotationObjects.contents[labelTool.currentFileIndex][annotationObjects.__selectionIndexCurrentFrame]["class"],
-            "currentClass": label
-        };
-
         if (annotationObjects.getSelectedBoundingBox() !== undefined) {
             annotationObjects.changeClass(annotationObjects.__selectionIndexCurrentFrame, label);
         }
 
-        operationStack.push(changeClassOperation);
-
+        if (annotationObjects.__selectionIndexCurrentFrame !== -1) {
+            let changeClassOperation = {
+                "type": "classLabel",
+                "objectIndex": annotationObjects.__selectionIndexCurrentFrame,
+                "previousClass": annotationObjects.contents[labelTool.currentFileIndex][annotationObjects.__selectionIndexCurrentFrame]["class"],
+                "currentClass": label
+            };
+            operationStack.push(changeClassOperation);
+        }
 
         this.__target = label;
         this.currentClass = label;
@@ -101,6 +101,6 @@ let classesBoundingBox = {
     getCurrentClass: function () {
         return this.currentClass;
     },
-    __target: "Vehicle",
-    currentClass: "Vehicle"
+    __target: "vehicle",
+    currentClass: "vehicle"
 };
