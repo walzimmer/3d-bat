@@ -10,7 +10,7 @@
 2. Install npm 
    + Linux: `sudo apt-get install npm`
    + Windows: https://nodejs.org/dist/v10.15.0/node-v10.15.0-x86.msi
-3. Install PHP Storm (IDE with integrated web server): https://www.jetbrains.com/phpstorm/download/download-thanks.html
+3. Install PHP Storm or WebStorm (IDE with integrated web server): https://www.jetbrains.com/phpstorm/download/download-thanks.html
 4. [OPTIONAL] Install WhatPulse to measure the number of clicks and key strokes while labeling: https://whatpulse.org/
 5. Open folder `bat-3d` in PHP Storm.
 5. Move into directory: `cd bat-3d`.
