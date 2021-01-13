@@ -18,17 +18,42 @@ function request(options) {
     }
 }
 
+function loadConfigFile(fileName) {
+    let jsonObject = undefined;
+    let url = 'config/' + fileName;
+    let http = new XMLHttpRequest();
+    http.open('HEAD', url, false);
+    http.send();
+    if (http.status !== 404) {
+        // file exists
+        let rawFile = new XMLHttpRequest();
+        rawFile.open("GET", 'config/' + fileName, false);
+        rawFile.onreadystatechange = function () {
+            if (rawFile.readyState === 4) {
+                if (rawFile.status === 200 || rawFile.status === 0) {
+                    let jsonString = rawFile.responseText;
+                    jsonObject = JSON.parse(jsonString);
+                    return jsonObject;
+                }
+            }
+        }
+        rawFile.send(null);
+        return jsonObject;
+    } else {
+        // file not found
+        console.log("config file not found.");
+    }
+
+}
+
 function annotationFileExist(fileIndex, channel) {
     let url;
     if (labelTool.showOriginalNuScenesLabels === true) {
-        url = 'input/' + labelTool.currentDataset + '/Annotations/' + channel + '/' + labelTool.fileNames[fileIndex] + '.txt';
+        url = 'input/' + labelTool.currentDataset + '/annotations_original/' + channel + '/' + labelTool.fileNames[fileIndex] + '.json';
 
     } else {
-        url = 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/annotations/' + labelTool.currentDataset + "_" + labelTool.currentSequence + '_annotations.txt';
-
+        url = 'input/' + labelTool.currentDataset + '/' + labelTool.sequence + '/annotations/' + labelTool.fileNames[fileIndex] + '.json';
     }
-
-
     let http = new XMLHttpRequest();
     http.open('HEAD', url, false);
     http.send();
@@ -42,12 +67,12 @@ function parseAnnotationFile(fileName) {
     try {
         if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
             if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
-                rawFile.open("GET", 'input/' + labelTool.currentDataset + '/annotations_original/LIDAR_TOP/' + fileName, false);
+                rawFile.open("GET", 'input/' + labelTool.currentDataset + '/annotations_original/' + fileName, false);
             } else {
-                rawFile.open("GET", 'input/' + labelTool.currentDataset +'/'+labelTool.currentSequence+ '/annotations/LIDAR_TOP/' + fileName, false);
+                rawFile.open("GET", 'input/' + labelTool.currentDataset + '/' + labelTool.sequence + '/annotations/' + fileName +'.json', false);
             }
         } else {
-            rawFile.open("GET", 'input/' + labelTool.currentDataset + '/' + labelTool.currentSequence + '/annotations/' + fileName, false);
+            rawFile.open("GET", 'input/' + labelTool.currentDataset + '/' + labelTool.sequence + '/annotations/' + fileName + '.json', false);
         }
 
 
@@ -59,7 +84,7 @@ function parseAnnotationFile(fileName) {
     rawFile.onreadystatechange = function () {
         if (rawFile.readyState === 4) {
             if (rawFile.status === 200 || rawFile.status === 0) {
-                if (labelTool.currentDataset === labelTool.datasets.NuScenes && labelTool.showOriginalNuScenesLabels===true) {
+                if (labelTool.currentDataset === labelTool.datasets.NuScenes && labelTool.showOriginalNuScenesLabels === true) {
                     let str_list = rawFile.responseText.split("\n");
                     for (let i = 0; i < str_list.length; i++) {
                         let str = str_list[i].split(" ");
@@ -108,7 +133,7 @@ function parseAnnotationFile(fileName) {
                     return frameAnnotations;
                 } else {
                     let annotationsJSONString = rawFile.responseText;
-                    annotationsJSONArray = eval(annotationsJSONString);
+                    annotationsJSONArray = JSON.parse(annotationsJSONString);
                     return annotationsJSONArray;
                 }
             } else {
@@ -117,7 +142,7 @@ function parseAnnotationFile(fileName) {
         }
     };
     rawFile.send(null);
-    if (labelTool.showOriginalNuScenesLabels===true) {
+    if (labelTool.showOriginalNuScenesLabels === true) {
         return frameAnnotations;
     } else {
         return annotationsJSONArray;

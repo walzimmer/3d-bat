@@ -1,14 +1,21 @@
+# 3D BAT
+![3D BAT](https://github.com/walzimmer/3d-bat/blob/master/assets/img/3d-bat.png)
+
+# 3D Bounding Box Annotation Tool
+![3D Bounding Box Annotation Tool](https://github.com/walzimmer/3d-bat/blob/master/assets/img/3d_boxes.png)
+
 # Installation
 1. Clone repository: `git clone https://github.com/walzimmer/3d-bat.git`
 2. Install npm 
    + Linux: `sudo apt-get install npm`
    + Windows: https://nodejs.org/dist/v10.15.0/node-v10.15.0-x86.msi
-3. Install PHP Storm (IDE with integrated server): https://www.jetbrains.com/phpstorm/download/download-thanks.html
+3. Install PHP Storm (IDE with integrated web server): https://www.jetbrains.com/phpstorm/download/download-thanks.html
 4. [OPTIONAL] Install WhatPulse to measure the number of clicks and key strokes while labeling: https://whatpulse.org/
-5. Open folder `3d-bat` in PHP Storm
-5. Move into directory: `cd 3d-bat`
-6. Install required packages: `npm install`
-7. Open `index.html` with chromium-browser (Linux) or Chrome (Windows) within the IDE
+5. Open folder `3d-bat` in PHP Storm.
+5. Move into directory: `cd 3d-bat`.
+6. Download sample scenes extracted from the NuScenes dataset from [here](https://github.com/walzimmer/3d-bat/releases/download/v0.1.0/NuScenes.zip) and extract the content into the `3d-bat/input/` folder.
+7. Install required packages: `npm install`
+8. Open `index.html` with chromium-browser (Linux) or Chrome (Windows) within the IDE. Right click on index.html -> Open in Browser -> Chrome/Chromium
 
 # Overview
 ![Overview](https://github.com/walzimmer/3d-bat/blob/master/assets/img/overview.png)
@@ -16,6 +23,40 @@
 # Paper
 ![Paper](https://github.com/walzimmer/3d-bat/blob/master/assets/img/paper.png)
 Reference: https://arxiv.org/abs/1905.00525
+
+# Animation
+![Animation](https://github.com/walzimmer/3d-bat/blob/master/assets/img/animation.gif)
+
+# Video
+![Video](https://github.com/walzimmer/3d-bat/blob/master/assets/img/video.png)
+Link: https://www.youtube.com/watch?v=gSGG4Lw8BSU
+
+# Annotate your own data (point cloud and image or point cloud only)
+To annotate your own data, follow this steps:
+1. Create a new folder under the input folder (e.g. `3d-bat/input/waymo`)
+2. For each annotation sequence create a separate folder e.g.
+
+`input/waymo/20210103_waymo`
+
+`input/waymo/20210104_waymo`
+
+3. Under each sequence create the following folders:
+
+`input/waymo/20210103_waymo/annotations` (this folder will contain the downloaded annotations)
+
+`input/waymo/20210103_waymo/pointclouds` (place your point cloud scans (in `.pcd` ascii format) here)
+
+`input/waymo/20210103_waymo/pointclouds_without_ground` (optional: Remove the ground using the `scripts/nuscenes_devkit/python-sdk/scripts/export_pointcloud_without_ground_nuscenes.py` script to use the checkbox "Filter ground". Change the threshold of -1.7 to the height of the LiDAR sensor.)
+
+`input/waymo/20210103_waymo/images` (optional: For each camera image, create a folder: e.g. `CAM_BACK`, `CAM_BACK_LEFT`, `CAM_BACK_RIGHT`, `CAM_FRONT`, `CAM_FRONT_LEFT`, `CAM_FRONT_RIGHT`)
+
+Make sure, that the LiDAR scan file names follow this naming format `000000.pcd, 000001.pcd, 000002.pcd` and so on. Same for image file names: `000000.png, 000001.png, 000002.png`) and the annotation file names: `000000.json, 000001.json, 000002.json`).
+
+4. When annotating only point cloud data, make sure to set this variable to `true` in `js/base_label_tool.js`:
+
+`pointCloudOnlyAnnotation: true` 
+
+5. Open the annotation tool in you web browser and change the dataset from NuScenes to your own dataset (e.g. waymo) in the drop down field.
 
 # 3D Bounding Box Labelling Instructions
 1. Watch raw video (10 sec) to get familiar with the sequence and to see where interpolation makes sense
@@ -202,7 +243,7 @@ Bounding Box color convention in example images:
     ![](https://www.nuscenes.org/public/images/taxonomy_imgs/bicycle_4.jpg)
 
 
-## Adult/child Pedestrian
+## Pedestrian
 + An adult/child pedestrian moving around the cityscape.
     + Mannequins should also be treated as pedestrian.
 

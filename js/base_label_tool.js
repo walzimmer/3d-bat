@@ -1,16 +1,22 @@
 let labelTool = {
-    datasets: Object.freeze({"NuScenes": "NuScenes"}),
+    configFileName: 'config.json',
+    dataStructure: undefined,
+    datasets: {},
+    datasetArray: [],
     sequencesNuScenes: [],
-    currentDataset: 'NuScenes',
-    currentSequence: 'One',//[2018-05-23-001-frame-00042917-00043816_small, 2018-05-23-001-frame-00042917-00043816, One]
-    // temprorarily set to 100
-    numFramesNuScenes: 120,//[3962,120]
+    currentDataset: "",
+    currentDatasetIdx: 0,
+    sequence: "",
+    pointCloudOnlyAnnotation: true,
+    numFramesNuScenes: 50,
+    numFramesProvidentia: 50,
     frameScreenshots: [],
     numFrames: 0,
     dataTypes: [],
     playSequence: false,
     currentFileIndex: 0,
-    showCameraPosition: true,
+    showCameraPosition: false,
+    drawEgoVehicle: false,
     previousFileIndex: 0,
     fileNames: [],
     takeCanvasScreenshot: false,
@@ -23,7 +29,7 @@ let labelTool = {
     imageSizes: {},
     originalAnnotations: [],   // For checking modified or not
     skipFrameCount: 1,
-    targetClass: "Vehicle",
+    targetClass: "vehicle",
     // pageBox: document.getElementById('page_num'),
     savedFrames: [],
     cubeArray: [],
@@ -34,7 +40,7 @@ let labelTool = {
         channel: 'CAM_FRONT_LEFT',
         positionCameraNuScenes: [1.564, 0.472, 1.535],
         fieldOfView: 70,
-        rotationY: 305 * Math.PI / 180,//305 degree
+        rotationYaw: 305 * Math.PI / 180,//305 degree
         projectionMatrixNuScenes: [[110.4698206116641, 1464.0011761439307, 26.41455707029287, -916.4598489300432],
             [-337.97741211920834, 265.1972065752412, -1252.6308707181809, -729.4327569362895],
             [-0.8143136873894475, 0.5803598650034878, 0.008697449242951868, -0.7728492390141875]],
@@ -51,7 +57,7 @@ let labelTool = {
         channel: 'CAM_FRONT',
         positionCameraNuScenes: [1.671, -0.026, 1.536],
         fieldOfView: 70,
-        rotationY: 0, // 0 degree
+        rotationYaw: 0, // 0 degree
         projectionMatrixNuScenes: [[1260.3593003446563, 790.4433526756009, 15.627522424805397, -636.3274027306582],
             [7.834243891370816, 448.30558439994263, -1259.159501002805, -740.8962245421313],
             [-0.003064512389859362, 0.9999620062762187, 0.008160561736325754, -0.7757948007768039]],
@@ -68,7 +74,7 @@ let labelTool = {
         channel: 'CAM_FRONT_RIGHT',
         positionCameraNuScenes: [1.593, -0.527, 1.526],
         fieldOfView: 70,
-        rotationY: 55 * Math.PI / 180, // 55 degree
+        rotationYaw: 55 * Math.PI / 180, // 55 degree
         projectionMatrixNuScenes: [[1361.856983203004, -568.9937879652269, -6.653895294513566, -312.50854189580144],
             [335.73347658567, 262.5244187804859, -1260.4228451038455, -763.337941668381],
             [0.8064805242536375, 0.5911975331694409, 0.00863948921786484, -0.8346696345144945]],
@@ -85,7 +91,7 @@ let labelTool = {
         channel: 'CAM_BACK_RIGHT',
         positionCameraNuScenes: [1.042, -0.456, 1.595],
         fieldOfView: 70,
-        rotationY: 110 * Math.PI / 180, // 110 degree
+        rotationYaw: 110 * Math.PI / 180, // 110 degree
         projectionMatrixNuScenes: [[268.5366860205932, -1442.5534066704236, -5.5654251139895745, 97.19498615315976],
             [406.6870884392414, -143.59988581953755, -1258.8039286060184, -475.31377943361736],
             [0.9377138162782094, -0.34740581495648687, 0.0014136814971854525, -0.37336636003724444]],
@@ -103,7 +109,7 @@ let labelTool = {
         channel: 'CAM_BACK',
         positionCameraNuScenes: [0.086, -0.007, 1.541],
         fieldOfView: 130,
-        rotationY: Math.PI,//180 degree
+        rotationYaw: Math.PI,//180 degree
         projectionMatrixNuScenes: [[-804.9366490955063, -670.8712520139895, -7.944554855775981, -532.4747992653032],
             [-2.598392799509179, -411.71700732441207, -802.0306250329542, -570.6743676244683],
             [-0.010095206737515048, -0.9999048082463075, -0.009405383928480443, -0.8092052225128153]],
@@ -120,7 +126,7 @@ let labelTool = {
         channel: 'CAM_BACK_LEFT',
         positionCameraNuScenes: [1.055, 0.441, 1.605],
         fieldOfView: 70,
-        rotationY: 250 * Math.PI / 180, //250 degree
+        rotationYaw: 250 * Math.PI / 180, //250 degree
         projectionMatrixNuScenes: [[-1118.65453545052, 940.0229558602045, 5.20775624882033, -642.7023004564963],
             [-404.09996798165156, -139.683623818749, -1256.6685898616693, -457.3405152874417],
             [-0.943213201117988, -0.33216765461657427, 0.003675114050138092, -0.36297000058026163]],
@@ -137,6 +143,7 @@ let labelTool = {
     currentChannelLabel: document.getElementById('cam_channel'),
     // position of the lidar sensor in ego vehicle space
     positionLidarNuscenes: [0.891067, 0.0, 1.84292],//(long, lat, vert)
+    positionLidar: [0.0, 0.0, 6.9],//(long, lat, vert)
     translationVectorLidarToCamFront: [0.77, -0.02, -0.3],
     showOriginalNuScenesLabels: false,
     imageAspectRatioNuScenes: 1.777777778,
@@ -148,61 +155,16 @@ let labelTool = {
     timeElapsed: 0, // elapsed time in seconds
     timeElapsedScreenshot: 0, // elapsed time between two screenshots
     timeElapsedPlay: 0,
-
+    pointSize: 1,
+    pointMaterial: new THREE.PointsMaterial({size: 5, sizeAttenuation: false, vertexColors: THREE.VertexColors}),
+    views: {perspective: "perspective", orthographic: "orthographic"},
     /********** Externally defined functions **********
      * Define these functions in the labeling tools.
      **************************************************/
 
-    // onLoadData: function (dataType, f) {
-    //     this.localOnLoadData[dataType] = f;
-    // },
-
     onInitialize: function (dataType, f) {
         this.localOnInitialize[dataType] = f;
     },
-
-    /****************** Private functions **************/
-
-    // localOnLoadData: {
-    //     "CAM_FRONT_LEFT":
-    //         function () {
-    //         }
-    //     ,
-    //     "CAM_FRONT":
-    //
-    //         function () {
-    //         }
-    //
-    //     ,
-    //     "CAM_FRONT_RIGHT":
-    //
-    //         function () {
-    //         }
-    //
-    //     ,
-    //     "CAM_BACK_RIGHT":
-    //
-    //         function () {
-    //         }
-    //
-    //     ,
-    //     "CAM_BACK":
-    //
-    //         function () {
-    //         }
-    //
-    //     ,
-    //     "CAM_BACK_LEFT":
-    //
-    //         function () {
-    //         }
-    //
-    //     ,
-    //     "PCD":
-    //
-    //         function () {
-    //         }
-    // },
 
     localOnLoadAnnotation: {
         "CAM_FRONT_LEFT":
@@ -331,10 +293,7 @@ let labelTool = {
 
             function () {
             }
-    },
-
-// Visualize 2d and 3d data
-    showData: function () {
+    }, loadImageData: function () {
         if (labelTool.cameraImagesLoaded === false) {
             for (let i = 0; i < this.numFrames; i++) {
                 for (let camChannelObj in this.camChannels) {
@@ -351,8 +310,6 @@ let labelTool = {
         for (let i = 0; i < 6; i++) {
             imageArrayAll[labelTool.currentFileIndex][i].toBack();
         }
-
-
         // draw 2D bb for all objects
         // note that last element is the 'insertIndex' -> iterate until length-1
         if (annotationObjects.contents !== undefined && annotationObjects.contents.length > 0) {
@@ -366,7 +323,64 @@ let labelTool = {
                 }
             }
         }
-        loadPCDData();
+    }, loadPointCloudData: function () {
+        // ASCII pcd files
+        let pcdLoader = new THREE.PCDLoader();
+        let pointCloudFullURL;
+        let pointCloudWithoutGroundURL;
+        pointCloudWithoutGroundURL = 'input/' + labelTool.currentDataset + '/' + labelTool.sequence + '/' + 'pointclouds_without_ground/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
+
+        // load all point cloud scans in the beginning
+        if (labelTool.pointCloudLoaded === false) {
+            for (let i = 0; i < labelTool.numFrames; i++) {
+                pointCloudFullURL = 'input/' + labelTool.currentDataset + '/' + labelTool.sequence + '/' + 'pointclouds/' + labelTool.fileNames[i] + '.pcd';
+                pcdLoader.load(pointCloudFullURL, function (mesh) {
+                    mesh.name = 'pointcloud-scan-' + i;
+                    pointCloudScanList.push(mesh);
+                    if (i === labelTool.currentFileIndex) {
+                        scene.add(mesh);
+                    }
+                });
+                pcdLoader.load(pointCloudWithoutGroundURL, function (mesh) {
+                    mesh.name = 'pointcloud-scan-no-ground-' + i;
+                    pointCloudScanNoGroundList.push(mesh);
+                });
+            }
+            labelTool.pointCloudLoaded = true;
+        } else {
+            scene.add(pointCloudScanList[labelTool.currentFileIndex]);
+        }
+
+
+        // show FOV of camera within 3D pointcloud
+        labelTool.removeObject('rightplane');
+        labelTool.removeObject('leftplane');
+        labelTool.removeObject('prism');
+        if (labelTool.showFieldOfView === true) {
+            labelTool.drawFieldOfView();
+        }
+
+        // draw positions of cameras
+        if (labelTool.showCameraPosition === true) {
+            drawCameraPosition();
+        }
+
+        // draw ego vehicle
+        if (labelTool.drawEgoVehicle === true) {
+            let lexusTexture = new THREE.TextureLoader().load('assets/models/lexus/lexus.jpg');
+            let lexusMaterial = new THREE.MeshBasicMaterial({map: lexusTexture});
+            let objLoader = new THREE.OBJLoader();
+            objLoader.load('assets/models/lexus/lexus_hs.obj', function (object) {
+                let lexusGeometry = object.children[0].geometry;
+                let lexusMesh = new THREE.Mesh(lexusGeometry, lexusMaterial);
+
+                lexusMesh.scale.set(0.065, 0.065, 0.065);
+                lexusMesh.rotation.set(0, 0, -Math.PI / 2);
+                lexusMesh.position.set(0, 0, -labelTool.positionLidarNuscenes[2]);
+
+                scene.add(lexusMesh)
+            });
+        }
     },
 
     setTrackIds: function () {
@@ -377,8 +391,6 @@ let labelTool = {
         }
     },
     loadAnnotationsNuscenes: function (annotations, fileIndex) {
-        // Remove old bounding boxes of current frame.
-        annotationObjects.clear();
         // Add new bounding boxes.
         for (let i in annotations) {
             // convert 2D bounding box to integer values
@@ -387,11 +399,14 @@ let labelTool = {
                     annotations[i][key] = parseInt(annotations[i][key]);
                 });
                 let annotation = annotations[i];
-                // annotationObjects.selectEmpty();
                 let params = getDefaultObject();
                 params.class = annotation.class;
-                params.rotationY = parseFloat(annotation.rotationY);
-                params.original.rotationY = parseFloat(annotation.rotationY);
+                params.rotationYaw = parseFloat(annotation.rotationYaw);
+                params.rotationPitch = parseFloat(annotation.rotationPitch);
+                params.rotationRoll = parseFloat(annotation.rotationRoll);
+                params.original.rotationYaw = parseFloat(annotation.rotationYaw);
+                params.original.rotationPitch = parseFloat(annotation.rotationPitch);
+                params.original.rotationRoll = parseFloat(annotation.rotationRoll);
                 if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
                     classesBoundingBox.addNuSceneLabel(annotation.class);
                     classesBoundingBox.__target = Object.keys(classesBoundingBox.content)[0];
@@ -427,7 +442,9 @@ let labelTool = {
                 }
                 params.fileIndex = fileIndex;
                 // project 3D position into 2D camera image
-                draw2DProjections(params);
+                if (labelTool.pointCloudOnlyAnnotation === false) {
+                    draw2DProjections(params);
+                }
                 // add new entry to contents array
                 annotationObjects.set(annotationObjects.__insertIndex, params);
                 annotationObjects.__insertIndex++;
@@ -436,77 +453,74 @@ let labelTool = {
         }
     },
     // Set values to this.annotationObjects from allAnnotations
-    loadAnnotationsJSON: function (allAnnotations) {
+    loadAnnotationsNuScenesJSON: function (frameObject) {
         // Remove old bounding boxes of current frame.
-        annotationObjects.clear();
         let maxTrackIds = [0, 0, 0, 0, 0];// vehicle, truck, motorcycle, bicycle, pedestrian
-        // Add new bounding boxes.
-        //for (let frameAnnotationIdx in allAnnotations) {
-        for (let i = 0; i < labelTool.numFrames; i++) {
-            // convert 2D bounding box to integer values
-            let frameAnnotations = allAnnotations[i];
-
-            for (let annotationIdx in frameAnnotations) {
-                if (frameAnnotations.hasOwnProperty(annotationIdx)) {
-                    let annotation = frameAnnotations[annotationIdx];
-                    let params = getDefaultObject();
-                    params.class = annotation.class;
-                    params.rotationY = parseFloat(annotation.rotationY);
-                    params.original.rotationY = parseFloat(annotation.rotationY);
-                    let classIdx;
-                    params.trackId = annotation.trackId;
-                    classIdx = classesBoundingBox[annotation.class].index;
-                    if (params.trackId > maxTrackIds[classIdx]) {
-                        maxTrackIds[classIdx] = params.trackId;
-                    }
-                    // Nuscenes labels are stored in global frame in the database
-                    // Nuscenes: labels (3d positions) are transformed from global frame to point cloud (global -> ego, ego -> point cloud) before exporting them
-                    params.x = parseFloat(annotation.x);
-                    params.y = parseFloat(annotation.y);
-                    params.z = parseFloat(annotation.z);
-                    params.original.x = parseFloat(annotation.x);
-                    params.original.y = parseFloat(annotation.y);
-                    params.original.z = parseFloat(annotation.z);
-                    let tmpWidth = parseFloat(annotation.width);
-                    // swap length with height
-                    let tmpLength = parseFloat(annotation.height);
-                    let tmpHeight = parseFloat(annotation.length);
-                    if (tmpWidth > 0.3 && tmpLength > 0.3 && tmpHeight > 0.3) {
-                        tmpWidth = Math.max(tmpWidth, 0.0001);
-                        tmpLength = Math.max(tmpLength, 0.0001);
-                        tmpHeight = Math.max(tmpHeight, 0.0001);
-                        params.delta_x = 0;
-                        params.delta_y = 0;
-                        params.delta_z = 0;
-                        params.width = tmpWidth;
-                        params.length = tmpLength;
-                        params.height = tmpHeight;
-                        params.original.width = tmpWidth;
-                        params.original.length = tmpLength;
-                        params.original.height = tmpHeight;
-                    }
-                    params.fileIndex = Number(i);
-                    // add new entry to contents array
-                    annotationObjects.set(annotationObjects.__insertIndex, params);
-                    annotationObjects.__insertIndex++;
-                    if (labelTool.showOriginalNuScenesLabels === true) {
-                        classesBoundingBox.content[classesBoundingBox.targetName()].nextTrackId++;
-                    } else {
-                        classesBoundingBox.target().nextTrackId++;
-                    }
-
-
+        let frameAnnotations = frameObject.labels;
+        // Add new bounding boxes
+        for (let annotationIdx in frameAnnotations) {
+            if (frameAnnotations.hasOwnProperty(annotationIdx)) {
+                let annotation = frameAnnotations[annotationIdx];
+                let params = getDefaultObject();
+                params.class = annotation.category;
+                params.rotationYaw = parseFloat(annotation.box3d.orientation.rotationYaw);
+                params.original.rotationYaw = parseFloat(annotation.box3d.orientation.rotationYaw);
+                params.rotationPitch = parseFloat(annotation.box3d.orientation.rotationPitch);
+                params.original.rotationPitch = parseFloat(annotation.box3d.orientation.rotationPitch);
+                params.rotationRoll = parseFloat(annotation.box3d.orientation.rotationRoll);
+                params.original.rotationRoll = parseFloat(annotation.box3d.orientation.rotationRoll);
+                let classIdx;
+                params.trackId = annotation.id;
+                classIdx = classesBoundingBox[annotation.category].index;
+                if (params.trackId > maxTrackIds[classIdx]) {
+                    maxTrackIds[classIdx] = params.id;
                 }
-            }//end for loop frame annotations
-            // reset track ids for next frame if nuscenes dataset and showLabels=true
-            if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
-                for (let i = 0; i < classesBoundingBox.classNameArray.length; i++) {
-                    classesBoundingBox.content[classesBoundingBox.classNameArray[i]].nextTrackId = 0;
+                // Nuscenes labels are stored in global frame in the database
+                // Nuscenes: labels (3d positions) are transformed from global frame to point cloud (global -> ego, ego -> point cloud) before exporting them
+                params.x = parseFloat(annotation.box3d.location.x);
+                params.y = parseFloat(annotation.box3d.location.y);
+                params.z = parseFloat(annotation.box3d.location.z);
+                params.original.x = parseFloat(annotation.box3d.location.x);
+                params.original.y = parseFloat(annotation.box3d.location.y);
+                params.original.z = parseFloat(annotation.box3d.location.z);
+                let tmpWidth = parseFloat(annotation.box3d.dimension.width);
+                let tmpLength = parseFloat(annotation.box3d.dimension.length);
+                let tmpHeight = parseFloat(annotation.box3d.dimension.height);
+                if (tmpWidth > 0.3 && tmpLength > 0.3 && tmpHeight > 0.3) {
+                    tmpWidth = Math.max(tmpWidth, 0.0001);
+                    tmpLength = Math.max(tmpLength, 0.0001);
+                    tmpHeight = Math.max(tmpHeight, 0.0001);
+                    params.delta_x = 0;
+                    params.delta_y = 0;
+                    params.delta_z = 0;
+                    params.width = tmpWidth;
+                    params.length = tmpLength;
+                    params.height = tmpHeight;
+                    params.original.width = tmpWidth;
+                    params.original.length = tmpLength;
+                    params.original.height = tmpHeight;
                 }
+                params.fileIndex = Number(frameObject.index);
+                // add new entry to contents array
+                annotationObjects.set(annotationObjects.__insertIndex, params);
+                annotationObjects.__insertIndex++;
+                if (labelTool.showOriginalNuScenesLabels === true) {
+                    classesBoundingBox.content[classesBoundingBox.targetName()].nextTrackId++;
+                } else {
+                    classesBoundingBox.target().nextTrackId++;
+                }
+
+
             }
-            // reset insert index
-            annotationObjects.__insertIndex = 0;
-        }// end for loop all annotations
+        }//end for loop frame annotations
+        // reset track ids for next frame if nuscenes dataset and showLabels=true
+        if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
+            for (let i = 0; i < classesBoundingBox.classNameArray.length; i++) {
+                classesBoundingBox.content[classesBoundingBox.classNameArray[i]].nextTrackId = 0;
+            }
+        }
+        // reset insert index
+        annotationObjects.__insertIndex = 0;
 
         if (labelTool.showOriginalNuScenesLabels === true) {
             let keys = Object.keys(classesBoundingBox.content);
@@ -520,51 +534,281 @@ let labelTool = {
             }
         }
         // project 3D positions of current frame into 2D camera images
-        if (annotationObjects.contents[this.currentFileIndex].length > 0) {
-            for (let i = 0; i < annotationObjects.contents[this.currentFileIndex].length; i++) {
-                draw2DProjections(annotationObjects.contents[this.currentFileIndex][i]);
+        if (labelTool.pointCloudOnlyAnnotation === false) {
+            if (annotationObjects.contents[this.currentFileIndex].length > 0) {
+                for (let i = 0; i < annotationObjects.contents[this.currentFileIndex].length; i++) {
+                    draw2DProjections(annotationObjects.contents[this.currentFileIndex][i]);
+                }
             }
+        }
+    },
+    loadFrameAnnotationsProvidentiaJSON: function (frameObject) {
+        let maxTrackIds = [0, 0, 0, 0, 0];// vehicle, truck, motorcycle, bicycle, pedestrian
+        // convert 2D bounding box to integer values
+        let frameAnnotations = frameObject.labels;
+
+        for (let annotationIdx in frameAnnotations) {
+            if (frameAnnotations.hasOwnProperty(annotationIdx)) {
+                let annotation = frameAnnotations[annotationIdx];
+                let params = getDefaultObject();
+                params.class = annotation.category;
+                params.rotationYaw = parseFloat(annotation.box3d.orientation.rotationRoll);
+                params.original.rotationYaw = parseFloat(annotation.box3d.orientation.rotationRoll);
+                // TODO: check whether index of pitch and roll needs to be swapped
+                params.rotationPitch = parseFloat(annotation.box3d.orientation.rotationYaw);
+                params.original.rotationPitch = parseFloat(annotation.box3d.orientation.rotationYaw);
+                params.rotationRoll = parseFloat(annotation.box3d.orientation.rotationPitch);
+                params.original.rotationRoll = parseFloat(annotation.box3d.orientation.rotationPitch);
+                let classIdx;
+                params.trackId = annotation.id;
+                classIdx = classesBoundingBox[annotation.category].index;
+                if (params.id > maxTrackIds[classIdx]) {
+                    maxTrackIds[classIdx] = params.id;
+                }
+                // Nuscenes labels are stored in global frame in the database
+                // Nuscenes: labels (3d positions) are transformed from global frame to point cloud (global -> ego, ego -> point cloud) before exporting them
+                params.x = parseFloat(annotation.box3d.location.x);
+                params.y = parseFloat(annotation.box3d.location.y);
+                params.z = parseFloat(annotation.box3d.location.z);
+                params.original.x = parseFloat(annotation.box3d.location.x);
+                params.original.y = parseFloat(annotation.box3d.location.y);
+                params.original.z = parseFloat(annotation.box3d.location.z);
+                let tmpWidth = parseFloat(annotation.box3d.dimension.width);
+                let tmpLength = parseFloat(annotation.box3d.dimension.length);
+                let tmpHeight = parseFloat(annotation.box3d.dimension.height);
+                if (tmpWidth > 0.3 && tmpLength > 0.3 && tmpHeight > 0.3) {
+                    tmpWidth = Math.max(tmpWidth, 0.0001);
+                    tmpLength = Math.max(tmpLength, 0.0001);
+                    tmpHeight = Math.max(tmpHeight, 0.0001);
+                    params.delta_x = 0;
+                    params.delta_y = 0;
+                    params.delta_z = 0;
+                    params.width = tmpWidth;
+                    params.length = tmpLength;
+                    params.height = tmpHeight;
+                    params.original.width = tmpWidth;
+                    params.original.length = tmpLength;
+                    params.original.height = tmpHeight;
+                }
+                params.fileIndex = Number(frameObject.index);
+                // add new entry to contents array
+                annotationObjects.set(annotationObjects.__insertIndex, params);
+                annotationObjects.__insertIndex++;
+                classesBoundingBox.target().nextTrackId++;
+            }
+        }
+        // reset insert index
+        annotationObjects.__insertIndex = 0;
+
+        let keys = Object.keys(classesBoundingBox);
+        for (let i = 0; i < maxTrackIds.length; i++) {
+            classesBoundingBox[keys[i]].nextTrackId = maxTrackIds[i] + 1;
         }
     },
 
     // Create annotations from this.annotationObjects
-    createAnnotations: function () {
-        let allAnnotations = [];
+    createAnnotationFiles: function () {
+        let annotationFiles = [];
         for (let j = 0; j < this.numFrames; j++) {
             let annotationsInFrame = [];
             for (let i = 0; i < annotationObjects.contents[j].length; i++) {
                 if (annotationObjects.contents[j][i] !== undefined && this.cubeArray[j][i] !== undefined) {
                     let annotationObj = annotationObjects.contents[j][i];
                     // Nuscenes labels are stored in global frame within database
-                    // [optional] Nuscenes: transform 3d positions from point cloud to global frame (point cloud-> ego, ego -> global)
-                    let annotation = {
-                        class: annotationObj["class"],
-                        // TODO: store information of 3D objects also in annotationObjects.contents instead of cubeArray
-                        width: this.cubeArray[j][i].scale.x,
-                        // swap length with height
-                        length: this.cubeArray[j][i].scale.z,
-                        height: this.cubeArray[j][i].scale.y,
-                        x: this.cubeArray[j][i].position.x,
-                        y: this.cubeArray[j][i].position.y,
-                        z: this.cubeArray[j][i].position.z,
-                        rotationY: this.cubeArray[j][i].rotation.z,
-                        trackId: annotationObj["trackId"],
-                        frameIdx: j
-                    };
-                    annotationsInFrame.push(annotation);
+                    // [optional] Nuscenes: transform 3d positions from lidar frame to global frame (lidar -> ego, ego -> global)
+                    let annotationObjectJSON =
+                        {
+                            "id": annotationObj["trackId"],
+                            "category": annotationObj["class"],
+                            "box3d": {
+                                "dimension": {
+                                    "width": this.cubeArray[j][i].scale.x,
+                                    "length": this.cubeArray[j][i].scale.y,
+                                    "height": this.cubeArray[j][i].scale.z
+                                },
+                                "location": {
+                                    "x": this.cubeArray[j][i].position.x,
+                                    "y": this.cubeArray[j][i].position.y,
+                                    "z": this.cubeArray[j][i].position.z
+                                },
+                                "orientation": {
+                                    "rotationYaw": this.cubeArray[j][i].rotation.z,
+                                    "rotationPitch": this.cubeArray[j][i].rotation.x,
+                                    "rotationRoll": this.cubeArray[j][i].rotation.y
+                                }
+                            }
+                        }
+                    annotationsInFrame.push(annotationObjectJSON);
                 }
             }
-            allAnnotations.push(annotationsInFrame);
+            let annotationsInFrameJSON = {
+                "name": labelTool.fileNames[j],
+                "timestamp": 0,
+                "index": j,
+                "labels": annotationsInFrame
+            };
+            annotationFiles.push(JSON.stringify(annotationsInFrameJSON));
         }
-        return allAnnotations;
+        return annotationFiles;
     },
 
-    initialize: function () {
-        initPanes();
+    initializePointCloudWindow: function () {
+        let pointCloudContainer;
+        if (labelTool.pointCloudOnlyAnnotation === true) {
+            pointCloudContainer = $("#label-tool-wrapper");
+        } else {
+            pointCloudContainer = $("#layout_layout_panel_main .w2ui-panel-content");
+        }
+        pointCloudContainer.append('<div id="canvas3d" style="z-index: 0;"></div>');
+        this.localOnInitialize["PCD"]();
+    }, initializeClassPicker: function () {
+        $(function () {
+            $('#class-picker>ul>li').hover(function () {
+                $(this).css('background-color', "#535353");
+            }, function () {
+                // on mouseout, reset the background color if not selected
+                let currentClass = classesBoundingBox.getCurrentClass();
+                let currentClassIndex = classesBoundingBox[currentClass].index;
+                let currentHoverIndex = $("#class-picker>ul>li").index(this);
+                if (currentClassIndex !== currentHoverIndex) {
+                    $(this).css('background-color', "#353535");
+                }
+            });
+        });
 
-        initFrameSelector();
-        $(".current").text((labelTool.currentFileIndex + 1) + "/" + this.fileNames.length);
+        let toasts = $(".toasts")[0];
+        this.logger = new Toast(toasts);
+    }, setPanelSize: function (newFileIndex) {
+        let panelHeight = labelTool.imageSizes["NuScenes"]["minHeightNormal"];
+        $("#layout_layout_panel_top").css("height", panelHeight);
+        $("#layout_layout_resizer_top").css("top", panelHeight);
+        $("#layout_layout_panel_main").css("top", panelHeight);
+        $("#image-cam-front-left").css("height", panelHeight);
+        $("#image-cam-front").css("height", panelHeight);
+        $("#image-cam-front-right").css("height", panelHeight);
+        $("#image-cam-back-right").css("height", panelHeight);
+        $("#image-cam-back").css("height", panelHeight);
+        $("#image-cam-back-left").css("height", panelHeight);
 
+
+        for (let i = 0; i < labelTool.camChannels.length; i++) {
+            let id = "#image-" + labelTool.camChannels[i].channel.toLowerCase().replace(/_/g, '-');
+            // bring all svgs into background
+            let allSvg = $(id + " svg");
+            for (let j = 0; j < allSvg.length; j++) {
+                allSvg[j].style.zIndex = 0;
+            }
+            allSvg[labelTool.numFrames - newFileIndex - 1].style.zIndex = 2;
+            let imgWidth = window.innerWidth / 6;
+            allSvg[labelTool.numFrames - newFileIndex - 1].style.width = imgWidth;
+            allSvg[labelTool.numFrames - newFileIndex - 1].style.height = imgWidth / labelTool.imageAspectRatioNuScenes;
+        }
+    }, setImageSize: function () {
+        // calculate the image width given the window width
+        labelTool.imageSizes = {
+            "NuScenes": {
+                minWidthNormal: Math.floor(window.innerWidth / 6),
+                minHeightNormal: Math.floor(window.innerWidth / (6 * 1.77778)),
+                maxWidthNormal: 640,
+                maxHeightNormal: 360
+            }
+        };
+    }, initPanes: function () {
+        let maxHeight;
+        let minHeight;
+        if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
+            minHeight = labelTool.imageSizes["NuScenes"]["minHeightNormal"];
+            maxHeight = labelTool.imageSizes["NuScenes"]["maxHeightNormal"];
+        }
+
+        let topStyle = 'background-color: #F5F6F7; border: 1px solid #dfdfdf; padding: 0px;';
+        $('#label-tool-wrapper').w2layout({
+            name: 'layout',
+            panels: [
+                {type: 'top', size: minHeight, resizable: true, style: topStyle, minSize: minHeight, maxSize: maxHeight}
+            ],
+            onResizing: function (event) {
+                let topElem = $("#layout_layout_panel_top")[0];
+                let newImagePanelHeight = topElem.offsetHeight;
+                let newWidth;
+                let newWidthBackFront;
+                if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
+                    newWidth = newImagePanelHeight * labelTool.imageAspectRatioNuScenes;
+                }
+                if (newImagePanelHeight === 0 || newWidth === 0) {
+                    return;
+                }
+                for (let channelIdx in labelTool.camChannels) {
+                    if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
+                        let channelObj = labelTool.camChannels[channelIdx];
+                        let channel = channelObj.channel;
+                        if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
+                            changeCanvasSize(newWidth, newImagePanelHeight, channel);
+                        }
+                    }
+                }
+                w2ui['layout'].set('top', {size: newImagePanelHeight});
+                // adjust height of helper views
+                let newCanvasHeight = (window.innerHeight - headerHeight - newImagePanelHeight) / 3;
+                console.log(headerHeight + newImagePanelHeight);
+                $("#canvasSideView").css("height", newCanvasHeight);
+                $("#canvasSideView").css("top", headerHeight + newImagePanelHeight);
+                views[1].height = newCanvasHeight;
+                views[1].top = 0;
+                $("#canvasFrontView").css("height", newCanvasHeight);
+                $("#canvasFrontView").css("top", headerHeight + newImagePanelHeight + newCanvasHeight);
+                views[2].height = newCanvasHeight;
+                views[2].top = newCanvasHeight;
+                $("#canvasBev").css("height", newCanvasHeight);
+                $("#canvasBev").css("top", headerHeight + newImagePanelHeight + 2 * newCanvasHeight);
+                views[3].height = newCanvasHeight;
+                views[3].top = 2 * newCanvasHeight;
+                // update camera of helper views
+                for (let i = 1; i < views.length; i++) {
+                    let view = views[i];
+                    view.height = newCanvasHeight;
+                    let top = 4;
+                    let bottom = -4;
+                    let aspectRatio = view.width / view.height;
+                    let left = bottom * aspectRatio;
+                    let right = top * aspectRatio;
+                    let camera = view.camera;
+                    camera.left = left;
+                    camera.right = right;
+                    camera.top = top;
+                    camera.bottom = bottom;
+                    camera.updateProjectionMatrix();
+                }
+                // update projection of bounding boxes on camera images
+                // delete all labels
+                remove2DBoundingBoxes();
+                // draw all labels
+                for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
+                    let annotationObj = annotationObjects.contents[labelTool.currentFileIndex][i];
+                    let params = setObjectParameters(annotationObj);
+                    draw2DProjections(params);
+                }
+                // update position of controls
+                $("#bounding-box-3d-menu").css("top", headerHeight + newImagePanelHeight);
+            },
+            onRefresh: function (event) {
+                console.log('object ' + event.target + ' is refreshed');
+                event.onComplete = function () {
+                    $("#layout_layout_resizer_top").on('click', function () {
+                        w2ui['layout'].resize();
+                    });
+                    $("#layout_layout_resizer_top").on('drag', function () {
+                        w2ui['layout'].resize();
+                    });
+                }
+            }
+        });
+        w2ui['layout'].resizer = 10;
+        w2ui['layout'].resize();
+        w2ui['layout'].refresh();
+    }, initializeCameraWindows: function () {
+        this.setImageSize();
+        this.initPanes();
         let imageContainer = $("#layout_layout_panel_top .w2ui-panel-content");
         let imageWidth;
         let canvasElem;
@@ -599,31 +843,9 @@ let labelTool = {
         $("#layout_layout_panel_top .w2ui-panel-content").addClass("dragscroll");
         $("#layout_layout_panel_top .w2ui-panel-content").css("overflow", "scroll");
 
-        let pointCloudContainer = $("#layout_layout_panel_main .w2ui-panel-content");
-        pointCloudContainer.append('<div id="canvas3d" style="z-index: 0;"></div>');
-
-        // this.pageBox.placeholder = (this.currentFileIndex + 1) + "/" + this.fileNames.length;
         this.camChannels.forEach(function (channelObj) {
             this.localOnInitialize[channelObj.channel]();
         }.bind(this));
-        this.localOnInitialize["PCD"]();
-
-        $(function () {
-            $('#class-picker>ul>li').hover(function () {
-                $(this).css('background-color', "#535353");
-            }, function () {
-                // on mouseout, reset the background color if not selected
-                let currentClass = classesBoundingBox.getCurrentClass();
-                let currentClassIndex = classesBoundingBox[currentClass].index;
-                let currentHoverIndex = $("#class-picker>ul>li").index(this);
-                if (currentClassIndex !== currentHoverIndex) {
-                    $(this).css('background-color', "#353535");
-                }
-            });
-        });
-
-        let toasts = $(".toasts")[0];
-        this.logger = new Toast(toasts);
 
         if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
             for (let channelIdx in labelTool.camChannels) {
@@ -637,14 +859,16 @@ let labelTool = {
                 }
             }
         }
+        this.setPanelSize(labelTool.currentFileIndex);
     },
 
-    getAnnotations() {
+    loadAnnotations() {
         let fileName;
+        annotationObjects.clear();
         if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
             if (labelTool.showOriginalNuScenesLabels === true) {
                 for (let i = 0; i < this.fileNames.length; i++) {
-                    fileName = this.fileNames[i] + ".txt";
+                    fileName = this.fileNames[i] + ".json";
                     request({
                         url: '/label/annotations/',
                         type: 'GET',
@@ -660,7 +884,27 @@ let labelTool = {
                     });
                 }
             } else {
-                fileName = labelTool.currentDataset + "_" + labelTool.currentSequence + "_annotations.txt";
+                for (let i = 0; i < labelTool.fileNames.length; i++) {
+                    fileName = labelTool.fileNames[i];
+                    request({
+                        url: '/label/annotations/',
+                        type: 'GET',
+                        dataType: 'json',
+                        data: {
+                            file_name: fileName
+                        },
+                        success: function (res) {
+                            this.loadAnnotationsNuScenesJSON(res);
+                        }.bind(this),
+                        error: function (res) {
+                        }.bind(this)
+                    });
+                }
+            }
+        } else if (labelTool.currentDataset === labelTool.datasets.providentia) {
+            // TODO: load all available file names
+            for (let i = 0; i < labelTool.fileNames.length; i++) {
+                fileName = labelTool.fileNames[i];
                 request({
                     url: '/label/annotations/',
                     type: 'GET',
@@ -669,7 +913,7 @@ let labelTool = {
                         file_name: fileName
                     },
                     success: function (res) {
-                        this.loadAnnotationsJSON(res);
+                        this.loadFrameAnnotationsProvidentiaJSON(res);
                     }.bind(this),
                     error: function (res) {
                     }.bind(this)
@@ -688,7 +932,7 @@ let labelTool = {
         this.currentFileIndex = 0;
         this.fileNames = [];
         this.originalAnnotations = [];
-        this.targetClass = "Vehicle";
+        this.targetClass = "vehicle";
         this.savedFrames = [];
         this.cubeArray = [];
         this.currentCameraChannelIndex = 0;
@@ -700,24 +944,16 @@ let labelTool = {
         $(".class-tooltip").remove();
         this.spriteArray = [];
         this.selectedMesh = undefined;
-        this.imageCanvasInitialized = false;
-        this.cameraImagesLoaded = false;
         this.pointCloudLoaded = false;
-        $(".frame-selector__frames").empty();
 
         // classesBoundingBox
         classesBoundingBox.colorIdx = 0;
         classesBoundingBox.__target = Object.keys(classesBoundingBox)[0];
 
-        // image label tool
-        canvasArray = [];
-        canvasParamsArray = [];
-        paperArray = [];
-        paperArrayAll = [];
-        imageArray = [];
         // pcd label tool
         folderBoundingBox3DArray = [];
         folderPositionArray = [];
+        folderRotationArray = [];
         folderSizeArray = [];
         pointCloudScanList = [];
 
@@ -734,47 +970,109 @@ let labelTool = {
             $(item).css('border-bottom', '0px');
         });
 
-        // remove image divs
-        $("#layout_layout_panel_top .w2ui-panel-content").empty();
+        if (labelTool.pointCloudOnlyAnnotation === false) {
+            // image label tool
+            this.imageCanvasInitialized = false;
+            this.cameraImagesLoaded = false;
+            canvasArray = [];
+            canvasParamsArray = [];
+            paperArray = [];
+            paperArrayAll = [];
+            imageArray = [];
 
-        if (this.currentDataset === this.datasets.NuScenes) {
-            w2ui['layout'].panels[0].minSize = Math.ceil(window.innerWidth) / (6 * 1.7778);
-            w2ui['layout'].panels[0].maxSize = 360;
-            w2ui['layout'].panels[0].size = Math.ceil(window.innerWidth) / (6 * 1.7778);
+            // remove image divs
+            $("#layout_layout_panel_top .w2ui-panel-content").empty();
+
+            if (this.currentDataset === this.datasets.NuScenes) {
+                w2ui['layout'].panels[0].minSize = Math.ceil(window.innerWidth) / (6 * 1.7778);
+                w2ui['layout'].panels[0].maxSize = 360;
+                w2ui['layout'].panels[0].size = Math.ceil(window.innerWidth) / (6 * 1.7778);
+            }
+            w2ui['layout'].resize();
         }
-        w2ui['layout'].resize();
 
         classesBoundingBox.content = [];
-        $("#frame-selector__frames").empty();
+        $(".frame-selector__frames").empty();
     },
 
-    start() {
-        initTimer();
-        setImageSize();
-        labelTool.fileNames = this.getFileNames();
-        this.initialize();
-        setPanelSize(labelTool.currentFileIndex);
-        this.showData();
-        this.getAnnotations();
+    initFrameSelector: function () {
+        // add bar segments to frame selection bar
+        for (let i = 0; i < labelTool.numFrames; i++) {
+            let selectedClass = "";
+            if (i === 0) {
+                selectedClass = "selected";
+            }
+            let divElem = $("<div data-tip=" + i + " data-for=\"frame-selector\" class=\"frame default " + selectedClass + "\"></div>");
+            $(divElem).on("click", function (item) {
+                $("div.frame").attr("class", "frame default");
+                item.target.className = "frame default selected";
+                let elemIndex = Number(item.target.dataset.tip);
+                labelTool.changeFrame(elemIndex);
+            });
+            $(".frame-selector__frames").append(divElem);
+
+        }
+        $(".current").text((labelTool.currentFileIndex + 1) + "/" + this.fileNames.length);
+    }, initTimer: function () {
+        labelTool.timeElapsed = 0;
+        let hours = 0;
+        let minutes = 0;
+        let seconds = 0;
+        let timeString = "";
+
+        setInterval(function () {
+            // increase elapsed time every second
+            labelTool.timeElapsed = labelTool.timeElapsed + 1;
+            seconds = labelTool.timeElapsed % 60;
+            minutes = Math.floor(labelTool.timeElapsed / 60);
+            if (minutes > 59) {
+                minutes = 0;
+            }
+            hours = Math.floor(labelTool.timeElapsed / (60 * 60));
+            timeString = pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2);
+            $("#time-elapsed").text(timeString);
+        }, labelTool.timeDelay);
+    }, start() {
+        this.initTimer();
+        this.setFileNames();
+        this.initializeClassPicker();
+        this.initFrameSelector();
+        if (labelTool.pointCloudOnlyAnnotation === false) {
+            this.initializeCameraWindows();
+            this.loadImageData();
+        }
+        this.initializePointCloudWindow();
+        this.loadPointCloudData();
+        this.loadAnnotations();
+    },
+    loadConfig() {
+        labelTool.dataStructure = loadConfigFile(labelTool.configFileName);
+        for (let i = 0; i < labelTool.dataStructure.datasets.length; i++) {
+            let datasetName = labelTool.dataStructure.datasets[i].name;
+            labelTool.datasetArray.push(datasetName);
+            labelTool.datasets[datasetName] = datasetName;
+        }
+        labelTool.currentDataset = labelTool.datasetArray[0];
+        parameters.currentDataset = labelTool.datasetArray[0];
+        labelTool.currentDatasetIdx = 0;
+        labelTool.sequence= labelTool.dataStructure.datasets[0].sequences[0];
     },
 
-
-    getFileNames() {
-        let numFiles;
+    setFileNames() {
         let fileNameArray = [];
         if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
             labelTool.numFrames = labelTool.numFramesNuScenes;
-            setSequences();
-            labelTool.currentSequence = labelTool.sequencesNuScenes[0];
-            numFiles = 120;//[3962, 120]
+            for (let i = 0; i < labelTool.numFrames; i++) {
+                fileNameArray.push(pad(i, 6))
+            }
 
-        } else {
-
+        } else if (labelTool.currentDataset === labelTool.datasets.providentia) {
+            labelTool.numFrames = labelTool.numFramesProvidentia;
+            for (let i = 0; i < labelTool.numFrames; i++) {
+                fileNameArray.push(pad(i, 6))
+            }
         }
-        for (let i = 0; i < numFiles; i++) {
-            fileNameArray.push(pad(i, 6))
-        }
-        return fileNameArray;
+        labelTool.fileNames = fileNameArray;
     },
 
     previousFrame: function () {
@@ -887,65 +1185,11 @@ let labelTool = {
                 break;
         }
     },
-    // changeCamChannel: function (currentChannelNumber, nextChannelNumber) {
-    //     // if (this.dataTypes.indexOf("PCD") >= 0) {
-    //     //     // remove all folder of current channel
-    //     //     for (var k = 0; k < annotationObjects.contents.length; k++) {
-    //     //         guiOptions.removeFolder(annotationObjects.contents[k]["class"] + ' ' + annotationObjects.contents[k]["trackId"]);
-    //     //     }
-    //     // }
-    //     if (this.hasLoadedPCD) {
-    //         cFlag = false;
-    //         rFlag = false;
-    //         this.bboxes = [];
-    //         // do not delete bounding boxes that were set previously
-    //         // this.cubeArray[this.currentFileIndex][this.currentCameraChannelIndex] = [];
-    //         numbertagList = [];
-    //         folderBoundingBox3DArray = [];
-    //         guiTag = [];
-    //         numbertagList = [];
-    //         folderPositionArray = [];
-    //         folderSizeArray = [];
-    //         this.bboxIndexArray[labelTool.currentFileIndex][labelTool.currentCameraChannelIndex] = [];
-    //     }
-    //     var previousChannelNumber = currentChannelNumber - 1;
-    //     if (previousChannelNumber < 0) {
-    //         previousChannelNumber = 5;
-    //     }
-    //     this.hasLoadedImage[labelTool.camChannels.indexOf(previousChannelNumber)] = false;
-    //     this.hasLoadedImage[labelTool.camChannels.indexOf(currentChannelNumber)] = false;
-    //     this.hasLoadedImage[labelTool.camChannels.indexOf(nextChannelNumber)] = false;
-    //     this.hasLoadedPCD = false;
-    //     this.showData();
-    //
-    //     // render labels
-    //     // hold flag not set
-    //     if (this.savedFrames[this.currentFileIndex][this.currentCameraChannelIndex] == true) {
-    //
-    //     } else {
-    //         // load annotations from file for all three camera views if they exist, otherwise show blank image
-    //         if (annotationFileExist(this.currentFileIndex)) {
-    //             this.getAnnotations(this.currentFileIndex);
-    //         } else {
-    //             // no annotations are loaded
-    //             annotationObjects.clear();
-    //         }
-    //     }
-    //
-    //     // change FOV of camera
-    //     this.removeObject('rightplane');
-    //     this.removeObject('leftplane');
-    //     this.removeObject('prism');
-    //     this.drawFieldOfView();
-    //
-    //
-    // }
-    // ,
     changeFrame: function (newFileIndex) {
-        if (newFileIndex === labelTool.numFrames - 1 && labelTool.playSequence === true) {
-            // last frame will be shown
-            // stop playing sequence
+        if (newFileIndex === labelTool.numFrames && labelTool.playSequence === true) {
+            // start from first frame
             labelTool.playSequence = false;
+            newFileIndex = 0;
         }
 
         interpolationObjIndexCurrentFile = annotationObjects.getSelectionIndex();
@@ -958,7 +1202,9 @@ let labelTool = {
         labelTool.removeObject("pointcloud-scan-no-ground-" + this.currentFileIndex);
 
         // bring current image into background instead of removing it
-        setPanelSize(newFileIndex);
+        if (labelTool.pointCloudOnlyAnnotation === false) {
+            this.setPanelSize(newFileIndex);
+        }
 
 
         // remove all 3D BB objects from scene
@@ -984,6 +1230,7 @@ let labelTool = {
         // empty all folder arrays
         folderBoundingBox3DArray = [];
         folderPositionArray = [];
+        folderRotationArray = [];
         folderSizeArray = [];
 
         if (this.cubeArray[newFileIndex].length === 0) {
@@ -1079,7 +1326,9 @@ let labelTool = {
                 x: annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["x"],
                 y: annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["y"],
                 z: annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["z"],
-                rotationY: annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["rotationY"],
+                rotationYaw: annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["rotationYaw"],
+                rotationPitch: annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["rotationPitch"],
+                rotationRoll: annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["rotationRoll"],
                 width: annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["width"],
                 length: annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["length"],
                 height: annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["height"],
@@ -1118,7 +1367,9 @@ let labelTool = {
                 width: annotationObj["width"],
                 length: annotationObj["length"],
                 height: annotationObj["height"],
-                rotationY: parseFloat(annotationObj["rotationY"]),
+                rotationYaw: parseFloat(annotationObj["rotationYaw"]),
+                rotationPitch: parseFloat(annotationObj["rotationPitch"]),
+                rotationRoll: parseFloat(annotationObj["rotationRoll"]),
                 trackId: annotationObj["trackId"],
                 copyLabelToNextFrame: copyFlag
             };
@@ -1134,7 +1385,9 @@ let labelTool = {
             annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["x"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["x"];
             annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["y"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["y"];
             annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["z"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["z"];
-            annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["rotationY"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["rotationY"];
+            annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["rotationYaw"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["rotationYaw"];
+            annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["rotationPitch"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["rotationPitch"];
+            annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["position"]["rotationRoll"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["rotationRoll"];
             annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["size"]["width"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["width"];
             annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["size"]["length"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["length"];
             annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["interpolationEnd"]["size"]["height"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["height"];
@@ -1144,7 +1397,9 @@ let labelTool = {
             annotationObjects.contents[newFileIndex][objectIndexNextFrame]["interpolationEnd"]["position"]["x"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["x"];
             annotationObjects.contents[newFileIndex][objectIndexNextFrame]["interpolationEnd"]["position"]["y"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["y"];
             annotationObjects.contents[newFileIndex][objectIndexNextFrame]["interpolationEnd"]["position"]["z"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["z"];
-            annotationObjects.contents[newFileIndex][objectIndexNextFrame]["interpolationEnd"]["position"]["rotationY"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["rotationY"];
+            annotationObjects.contents[newFileIndex][objectIndexNextFrame]["interpolationEnd"]["position"]["rotationYaw"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["rotationYaw"];
+            annotationObjects.contents[newFileIndex][objectIndexNextFrame]["interpolationEnd"]["position"]["rotationPitch"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["rotationPitch"];
+            annotationObjects.contents[newFileIndex][objectIndexNextFrame]["interpolationEnd"]["position"]["rotationRoll"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["rotationRoll"];
             annotationObjects.contents[newFileIndex][objectIndexNextFrame]["interpolationEnd"]["size"]["width"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["width"];
             annotationObjects.contents[newFileIndex][objectIndexNextFrame]["interpolationEnd"]["size"]["length"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["length"];
             annotationObjects.contents[newFileIndex][objectIndexNextFrame]["interpolationEnd"]["size"]["height"] = annotationObjects.contents[this.currentFileIndex][interpolationObjIndexCurrentFile]["height"];
@@ -1198,10 +1453,10 @@ let labelTool = {
         this.currentFileIndex = newFileIndex;
         interpolationObjIndexCurrentFile = interpolationObjIndexNextFile;
         annotationObjects.__selectionIndexCurrentFrame = annotationObjects.__selectionIndexNextFrame;
-        this.showData();
-
-        // adjust panel height
-
+        if (labelTool.pointCloudOnlyAnnotation === false) {
+            this.loadImageData();
+        }
+        this.loadPointCloudData();
     },
 
     addResizeEventForImage: function () {
@@ -1264,46 +1519,21 @@ let labelTool = {
                     obj["height"] = obj["original"]["height"];
                     cubeObj["scale"]["z"] = obj["original"]["height"];
                 }
-                if (obj["original"]["rotationY"] !== undefined) {
-                    obj["rotationY"] = obj["original"]["rotationY"];
-                    cubeObj["rotation"]["z"] = obj["original"]["rotationY"];
+                if (obj["original"]["rotationYaw"] !== undefined) {
+                    obj["rotationYaw"] = obj["original"]["rotationYaw"];
+                    cubeObj["rotation"]["z"] = obj["original"]["rotationYaw"];
+                }
+                if (obj["original"]["rotationPitch"] !== undefined) {
+                    obj["rotationPitch"] = obj["original"]["rotationPitch"];
+                    cubeObj["rotation"]["x"] = obj["original"]["rotationPitch"];
+                }
+                if (obj["original"]["rotationRoll"] !== undefined) {
+                    obj["rotationRoll"] = obj["original"]["rotationRoll"];
+                    cubeObj["rotation"]["y"] = obj["original"]["rotationRoll"];
                 }
             }
         }
     },
-
-// selectYes() {
-//     $(function () {
-//         $("#label-tool-dialogue-overlay").remove();
-//     });
-//     if (updateFlag)
-//         return;
-//     updateFlag = true;
-//     document.getElementById("overlay-text").innerHTML = "Updating Database...";
-//     $(function () {
-//         $("#label-tool-status-overlay").fadeIn();
-//     });
-//     this.setAnnotations();
-//     $.ajax({
-//         url: '/labeling_tool/update_database/',
-//         type: 'POST',
-//         dataType: 'json',
-//         data: {
-//             images: this.fileNames.length,
-//             label_id: this.labelId
-//         },
-//         complete: function (res) {
-//             location.href = "label_select";
-//         }.bind(this)
-//     })
-// },
-//
-// selectNo() {
-//     $(function () {
-//         $("#label-tool-dialogue-overlay").fadeOut();
-//     });
-// },
-
 
     handlePressKey: function (code, value) {
         if (code === 13) {
@@ -1311,18 +1541,6 @@ let labelTool = {
         }
     }
 };
-
-function setImageSize() {
-    // calculate the image width given the window width
-    labelTool.imageSizes = {
-        "NuScenes": {
-            minWidthNormal: Math.floor(window.innerWidth / 6),
-            minHeightNormal: Math.floor(window.innerWidth / (6 * 1.77778)),
-            maxWidthNormal: 640,
-            maxHeightNormal: 360
-        }
-    };
-}
 
 function setObjectParameters(annotationObj) {
     let params = {
@@ -1333,7 +1551,9 @@ function setObjectParameters(annotationObj) {
         width: annotationObj["width"],
         length: annotationObj["length"],
         height: annotationObj["height"],
-        rotationY: parseFloat(annotationObj["rotationY"]),
+        rotationYaw: parseFloat(annotationObj["rotationYaw"]),
+        rotationPitch: parseFloat(annotationObj["rotationPitch"]),
+        rotationRoll: parseFloat(annotationObj["rotationRoll"]),
         channels: [{
             rect: [],
             projectedPoints: [],
@@ -1388,7 +1608,7 @@ function getIndexByDimension(width, length, height) {
 function draw2DProjections(params) {
     for (let i = 0; i < params.channels.length; i++) {
         if (params.channels[i].channel !== undefined && params.channels[i].channel !== "") {
-            params.channels[i].projectedPoints = calculateProjectedBoundingBox(params.x, params.y, params.z, params.width, params.length, params.height, params.channels[i].channel, params.rotationY);
+            params.channels[i].projectedPoints = calculateProjectedBoundingBox(params.x, params.y, params.z, params.width, params.length, params.height, params.channels[i].channel, params.rotationYaw, params.rotationPitch, params.rotationRoll);
             // calculate line segments
             let channelObj = params.channels[i];
             if (params.channels[i].projectedPoints !== undefined && params.channels[i].projectedPoints.length === 8) {
@@ -1419,13 +1639,6 @@ function numberToText(n) {
     }
 }
 
-function setSequences() {
-    for (let i = 1; i <= 100; i++) {
-        let numberAsText = numberToText(i).toUpperCase();
-        labelTool.sequencesNuScenes.push(numberAsText);
-    }
-}
-
 function getDefaultObject() {
     let params = {
         class: "",
@@ -1438,7 +1651,9 @@ function getDefaultObject() {
         width: -1,
         length: -1,
         height: -1,
-        rotationY: -1,
+        rotationYaw: 0,
+        rotationPitch: 0,
+        rotationRoll: 0,
         original: {
             x: -1,
             y: -1,
@@ -1446,7 +1661,9 @@ function getDefaultObject() {
             width: -1,
             length: -1,
             height: -1,
-            rotationY: -1
+            rotationYaw: 0,
+            rotationPitch: 0,
+            rotationRoll: 0
         },
         interpolationStartFileIndex: -1,
         interpolationStart: {
@@ -1454,7 +1671,9 @@ function getDefaultObject() {
                 x: -1,
                 y: -1,
                 z: -1,
-                rotationY: -1
+                rotationYaw: 0,
+                rotationPitch: 0,
+                rotationRoll: 0
             },
             size: {
                 width: -1,
@@ -1467,7 +1686,9 @@ function getDefaultObject() {
                 x: -1,
                 y: -1,
                 z: -1,
-                rotationY: -1
+                rotationYaw: 0,
+                rotationPitch: 0,
+                rotationRoll: 0
             },
             size: {
                 width: -1,
@@ -1526,101 +1747,6 @@ function remove2DBoundingBoxes() {
             }
         }
     }
-}
-
-function initPanes() {
-    let maxHeight;
-    let minHeight;
-    if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
-        minHeight = labelTool.imageSizes["NuScenes"]["minHeightNormal"];
-        maxHeight = labelTool.imageSizes["NuScenes"]["maxHeightNormal"];
-    }
-
-    let topStyle = 'background-color: #F5F6F7; border: 1px solid #dfdfdf; padding: 0px;';
-    $('#label-tool-wrapper').w2layout({
-        name: 'layout',
-        panels: [
-            {type: 'top', size: minHeight, resizable: true, style: topStyle, minSize: minHeight, maxSize: maxHeight}
-        ],
-        onResizing: function (event) {
-            let topElem = $("#layout_layout_panel_top")[0];
-            let newImagePanelHeight = topElem.offsetHeight;
-            let newWidth;
-            let newWidthBackFront;
-            if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
-                newWidth = newImagePanelHeight * labelTool.imageAspectRatioNuScenes;
-            }
-            if (newImagePanelHeight === 0 || newWidth === 0) {
-                return;
-            }
-            for (let channelIdx in labelTool.camChannels) {
-                if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
-                    let channelObj = labelTool.camChannels[channelIdx];
-                    let channel = channelObj.channel;
-                    if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
-                        changeCanvasSize(newWidth, newImagePanelHeight, channel);
-                    }
-                }
-            }
-            w2ui['layout'].set('top', {size: newImagePanelHeight});
-            // adjust height of helper views
-            let newCanvasHeight = (window.innerHeight - headerHeight - newImagePanelHeight) / 3;
-            console.log(headerHeight + newImagePanelHeight);
-            $("#canvasSideView").css("height", newCanvasHeight);
-            $("#canvasSideView").css("top", headerHeight + newImagePanelHeight);
-            views[1].height = newCanvasHeight;
-            views[1].top = 0;
-            $("#canvasFrontView").css("height", newCanvasHeight);
-            $("#canvasFrontView").css("top", headerHeight + newImagePanelHeight + newCanvasHeight);
-            views[2].height = newCanvasHeight;
-            views[2].top = newCanvasHeight;
-            $("#canvasBev").css("height", newCanvasHeight);
-            $("#canvasBev").css("top", headerHeight + newImagePanelHeight + 2 * newCanvasHeight);
-            views[3].height = newCanvasHeight;
-            views[3].top = 2 * newCanvasHeight;
-            // update camera of helper views
-            for (let i = 1; i < views.length; i++) {
-                let view = views[i];
-                view.height = newCanvasHeight;
-                let top = 4;
-                let bottom = -4;
-                let aspectRatio = view.width / view.height;
-                let left = bottom * aspectRatio;
-                let right = top * aspectRatio;
-                let camera = view.camera;
-                camera.left = left;
-                camera.right = right;
-                camera.top = top;
-                camera.bottom = bottom;
-                camera.updateProjectionMatrix();
-            }
-            // update projection of bounding boxes on camera images
-            // delete all labels
-            remove2DBoundingBoxes();
-            // draw all labels
-            for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
-                let annotationObj = annotationObjects.contents[labelTool.currentFileIndex][i];
-                let params = setObjectParameters(annotationObj);
-                draw2DProjections(params);
-            }
-            // update position of controls
-            $("#bounding-box-3d-menu").css("top", headerHeight + newImagePanelHeight);
-        },
-        onRefresh: function (event) {
-            console.log('object ' + event.target + ' is refreshed');
-            event.onComplete = function () {
-                $("#layout_layout_resizer_top").on('click', function () {
-                    w2ui['layout'].resize();
-                });
-                $("#layout_layout_resizer_top").on('drag', function () {
-                    w2ui['layout'].resize();
-                });
-            }
-        }
-    });
-    w2ui['layout'].resizer = 10;
-    w2ui['layout'].resize();
-    w2ui['layout'].refresh();
 }
 
 $("#previous-frame-button").keyup(function (e) {
@@ -1729,27 +1855,6 @@ function getZipVideoFrames() {
     return zip;
 }
 
-function initTimer() {
-    labelTool.timeElapsed = 0;
-    let hours = 0;
-    let minutes = 0;
-    let seconds = 0;
-    let timeString = "";
-
-    setInterval(function () {
-        // increase elapsed time every second
-        labelTool.timeElapsed = labelTool.timeElapsed + 1;
-        seconds = labelTool.timeElapsed % 60;
-        minutes = Math.floor(labelTool.timeElapsed / 60);
-        if (minutes > 59) {
-            minutes = 0;
-        }
-        hours = Math.floor(labelTool.timeElapsed / (60 * 60));
-        timeString = pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2);
-        $("#time-elapsed").text(timeString);
-    }, labelTool.timeDelay);
-}
-
 function initScreenshotTimer() {
     labelTool.timeElapsedScreenshot = 0;
     let screenshotIntervalHandle = setInterval(function () {
@@ -1757,8 +1862,7 @@ function initScreenshotTimer() {
         labelTool.timeElapsedScreenshot = labelTool.timeElapsedScreenshot + 1;
         // take screenshot every 2 seconds
         if (labelTool.takeCanvasScreenshot === true) {
-            if (labelTool.currentFileIndex < 899) {
-                // if (labelTool.currentFileIndex < 450) {
+            if (labelTool.currentFileIndex < labelTool.numFramesNuScenes) {
                 takeScreenshot();
                 labelTool.changeFrame(labelTool.currentFileIndex + 1);
             } else {
@@ -1766,7 +1870,7 @@ function initScreenshotTimer() {
                 let zip = getZipVideoFrames();
                 zip.generateAsync({type: "blob"})
                     .then(function (content) {
-                        saveAs(content, labelTool.currentDataset + "_" + labelTool.currentSequence + '_video_frames.zip')
+                        saveAs(content, labelTool.currentDataset + "_" + labelTool.sequence + '_video_frames.zip')
                     });
             }
         } else {
@@ -1780,7 +1884,7 @@ function initPlayTimer() {
     let playIntervalHandle = setInterval(function () {
         labelTool.timeElapsedPlay = labelTool.timeElapsedPlay + 1;
         if (labelTool.playSequence === true) {
-            if (labelTool.currentFileIndex < 900) {
+            if (labelTool.currentFileIndex < labelTool.numFrames) {
                 labelTool.changeFrame(labelTool.currentFileIndex + 1);
             } else {
                 clearInterval(playIntervalHandle);
@@ -1790,52 +1894,4 @@ function initPlayTimer() {
         }
 
     }, labelTool.timeDelayPlay);
-}
-
-function initFrameSelector() {
-    // add bar segments to frame selection bar
-    for (let i = 0; i < labelTool.numFrames; i++) {
-        let selectedClass = "";
-        if (i === 0) {
-            selectedClass = "selected";
-        }
-        let divElem = $("<div data-tip=" + i + " data-for=\"frame-selector\" class=\"frame default " + selectedClass + "\"></div>");
-        $(divElem).on("click", function (item) {
-            $("div.frame").attr("class", "frame default");
-            item.target.className = "frame default selected";
-            let elemIndex = Number(item.target.dataset.tip);
-            labelTool.changeFrame(elemIndex);
-        });
-        $(".frame-selector__frames").append(divElem);
-
-    }
-}
-
-function setPanelSize(newFileIndex) {
-    let panelHeight = labelTool.imageSizes["NuScenes"]["minHeightNormal"];
-    $("#layout_layout_panel_top").css("height", panelHeight);
-    $("#layout_layout_resizer_top").css("top", panelHeight);
-    $("#layout_layout_panel_main").css("top", panelHeight);
-    $("#image-cam-front-left").css("height", panelHeight);
-    $("#image-cam-front").css("height", panelHeight);
-    $("#image-cam-front-right").css("height", panelHeight);
-    $("#image-cam-back-right").css("height", panelHeight);
-    $("#image-cam-back").css("height", panelHeight);
-    $("#image-cam-back-left").css("height", panelHeight);
-
-
-    for (let i = 0; i < labelTool.camChannels.length; i++) {
-        let id = "#image-" + labelTool.camChannels[i].channel.toLowerCase().replace(/_/g, '-');
-        // bring all svgs into background
-        let allSvg = $(id + " svg");
-        for (let j = 0; j < allSvg.length; j++) {
-            allSvg[j].style.zIndex = 0;
-        }
-        allSvg[labelTool.numFrames - newFileIndex - 1].style.zIndex = 2;
-        let imgWidth = window.innerWidth / 6;
-        console.log("image_width_svg: " + imgWidth)
-        allSvg[labelTool.numFrames - newFileIndex - 1].style.width = imgWidth;
-        allSvg[labelTool.numFrames - newFileIndex - 1].style.height = imgWidth / labelTool.imageAspectRatioNuScenes;
-    }
-
 }

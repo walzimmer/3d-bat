@@ -121,11 +121,12 @@ let annotationObjects = {
         // update class of folder and track id instead of creating new folder
         folderBoundingBox3DArray[selectedObjectIndex].domElement.children[0].children[0].innerHTML = newClassLabel + ' ' + nextTrackIdNewClass;
         //                                                           ul        number      div       div[class c]    input
-        folderBoundingBox3DArray[selectedObjectIndex].domElement.children[0].children[3].children[0].children[1].children[0].value = nextTrackIdNewClass;
+        folderBoundingBox3DArray[selectedObjectIndex].domElement.children[0].children[4].children[0].children[1].children[0].value = nextTrackIdNewClass;
 
         // open current folder
         folderBoundingBox3DArray[selectedObjectIndex].open();
         folderPositionArray[selectedObjectIndex].open();
+        folderRotationArray[selectedObjectIndex].open();
         folderSizeArray[selectedObjectIndex].open();
         // update name of selected object
         labelTool.selectedMesh.name = "cube-" + newClassLabel.charAt(0) + nextTrackIdNewClass;
