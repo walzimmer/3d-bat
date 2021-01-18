@@ -158,6 +158,7 @@ let labelTool = {
     pointSize: 1,
     pointMaterial: new THREE.PointsMaterial({size: 5, sizeAttenuation: false, vertexColors: THREE.VertexColors}),
     views: {perspective: "perspective", orthographic: "orthographic"},
+    maxTrackIds: [0, 0, 0, 0, 0],// vehicle, truck, motorcycle, bicycle, pedestrian
     /********** Externally defined functions **********
      * Define these functions in the labeling tools.
      **************************************************/
@@ -455,7 +456,6 @@ let labelTool = {
     // Set values to this.annotationObjects from allAnnotations
     loadAnnotationsNuScenesJSON: function (frameObject) {
         // Remove old bounding boxes of current frame.
-        let maxTrackIds = [0, 0, 0, 0, 0];// vehicle, truck, motorcycle, bicycle, pedestrian
         let frameAnnotations = frameObject.labels;
         // Add new bounding boxes
         for (let annotationIdx in frameAnnotations) {
@@ -472,8 +472,8 @@ let labelTool = {
                 let classIdx;
                 params.trackId = annotation.id;
                 classIdx = classesBoundingBox[annotation.category].index;
-                if (params.trackId > maxTrackIds[classIdx]) {
-                    maxTrackIds[classIdx] = params.id;
+                if (params.trackId > labelTool.maxTrackIds[classIdx]) {
+                    labelTool.maxTrackIds[classIdx] = params.id;
                 }
                 // Nuscenes labels are stored in global frame in the database
                 // Nuscenes: labels (3d positions) are transformed from global frame to point cloud (global -> ego, ego -> point cloud) before exporting them
@@ -507,6 +507,9 @@ let labelTool = {
                 if (labelTool.showOriginalNuScenesLabels === true) {
                     classesBoundingBox.content[classesBoundingBox.targetName()].nextTrackId++;
                 } else {
+                    if (isNaN(classesBoundingBox.target().nextTrackId)) {
+                        classesBoundingBox.target().nextTrackId = 1;
+                    }
                     classesBoundingBox.target().nextTrackId++;
                 }
 
@@ -524,13 +527,13 @@ let labelTool = {
 
         if (labelTool.showOriginalNuScenesLabels === true) {
             let keys = Object.keys(classesBoundingBox.content);
-            for (let i = 0; i < maxTrackIds.length; i++) {
-                classesBoundingBox.content[keys[i]].nextTrackId = maxTrackIds[i] + 1;
+            for (let i = 0; i < labelTool.maxTrackIds.length; i++) {
+                classesBoundingBox.content[keys[i]].nextTrackId = labelTool.maxTrackIds[i] + 1;
             }
         } else {
             let keys = Object.keys(classesBoundingBox);
-            for (let i = 0; i < maxTrackIds.length; i++) {
-                classesBoundingBox[keys[i]].nextTrackId = maxTrackIds[i] + 1;
+            for (let i = 0; i < labelTool.maxTrackIds.length; i++) {
+                classesBoundingBox[keys[i]].nextTrackId = labelTool.maxTrackIds[i] + 1;
             }
         }
         // project 3D positions of current frame into 2D camera images
@@ -543,7 +546,6 @@ let labelTool = {
         }
     },
     loadFrameAnnotationsProvidentiaJSON: function (frameObject) {
-        let maxTrackIds = [0, 0, 0, 0, 0];// vehicle, truck, motorcycle, bicycle, pedestrian
         // convert 2D bounding box to integer values
         let frameAnnotations = frameObject.labels;
 
@@ -562,11 +564,9 @@ let labelTool = {
                 let classIdx;
                 params.trackId = annotation.id;
                 classIdx = classesBoundingBox[annotation.category].index;
-                if (params.id > maxTrackIds[classIdx]) {
-                    maxTrackIds[classIdx] = params.id;
+                if (params.trackId > labelTool.maxTrackIds[classIdx]) {
+                    labelTool.maxTrackIds[classIdx] = params.trackId;
                 }
-                // Nuscenes labels are stored in global frame in the database
-                // Nuscenes: labels (3d positions) are transformed from global frame to point cloud (global -> ego, ego -> point cloud) before exporting them
                 params.x = parseFloat(annotation.box3d.location.x);
                 params.y = parseFloat(annotation.box3d.location.y);
                 params.z = parseFloat(annotation.box3d.location.z);
@@ -594,15 +594,18 @@ let labelTool = {
                 // add new entry to contents array
                 annotationObjects.set(annotationObjects.__insertIndex, params);
                 annotationObjects.__insertIndex++;
-                classesBoundingBox.target().nextTrackId++;
+                if (isNaN(classesBoundingBox[params.class].nextTrackId)) {
+                    classesBoundingBox[params.class].nextTrackId = 1;
+                }
+                classesBoundingBox[params.class].nextTrackId++;
             }
         }
         // reset insert index
         annotationObjects.__insertIndex = 0;
 
         let keys = Object.keys(classesBoundingBox);
-        for (let i = 0; i < maxTrackIds.length; i++) {
-            classesBoundingBox[keys[i]].nextTrackId = maxTrackIds[i] + 1;
+        for (let i = 0; i < labelTool.maxTrackIds.length; i++) {
+            classesBoundingBox[keys[i]].nextTrackId = labelTool.maxTrackIds[i] + 1;
         }
     },
 
@@ -1035,6 +1038,7 @@ let labelTool = {
     }, start() {
         this.initTimer();
         this.setFileNames();
+        this.initTrackIDs();
         this.initializeClassPicker();
         this.initFrameSelector();
         if (labelTool.pointCloudOnlyAnnotation === false) {
@@ -1055,7 +1059,12 @@ let labelTool = {
         labelTool.currentDataset = labelTool.datasetArray[0];
         parameters.currentDataset = labelTool.datasetArray[0];
         labelTool.currentDatasetIdx = 0;
-        labelTool.sequence= labelTool.dataStructure.datasets[0].sequences[0];
+        labelTool.sequence = labelTool.dataStructure.datasets[0].sequences[0];
+    },
+    initTrackIDs() {
+        for (let i = 0; i < labelTool.maxTrackIds.length; i++) {
+            labelTool.maxTrackIds[i] = 0;
+        }
     },
 
     setFileNames() {
