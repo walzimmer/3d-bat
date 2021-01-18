@@ -6,7 +6,6 @@ let grid;
 
 let operationStack = [];
 
-let orthographicCamera;
 let perspectiveCamera;
 let currentCamera;
 
@@ -15,15 +14,9 @@ let cameraSideView;
 let cameraFrontView;
 
 let currentOrbitControls;
-let controlsTarget = new THREE.Vector3(0, 0, 0);
-let orthographicOrbitControls;
-let perspectiveOrbitControls;
 let pointerLockControls;
 let pointerLockObject;
 let transformControls;
-let mapControlsBev;
-let mapControlsFrontView;
-let mapControlsSideView;
 
 let scene;
 let projector;
@@ -53,14 +46,11 @@ let translationDirection = new THREE.Vector3();
 let rotationDirection = new THREE.Vector3();
 let prevTime = performance.now();
 
-// let stats;
 let cube;
 let interpolationObjIndexCurrentFile = -1;
 let interpolationObjIndexNextFile = -1;
 let interpolateBtn;
 let pointSizeSlider;
-
-// let keyboard = new KeyboardState();
 
 let guiAnnotationClasses = new dat.GUI({autoPlace: true, width: 90, resizable: false});
 let guiBoundingBoxAnnotationMap;
@@ -77,7 +67,6 @@ let folderBoundingBox3DArray = [];
 let folderPositionArray = [];
 let folderRotationArray = [];
 let folderSizeArray = [];
-let bboxFlag = true;
 let clickFlag = false;
 let clickedObjectIndex = -1;
 let clickedObjectIndexPrevious = -1;
@@ -90,7 +79,6 @@ let groundPointMouseDown;
 let groundPlaneArray = [];
 let clickedPlaneArray = [];
 let birdsEyeViewFlag = true;
-let cls = 0;
 let rotWorldMatrix;
 let rotObjectMatrix;
 let circleArray = [];
@@ -101,8 +89,6 @@ let currentDistances = [];
 let spriteBehindObject;
 let pointCloudScanList = [];
 let pointCloudScanNoGroundList = [];
-let pointCloudScan;
-let pointCloudScanNoGround;
 let useTransformControls;
 let dragControls = false;
 let keyboardNavigation = false;
@@ -916,13 +902,19 @@ function deleteObject(bboxClass, trackId, labelIndex) {
 //register new bounding box
 function addBoundingBoxGui(bbox, bboxEndParams) {
     let insertIndex = folderBoundingBox3DArray.length;
-    let bb = guiOptions.addFolder(bbox.class + ' ' + bbox.trackId);
+    let bb;
+    if (guiOptions.__folders[bbox.class + ' ' + bbox.trackId] === undefined){
+        bb = guiOptions.addFolder(bbox.class + ' ' + bbox.trackId);
+    }else{
+        bb = guiOptions.__folders[bbox.class + ' ' + bbox.trackId];
+    }
+
     folderBoundingBox3DArray.push(bb);
 
-    let minXPos = -100;
-    let maxXPos = 100;
-    let minYPos = -100;
-    let maxYPos = 100;
+    let minXPos = -150;
+    let maxXPos = 150;
+    let minYPos = -150;
+    let maxYPos = 150;
 
     let minZPos;
     let maxZPos;
@@ -1068,11 +1060,13 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
     cubeHeight.onChange(function (value) {
         for (let i = 0; i < labelTool.numFrames; i++) {
             let selectionIndex = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, i);
-            let newZPos = labelTool.cubeArray[i][selectionIndex].position.z + (value - labelTool.cubeArray[i][selectionIndex].scale.z) / 2;
-            labelTool.cubeArray[i][selectionIndex].position.z = newZPos;
-            bbox.z = newZPos;
-            labelTool.cubeArray[i][selectionIndex].scale.z = value;
-            annotationObjects.contents[i][selectionIndex]["height"] = value;
+            if (selectionIndex !== -1) {
+                let newZPos = labelTool.cubeArray[i][selectionIndex].position.z + (value - labelTool.cubeArray[i][selectionIndex].scale.z) / 2;
+                labelTool.cubeArray[i][selectionIndex].position.z = newZPos;
+                bbox.z = newZPos;
+                labelTool.cubeArray[i][selectionIndex].scale.z = value;
+                annotationObjects.contents[i][selectionIndex]["height"] = value;
+            }
         }
         if (labelTool.pointCloudOnlyAnnotation === false) {
             let selectionIndexCurrent = getObjectIndexByTrackIdAndClass(bbox.trackId, bbox.class, labelTool.currentFileIndex);
@@ -2587,6 +2581,9 @@ function mouseUpLogic(ev) {
             clickFlag = false;
         } else if (groundPlaneArray.length === 1 && birdsEyeViewFlag === true && useTransformControls === false) {
             let groundUpObject = ray.intersectObjects(groundPlaneArray);
+            if (groundUpObject === undefined || groundUpObject[0] === undefined) {
+                return;
+            }
             let groundPointMouseUp = groundUpObject[0].point;
 
             let trackId = -1;
@@ -2750,7 +2747,15 @@ function mouseDownLogic(ev) {
         ray.setFromCamera(mouse, currentCamera);
     }
     let clickedObjects = ray.intersectObjects(labelTool.cubeArray[labelTool.currentFileIndex]);
-
+    let geometry = new THREE.PlaneGeometry(2 * gridSize, 2 * gridSize);
+    let material = new THREE.MeshBasicMaterial({
+        color: 0x000000,
+        wireframe: false,
+        transparent: true,
+        opacity: 0.0,
+        side: THREE.DoubleSide
+    });
+    let groundPlane = new THREE.Mesh(geometry, material);
     if (clickedObjects.length > 0) {
 
         if (ev.button === 0) {
@@ -2760,37 +2765,28 @@ function mouseDownLogic(ev) {
             clickedCube = labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex];
 
             if (birdsEyeViewFlag === true) {
-                let material = new THREE.MeshBasicMaterial({
-                    color: 0x000000,
-                    wireframe: false,
-                    transparent: true,
-                    opacity: 0.0,
-                    side: THREE.DoubleSide
-                });
-                let geometry = new THREE.PlaneGeometry(200, 200);
-                let clickedPlane = new THREE.Mesh(geometry, material);
-                clickedPlane.position.x = clickedPoint.x;
-                clickedPlane.position.y = clickedPoint.y;
-                clickedPlane.position.z = clickedPoint.z;
+                groundPlane.position.x = clickedPoint.x;
+                groundPlane.position.y = clickedPoint.y;
+                groundPlane.position.z = clickedPoint.z;
                 let normal = clickedObjects[0].face;
                 if ([normal.a, normal.b, normal.c].toString() == [6, 3, 2].toString() || [normal.a, normal.b, normal.c].toString() == [7, 6, 2].toString()) {
-                    clickedPlane.rotation.x = Math.PI / 2;
-                    clickedPlane.rotation.y = labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z;
+                    groundPlane.rotation.x = Math.PI / 2;
+                    groundPlane.rotation.y = labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z;
                 } else if ([normal.a, normal.b, normal.c].toString() == [6, 7, 5].toString() || [normal.a, normal.b, normal.c].toString() == [4, 6, 5].toString()) {
-                    clickedPlane.rotation.x = -Math.PI / 2;
-                    clickedPlane.rotation.y = -Math.PI / 2 - labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z;
+                    groundPlane.rotation.x = -Math.PI / 2;
+                    groundPlane.rotation.y = -Math.PI / 2 - labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z;
                 } else if ([normal.a, normal.b, normal.c].toString() == [0, 2, 1].toString() || [normal.a, normal.b, normal.c].toString() == [2, 3, 1].toString()) {
-                    clickedPlane.rotation.x = Math.PI / 2;
-                    clickedPlane.rotation.y = Math.PI / 2 + labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z;
+                    groundPlane.rotation.x = Math.PI / 2;
+                    groundPlane.rotation.y = Math.PI / 2 + labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z;
                 } else if ([normal.a, normal.b, normal.c].toString() == [5, 0, 1].toString() || [normal.a, normal.b, normal.c].toString() == [4, 5, 1].toString()) {
-                    clickedPlane.rotation.x = -Math.PI / 2;
-                    clickedPlane.rotation.y = -labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z;
+                    groundPlane.rotation.x = -Math.PI / 2;
+                    groundPlane.rotation.y = -labelTool.cubeArray[labelTool.currentFileIndex][clickedObjectIndex].rotation.z;
                 } else if ([normal.a, normal.b, normal.c].toString() == [3, 6, 4].toString() || [normal.a, normal.b, normal.c].toString() == [1, 3, 4].toString()) {
-                    clickedPlane.rotation.y = -Math.PI
+                    groundPlane.rotation.y = -Math.PI
                 }
-                clickedPlane.name = "planeObject";
-                scene.add(clickedPlane);
-                clickedPlaneArray.push(clickedPlane);
+                groundPlane.name = "planeObject";
+                scene.add(groundPlane);
+                clickedPlaneArray.push(groundPlane);
             }
 
         } else if (ev.button === 2) {
@@ -2810,21 +2806,14 @@ function mouseDownLogic(ev) {
             console.log("unselected");
             clickedObjectIndex = -1;
             groundPlaneArray = [];
-            let material = new THREE.MeshBasicMaterial({
-                color: 0x000000,
-                wireframe: false,
-                transparent: true,//default: true
-                opacity: 0.0,//oefault 0.0
-                side: THREE.DoubleSide
-            });
-            let geometry = new THREE.PlaneGeometry(200, 200);
-            let groundPlane = new THREE.Mesh(geometry, material);
             groundPlane.position.x = 0;
             groundPlane.position.y = 0;
             groundPlane.position.z = 0;
             groundPlaneArray.push(groundPlane);
             let groundObject = ray.intersectObjects(groundPlaneArray);
-            groundPointMouseDown = groundObject[0].point;
+            if (groundObject !== undefined && groundObject[0] !== undefined) {
+                groundPointMouseDown = groundObject[0].point;
+            }
         }
     }
 }
@@ -2999,14 +2988,18 @@ function disableChooseSequenceDropDown(chooseSequenceDropDown) {
 
 function createGrid() {
     labelTool.removeObject("grid");
-    grid = new THREE.GridHelper(gridSize,gridSize);
+    grid = new THREE.GridHelper(gridSize, gridSize);
     let posZLidar;
+    let translationX;
     if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
         posZLidar = labelTool.positionLidarNuscenes[2];
-    }else{
+        translationX = 0;
+    } else {
         posZLidar = labelTool.positionLidar[2];
+        translationX = gridSize/2;
     }
     grid.translateZ(-posZLidar);
+    grid.translateX(translationX);
     grid.rotateX(Math.PI / 2);
     grid.name = "grid";
     if (showGridFlag === true) {
