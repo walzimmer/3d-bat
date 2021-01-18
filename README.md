@@ -1,5 +1,5 @@
 <p align="center" width="100%">
-    <img width="33%" src="https://github.com/walzimmer/bat-3d/blob/master/assets/img/3d-bat.png"> 
+    <img width="33%" src="https://github.com/walzimmer/bat-3d/blob/master/assets/img/3d-bat-icon.png"> 
 </p>
 
 # 3D Bounding Box Annotation Tool (3D BAT)
