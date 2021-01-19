@@ -337,6 +337,7 @@ let labelTool = {
                 pointCloudFullURL = 'input/' + labelTool.currentDataset + '/' + labelTool.sequence + '/' + 'pointclouds/' + labelTool.fileNames[i] + '.pcd';
                 pcdLoader.load(pointCloudFullURL, function (mesh) {
                     mesh.name = 'pointcloud-scan-' + i;
+                    mesh.material.size = pointSizeCurrent;
                     pointCloudScanList.push(mesh);
                     if (i === labelTool.currentFileIndex) {
                         scene.add(mesh);
@@ -349,7 +350,9 @@ let labelTool = {
             }
             labelTool.pointCloudLoaded = true;
         } else {
-            scene.add(pointCloudScanList[labelTool.currentFileIndex]);
+            pointCloudScan = pointCloudScanList[labelTool.currentFileIndex];
+            pointCloudScan.material.size = pointSizeCurrent;
+            scene.add(pointCloudScan);
         }
 
 
