@@ -29,7 +29,7 @@ let labelTool = {
     imageSizes: {},
     originalAnnotations: [],   // For checking modified or not
     skipFrameCount: 1,
-    targetClass: "vehicle",
+    targetClass: "",
     // pageBox: document.getElementById('page_num'),
     savedFrames: [],
     cubeArray: [],
@@ -158,7 +158,8 @@ let labelTool = {
     pointSize: 1,
     pointMaterial: new THREE.PointsMaterial({size: 5, sizeAttenuation: false, vertexColors: THREE.VertexColors}),
     views: {perspective: "perspective", orthographic: "orthographic"},
-    maxTrackIds: [0, 0, 0, 0, 0],// vehicle, truck, motorcycle, bicycle, pedestrian
+    classes: [],
+    classColors: [],
     /********** Externally defined functions **********
      * Define these functions in the labeling tools.
      **************************************************/
@@ -337,7 +338,7 @@ let labelTool = {
                 pointCloudFullURL = 'input/' + labelTool.currentDataset + '/' + labelTool.sequence + '/' + 'pointclouds/' + labelTool.fileNames[i] + '.pcd';
                 pcdLoader.load(pointCloudFullURL, function (mesh) {
                     mesh.name = 'pointcloud-scan-' + i;
-                    pointCloudScanList.push(mesh);
+                    pointCloudScanMap[i] = mesh;
                     if (i === labelTool.currentFileIndex) {
                         scene.add(mesh);
                     }
@@ -349,7 +350,7 @@ let labelTool = {
             }
             labelTool.pointCloudLoaded = true;
         } else {
-            scene.add(pointCloudScanList[labelTool.currentFileIndex]);
+            scene.add(pointCloudScanMap[labelTool.currentFileIndex]);
         }
 
 
@@ -383,14 +384,6 @@ let labelTool = {
             });
         }
     },
-
-    setTrackIds: function () {
-        for (let annotationObj in annotationObjects.contents[labelTool.currentFileIndex]) {
-            let annotation = annotationObjects.contents[labelTool.currentFileIndex][annotationObj];
-            let label = annotation["class"];
-            classesBoundingBox[label].nextTrackId++;
-        }
-    },
     loadAnnotationsNuscenes: function (annotations, fileIndex) {
         // Add new bounding boxes.
         for (let i in annotations) {
@@ -409,14 +402,12 @@ let labelTool = {
                 params.original.rotationPitch = parseFloat(annotation.rotationPitch);
                 params.original.rotationRoll = parseFloat(annotation.rotationRoll);
                 if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
-                    classesBoundingBox.addNuSceneLabel(annotation.class);
-                    classesBoundingBox.__target = Object.keys(classesBoundingBox.content)[0];
-                    params.trackId = classesBoundingBox.content[annotation.class].nextTrackId;
-                    classesBoundingBox.content[annotation.class].nextTrackId++;
+                    classesBoundingBox.currentClass = labelTool.classes[0];
+                    params.trackId = classesBoundingBox[annotation.class].nextTrackId;
                 } else {
                     params.trackId = annotation.trackId;
-                    classesBoundingBox[annotation.class].nextTrackId++;
                 }
+                classesBoundingBox[annotation.class].nextTrackId++;
 
                 // Nuscenes labels are stored in global frame in the database
                 // Nuscenes: labels (3d positions) are transformed from global frame to point cloud (global -> ego, ego -> point cloud) before exporting them
@@ -449,7 +440,7 @@ let labelTool = {
                 // add new entry to contents array
                 annotationObjects.set(annotationObjects.__insertIndex, params);
                 annotationObjects.__insertIndex++;
-                classesBoundingBox.target().nextTrackId++;
+                classesBoundingBox.getCurrentAnnotationClassObject().nextTrackId++;
             }
         }
     },
@@ -469,11 +460,9 @@ let labelTool = {
                 params.original.rotationPitch = parseFloat(annotation.box3d.orientation.rotationPitch);
                 params.rotationRoll = parseFloat(annotation.box3d.orientation.rotationRoll);
                 params.original.rotationRoll = parseFloat(annotation.box3d.orientation.rotationRoll);
-                let classIdx;
                 params.trackId = annotation.id;
-                classIdx = classesBoundingBox[annotation.category].index;
-                if (params.trackId > labelTool.maxTrackIds[classIdx]) {
-                    labelTool.maxTrackIds[classIdx] = params.id;
+                if (params.trackId > classesBoundingBox[annotation.category].maxTrackId) {
+                    classesBoundingBox[annotation.category].maxTrackId = params.id;
                 }
                 // Nuscenes labels are stored in global frame in the database
                 // Nuscenes: labels (3d positions) are transformed from global frame to point cloud (global -> ego, ego -> point cloud) before exporting them
@@ -504,37 +493,22 @@ let labelTool = {
                 // add new entry to contents array
                 annotationObjects.set(annotationObjects.__insertIndex, params);
                 annotationObjects.__insertIndex++;
-                if (labelTool.showOriginalNuScenesLabels === true) {
-                    classesBoundingBox.content[classesBoundingBox.targetName()].nextTrackId++;
-                } else {
-                    if (isNaN(classesBoundingBox.target().nextTrackId)) {
-                        classesBoundingBox.target().nextTrackId = 1;
-                    }
-                    classesBoundingBox.target().nextTrackId++;
+                if (isNaN(classesBoundingBox.getCurrentAnnotationClassObject().nextTrackId)) {
+                    classesBoundingBox.getCurrentAnnotationClassObject().nextTrackId = 0;
                 }
-
-
+                classesBoundingBox[classesBoundingBox.getCurrentClass()].nextTrackId++;
             }
         }//end for loop frame annotations
         // reset track ids for next frame if nuscenes dataset and showLabels=true
         if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
-            for (let i = 0; i < classesBoundingBox.classNameArray.length; i++) {
-                classesBoundingBox.content[classesBoundingBox.classNameArray[i]].nextTrackId = 0;
+            for (let i = 0; i < labelTool.classes.length; i++) {
+                classesBoundingBox[labelTool.classes[i]].nextTrackId = 0;
             }
         }
         // reset insert index
         annotationObjects.__insertIndex = 0;
-
-        if (labelTool.showOriginalNuScenesLabels === true) {
-            let keys = Object.keys(classesBoundingBox.content);
-            for (let i = 0; i < labelTool.maxTrackIds.length; i++) {
-                classesBoundingBox.content[keys[i]].nextTrackId = labelTool.maxTrackIds[i] + 1;
-            }
-        } else {
-            let keys = Object.keys(classesBoundingBox);
-            for (let i = 0; i < labelTool.maxTrackIds.length; i++) {
-                classesBoundingBox[keys[i]].nextTrackId = labelTool.maxTrackIds[i] + 1;
-            }
+        for (let i = 0; i < labelTool.classes.length; i++) {
+            classesBoundingBox[labelTool.classes[i]].nextTrackId = classesBoundingBox[labelTool.classes[i]].maxTrackId + 1;
         }
         // project 3D positions of current frame into 2D camera images
         if (labelTool.pointCloudOnlyAnnotation === false) {
@@ -561,11 +535,10 @@ let labelTool = {
                 params.original.rotationPitch = parseFloat(annotation.box3d.orientation.rotationYaw);
                 params.rotationRoll = parseFloat(annotation.box3d.orientation.rotationPitch);
                 params.original.rotationRoll = parseFloat(annotation.box3d.orientation.rotationPitch);
-                let classIdx;
                 params.trackId = annotation.id;
-                classIdx = classesBoundingBox[annotation.category].index;
-                if (params.trackId > labelTool.maxTrackIds[classIdx]) {
-                    labelTool.maxTrackIds[classIdx] = params.trackId;
+                // }
+                if (params.trackId > classesBoundingBox[annotation.category].maxTrackId) {
+                    classesBoundingBox[annotation.category].maxTrackId = params.id;
                 }
                 params.x = parseFloat(annotation.box3d.location.x);
                 params.y = parseFloat(annotation.box3d.location.y);
@@ -595,17 +568,15 @@ let labelTool = {
                 annotationObjects.set(annotationObjects.__insertIndex, params);
                 annotationObjects.__insertIndex++;
                 if (isNaN(classesBoundingBox[params.class].nextTrackId)) {
-                    classesBoundingBox[params.class].nextTrackId = 1;
+                    classesBoundingBox[params.class].nextTrackId = 0;
                 }
                 classesBoundingBox[params.class].nextTrackId++;
             }
         }
         // reset insert index
         annotationObjects.__insertIndex = 0;
-
-        let keys = Object.keys(classesBoundingBox);
-        for (let i = 0; i < labelTool.maxTrackIds.length; i++) {
-            classesBoundingBox[keys[i]].nextTrackId = labelTool.maxTrackIds[i] + 1;
+        for (let i = 0; i < labelTool.classes.length; i++) {
+            classesBoundingBox[labelTool.classes[i]].nextTrackId = classesBoundingBox[labelTool.classes[i]].maxTrackId + 1;
         }
     },
 
@@ -655,7 +626,7 @@ let labelTool = {
         return annotationFiles;
     },
 
-    initializePointCloudWindow: function () {
+    initPointCloudWindow: function () {
         let pointCloudContainer;
         if (labelTool.pointCloudOnlyAnnotation === true) {
             pointCloudContainer = $("#label-tool-wrapper");
@@ -664,7 +635,18 @@ let labelTool = {
         }
         pointCloudContainer.append('<div id="canvas3d" style="z-index: 0;"></div>');
         this.localOnInitialize["PCD"]();
-    }, initializeClassPicker: function () {
+    }, initClasses: function () {
+        for (let i = 0; i < labelTool.classes.length; i++) {
+            classesBoundingBox[labelTool.classes[i]] = {
+                color: labelTool.classColors[i],
+                index: i,
+                nextTrackId: 0,
+                maxTrackId: -1
+            };
+        }
+
+    }, initClassPicker: function () {
+        classesBoundingBox.currentClass = labelTool.classes[0];
         $(function () {
             $('#class-picker>ul>li').hover(function () {
                 $(this).css('background-color', "#535353");
@@ -678,7 +660,6 @@ let labelTool = {
                 }
             });
         });
-
         let toasts = $(".toasts")[0];
         this.logger = new Toast(toasts);
     }, setPanelSize: function (newFileIndex) {
@@ -734,7 +715,6 @@ let labelTool = {
                 let topElem = $("#layout_layout_panel_top")[0];
                 let newImagePanelHeight = topElem.offsetHeight;
                 let newWidth;
-                let newWidthBackFront;
                 if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
                     newWidth = newImagePanelHeight * labelTool.imageAspectRatioNuScenes;
                 }
@@ -809,7 +789,7 @@ let labelTool = {
         w2ui['layout'].resizer = 10;
         w2ui['layout'].resize();
         w2ui['layout'].refresh();
-    }, initializeCameraWindows: function () {
+    }, initCameraWindows: function () {
         this.setImageSize();
         this.initPanes();
         let imageContainer = $("#layout_layout_panel_top .w2ui-panel-content");
@@ -935,7 +915,7 @@ let labelTool = {
         this.currentFileIndex = 0;
         this.fileNames = [];
         this.originalAnnotations = [];
-        this.targetClass = "vehicle";
+        this.targetClass = this.classes[0];
         this.savedFrames = [];
         this.cubeArray = [];
         this.currentCameraChannelIndex = 0;
@@ -949,29 +929,32 @@ let labelTool = {
         this.selectedMesh = undefined;
         this.pointCloudLoaded = false;
 
-        // classesBoundingBox
-        classesBoundingBox.colorIdx = 0;
-        classesBoundingBox.__target = Object.keys(classesBoundingBox)[0];
-
         // pcd label tool
         folderBoundingBox3DArray = [];
         folderPositionArray = [];
         folderRotationArray = [];
         folderSizeArray = [];
-        pointCloudScanList = [];
+        pointCloudScanMap = [];
 
         let classPickerElem = $('#class-picker ul li');
         classPickerElem.css('background-color', '#353535');
         $(classPickerElem[0]).css('background-color', '#525252');
         classPickerElem.css('border-bottom', '0px');
 
+        // classesBoundingBox
+        classesBoundingBox.colorIdx = 0;
+        classesBoundingBox.currentClass = labelTool.classes[0];
         classPickerElem.each(function (i, item) {
-            let propNamesArray = Object.getOwnPropertyNames(classesBoundingBox);
-            let color = classesBoundingBox[propNamesArray[i]].color;
+            let color = labelTool.classColors[i];
             let attribute = "20px solid" + ' ' + color;
             $(item).css("border-left", attribute);
             $(item).css('border-bottom', '0px');
         });
+        for (let i = 0; i < labelTool.classes.length; i++) {
+            delete classesBoundingBox[labelTool.classes[i]];
+        }
+        // remove guiClassesBoundingBox
+        $("#class-picker").remove();
 
         if (labelTool.pointCloudOnlyAnnotation === false) {
             // image label tool
@@ -994,7 +977,6 @@ let labelTool = {
             w2ui['layout'].resize();
         }
 
-        classesBoundingBox.content = [];
         $(".frame-selector__frames").empty();
     },
 
@@ -1038,14 +1020,14 @@ let labelTool = {
     }, start() {
         this.initTimer();
         this.setFileNames();
-        this.initTrackIDs();
-        this.initializeClassPicker();
+        this.initClasses();
+        this.initClassPicker();
         this.initFrameSelector();
         if (labelTool.pointCloudOnlyAnnotation === false) {
-            this.initializeCameraWindows();
+            this.initCameraWindows();
             this.loadImageData();
         }
-        this.initializePointCloudWindow();
+        this.initPointCloudWindow();
         this.loadPointCloudData();
         this.loadAnnotations();
     },
@@ -1060,13 +1042,10 @@ let labelTool = {
         parameters.currentDataset = labelTool.datasetArray[0];
         labelTool.currentDatasetIdx = 0;
         labelTool.sequence = labelTool.dataStructure.datasets[0].sequences[0];
+        labelTool.classes = labelTool.dataStructure.datasets[0].classes;
+        labelTool.classColors = labelTool.dataStructure.datasets[0].class_colors;
+        labelTool.targetClass = labelTool.classes[0];
     },
-    initTrackIDs() {
-        for (let i = 0; i < labelTool.maxTrackIds.length; i++) {
-            labelTool.maxTrackIds[i] = 0;
-        }
-    },
-
     setFileNames() {
         let fileNameArray = [];
         if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
@@ -1284,8 +1263,6 @@ let labelTool = {
                 // if (objectIndexByTrackIdAndClass !== -1) {
                 // next frame contains a new object -> add tooltip for new object
                 let classTooltipElement = $("<div class='class-tooltip' id='tooltip-" + className.charAt(0) + trackId + "'>" + trackId + "</div>");
-                // set background color
-                let color = classesBoundingBox[className].color;
                 let imagePaneHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
                 const vector = new THREE.Vector3(mesh.position.x, mesh.position.y, mesh.position.z + mesh.scale.z / 2);
                 const canvas = renderer.domElement;
@@ -1775,27 +1752,12 @@ function calculateAndDrawLineSegments(channelObj, className, horizontal, selecte
     let lineArray = [];
     let channelIdx = getChannelIndexByName(channel);
     // temporary color bottom 4 lines in yellow to check if projection matrix is correct
-    // let color = '#ffff00';
     // uncomment line to use yellow to color bottom 4 lines
     let color;
     if (selected === true) {
         color = "#ff0000";
     } else {
-        if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
-            let classIdx = classesBoundingBox.classNameArray.indexOf(className);
-            color = classesBoundingBox.colorArray[classIdx];
-        } else {
-            color = classesBoundingBox[className].color;
-        }
-    }
-
-    // color objects that are selected in red
-
-
-    let imageHeight = parseInt($("#layout_layout_resizer_top").css("top"), 10);
-    let imageWidth;
-    if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
-        imageWidth = imageHeight * labelTool.imageAspectRatioNuScenes;
+        color = classesBoundingBox[className].color;
     }
 
     // bottom four lines
@@ -1804,9 +1766,7 @@ function calculateAndDrawLineSegments(channelObj, className, horizontal, selecte
     lineArray.push(drawLine(channelIdx, channelObj.projectedPoints[2], channelObj.projectedPoints[3], color));
     lineArray.push(drawLine(channelIdx, channelObj.projectedPoints[3], channelObj.projectedPoints[0], color));
 
-
     // draw line for orientation
-
     let pointZero;
     let pointOne;
     let pointTwo;

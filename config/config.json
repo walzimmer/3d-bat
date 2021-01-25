@@ -2,11 +2,75 @@
   "datasets": [
     {
       "name": "NuScenes",
-      "sequences": ["ONE"]
+      "sequences": [
+        "ONE"
+      ],
+      "classes": [
+        "human.pedestrian.adult",
+        "human.pedestrian.child",
+        "human.pedestrian.wheelchair",
+        "human.pedestrian.stroller",
+        "human.pedestrian.personal_mobility",
+        "human.pedestrian.police_officer",
+        "human.pedestrian.construction_worker",
+        "animal",
+        "vehicle.car",
+        "vehicle.motorcycle",
+        "vehicle.bicycle",
+        "vehicle.bus.bendy",
+        "vehicle.bus.rigid",
+        "vehicle.truck",
+        "vehicle.construction",
+        "vehicle.emergency.ambulance",
+        "vehicle.emergency.police",
+        "vehicle.trailer",
+        "movable_object.barrier",
+        "movable_object.trafficcone",
+        "movable_object.pushable_pullable",
+        "movable_object.debris",
+        "static_object.bicycle_rack"
+      ],
+      "class_colors": [
+        "#3ABB9D",
+        "#4DA664",
+        "#2F6CAD",
+        "#4590B6",
+        "#5CADCF",
+        "#3585C5",
+        "#2CA786",
+        "#6ABB72",
+        "#E66B5B",
+        "#A28F85",
+        "#F79E3D",
+        "#75706B",
+        "#EE7841",
+        "#D1D5D8",
+        "#CC4846",
+        "#DC5047",
+        "#28324E",
+        "#EFEFEF",
+        "#485675",
+        "#F2D46F",
+        "#533D7F",
+        "#9069B5",
+        "#F7C23E"
+      ]
     },
     {
       "name": "providentia",
-      "sequences": ["20201010_sequence1"]
+      "sequences": [
+        "20201010_sequence1"
+      ],
+      "classes": [
+        "car",
+        "trailer",
+        "motorcycle",
+        "bicycle",
+        "bus",
+        "van",
+        "pedestrian"
+      ],
+      "class_colors": ["#51C38C", "#EBCF36","#FF604B", "#F37CB2","#7d74f5", "#BC7C52","#74BAF5"]
     }
   ]
 }

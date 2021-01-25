@@ -52,8 +52,9 @@ let interpolationObjIndexNextFile = -1;
 let interpolateBtn;
 let pointSizeSlider;
 
-let guiAnnotationClasses = new dat.GUI({autoPlace: true, width: 90, resizable: false});
-let guiBoundingBoxAnnotationMap;
+let guiAnnotationClasses;
+let guiBoundingBoxAnnotationsInitialized = false;
+let guiBoundingBoxMenuInitialized = false;
 let guiOptions = new dat.GUI({autoPlace: true, width: 350, resizable: false});
 let guiOptionsOpened = true;
 let numGUIOptions = 17;
@@ -87,7 +88,7 @@ let activeColorMap = 'colorMapJet.js';
 let currentPoints3D = [];
 let currentDistances = [];
 let spriteBehindObject;
-let pointCloudScanList = [];
+let pointCloudScanMap = [];
 let pointCloudScanNoGroundList = [];
 let useTransformControls;
 let dragControls = false;
@@ -96,34 +97,6 @@ let canvas3D;
 let pointSizeMax = 1;
 let defaultBoxHeight = 1.468628;
 let gridSize = 200;
-
-let parametersBoundingBox = {
-    "Vehicle": function () {
-        classesBoundingBox.select("vehicle");
-        $('#class-picker ul li').css('background-color', '#323232');
-        $($('#class-picker ul li')[0]).css('background-color', '#525252');
-    },
-    "Truck": function () {
-        classesBoundingBox.select("truck");
-        $('#class-picker ul li').css('background-color', '#323232');
-        $($('#class-picker ul li')[1]).css('background-color', '#525252');
-    },
-    "Motorcycle": function () {
-        classesBoundingBox.select("motorcycle");
-        $('#class-picker ul li').css('background-color', '#323232');
-        $($('#class-picker ul li')[2]).css('background-color', '#525252');
-    },
-    "Bicycle": function () {
-        classesBoundingBox.select("bicycle");
-        $('#class-picker ul li').css('background-color', '#323232');
-        $($('#class-picker ul li')[3]).css('background-color', '#525252');
-    },
-    "Pedestrian": function () {
-        classesBoundingBox.select("pedestrian");
-        $('#class-picker ul li').css('background-color', '#323232');
-        $($('#class-picker ul li')[4]).css('background-color', '#525252');
-    },
-};
 
 let parameters = {
     point_size: 0.05,
@@ -679,13 +652,9 @@ function get3DLabel(parameters) {
     let cubeGeometry = new THREE.BoxBufferGeometry(1.0, 1.0, 1.0);//width, length, height
     let color;
     if (parameters.fromFile === true) {
-        if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
-            color = classesBoundingBox.content[parameters.class].color;
-        } else {
-            color = classesBoundingBox[parameters.class].color;
-        }
+        color = classesBoundingBox[parameters.class].color;
     } else {
-        color = classesBoundingBox.target().color;
+        color = classesBoundingBox.getCurrentAnnotationClassObject().color;
     }
 
     let cubeMaterial = new THREE.MeshBasicMaterial({
@@ -771,7 +740,7 @@ function updateXPos(newFileIndex, value) {
  * @param label
  */
 function setHighestAvailableTrackId(label) {
-    for (let newTrackId = 1; newTrackId <= annotationObjects.contents[labelTool.currentFileIndex].length; newTrackId++) {
+    for (let newTrackId = 0; newTrackId <= annotationObjects.contents[labelTool.currentFileIndex].length; newTrackId++) {
         let exist = false;
         for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
             if (label === annotationObjects.contents[labelTool.currentFileIndex][i]["class"] && newTrackId === annotationObjects.contents[labelTool.currentFileIndex][i]["trackId"]) {
@@ -781,18 +750,10 @@ function setHighestAvailableTrackId(label) {
         }
         if (exist === false) {
             // track id was not used yet
-            if (labelTool.showOriginalNuScenesLabels === true) {
-                classesBoundingBox.content[label].nextTrackId = newTrackId;
-            } else {
-                classesBoundingBox[label].nextTrackId = newTrackId;
-            }
+            classesBoundingBox[label].nextTrackId = newTrackId;
             break;
         }
-        if (labelTool.showOriginalNuScenesLabels === true) {
-            classesBoundingBox.content[label].nextTrackId = annotationObjects.contents[labelTool.currentFileIndex].length + 1;
-        } else {
-            classesBoundingBox[label].nextTrackId = annotationObjects.contents[labelTool.currentFileIndex].length + 1;
-        }
+        classesBoundingBox[label].nextTrackId = annotationObjects.contents[labelTool.currentFileIndex].length + 1;
     }
 }
 
@@ -864,18 +825,8 @@ function deleteObject(bboxClass, trackId, labelIndex) {
     // remove sprite from DOM tree
     $("#tooltip-" + bboxClass.charAt(0) + trackId).remove();
     labelTool.selectedMesh = undefined;
-    // reduce track id by 1 for this class
-    if (labelTool.showOriginalNuScenesLabels) {
-        classesBoundingBox.content[bboxClass].nextTrackId--;
-    } else {
-        if (labelIndex === annotationObjects.contents[labelTool.currentFileIndex].length) {
-            // decrement track id if the last object in the list was deleted
-            classesBoundingBox[bboxClass].nextTrackId--;
-        } else {
-            // otherwise not last object was deleted -> find out the highest possible track id
-            setHighestAvailableTrackId(bboxClass);
-        }
-    }
+
+    setHighestAvailableTrackId(bboxClass);
     // if last object in current frame was deleted than disable interpolation mode
     if (annotationObjects.contents[labelTool.currentFileIndex].length === 0) {
         interpolationMode = false;
@@ -903,9 +854,9 @@ function deleteObject(bboxClass, trackId, labelIndex) {
 function addBoundingBoxGui(bbox, bboxEndParams) {
     let insertIndex = folderBoundingBox3DArray.length;
     let bb;
-    if (guiOptions.__folders[bbox.class + ' ' + bbox.trackId] === undefined){
+    if (guiOptions.__folders[bbox.class + ' ' + bbox.trackId] === undefined) {
         bb = guiOptions.addFolder(bbox.class + ' ' + bbox.trackId);
-    }else{
+    } else {
         bb = guiOptions.__folders[bbox.class + ' ' + bbox.trackId];
     }
 
@@ -2017,6 +1968,14 @@ function changeDataset(datasetName) {
     labelTool.currentDataset = datasetName;
     labelTool.currentDatasetIdx = labelTool.datasetArray.indexOf(datasetName);
     labelTool.sequence = labelTool.dataStructure.datasets[labelTool.datasetArray.indexOf(datasetName)].sequences[0];
+    labelTool.classes = labelTool.dataStructure.datasets[labelTool.datasetArray.indexOf(datasetName)].classes;
+    labelTool.classColors = labelTool.dataStructure.datasets[labelTool.datasetArray.indexOf(datasetName)].class_colors;
+    labelTool.initClasses();
+    initGuiBoundingBoxAnnotations();
+    // move button to left
+    $("#left-btn").css("left", 0);
+    // move class picker to left
+    $("#class-picker").css("left", 10);
     labelTool.start();
 }
 
@@ -2182,33 +2141,6 @@ function onDocumentMouseMove(event) {
     // update the mouse variable
     mousePos.x = (event.clientX / window.innerWidth) * 2 - 1;
     mousePos.y = -(event.clientY / window.innerHeight) * 2 + 1;
-}
-
-function increaseTrackId(label, dataset) {
-    let classesBB;
-    if (dataset === labelTool.datasets.NuScenes) {
-        classesBB = classesBoundingBox.content;
-    }
-
-    // find out the lowest possible track id for a specific class
-
-    for (let newTrackId = 1; newTrackId <= annotationObjects.contents[labelTool.currentFileIndex].length; newTrackId++) {
-        let exist = false;
-        for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
-            if (label !== annotationObjects.contents[labelTool.currentFileIndex]["class"]) {
-                continue;
-            }
-            if (newTrackId === annotationObjects.contents[labelTool.currentFileIndex][i]["trackId"]) {
-                exist = true;
-                break;
-            }
-        }
-        if (exist === false) {
-            // track id was not used yet
-            return newTrackId;
-        }
-    }
-    return -1;
 }
 
 function disableStartPose() {
@@ -2525,6 +2457,7 @@ function mouseUpLogic(ev) {
             let classPickerElem = $('#class-picker ul li');
             classPickerElem.css('background-color', '#353535');
             $(classPickerElem[classesBoundingBox[obj["class"]].index]).css('background-color', '#525252');
+            classesBoundingBox.currentClass = obj["class"];
 
 
         } else {
@@ -2588,11 +2521,11 @@ function mouseUpLogic(ev) {
 
             let trackId = -1;
             let insertIndex;
-            setHighestAvailableTrackId(classesBoundingBox.targetName());
+            setHighestAvailableTrackId(classesBoundingBox.getCurrentClass());
             if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
                 if (annotationObjects.__selectionIndexCurrentFrame === -1) {
                     // no object selected in 3d scene (new object was created)-> use selected class from class menu
-                    trackId = classesBoundingBox.content[classesBoundingBox.targetName()].nextTrackId;
+                    trackId = classesBoundingBox.content[classesBoundingBox.getCurrentClass()].nextTrackId;
                     insertIndex = annotationObjects.contents[labelTool.currentFileIndex].length;
                 } else {
                     // object was selected in 3d scene
@@ -2602,7 +2535,7 @@ function mouseUpLogic(ev) {
                 }
             } else {
                 if (annotationObjects.__selectionIndexCurrentFrame === -1) {
-                    trackId = classesBoundingBox[classesBoundingBox.targetName()].nextTrackId;
+                    trackId = classesBoundingBox[classesBoundingBox.getCurrentClass()].nextTrackId;
                     insertIndex = annotationObjects.contents[labelTool.currentFileIndex].length;
                     clickedObjectIndexPrevious = annotationObjects.__selectionIndexCurrentFrame;
                 } else {
@@ -2620,7 +2553,7 @@ function mouseUpLogic(ev) {
 
                 // average car height in meters (ref: https://www.carfinderservice.com/car-advice/a-careful-look-at-different-sedan-dimensions)
                 let addBboxParameters = getDefaultObject();
-                addBboxParameters.class = classesBoundingBox.targetName();
+                addBboxParameters.class = classesBoundingBox.getCurrentClass();
                 addBboxParameters.x = xPos;
                 addBboxParameters.y = yPos;
                 if (labelTool.currentDataset === labelTool.datasets.providentia) {
@@ -2635,7 +2568,7 @@ function mouseUpLogic(ev) {
                 addBboxParameters.rotationPitch = 0;
                 addBboxParameters.rotationRoll = 0;
                 addBboxParameters.original = {
-                    class: classesBoundingBox.targetName(),
+                    class: classesBoundingBox.getCurrentClass(),
                     x: (groundPointMouseUp.x + groundPointMouseDown.x) / 2,
                     y: (groundPointMouseUp.y + groundPointMouseDown.y) / 2,
                     z: zPos + defaultBoxHeight / 2 - labelTool.positionLidarNuscenes[2],
@@ -2678,7 +2611,7 @@ function mouseUpLogic(ev) {
                         if (channelObj.channel !== undefined && channelObj.channel !== '') {
                             if (addBboxParameters.channels[i].projectedPoints !== undefined && addBboxParameters.channels[i].projectedPoints.length === 8) {
                                 let horizontal = addBboxParameters.width > addBboxParameters.length;
-                                addBboxParameters.channels[i]["lines"] = calculateAndDrawLineSegments(channelObj, classesBoundingBox.targetName(), horizontal, true);
+                                addBboxParameters.channels[i]["lines"] = calculateAndDrawLineSegments(channelObj, classesBoundingBox.getCurrentClass(), horizontal, true);
                             }
                         }
                     }
@@ -2693,12 +2626,12 @@ function mouseUpLogic(ev) {
                 }
                 $("#tooltip-" + annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["class"].charAt(0) + annotationObjects.contents[labelTool.currentFileIndex][insertIndex]["trackId"]).hide();
                 // move left button to right
-                $("#left-btn").css("left", window.innerWidth / 3 - 70);
+                $("#left-btn").css("left", window.innerWidth / 3);
                 showHelperViews(xPos, yPos, zPos);
 
 
                 annotationObjects.__insertIndex++;
-                classesBoundingBox.target().nextTrackId++;
+                classesBoundingBox.getCurrentAnnotationClassObject().nextTrackId++;
                 for (let channelIdx in labelTool.camChannels) {
                     if (labelTool.camChannels.hasOwnProperty(channelIdx)) {
                         let camChannel = labelTool.camChannels[channelIdx].channel;
@@ -2767,7 +2700,7 @@ function mouseDownLogic(ev) {
             if (birdsEyeViewFlag === true) {
                 groundPlane.position.x = clickedPoint.x;
                 groundPlane.position.y = clickedPoint.y;
-                groundPlane.position.z = clickedPoint.z;
+                groundPlane.position.z = -10;//clickedPoint.z;
                 let normal = clickedObjects[0].face;
                 if ([normal.a, normal.b, normal.c].toString() == [6, 3, 2].toString() || [normal.a, normal.b, normal.c].toString() == [7, 6, 2].toString()) {
                     groundPlane.rotation.x = Math.PI / 2;
@@ -2796,19 +2729,18 @@ function mouseDownLogic(ev) {
             let trackId = annotationObjects.contents[labelTool.currentFileIndex][clickedObjectIndex]["trackId"];
             deleteObject(bboxClass, trackId, clickedObjectIndex);
             // move button to left
-            $("#left-btn").css("left", -70);
+            $("#left-btn").css("left", 0);
         }//end right click
     } else {
         for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
             $("#tooltip-" + annotationObjects.contents[labelTool.currentFileIndex][i]["class"].charAt(0) + annotationObjects.contents[labelTool.currentFileIndex][i]["trackId"]).show();
         }
         if (birdsEyeViewFlag === true) {
-            console.log("unselected");
             clickedObjectIndex = -1;
             groundPlaneArray = [];
             groundPlane.position.x = 0;
             groundPlane.position.y = 0;
-            groundPlane.position.z = 0;
+            groundPlane.position.z = -10;
             groundPlaneArray.push(groundPlane);
             let groundObject = ray.intersectObjects(groundPlaneArray);
             if (groundObject !== undefined && groundObject[0] !== undefined) {
@@ -2996,7 +2928,7 @@ function createGrid() {
         translationX = 0;
     } else {
         posZLidar = labelTool.positionLidar[2];
-        translationX = gridSize/2;
+        translationX = gridSize / 2;
     }
     grid.translateZ(-posZLidar);
     grid.translateX(translationX);
@@ -3089,12 +3021,37 @@ function loadDetectedBoxes() {
                     }
                     params.fileIndex = frameNumber - 1;
                     annotationObjects.set(objectIndexWithinFrame, params);
-                    classesBoundingBox.target().nextTrackId++;
+                    classesBoundingBox.getCurrentAnnotationClassObject().nextTrackId++;
                 }
             }
         }
     };
     rawFile.send(null);
+}
+
+function initGuiBoundingBoxAnnotations() {
+    let parametersBoundingBox = {};
+    for (let i = 0; i < labelTool.classes.length; i++) {
+        parametersBoundingBox[labelTool.classes[i]] =
+            function () {
+                classesBoundingBox.select(labelTool.classes[i]);
+                $('#class-picker ul li').css('background-color', '#323232');
+                $($('#class-picker ul li')[i]).css('background-color', '#525252');
+            }
+    }
+    let guiAnnotationClassesWidth;
+    if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
+        guiAnnotationClassesWidth = 220;
+    } else {
+        guiAnnotationClassesWidth = 90;
+    }
+    guiAnnotationClasses = new dat.GUI({autoPlace: true, width: guiAnnotationClassesWidth, resizable: false});
+
+    let guiBoundingBoxAnnotationMap = {};
+    for (let i = 0; i < labelTool.classes.length; i++) {
+        guiBoundingBoxAnnotationMap[labelTool.classes[i]] = guiAnnotationClasses.add(parametersBoundingBox, labelTool.classes[i]).name(labelTool.classes[i]);
+    }
+    guiAnnotationClasses.domElement.id = 'class-picker';
 }
 
 function init() {
@@ -3174,15 +3131,13 @@ function init() {
         annotationObjects.contents.push([]);
     }
 
-    if (guiBoundingBoxAnnotationMap === undefined) {
-        guiBoundingBoxAnnotationMap = {
-            "Vehicle": guiAnnotationClasses.add(parametersBoundingBox, "Vehicle").name("Vehicle"),
-            "Truck": guiAnnotationClasses.add(parametersBoundingBox, "Truck").name("Truck"),
-            "Motorcycle": guiAnnotationClasses.add(parametersBoundingBox, "Motorcycle").name("Motorcycle"),
-            "Bicycle": guiAnnotationClasses.add(parametersBoundingBox, "Bicycle").name("Bicycle"),
-            "Pedestrian": guiAnnotationClasses.add(parametersBoundingBox, "Pedestrian").name("Pedestrian"),
-        };
-        guiAnnotationClasses.domElement.id = 'class-picker';
+    if (guiBoundingBoxAnnotationsInitialized === false) {
+        guiBoundingBoxAnnotationsInitialized = true;
+        initGuiBoundingBoxAnnotations();
+    }
+
+    if (guiBoundingBoxMenuInitialized === false) {
+        guiBoundingBoxMenuInitialized = true;
         // 3D BB controls
         guiOptions.add(parameters, 'download').name("Download Annotations");
         guiOptions.add(parameters, 'download_video').name("Create and Download Video");
@@ -3209,7 +3164,7 @@ function init() {
             labelTool.removeObject("planeObject");
         });
         pointSizeSlider = guiOptions.add(parameters, 'point_size').name("Point Size").min(0.001).max(pointSizeMax).step(0.001).onChange(function (value) {
-            pointCloudScanList[labelTool.currentFileIndex].material.size = value;
+            pointCloudScanMap[labelTool.currentFileIndex].material.size = value;
         });
         disablePointSizeSlider();
         let showOriginalNuScenesLabelsCheckbox = guiOptions.add(parameters, 'show_nuscenes_labels').name('NuScenes Labels').listen();
@@ -3300,7 +3255,7 @@ function init() {
                 addObject(pointCloudScanNoGroundList[labelTool.currentFileIndex], "pointcloud-scan-no-ground-" + labelTool.currentFileIndex);
             } else {
                 labelTool.removeObject("pointcloud-scan-no-ground-" + labelTool.currentFileIndex);
-                addObject(pointCloudScanList[labelTool.currentFileIndex], "pointcloud-scan-" + labelTool.currentFileIndex);
+                addObject(pointCloudScanMap[labelTool.currentFileIndex], "pointcloud-scan-" + labelTool.currentFileIndex);
             }
         });
 
@@ -3451,13 +3406,15 @@ function init() {
                 hideProjectedPoints();
             }
         }
-    }
+    }// end if guiBoundingBoxMenuInitialized
+
     let classPickerElem = $('#class-picker ul li');
     classPickerElem.css('background-color', '#353535');
     $(classPickerElem[0]).css('background-color', '#525252');
     classPickerElem.css('border-bottom', '0px');
-
-
+    if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
+        $("#class-picker").css("width", '220px');
+    }
     $('#bounding-box-3d-menu').css('width', '480px');
     $('#bounding-box-3d-menu ul li').css('background-color', '#353535');
     $("#bounding-box-3d-menu .close-button").click(function () {
@@ -3468,16 +3425,12 @@ function init() {
             $("#right-btn").css("right", 0);
         }
     });
-
     guiOptions.open();
     classPickerElem.each(function (i, item) {
-        let propNamesArray = Object.getOwnPropertyNames(classesBoundingBox);
-        let color = classesBoundingBox[propNamesArray[i]].color;
+        let color = labelTool.classColors[i];
         let attribute = "20px solid" + ' ' + color;
         $(item).css("border-left", attribute);
         $(item).css('border-bottom', '0px');
     });
-
     initViews();
-
 }

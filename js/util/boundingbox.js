@@ -64,7 +64,7 @@ let annotationObjects = {
         this.contents[params.fileIndex].insertIndex = insertIndex;
         if (params.fromFile === false && this.__selectionIndexCurrentFrame === -1) {
             if (labelTool.showOriginalNuScenesLabels === true && labelTool.currentDataset === labelTool.datasets.NuScenes) {
-                this.contents[params.fileIndex][insertIndex]["trackId"] = classesBoundingBox.content[params.class].nextTrackId;
+                this.contents[params.fileIndex][insertIndex]["trackId"] = classesBoundingBox[params.class].nextTrackId;
             } else {
                 this.contents[params.fileIndex][insertIndex]["trackId"] = classesBoundingBox[params.class].nextTrackId;
             }
@@ -81,7 +81,7 @@ let annotationObjects = {
         }
 
         // return if same class was chosen again
-        let currentClassLabel = classesBoundingBox.getCurrentClass();
+        let currentClassLabel = this.contents[labelTool.currentFileIndex][selectedObjectIndex]["class"];
         if (currentClassLabel === newClassLabel) {
             return false;
         }
@@ -89,7 +89,7 @@ let annotationObjects = {
 
         // update id of sprite
         let currentTrackId = this.contents[labelTool.currentFileIndex][selectedObjectIndex]["trackId"];
-        let spriteElem = $("#class-" + this.contents[labelTool.currentFileIndex][selectedObjectIndex]["class"].charAt(0) + currentTrackId);
+        let spriteElem = $("#class-" + currentClassLabel.charAt(0) + currentTrackId);
         // use original track id if original class selected
         let nextTrackIdNewClass;
         if (newClassLabel === this.contents[labelTool.currentFileIndex][selectedObjectIndex]["original"]["class"]) {
@@ -108,8 +108,9 @@ let annotationObjects = {
 
         // update track id
         this.contents[labelTool.currentFileIndex][selectedObjectIndex]["trackId"] = nextTrackIdNewClass;
-        // decrease track id of current (previous) class
-        classesBoundingBox[currentClassLabel]["nextTrackId"] = classesBoundingBox[currentClassLabel]["nextTrackId"] - 1;
+        // set next highest track ID of current class
+
+        setHighestAvailableTrackId(currentClassLabel);
         // increase track id of new class
         classesBoundingBox[newClassLabel]["nextTrackId"] = classesBoundingBox[newClassLabel]["nextTrackId"] + 1;
 
@@ -122,6 +123,9 @@ let annotationObjects = {
         folderBoundingBox3DArray[selectedObjectIndex].domElement.children[0].children[0].innerHTML = newClassLabel + ' ' + nextTrackIdNewClass;
         //                                                           ul        number      div       div[class c]    input
         folderBoundingBox3DArray[selectedObjectIndex].domElement.children[0].children[4].children[0].children[1].children[0].value = nextTrackIdNewClass;
+
+        guiOptions.__folders[newClassLabel + ' ' + nextTrackIdNewClass] = guiOptions.__folders[currentClassLabel + ' ' + currentTrackId];
+        delete guiOptions.__folders[currentClassLabel + ' ' + currentTrackId];
 
         // open current folder
         folderBoundingBox3DArray[selectedObjectIndex].open();
