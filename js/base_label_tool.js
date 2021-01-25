@@ -338,6 +338,7 @@ let labelTool = {
                 pointCloudFullURL = 'input/' + labelTool.currentDataset + '/' + labelTool.sequence + '/' + 'pointclouds/' + labelTool.fileNames[i] + '.pcd';
                 pcdLoader.load(pointCloudFullURL, function (mesh) {
                     mesh.name = 'pointcloud-scan-' + i;
+                    mesh.material.size = pointSizeCurrent;
                     pointCloudScanMap[i] = mesh;
                     if (i === labelTool.currentFileIndex) {
                         scene.add(mesh);
@@ -350,7 +351,9 @@ let labelTool = {
             }
             labelTool.pointCloudLoaded = true;
         } else {
-            scene.add(pointCloudScanMap[labelTool.currentFileIndex]);
+            pointCloudScan = pointCloudScanMap[labelTool.currentFileIndex];
+            pointCloudScan.material.size = pointSizeCurrent;
+            scene.add(pointCloudScan);
         }
 
 
@@ -536,7 +539,6 @@ let labelTool = {
                 params.rotationRoll = parseFloat(annotation.box3d.orientation.rotationPitch);
                 params.original.rotationRoll = parseFloat(annotation.box3d.orientation.rotationPitch);
                 params.trackId = annotation.id;
-                // }
                 if (params.trackId > classesBoundingBox[annotation.category].maxTrackId) {
                     classesBoundingBox[annotation.category].maxTrackId = params.id;
                 }
@@ -1272,9 +1274,7 @@ let labelTool = {
                 $(classTooltipElement[0]).css("top", `${vector.y + headerHeight + imagePaneHeight - 21}px`);
                 $(classTooltipElement[0]).css("left", `${vector.x}px`);
                 $(classTooltipElement[0]).css("opacity", 1.0);
-
                 $("body").append(classTooltipElement);
-                // }
             }
             for (let i = 0; i < annotationObjects.contents[this.currentFileIndex].length; i++) {
                 let trackId = annotationObjects.contents[this.currentFileIndex][i]["trackId"];

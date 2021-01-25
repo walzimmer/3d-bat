@@ -94,12 +94,13 @@ let useTransformControls;
 let dragControls = false;
 let keyboardNavigation = false;
 let canvas3D;
+let pointSizeCurrent = 0.05;
 let pointSizeMax = 1;
 let defaultBoxHeight = 1.468628;
 let gridSize = 200;
 
 let parameters = {
-    point_size: 0.05,
+    point_size: pointSizeCurrent,
     download_video: function () {
         downloadVideo();
     },
@@ -797,17 +798,18 @@ function deleteObject(bboxClass, trackId, labelIndex) {
 
     labelTool.removeObject("transformControls");
     // NOTE: already removed in annotationObjects.remove()
-    //labelTool.cubeArray[labelTool.currentFileIndex].splice(labelIndex, 1);
-    let channels = annotationObjects.contents[labelTool.currentFileIndex][labelIndex].channels;
-    // iterate all channels and remove projection
-    for (let channelIdx in channels) {
-        if (channels.hasOwnProperty(channelIdx)) {
-            let channelObj = channels[channelIdx];
-            for (let lineObj in channelObj.lines) {
-                if (channelObj.lines.hasOwnProperty(lineObj)) {
-                    let line = channelObj.lines[lineObj];
-                    if (line !== undefined) {
-                        line.remove();
+    if (labelTool.pointCloudOnlyAnnotation === false) {
+        let channels = annotationObjects.contents[labelTool.currentFileIndex][labelIndex].channels;
+        // iterate all channels and remove projection
+        for (let channelIdx in channels) {
+            if (channels.hasOwnProperty(channelIdx)) {
+                let channelObj = channels[channelIdx];
+                for (let lineObj in channelObj.lines) {
+                    if (channelObj.lines.hasOwnProperty(lineObj)) {
+                        let line = channelObj.lines[lineObj];
+                        if (line !== undefined) {
+                            line.remove();
+                        }
                     }
                 }
             }
@@ -3162,8 +3164,11 @@ function init() {
                 currentOrbitControls.update();
             }
             labelTool.removeObject("planeObject");
+            scene.remove('pointcloud-scan-' + labelTool.currentFileIndex);
+            scene.add(pointCloudScanMap[labelTool.currentFileIndex]);
         });
         pointSizeSlider = guiOptions.add(parameters, 'point_size').name("Point Size").min(0.001).max(pointSizeMax).step(0.001).onChange(function (value) {
+            pointSizeCurrent = value;
             pointCloudScanMap[labelTool.currentFileIndex].material.size = value;
         });
         disablePointSizeSlider();
