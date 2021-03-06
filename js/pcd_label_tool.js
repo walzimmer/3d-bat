@@ -674,7 +674,7 @@ function get3DLabel(parameters) {
         morphTargets: false
     });
 
-    let cubeMaterials = [cubeMaterialSide, cubeMaterialFrontSide, cubeMaterialSide, cubeMaterialSide, cubeMaterialSide, cubeMaterialSide];
+    let cubeMaterials = [cubeMaterialFrontSide, cubeMaterialSide, cubeMaterialSide, cubeMaterialSide, cubeMaterialSide, cubeMaterialSide];
     let faceMaterial = new THREE.MeshFaceMaterial(cubeMaterials);
     let cubeMesh = new THREE.Mesh(cubeGeometry, faceMaterial);
 
