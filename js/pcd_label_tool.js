@@ -909,8 +909,16 @@ function addBoundingBoxGui(bbox, bboxEndParams) {
 
     let folderRotation = folderBoundingBox3DArray[insertIndex].addFolder('Rotation');
     let cubeYaw = folderRotation.add(bbox, 'rotationYaw').name("rotationYaw").min(-Math.PI).max(Math.PI).step(0.01).listen();
-    let cubePitch = folderRotation.add(bbox, 'rotationPitch').name("rotationPitch").min(-Math.PI).max(Math.PI).step(0.01).listen();
-    let cubeRoll = folderRotation.add(bbox, 'rotationRoll').name("rotationRoll").min(-Math.PI).max(Math.PI).step(0.01).listen();
+    // swap roll and pitch for providentia
+    let cubePitch;
+    let cubeRoll;
+    if (labelTool.currentDataset === labelTool.datasets.NuScenes) {
+        cubePitch = folderRotation.add(bbox, 'rotationPitch').name("rotationPitch").min(-Math.PI).max(Math.PI).step(0.01).listen();
+        cubeRoll = folderRotation.add(bbox, 'rotationRoll').name("rotationRoll").min(-Math.PI).max(Math.PI).step(0.01).listen();
+    } else {
+        cubePitch = folderRotation.add(bbox, 'rotationPitch').name("rotationRoll").min(-Math.PI).max(Math.PI).step(0.01).listen();
+        cubeRoll = folderRotation.add(bbox, 'rotationRoll').name("rotationPitch").min(-Math.PI).max(Math.PI).step(0.01).listen();
+    }
     folderRotation.close();
     folderRotationArray.push(folderRotation);
 
