@@ -658,14 +658,26 @@ function get3DLabel(parameters) {
         color = classesBoundingBox.getCurrentAnnotationClassObject().color;
     }
 
-    let cubeMaterial = new THREE.MeshBasicMaterial({
+    let cubeMaterialSide = new THREE.MeshBasicMaterial({
+        color: color,
+        transparent: true,
+        opacity: 0.1,
+        side: THREE.DoubleSide,
+        morphTargets: false
+    });
+
+    let cubeMaterialFrontSide = new THREE.MeshBasicMaterial({
         color: color,
         transparent: true,
         opacity: 0.9,
-        side: THREE.DoubleSide
+        side: THREE.DoubleSide,
+        morphTargets: false
     });
 
-    let cubeMesh = new THREE.Mesh(cubeGeometry, cubeMaterial);
+    let cubeMaterials = [cubeMaterialSide, cubeMaterialFrontSide, cubeMaterialSide, cubeMaterialSide, cubeMaterialSide, cubeMaterialSide];
+    let faceMaterial = new THREE.MeshFaceMaterial(cubeMaterials);
+    let cubeMesh = new THREE.Mesh(cubeGeometry, faceMaterial);
+
     cubeMesh.position.set(bbox.x, bbox.y, bbox.z);
     cubeMesh.scale.set(bbox.width, bbox.length, bbox.height);
     cubeMesh.rotation.z = bbox.rotationYaw;
@@ -1754,7 +1766,9 @@ function update() {
     let vector = new THREE.Vector3(mousePos.x, mousePos.y, 1);
     vector.unproject(currentCamera);
     let ray = new THREE.Raycaster(currentCamera.position, vector.sub(currentCamera.position).normalize());
-    let intersects = ray.intersectObjects(scene.children);
+    // set ray.camera in three.js version r126, otherwise error: THREE.Sprite: "Raycaster.camera" needs to be set in order to raycast against sprites.
+    ray.camera = currentCamera;
+    let intersects = ray.intersectObjects(scene.children, true);
 
     // if there is one (or more) intersections
     if (intersects.length > 0) {
