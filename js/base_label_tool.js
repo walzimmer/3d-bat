@@ -531,13 +531,12 @@ let labelTool = {
                 let annotation = frameAnnotations[annotationIdx];
                 let params = getDefaultObject();
                 params.class = annotation.category;
-                params.rotationYaw = parseFloat(annotation.box3d.orientation.rotationRoll);
-                params.original.rotationYaw = parseFloat(annotation.box3d.orientation.rotationRoll);
-                // TODO: check whether index of pitch and roll needs to be swapped
-                params.rotationPitch = parseFloat(annotation.box3d.orientation.rotationYaw);
-                params.original.rotationPitch = parseFloat(annotation.box3d.orientation.rotationYaw);
-                params.rotationRoll = parseFloat(annotation.box3d.orientation.rotationPitch);
-                params.original.rotationRoll = parseFloat(annotation.box3d.orientation.rotationPitch);
+                params.rotationYaw = parseFloat(annotation.box3d.orientation.rotationYaw);
+                params.original.rotationYaw = parseFloat(annotation.box3d.orientation.rotationYaw);
+                params.rotationPitch = parseFloat(annotation.box3d.orientation.rotationPitch);
+                params.original.rotationPitch = parseFloat(annotation.box3d.orientation.rotationPitch);
+                params.rotationRoll = parseFloat(annotation.box3d.orientation.rotationRoll);
+                params.original.rotationRoll = parseFloat(annotation.box3d.orientation.rotationRoll);
                 params.trackId = annotation.id;
                 if (params.trackId > classesBoundingBox[annotation.category].maxTrackId) {
                     classesBoundingBox[annotation.category].maxTrackId = params.id;
