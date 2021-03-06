@@ -539,7 +539,7 @@ let labelTool = {
                 params.original.rotationRoll = parseFloat(annotation.box3d.orientation.rotationRoll);
                 params.trackId = annotation.id;
                 if (params.trackId > classesBoundingBox[annotation.category].maxTrackId) {
-                    classesBoundingBox[annotation.category].maxTrackId = params.id;
+                    classesBoundingBox[annotation.category].maxTrackId = params.trackId;
                 }
                 params.x = parseFloat(annotation.box3d.location.x);
                 params.y = parseFloat(annotation.box3d.location.y);
