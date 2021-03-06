@@ -687,8 +687,8 @@ function get3DLabel(parameters) {
 
     cubeMesh.position.set(bbox.x, bbox.y, bbox.z);
     cubeMesh.scale.set(bbox.width, bbox.length, bbox.height);
-    cubeMesh.rotation.x = bbox.rotationRoll;
-    cubeMesh.rotation.y = bbox.rotationPitch;
+    cubeMesh.rotation.x = bbox.rotationPitch;
+    cubeMesh.rotation.y = bbox.rotationRoll;
     cubeMesh.rotation.z = bbox.rotationYaw;
     cubeMesh.name = "cube-" + parameters.class.charAt(0) + parameters.trackId;
 

@@ -533,10 +533,12 @@ let labelTool = {
                 params.class = annotation.category;
                 params.rotationYaw = parseFloat(annotation.box3d.orientation.rotationYaw);
                 params.original.rotationYaw = parseFloat(annotation.box3d.orientation.rotationYaw);
-                params.rotationPitch = parseFloat(annotation.box3d.orientation.rotationPitch);
-                params.original.rotationPitch = parseFloat(annotation.box3d.orientation.rotationPitch);
-                params.rotationRoll = parseFloat(annotation.box3d.orientation.rotationRoll);
-                params.original.rotationRoll = parseFloat(annotation.box3d.orientation.rotationRoll);
+                // swap roll and pitch for providentia dataset
+                params.rotationRoll = parseFloat(annotation.box3d.orientation.rotationPitch);
+                params.original.rotationRoll = parseFloat(annotation.box3d.orientation.rotationPitch);
+                params.rotationPitch = parseFloat(annotation.box3d.orientation.rotationRoll);
+                params.original.rotationPitch = parseFloat(annotation.box3d.orientation.rotationRoll);
+
                 params.trackId = annotation.id;
                 if (params.trackId > classesBoundingBox[annotation.category].maxTrackId) {
                     classesBoundingBox[annotation.category].maxTrackId = params.trackId;
@@ -608,8 +610,8 @@ let labelTool = {
                                 },
                                 "orientation": {
                                     "rotationYaw": this.cubeArray[j][i].rotation.z,
-                                    "rotationPitch": this.cubeArray[j][i].rotation.x,
-                                    "rotationRoll": this.cubeArray[j][i].rotation.y
+                                    "rotationPitch": this.cubeArray[j][i].rotation.y,
+                                    "rotationRoll": this.cubeArray[j][i].rotation.x
                                 }
                             }
                         }
