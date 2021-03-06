@@ -491,7 +491,14 @@ annotationObjects.onSelect("PCD", function (selectionIndex) {
 
 
 annotationObjects.onChangeClass("PCD", function (index, label) {
-    labelTool.cubeArray[labelTool.currentFileIndex][index].material.color.setHex(classesBoundingBox[label].color.replace("#", "0x"));
+
+    if (Array.isArray(labelTool.cubeArray[labelTool.currentFileIndex][index].material)) {
+        for (let i = 0; i < labelTool.cubeArray[labelTool.currentFileIndex][index].material.length; i++) {
+            labelTool.cubeArray[labelTool.currentFileIndex][index].material[i].color.setHex(classesBoundingBox[label].color.replace("#", "0x"));
+        }
+    } else {
+        labelTool.cubeArray[labelTool.currentFileIndex][index].material.color.setHex(classesBoundingBox[label].color.replace("#", "0x"));
+    }
     // change also color of the bounding box
     labelTool.cubeArray[labelTool.currentFileIndex][index].children[0].material.color.setHex(classesBoundingBox[label].color.replace("#", "0x"));
     annotationObjects.contents[labelTool.currentFileIndex][index]["class"] = label;
@@ -680,9 +687,9 @@ function get3DLabel(parameters) {
 
     cubeMesh.position.set(bbox.x, bbox.y, bbox.z);
     cubeMesh.scale.set(bbox.width, bbox.length, bbox.height);
+    cubeMesh.rotation.x = bbox.rotationRoll;
+    cubeMesh.rotation.y = bbox.rotationPitch;
     cubeMesh.rotation.z = bbox.rotationYaw;
-    cubeMesh.rotation.x = bbox.rotationPitch;
-    cubeMesh.rotation.y = bbox.rotationRoll;
     cubeMesh.name = "cube-" + parameters.class.charAt(0) + parameters.trackId;
 
     // get bounding box from object
@@ -1777,12 +1784,22 @@ function update() {
         if (intersects[0].object !== intersectedObject && intersects[0].object.name.startsWith("cube")) {
             // restore previous intersection object (if it exists) to its original color
             if (intersectedObject) {
-                intersectedObject.material.color.setHex(intersectedObject.currentHex);
+                if (Array.isArray(intersectedObject.material)) {
+                    for (let i = 0; i < intersectedObject.material.length; i++) {
+                        intersectedObject.material[i].color.setHex(intersectedObject.currentHex);
+                    }
+                } else {
+                    intersectedObject.material.color.setHex(intersectedObject.currentHex);
+                }
             }
             // store reference to closest object as current intersection object
             intersectedObject = intersects[0].object;
             // store color of closest object (for later restoration)
-            intersectedObject.currentHex = intersectedObject.material.color.getHex();
+            if (Array.isArray(intersectedObject.material) && intersectedObject.material.length > 0 && intersectedObject.material[0] !== undefined) {
+                intersectedObject.currentHex = intersectedObject.material[0].color.getHex();
+            } else {
+                intersectedObject.currentHex = intersectedObject.material.color.getHex();
+            }
             // set a new color for closest object
             // intersectedObject.material.color.setHex(0xff0000);
         }
@@ -1790,7 +1807,13 @@ function update() {
         // there are no intersections
         // restore previous intersection object (if it exists) to its original color
         if (intersectedObject) {
-            intersectedObject.material.color.setHex(intersectedObject.currentHex);
+            if (Array.isArray(intersectedObject.material)) {
+                for (let i = 0; i < intersectedObject.material.length; i++) {
+                    intersectedObject.material[i].color.setHex(intersectedObject.currentHex);
+                }
+            } else {
+                intersectedObject.material.color.setHex(intersectedObject.currentHex);
+            }
         }
         // remove previous intersection object reference
         //  by setting current intersection object to "nothing"
@@ -2490,7 +2513,17 @@ function mouseUpLogic(ev) {
             // remove selection in birds eye view (lower opacity)
             for (let mesh in labelTool.cubeArray[labelTool.currentFileIndex]) {
                 let meshObject = labelTool.cubeArray[labelTool.currentFileIndex][mesh];
-                meshObject.material.opacity = 0.9;
+                if (Array.isArray(meshObject.material)) {
+                    for (let i = 0; i < meshObject.material.length; i++) {
+                        if (i === 0) {
+                            meshObject.material[i].opacity = 0.9;
+                        } else {
+                            meshObject.material[i].opacity = 0.1;
+                        }
+                    }
+                } else {
+                    meshObject.material.opacity = 0.9;
+                }
             }
 
             // remove arrows (transform controls)
@@ -3286,7 +3319,14 @@ function init() {
                 for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
                     // remove 3D labels
                     let mesh = labelTool.cubeArray[labelTool.currentFileIndex][i];
-                    mesh.material.opacity = 0;
+                    if (Array.isArray(mesh.material)) {
+                        for (let i = 0; i < mesh.material.length; i++) {
+                            mesh.material[i].opacity = 0;
+                        }
+                    } else {
+                        mesh.material.opacity = 0;
+                    }
+
                     if (labelTool.pointCloudOnlyAnnotation === false) {
                         // remove all 2D labels
                         for (let j = 0; j < annotationObjects.contents[labelTool.currentFileIndex][i].channels.length; j++) {
@@ -3313,7 +3353,18 @@ function init() {
                 for (let i = 0; i < annotationObjects.contents[labelTool.currentFileIndex].length; i++) {
                     // show 3D labels
                     let mesh = labelTool.cubeArray[labelTool.currentFileIndex][i];
-                    mesh.material.opacity = 0.9;
+                    if (Array.isArray(mesh.material)) {
+                        for (let i = 0; i < mesh.material.length; i++) {
+                            if (i === 0) {
+                                mesh.material[i].opacity = 0.9;
+                            } else {
+                                mesh.material[i].opacity = 0.1;
+                            }
+                        }
+                    } else {
+                        mesh.material.opacity = 0.9;
+                    }
+
                     if (labelTool.pointCloudOnlyAnnotation === false) {
                         // show 2D labels
                         if (selectionIndex === i) {
