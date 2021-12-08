@@ -1,6 +1,6 @@
 import os
 
-path = "../../../../input/providentia/20210302_sequence/pointclouds/"
+path = "../../../../input/providentia/20210302_sequence/point_clouds/"
 
 files = sorted(os.listdir(path))
 idx=0

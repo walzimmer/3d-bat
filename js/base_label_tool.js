@@ -330,12 +330,12 @@ let labelTool = {
         let pcdLoader = new THREE.PCDLoader();
         let pointCloudFullURL;
         let pointCloudWithoutGroundURL;
-        pointCloudWithoutGroundURL = 'input/' + labelTool.currentDataset + '/' + labelTool.sequence + '/' + 'pointclouds_without_ground/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
+        pointCloudWithoutGroundURL = 'input/' + labelTool.currentDataset + '/' + labelTool.sequence + '/' + 'point_clouds_without_ground/' + labelTool.fileNames[labelTool.currentFileIndex] + '.pcd';
 
         // load all point cloud scans in the beginning
         if (labelTool.pointCloudLoaded === false) {
             for (let i = 0; i < labelTool.numFrames; i++) {
-                pointCloudFullURL = 'input/' + labelTool.currentDataset + '/' + labelTool.sequence + '/' + 'pointclouds/' + labelTool.fileNames[i] + '.pcd';
+                pointCloudFullURL = 'input/' + labelTool.currentDataset + '/' + labelTool.sequence + '/' + 'point_clouds/' + labelTool.fileNames[i] + '.pcd';
                 pcdLoader.load(pointCloudFullURL, function (mesh) {
                     mesh.name = 'pointcloud-scan-' + i;
                     mesh.material.size = pointSizeCurrent;

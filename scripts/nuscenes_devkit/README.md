@@ -6,7 +6,7 @@ Welcome to the devkit of the [nuScenes](https://www.nuscenes.org) dataset.
 ## Dataset download
 To download nuScenes you need to go to the [Download page](https://www.nuscenes.org/download), 
 create an account and confirm the nuScenes [Terms of Use](https://www.nuscenes.org/terms-of-use).
-After logging in you will see multiple archives for images, pointclouds and meta data. 
+After logging in you will see multiple archives for images, point clouds and meta data. 
 For the devkit to work you will need to download *all* archives.
 Please unpack the archives to the `/data/nuscenes` folder \*without\* overwriting folders that occur in multiple archives.
 Eventually you should have the following folder structure:

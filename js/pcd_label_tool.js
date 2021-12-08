@@ -2036,9 +2036,9 @@ function readPointCloud() {
     let rawFile = new XMLHttpRequest();
     try {
         if (labelTool.showOriginalNuScenesLabels === true) {
-            rawFile.open("GET", 'input/' + labelTool.currentDataset + '/pointclouds/' + pad(labelTool.currentFileIndex, 6) + '.pcd', false);
+            rawFile.open("GET", 'input/' + labelTool.currentDataset + '/point_clouds/' + pad(labelTool.currentFileIndex, 6) + '.pcd', false);
         } else {
-            rawFile.open("GET", 'input/' + labelTool.currentDataset + '/' + labelTool.sequence + '/pointclouds/' + pad(labelTool.currentFileIndex, 6) + '.pcd', false);
+            rawFile.open("GET", 'input/' + labelTool.currentDataset + '/' + labelTool.sequence + '/point_clouds/' + pad(labelTool.currentFileIndex, 6) + '.pcd', false);
         }
     } catch (error) {
         // no labels available for this camera image

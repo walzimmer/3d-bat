@@ -45,9 +45,9 @@ To annotate your own data, follow this steps:
 
 `input/waymo/20210103_waymo/annotations` (this folder will contain the downloaded annotations)
 
-`input/waymo/20210103_waymo/pointclouds` (place your point cloud scans (in `.pcd` ascii format) here)
+`input/waymo/20210103_waymo/point_clouds` (place your point cloud scans (in `.pcd` ascii format) here)
 
-`input/waymo/20210103_waymo/pointclouds_without_ground` (optional: Remove the ground using the `scripts/nuscenes_devkit/python-sdk/scripts/export_pointcloud_without_ground_nuscenes.py` script to use the checkbox "Filter ground". Change the threshold of -1.7 to the height of the LiDAR sensor.)
+`input/waymo/20210103_waymo/point_clouds_without_ground` (optional: Remove the ground using the `scripts/nuscenes_devkit/python-sdk/scripts/export_pointcloud_without_ground_nuscenes.py` script to use the checkbox "Filter ground". Change the threshold of -1.7 to the height of the LiDAR sensor.)
 
 `input/waymo/20210103_waymo/images` (optional: For each camera image, create a folder: e.g. `CAM_BACK`, `CAM_BACK_LEFT`, `CAM_BACK_RIGHT`, `CAM_FRONT`, `CAM_FRONT_LEFT`, `CAM_FRONT_RIGHT`)
 

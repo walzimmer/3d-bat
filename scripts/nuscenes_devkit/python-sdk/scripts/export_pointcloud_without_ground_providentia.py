@@ -1,7 +1,7 @@
 import os
 
-path_in = '/input/providentia/pointclouds/'
-path_out = '/input/providentia/pointclouds_without_ground/'
+path_in = '/input/providentia/point_clouds/'
+path_out = '/input/providentia/point_clouds_without_ground/'
 for file in sorted(os.listdir(path_in)):
     lines = []
     pointcloud_without_ground = []
