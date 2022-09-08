@@ -9,7 +9,7 @@
     "dragscroll": "^0.0.8",
     "file-saver": "^2.0.0",
     "material-design-icons": "^3.0.1",
-    "jszip": "^3.2.2"
+    "jszip": "^3.7.0"
   },
   "repository": {
     "type": "git",
