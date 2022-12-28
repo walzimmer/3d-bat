@@ -1,5 +1,5 @@
 <p align="center" width="100%">
-    <img width="33%" src="https://github.com/walzimmer/bat-3d/blob/master/assets/img/3d-bat.png"> 
+    <img width="33%" src="https://github.com/walzimmer/bat-3d/blob/master/assets/img/3d-bat-icon.png"> 
 </p>
 
 # 3D Bounding Box Annotation Tool (3D BAT)
@@ -14,9 +14,11 @@
 4. [OPTIONAL] Install WhatPulse to measure the number of clicks and key strokes while labeling: https://whatpulse.org/
 5. Open folder `bat-3d` in PHP Storm.
 5. Move into directory: `cd bat-3d`.
-6. Download sample scenes extracted from the NuScenes dataset from [here](https://github.com/walzimmer/bat-3d/releases/download/v0.1.0/NuScenes.zip) and extract the content into the `bat-3d/input/` folder.
+6. Download sample scenes extracted from the NuScenes dataset from [here](https://github.com/walzimmer/bat-3d/releases/download/0.3.0/NuScenes.zip) and extract the content into `bat-3d/input/`.
 7. Install required packages: `npm install`
-8. Open `index.html` with chromium-browser (Linux) or Chrome (Windows) within the IDE. Right click on index.html -> Open in Browser -> Chrome/Chromium
+8. Install [http-server](https://www.npmjs.com/package/http-server): `npm install -g http-server`.
+9. Type `http-server ./` in your terminal inside `bat-3d` directory.
+10. Open the web page [http://localhost:8080](http://localhost:8080) in your browser.
 
 # Overview
 ![Overview](https://github.com/walzimmer/bat-3d/blob/master/assets/img/overview.png)
@@ -45,9 +47,9 @@ To annotate your own data, follow this steps:
 
 `input/waymo/20210103_waymo/annotations` (this folder will contain the downloaded annotations)
 
-`input/waymo/20210103_waymo/point_clouds` (place your point cloud scans (in `.pcd` ascii format) here)
+`input/waymo/20210103_waymo/pointclouds` (place your point cloud scans (in `.pcd` ascii format) here)
 
-`input/waymo/20210103_waymo/point_clouds_without_ground` (optional: Remove the ground using the `scripts/nuscenes_devkit/python-sdk/scripts/export_pointcloud_without_ground_nuscenes.py` script to use the checkbox "Filter ground". Change the threshold of -1.7 to the height of the LiDAR sensor.)
+`input/waymo/20210103_waymo/pointclouds_without_ground` (optional: Remove the ground using the `scripts/nuscenes_devkit/python-sdk/scripts/export_pointcloud_without_ground_nuscenes.py` script to use the checkbox "Filter ground". Change the threshold of -1.7 to the height of the LiDAR sensor.)
 
 `input/waymo/20210103_waymo/images` (optional: For each camera image, create a folder: e.g. `CAM_BACK`, `CAM_BACK_LEFT`, `CAM_BACK_RIGHT`, `CAM_FRONT`, `CAM_FRONT_LEFT`, `CAM_FRONT_RIGHT`)
 
