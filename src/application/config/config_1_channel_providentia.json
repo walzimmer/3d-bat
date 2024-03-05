@@ -1,0 +1,542 @@
+{
+  "datasets": [
+    {
+      "name": "NuScenes",
+      "sequences": [
+        "ONE"
+      ],
+      "num_frames_per_sequence": 50,
+      "classes": [
+        {
+          "name": "human.pedestrian.adult",
+          "annotation_color": "#3ABB9D",
+          "attributes": []
+        },
+        {
+          "name": "human.pedestrian.child",
+          "annotation_color": "#4DA664",
+          "attributes": []
+        },
+        {
+          "name": "human.pedestrian.wheelchair",
+          "annotation_color": "#2F6CAD",
+          "attributes": []
+        },
+        {
+          "name": "human.pedestrian.stroller",
+          "annotation_color": "#4590B6",
+          "attributes": []
+        },
+        {
+          "name": "human.pedestrian.personal_mobility",
+          "annotation_color": "#5CADCF",
+          "attributes": []
+        },
+        {
+          "name": "human.pedestrian.police_officer",
+          "annotation_color": "#3585C5",
+          "attributes": []
+        },
+        {
+          "name": "human.pedestrian.construction_worker",
+          "annotation_color": "#2CA786",
+          "attributes": []
+        },
+        {
+          "name": "animal",
+          "annotation_color": "#6ABB72",
+          "attributes": []
+        },
+        {
+          "name": "vehicle.car",
+          "annotation_color": "#E66B5B",
+          "attributes": []
+        },
+        {
+          "name": "vehicle.motorcycle",
+          "annotation_color": "#A28F85",
+          "attributes": []
+        },
+        {
+          "name": "vehicle.bicycle",
+          "annotation_color": "#F79E3D",
+          "attributes": []
+        },
+        {
+          "name": "vehicle.bus.bendy",
+          "annotation_color": "#75706B",
+          "attributes": []
+        },
+        {
+          "name": "vehicle.bus.rigid",
+          "annotation_color": "#EE7841",
+          "attributes": []
+        },
+        {
+          "name": "vehicle.truck",
+          "annotation_color": "#D1D5D8",
+          "attributes": []
+        },
+        {
+          "name": "vehicle.construction",
+          "annotation_color": "#CC4846",
+          "attributes": []
+        },
+        {
+          "name": "vehicle.emergency.ambulance",
+          "annotation_color": "#DC5047",
+          "attributes": []
+        },
+        {
+          "name": "vehicle.emergency.police",
+          "annotation_color": "#28324E",
+          "attributes": []
+        },
+        {
+          "name": "vehicle.trailer",
+          "annotation_color": "#EFEFEF",
+          "attributes": []
+        },
+        {
+          "name": "movable_object.barrier",
+          "annotation_color": "#485675",
+          "attributes": []
+        },
+        {
+          "name": "movable_object.trafficcone",
+          "annotation_color": "#F2D46F",
+          "attributes": []
+        },
+        {
+          "name": "movable_object.pushable_pullable",
+          "annotation_color": "#533D7F",
+          "attributes": []
+        },
+        {
+          "name": "movable_object.debris",
+          "annotation_color": "#9069B5",
+          "attributes": []
+        },
+        {
+          "name": "static_object.bicycle_rack",
+          "annotation_color": "#F7C23E",
+          "attributes": []
+        }
+      ],
+      "position_lidar": [
+        0.891067,
+        0.0,
+        1.84292
+      ],
+      "image_size": [
+        1600,
+        900
+      ],
+      "camera_channels": [
+        {
+          "channel": "CAM_FRONT_LEFT",
+          "positionCamera": [
+            1.564,
+            0.472,
+            1.535
+          ],
+          "fieldOfView": 70,
+          "rotationYaw": 5.323249722,
+          "projectionMatrix": [
+            [
+              110.4698206116641,
+              1464.0011761439307,
+              26.41455707029287,
+              -916.4598489300432
+            ],
+            [
+              -337.97741211920834,
+              265.1972065752412,
+              -1252.6308707181809,
+              -729.4327569362895
+            ],
+            [
+              -0.8143136873894475,
+              0.5803598650034878,
+              0.008697449242951868,
+              -0.7728492390141875
+            ]
+          ],
+          "rotation": 305
+        },
+        {
+          "channel": "CAM_FRONT",
+          "positionCamera": [
+            1.671,
+            -0.026,
+            1.536
+          ],
+          "fieldOfView": 70,
+          "rotationYaw": 0,
+          "projectionMatrix": [
+            [
+              1260.3593003446563,
+              790.4433526756009,
+              15.627522424805397,
+              -636.3274027306582
+            ],
+            [
+              7.834243891370816,
+              448.30558439994263,
+              -1259.159501002805,
+              -740.8962245421313
+            ],
+            [
+              -0.003064512389859362,
+              0.9999620062762187,
+              0.008160561736325754,
+              -0.7757948007768039
+            ]
+          ],
+          "rotation": 0
+        },
+        {
+          "channel": "CAM_FRONT_RIGHT",
+          "positionCamera": [
+            1.593,
+            -0.527,
+            1.526
+          ],
+          "fieldOfView": 70,
+          "rotationYaw": 0.959930278,
+          "projectionMatrix": [
+            [
+              1361.856983203004,
+              -568.9937879652269,
+              -6.653895294513566,
+              -312.50854189580144
+            ],
+            [
+              335.73347658567,
+              262.5244187804859,
+              -1260.4228451038455,
+              -763.337941668381
+            ],
+            [
+              0.8064805242536375,
+              0.5911975331694409,
+              0.00863948921786484,
+              -0.8346696345144945
+            ]
+          ],
+          "rotation": 55
+        },
+        {
+          "channel": "CAM_BACK_RIGHT",
+          "positionCamera": [
+            1.042,
+            -0.456,
+            1.595
+          ],
+          "fieldOfView": 70,
+          "rotationYaw": 1.919860556,
+          "projectionMatrix": [
+            [
+              268.5366860205932,
+              -1442.5534066704236,
+              -5.5654251139895745,
+              97.19498615315976
+            ],
+            [
+              406.6870884392414,
+              -143.59988581953755,
+              -1258.8039286060184,
+              -475.31377943361736
+            ],
+            [
+              0.9377138162782094,
+              -0.34740581495648687,
+              0.0014136814971854525,
+              -0.37336636003724444
+            ]
+          ],
+          "rotation": 110
+        },
+        {
+          "channel": "CAM_BACK",
+          "positionCamera": [
+            0.086,
+            -0.007,
+            1.541
+          ],
+          "fieldOfView": 130,
+          "rotationYaw": 3.14159,
+          "projectionMatrix": [
+            [
+              -804.9366490955063,
+              -670.8712520139895,
+              -7.944554855775981,
+              -532.4747992653032
+            ],
+            [
+              -2.598392799509179,
+              -411.71700732441207,
+              -802.0306250329542,
+              -570.6743676244683
+            ],
+            [
+              -0.010095206737515048,
+              -0.9999048082463075,
+              -0.009405383928480443,
+              -0.8092052225128153
+            ]
+          ],
+          "rotation": 180
+        },
+        {
+          "channel": "CAM_BACK_LEFT",
+          "positionCamera": [
+            1.055,
+            0.441,
+            1.605
+          ],
+          "fieldOfView": 70,
+          "rotationYaw": 4.363319444,
+          "projectionMatrix": [
+            [
+              -1118.65453545052,
+              940.0229558602045,
+              5.20775624882033,
+              -642.7023004564963
+            ],
+            [
+              -404.09996798165156,
+              -139.683623818749,
+              -1256.6685898616693,
+              -457.3405152874417
+            ],
+            [
+              -0.943213201117988,
+              -0.33216765461657427,
+              0.003675114050138092,
+              -0.36297000058026163
+            ]
+          ],
+          "rotation": 305
+        }
+      ]
+    },
+    {
+      "name": "providentia",
+      "sequences": [
+        "2021_02_11_11_32_00_s40_far"
+      ],
+      "classes": [
+        {
+          "name": "CAR",
+          "annotation_color": "#678BCD",
+          "attributes": [
+            {
+              "name": "with_trailer",
+              "style": "checkbox",
+              "values": [
+                false,
+                true
+              ]
+            },
+            {
+              "name": "electric",
+              "style": "checkbox",
+              "values": [
+                false,
+                true
+              ]
+            }
+          ]
+        },
+        {
+          "name": "TRUCK",
+          "annotation_color": "#56FFB6",
+          "attributes": [
+            {
+              "name": "number_of_trailers",
+              "style": "dropdown",
+              "values": [
+                "0",
+                "1",
+                "2"
+              ]
+            },
+            {
+              "name": "type",
+              "style": "dropdown",
+              "values": [
+                "delivery_truck",
+                "construction_vehicle",
+                "pickup_truck",
+                "tanker"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "TRAILER",
+          "annotation_color": "#5AFF7E",
+          "attributes": [
+            {
+              "name": "type",
+              "style": "dropdown",
+              "values": [
+                "container",
+                "box",
+                "dump",
+                "vehicle_transport",
+                "mixer",
+                "tank",
+                "flatbed",
+                "other"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "VAN",
+          "annotation_color": "#EBCF36",
+          "attributes": [
+            {
+              "name": "with_trailer",
+              "style": "checkbox",
+              "values": [
+                false,
+                true
+              ]
+            }
+          ]
+        },
+        {
+          "name": "MOTORCYCLE",
+          "annotation_color": "#B9A454",
+          "attributes": [
+            {
+              "name": "with_rider",
+              "style": "checkbox",
+              "values": [
+                true,
+                false
+              ]
+            },
+            {
+              "name": "type",
+              "style": "dropdown",
+              "values": [
+                "motorbike",
+                "scooter"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "BUS",
+          "annotation_color": "#D98A86",
+          "attributes": [
+            {
+              "name": "with_trailer",
+              "style": "checkbox",
+              "values": [
+                false,
+                true
+              ]
+            },
+            {
+              "name": "type",
+              "style": "dropdown",
+              "values": [
+                "rigid",
+                "bendy"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "PEDESTRIAN",
+          "annotation_color": "#E976F9",
+          "attributes": []
+        },
+        {
+          "name": "BICYCLE",
+          "annotation_color": "#B18CFF",
+          "attributes": [
+            {
+              "name": "with_rider",
+              "style": "checkbox",
+              "values": [
+                true,
+                false
+              ]
+            }
+          ]
+        },
+        {
+          "name": "SPECIAL_VEHICLE",
+          "annotation_color": "#C7C7C7",
+          "attributes": [
+            {
+              "name": "type",
+              "style": "dropdown",
+              "values": [
+                "ambulance",
+                "police_vehicle",
+                "fire_truck",
+                "tractor",
+                "other"
+              ]
+            },
+            {
+              "name": "flashing_emergency_lights",
+              "style": "checkbox",
+              "values": [
+                false,
+                true
+              ]
+            }
+          ]
+        }
+      ],
+      "position_lidar": [
+        -8.0,
+        0.0,
+        6.9
+      ],
+      "image_size": [
+        1920,
+        1200
+      ],
+      "active_camera_channel": "s40_far",
+      "camera_channels": [
+        {
+          "channel": "s40_far",
+          "positionCamera": [
+            -14.60582418,
+            465.72356842,
+            8.25
+          ],
+          "projectionMatrix": [
+            [
+              -5.35802521e+02,
+              9.09003991e+03,
+              -3.72093177e+01,
+              3.82610364e+05
+            ],
+            [
+              -4.77936014e+01,
+              3.51841562e+01,
+              -9.03153469e+03,
+              9.72826614e+04
+            ],
+            [
+              -9.95558291e-01,
+              7.55554009e-02,
+              -5.61700232e-02,
+              4.65221911e+02
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

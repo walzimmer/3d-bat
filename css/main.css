@@ -21,11 +21,7 @@ select.form-control {
     color: green;
 }
 
-/* body { */
-/*     font-family: "Avenir", "Open Sans" , "Helvetica Neue" , Helvetica , Arial , Verdana , Roboto , "游ゴシック" , "Yu Gothic" , "游ゴシック体" , "YuGothic" , "ヒラギノ角ゴ Pro W3" , "Hiragino Kaku Gothic Pro" , "Meiryo UI" , "メイリオ" , Meiryo , "ＭＳ Ｐゴシック" , "MS PGothic" , sans-serif; */
-/* } */
 body {
-    /*background-color: #303946;*/
     background-color: #ffffff;
 }
 
@@ -58,7 +54,6 @@ td.fold-hard {
 
 .sidebar {
     margin-top: 40px;
-    /* border-top: 1px solid #d0d9f6; */
     background-color: #303936;
 }
 
@@ -68,9 +63,6 @@ td.fold-hard {
     width: 100%;
 }
 
-/* .sidebar ul li { */
-/*     border-bottom: 1px solid #e7e7e7; */
-/* } */
 .sidebar ul .sidebar-item a {
     color: #9099a6;
     font-weight: 200;
@@ -91,10 +83,6 @@ td.fold-hard {
 .navbar .navbar-top-links li a i {
     font-size: 18px;
     color: white;
-}
-
-.navbar-top-links li a {
-    /* border-left: 1px solid #a1a3b1; */
 }
 
 .navbar-top-links li a:hover {
@@ -120,7 +108,6 @@ td.fold-hard {
 
 .navbar {
     height: 40px;
-    /* background-color: #1883A7; */
     background-image: -webkit-gradient(
             linear,
             left top,
@@ -134,20 +121,6 @@ td.fold-hard {
     border: none;
 }
 
-/*.navbar .navbar-brand .navbar-brand:hover {*/
-/*height: 40px;*/
-/*width: 200px;*/
-/*background-image: -webkit-gradient(*/
-/*linear,*/
-/*left top,*/
-/*left bottom,*/
-/*from(#2893B7),*/
-/*to(#087397));*/
-/*font-weight: 700;*/
-/*color: #f5f5f5;*/
-/*padding: 10px 20px 20px 20px;*/
-/*}*/
-
 .navbar .navbar-header {
     float: left;
 }
@@ -155,13 +128,6 @@ td.fold-hard {
 .navbar .navbar-top-links {
     float: right;
 }
-
-/*.navbar-brand {*/
-/*background: url("/static/img/automan_icon_white.png") no-repeat left center;*/
-/*background-size: contain;*/
-/*height: 40px;*/
-/*width: 200px;*/
-/*}*/
 
 .container {
     width: 100%;
@@ -471,13 +437,6 @@ td.fold-hard {
     border-bottom: 0px;
 }
 
-/*#bounding-box-3d-menu {*/
-/*width: 290px!important;*/
-/*}*/
-
-/**
- * Frame selection bar
- */
 .frame-selector__frames {
     align-self: stretch;
     flex-grow: 1;
@@ -496,6 +455,10 @@ td.fold-hard {
     background-color: rgba(255, 255, 255, 1);
     cursor: pointer;
     transition: all 250ms ease-out;
+}
+
+body.waiting * { 
+    cursor: wait !important; 
 }
 
 .frame.loading {
@@ -561,46 +524,3 @@ td.fold-hard {
 .frame-selector.touch .list-wrapper {
     margin: 0 0 0 20px;
 }
-
-#image-cam-front-left svg {
-    position: absolute !important;
-    left: 0px !important;
-    width: 16.66666vw;
-    z-index: 0;
-}
-
-#image-cam-front svg {
-    position: absolute !important;
-    left: calc(16.66666vw * 1) !important;
-    width: 16.66666vw;
-    z-index: 0;
-}
-
-#image-cam-front-right svg {
-    position: absolute !important;
-    left: calc(16.66666vw * 2) !important;
-    width: 16.66666vw;
-    z-index: 0;
-}
-
-#image-cam-back-right svg {
-    position: absolute !important;
-    left: calc(16.66666vw * 3) !important;
-    width: 16.66666vw;
-    z-index: 0;
-}
-
-#image-cam-back svg {
-    position: absolute !important;
-    left: calc(16.66666vw * 4) !important;
-    width: 16.66666vw;
-    z-index: 0;
-}
-
-#image-cam-back-left svg {
-    position: absolute !important;
-    left: calc(16.66666vw * 5) !important;
-    width: 16.66666vw;
-    z-index: 0;
-}
-

@@ -1,0 +1,7 @@
+"#51C38C", # car green
+"#EBCF36", # truck yellow
+"#FF604B", # pedestrian red
+"#F37CB2", # bus
+"#7d74f5", # motorcyclist
+"#BC7C52", # van brown
+"#74BAF5" #

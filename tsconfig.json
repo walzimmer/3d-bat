@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "module": "amd",
+    "target": "es6",
+    "noImplicitAny": false,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "strict": true,
+    "moduleResolution": "Node",
+    "outDir": "build",
+    "strictPropertyInitialization": false
+  },
+  "files": [
+    "src/application/label_tool/tool_main.ts",
+    "src/application/label_tool/tool_image.ts",
+    "src/application/io/file_operations.ts",
+    "src/application/util/utils.ts",
+    "src/application/index.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ],
+  "include": [
+    "src",
+    "index.d.ts"
+  ],
+  "typeRoots": [
+    "node_modules",
+    "node_modules/@types"
+  ]
+}

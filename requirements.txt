@@ -1,0 +1,10 @@
+flask==2.2.2
+tensorflow==2.12.0
+opencv-python
+matplotlib
+mayavi
+open3d
+numpy
+argparse
+scipy
+tqdm

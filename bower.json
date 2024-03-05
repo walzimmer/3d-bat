@@ -1,0 +1,20 @@
+{
+  "name": "pro-anno",
+  "description": "Providentia Annotation Tool",
+  "main": "index.html",
+  "authors": [
+    "Walter Zimmer"
+  ],
+  "license": "TBD",
+  "homepage": "https://gitlab.lrz.de/providentiaplusplus/proanno",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "threejs": "*"
+  }
+}

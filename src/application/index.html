@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html lang="ja">
+<head>
+    <meta http-equiv="Expires" content="3600">
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="../favicon.ico"/>
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta name="theme-color" content="#000000"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>proAnno</title>
+
+    <link type="text/css" href="../css/bootstrap.min.css" rel="stylesheet">
+    <link type="text/css" href="../css/w2ui-1.5.rc1.min.css" rel="stylesheet">
+    <link type="text/css" href="../css/jquery-ui.min.css" rel="stylesheet">
+    <link type="text/css" href="../css/font-awesome.min.css" rel="stylesheet">
+    <link type="text/css" href="../css/jspanel.css" rel="stylesheet">
+
+    <!--    <script type="text/javascript" src="../bower_components/threejs/build/three.js"></script>-->
+    <!--    <script type="text/javascript" src="lib/controls/MapControls.js"></script>-->
+    <!--    <script type="text/javascript" src="lib/renderer/CSS2DRenderer.js"></script>-->
+    <!--    <script type="text/javascript" src="lib/jquery-2.2.4.min.js"></script>-->
+    <!--    <script type="text/javascript" src="lib/jquery-ui.min.js"></script>-->
+    <!--    <script type="text/javascript" src="lib/bootstrap.min.js"></script>-->
+    <!--    <script type="text/javascript" src="lib/raphael.js"></script>-->
+    <!--    <script type="text/javascript" src="lib/Toast.js"></script>-->
+    <!--    <script type="text/javascript" src="lib/WebGL.js"></script>-->
+
+    <link type="text/css" href="../css/main.css" rel="stylesheet">
+    <link type="text/css" href="../css/label_tool.css" rel="stylesheet">
+    <link type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+
+<body>
+<noscript>You need to enable JavaScript to run this app.</noscript>
+<div id="wrapper">
+    <div id="label-tool-wrapper"></div>
+
+    <!--    <script type="text/javascript" src="lib/controls/threex.keyboardstate.js"></script>-->
+    <!--    <script type="text/javascript" src="lib/SceneUtils.js"></script>-->
+    <!--    <script type="text/javascript" src="lib/PCDLoader.js"></script>-->
+    <!--    <script type="text/javascript" src="lib/OBJLoader.js"></script>-->
+
+    <!--    <script type="text/javascript" src="lib/controls/OrbitControls.js"></script>-->
+    <!--    <script type="module" src="lib/controls/TransformControls.js"></script>-->
+    <!--    <script src='lib/controls/PointerLockControls.js'></script>-->
+    <!--    <script src='lib/controls/KeyboardState.js'></script>-->
+    <!--    <script src="lib/controls/threex.keyboardstate.js"></script>-->
+    <!--    <script src="lib/Detector.js"></script>-->
+    <!--    <script src="lib/stats.min.js"></script>-->
+    <!--    <script src='lib/dat.gui.js'></script>-->
+    <!--    <script src='lib/Projector.js'></script>-->
+    <!--    <script type="text/javascript" src="lib/jszip.js"></script>-->
+    <!--    <script type="text/javascript" src="../node_modules/file-saver/dist/FileSaver.js"></script>-->
+    <!--    <script src="lib/html2canvas.js?ver=1.0"></script>-->
+    <!--    <script src="lib/base64-binary.js?ver=1.0"></script>-->
+    <!--    <script type="module" src="util/math_utils.ts?ver=1.0"></script>-->
+    <!--    <script type="module" src='util/utils.ts'></script>-->
+    <!--    <script type="module" src='io/file_operations.ts'></script>-->
+    <!--    <script src='lib/w2ui-1.5.rc1.min.js?ver=1.0'></script>-->
+</div>
+<div class="frame-selector">
+    <div class="current">1/600</div>
+    <div class="list-wrapper">
+        <div class="frame-selector__frames"></div>
+    </div>
+</div>
+<img id="left-btn" src="../assets/textures/left.png" alt="left"/>
+<img id="right-btn" src="../assets/textures/right.png" alt="right"/>
+<div id="time-elapsed"></div>
+<ul class="toasts"></ul>
+<script type="module" src="index.js"></script>
+</body>
+</html>

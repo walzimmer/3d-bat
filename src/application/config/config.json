@@ -1,0 +1,1986 @@
+{
+  "datasets": [
+    {
+      "name": "tumtraf",
+      "sequences": [
+        {
+          "name": "drive_22_north_to_south",
+          "num_frames": 100,
+          "default_weather_type": "SUNNY"
+        },
+        {
+          "name": "drive_33_north_to_south",
+          "num_frames": 100,
+          "default_weather_type": "SUNNY"
+        },
+        {
+          "name": "drive_41_north_to_west",
+          "num_frames": 100,
+          "default_weather_type": "SUNNY"
+        },
+        {
+          "name": "drive_42_west_to_east",
+          "num_frames": 100,
+          "default_weather_type": "CLOUDY"
+        },
+        {
+          "name": "drive_44_south_to_north",
+          "num_frames": 100,
+          "default_weather_type": "CLOUDY"
+        },
+        {
+          "name": "drive_53_south_to_south",
+          "num_frames": 100,
+          "default_weather_type": "CLOUDY"
+        }
+      ],
+      "default_sequence": "drive_53_south_to_south",
+      "num_frames": 100,
+      "classes": [
+        {
+          "name": "CAR",
+          "annotation_color": "#00CCF6",
+          "attributes": [
+            {
+              "name": "sensor_id",
+              "style": "dropdown_multiselect",
+              "values": [
+                "s110_camera_basler_south2_8mm",
+                "s110_camera_basler_south1_8mm",
+                "s110_camera_basler_north_8mm",
+                "s110_camera_basler_east_8mm",
+                "vehicle_camera_basler_16mm"
+              ],
+              "default": ""
+            },
+            {
+              "name": "occlusion_level",
+              "style": "dropdown",
+              "values": [
+                "NOT_OCCLUDED",
+                "PARTIALLY_OCCLUDED",
+                "MOSTLY_OCCLUDED"
+              ],
+              "default": ""
+            },
+            {
+              "name": "body_color",
+              "style": "dropdown",
+              "values": [
+                "BLACK",
+                "WHITE",
+                "GRAY",
+                "BLUE",
+                "BROWN",
+                "RED",
+                "GREEN",
+                "ORANGE",
+                "YELLOW",
+                "PURPLE",
+                "PINK",
+                "OTHER"
+              ],
+              "default": ""
+            },
+            {
+              "name": "number_of_trailers",
+              "style": "dropdown",
+              "values": [
+                0,
+                1,
+                2
+              ],
+              "default": -1
+            },
+            {
+              "name": "num_points",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "score",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "is_electric",
+              "style": "checkbox",
+              "values": [
+                false,
+                true
+              ],
+              "default": false
+            }
+          ]
+        },
+        {
+          "name": "TRUCK",
+          "annotation_color": "#56FFB6",
+          "attributes": [
+            {
+              "name": "sensor_id",
+              "style": "dropdown_multiselect",
+              "values": [
+                "s110_camera_basler_south2_8mm",
+                "s110_camera_basler_south1_8mm",
+                "s110_camera_basler_north_8mm",
+                "s110_camera_basler_east_8mm",
+                "vehicle_camera_basler_16mm"
+              ],
+              "default": ""
+            },
+            {
+              "name": "body_color",
+              "style": "dropdown",
+              "values": [
+                "GRAY",
+                "BLACK",
+                "WHITE",
+                "BLUE",
+                "BROWN",
+                "RED",
+                "GREEN",
+                "ORANGE",
+                "YELLOW",
+                "PURPLE",
+                "PINK",
+                "OTHER"
+              ],
+              "default": ""
+            },
+            {
+              "name": "occlusion_level",
+              "style": "dropdown",
+              "values": [
+                "NOT_OCCLUDED",
+                "PARTIALLY_OCCLUDED",
+                "MOSTLY_OCCLUDED"
+              ],
+              "default": ""
+            },
+            {
+              "name": "number_of_trailers",
+              "style": "dropdown",
+              "values": [
+                1,
+                0,
+                2
+              ],
+              "default": -1
+            },
+            {
+              "name": "type",
+              "style": "dropdown",
+              "values": [
+                "delivery_truck",
+                "pickup_truck"
+              ],
+              "default": ""
+            },
+            {
+              "name": "num_points",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "score",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "electric",
+              "style": "checkbox",
+              "values": [
+                false,
+                true
+              ],
+              "default": false
+            }
+          ]
+        },
+        {
+          "name": "TRAILER",
+          "annotation_color": "#5AFF7E",
+          "attributes": [
+            {
+              "name": "sensor_id",
+              "style": "dropdown_multiselect",
+              "values": [
+                "s110_camera_basler_south2_8mm",
+                "s110_camera_basler_south1_8mm",
+                "s110_camera_basler_north_8mm",
+                "s110_camera_basler_east_8mm",
+                "vehicle_camera_basler_16mm"
+              ],
+              "default": ""
+            },
+            {
+              "name": "body_color",
+              "style": "dropdown",
+              "values": [
+                "GRAY",
+                "BLACK",
+                "WHITE",
+                "BLUE",
+                "BROWN",
+                "RED",
+                "GREEN",
+                "ORANGE",
+                "YELLOW",
+                "PURPLE",
+                "PINK",
+                "OTHER"
+              ],
+              "default": ""
+            },
+            {
+              "name": "occlusion_level",
+              "style": "dropdown",
+              "values": [
+                "NOT_OCCLUDED",
+                "PARTIALLY_OCCLUDED",
+                "MOSTLY_OCCLUDED"
+              ],
+              "default": ""
+            },
+            {
+              "name": "type",
+              "style": "dropdown",
+              "values": [
+                "container",
+                "box",
+                "dump",
+                "vehicle_transport",
+                "mixer",
+                "tank",
+                "flatbed",
+                "other"
+              ],
+              "default": ""
+            },
+            {
+              "name": "num_points",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "score",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            }
+          ]
+        },
+        {
+          "name": "VAN",
+          "annotation_color": "#EBCF36",
+          "attributes": [
+            {
+              "name": "sensor_id",
+              "style": "dropdown_multiselect",
+              "values": [
+                "s110_camera_basler_south2_8mm",
+                "s110_camera_basler_south1_8mm",
+                "s110_camera_basler_north_8mm",
+                "s110_camera_basler_east_8mm",
+                "vehicle_camera_basler_16mm"
+              ],
+              "default": ""
+            },
+            {
+              "name": "body_color",
+              "style": "dropdown",
+              "values": [
+                "WHITE",
+                "BLACK",
+                "GRAY",
+                "BLUE",
+                "BROWN",
+                "RED",
+                "GREEN",
+                "ORANGE",
+                "YELLOW",
+                "PURPLE",
+                "PINK",
+                "OTHER"
+              ],
+              "default": ""
+            },
+            {
+              "name": "occlusion_level",
+              "style": "dropdown",
+              "values": [
+                "NOT_OCCLUDED",
+                "PARTIALLY_OCCLUDED",
+                "MOSTLY_OCCLUDED"
+              ],
+              "default": ""
+            },
+            {
+              "name": "number_of_trailers",
+              "style": "dropdown",
+              "values": [
+                0,
+                1,
+                2
+              ],
+              "default": -1
+            },
+            {
+              "name": "num_points",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "score",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "is_electric",
+              "style": "checkbox",
+              "values": [
+                false,
+                true
+              ],
+              "default": false
+            }
+          ]
+        },
+        {
+          "name": "MOTORCYCLE",
+          "annotation_color": "#B9A454",
+          "attributes": [
+            {
+              "name": "sensor_id",
+              "style": "dropdown_multiselect",
+              "values": [
+                "s110_camera_basler_south2_8mm",
+                "s110_camera_basler_south1_8mm",
+                "s110_camera_basler_north_8mm",
+                "s110_camera_basler_east_8mm",
+                "vehicle_camera_basler_16mm"
+              ],
+              "default": ""
+            },
+            {
+              "name": "body_color",
+              "style": "dropdown",
+              "values": [
+                "BLACK",
+                "WHITE",
+                "GRAY",
+                "BLUE",
+                "BROWN",
+                "RED",
+                "GREEN",
+                "ORANGE",
+                "YELLOW",
+                "PURPLE",
+                "PINK",
+                "OTHER"
+              ],
+              "default": ""
+            },
+            {
+              "name": "occlusion_level",
+              "style": "dropdown",
+              "values": [
+                "NOT_OCCLUDED",
+                "PARTIALLY_OCCLUDED",
+                "MOSTLY_OCCLUDED"
+              ],
+              "default": ""
+            },
+            {
+              "name": "has_rider",
+              "style": "checkbox",
+              "values": [
+                true,
+                false
+              ],
+              "default": true
+            },
+            {
+              "name": "type",
+              "style": "dropdown",
+              "values": [
+                "motorbike",
+                "scooter"
+              ],
+              "default": ""
+            },
+            {
+              "name": "num_points",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "score",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "is_electric",
+              "style": "checkbox",
+              "values": [
+                false,
+                true
+              ],
+              "default": false
+            }
+          ]
+        },
+        {
+          "name": "BUS",
+          "annotation_color": "#D98A86",
+          "attributes": [
+            {
+              "name": "sensor_id",
+              "style": "dropdown_multiselect",
+              "values": [
+                "s110_camera_basler_south2_8mm",
+                "s110_camera_basler_south1_8mm",
+                "s110_camera_basler_north_8mm",
+                "s110_camera_basler_east_8mm",
+                "vehicle_camera_basler_16mm"
+              ],
+              "default": ""
+            },
+            {
+              "name": "body_color",
+              "style": "dropdown",
+              "values": [
+                "BLACK",
+                "WHITE",
+                "GRAY",
+                "BLUE",
+                "BROWN",
+                "RED",
+                "GREEN",
+                "ORANGE",
+                "YELLOW",
+                "PURPLE",
+                "PINK",
+                "OTHER"
+              ],
+              "default": ""
+            },
+            {
+              "name": "occlusion_level",
+              "style": "dropdown",
+              "values": [
+                "NOT_OCCLUDED",
+                "PARTIALLY_OCCLUDED",
+                "MOSTLY_OCCLUDED"
+              ],
+              "default": ""
+            },
+            {
+              "name": "number_of_trailers",
+              "style": "dropdown",
+              "values": [
+                0,
+                1,
+                2
+              ],
+              "default": -1
+            },
+            {
+              "name": "type",
+              "style": "dropdown",
+              "values": [
+                "rigid",
+                "bendy"
+              ],
+              "default": ""
+            },
+            {
+              "name": "num_points",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "score",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "is_electric",
+              "style": "checkbox",
+              "values": [
+                false,
+                true
+              ],
+              "default": false
+            }
+          ]
+        },
+        {
+          "name": "PEDESTRIAN",
+          "annotation_color": "#E976F9",
+          "attributes": [
+            {
+              "name": "sensor_id",
+              "style": "dropdown_multiselect",
+              "values": [
+                "s110_camera_basler_south2_8mm",
+                "s110_camera_basler_south1_8mm",
+                "s110_camera_basler_north_8mm",
+                "s110_camera_basler_east_8mm",
+                "vehicle_camera_basler_16mm"
+              ],
+              "default": ""
+            },
+            {
+              "name": "occlusion_level",
+              "style": "dropdown",
+              "values": [
+                "NOT_OCCLUDED",
+                "PARTIALLY_OCCLUDED",
+                "MOSTLY_OCCLUDED"
+              ],
+              "default": ""
+            },
+            {
+              "name": "num_points",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "score",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            }
+          ]
+        },
+        {
+          "name": "BICYCLE",
+          "annotation_color": "#B18CFF",
+          "attributes": [
+            {
+              "name": "sensor_id",
+              "style": "dropdown_multiselect",
+              "values": [
+                "s110_camera_basler_south2_8mm",
+                "s110_camera_basler_south1_8mm",
+                "s110_camera_basler_north_8mm",
+                "s110_camera_basler_east_8mm",
+                "vehicle_camera_basler_16mm"
+              ],
+              "default": ""
+            },
+            {
+              "name": "occlusion_level",
+              "style": "dropdown",
+              "values": [
+                "NOT_OCCLUDED",
+                "PARTIALLY_OCCLUDED",
+                "MOSTLY_OCCLUDED"
+              ],
+              "default": ""
+            },
+            {
+              "name": "has_rider",
+              "style": "checkbox",
+              "values": [
+                true,
+                false
+              ],
+              "default": true
+            },
+            {
+              "name": "num_points",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "score",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "is_electric",
+              "style": "checkbox",
+              "values": [
+                false,
+                true
+              ],
+              "default": false
+            }
+          ]
+        },
+        {
+          "name": "EMERGENCY_VEHICLE",
+          "annotation_color": "#C7C7C7",
+          "attributes": [
+            {
+              "name": "sensor_id",
+              "style": "dropdown_multiselect",
+              "values": [
+                "s110_camera_basler_south2_8mm",
+                "s110_camera_basler_south1_8mm",
+                "s110_camera_basler_north_8mm",
+                "s110_camera_basler_east_8mm",
+                "vehicle_camera_basler_16mm"
+              ],
+              "default": ""
+            },
+            {
+              "name": "body_color",
+              "style": "dropdown",
+              "values": [
+                "BLACK",
+                "WHITE",
+                "GRAY",
+                "BLUE",
+                "BROWN",
+                "RED",
+                "GREEN",
+                "ORANGE",
+                "YELLOW",
+                "PURPLE",
+                "PINK",
+                "OTHER"
+              ],
+              "default": ""
+            },
+            {
+              "name": "occlusion_level",
+              "style": "dropdown",
+              "values": [
+                "NOT_OCCLUDED",
+                "PARTIALLY_OCCLUDED",
+                "MOSTLY_OCCLUDED"
+              ],
+              "default": ""
+            },
+            {
+              "name": "type",
+              "style": "dropdown",
+              "values": [
+                "ambulance",
+                "police_vehicle",
+                "fire_truck",
+                "tractor",
+                "other"
+              ],
+              "default": ""
+            },
+            {
+              "name": "has_flashing_lights",
+              "style": "checkbox",
+              "values": [
+                false,
+                true
+              ],
+              "default": false
+            },
+            {
+              "name": "num_points",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "score",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "is_electric",
+              "style": "checkbox",
+              "values": [
+                false,
+                true
+              ],
+              "default": false
+            }
+          ]
+        },
+        {
+          "name": "OTHER",
+          "annotation_color": "#C7C7C7",
+          "attributes": [
+            {
+              "name": "sensor_id",
+              "style": "dropdown_multiselect",
+              "values": [
+                "s110_camera_basler_south2_8mm",
+                "s110_camera_basler_south1_8mm",
+                "s110_camera_basler_north_8mm",
+                "s110_camera_basler_east_8mm",
+                "vehicle_camera_basler_16mm"
+              ],
+              "default": ""
+            },
+            {
+              "name": "body_color",
+              "style": "dropdown",
+              "values": [
+                "BLACK",
+                "WHITE",
+                "GRAY",
+                "BLUE",
+                "BROWN",
+                "RED",
+                "GREEN",
+                "ORANGE",
+                "YELLOW",
+                "PURPLE",
+                "PINK",
+                "OTHER"
+              ],
+              "default": ""
+            },
+            {
+              "name": "occlusion_level",
+              "style": "dropdown",
+              "values": [
+                "NOT_OCCLUDED",
+                "PARTIALLY_OCCLUDED",
+                "MOSTLY_OCCLUDED"
+              ],
+              "default": ""
+            },
+            {
+              "name": "has_flashing_lights",
+              "style": "checkbox",
+              "values": [
+                false,
+                true
+              ],
+              "default": false
+            },
+            {
+              "name": "num_points",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "score",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "is_electric",
+              "style": "checkbox",
+              "values": [
+                false,
+                true
+              ],
+              "default": false
+            }
+          ]
+        }
+      ],
+      "position_lidar": [
+        -8.0,
+        0.0,
+        6.9
+      ],
+      "image_size": [
+        1920,
+        1200
+      ],
+      "image_scale_factor": 1,
+      "frame_annotation_type": "continuous_sequence",
+      "lidar_channels": [
+        {
+          "channel": "s110_lidar_ouster_south_and_vehicle_lidar_robosense_registered"
+        }
+      ],
+      "camera_channels": [
+        {
+          "channel": "s110_camera_basler_south2_8mm",
+          "positionCamera": [
+            0,
+            0,
+            -6.371
+          ],
+          "projectionMatrix": [
+            [
+              1546.63215008,
+              -436.92407115,
+              -295.58362676,
+              1319.79271737
+            ],
+            [
+              93.20805656,
+              47.90351592,
+              -1482.13403199,
+              687.84781276
+            ],
+            [
+              0.73326062,
+              0.59708904,
+              -0.32528854,
+              -1.30114325
+            ]
+          ]
+        },
+        {
+          "channel": "s110_camera_basler_south1_8mm",
+          "positionCamera": [
+            0,
+            0,
+            -6.894
+          ],
+          "projectionMatrix": [
+            [
+              1279.2768504,
+              -862.92893566,
+              -443.65575713,
+              -16164.33154748
+            ],
+            [
+              -57.00779242,
+              -67.92430641,
+              -1461.78659387,
+              -806.92191484
+            ],
+            [
+              0.790127,
+              0.342818,
+              -0.508109,
+              3.67868
+            ]
+          ]
+        },
+        {
+          "channel": "s110_camera_basler_north_8mm",
+          "positionCamera": [
+            0,
+            0,
+            0
+          ],
+          "projectionMatrix": [
+            [
+              -185.2891049687059,
+              -1504.063395597006,
+              -525.9215327879701,
+              -23336.12843138125
+            ],
+            [
+              -240.2665682659353,
+              220.6722195428702,
+              -1567.287260600104,
+              6362.243306159624
+            ],
+            [
+              0.6863989233970642,
+              -0.4493367969989777,
+              -0.5717979669570923,
+              -6.750176429748535
+            ]
+          ]
+        },
+        {
+          "channel": "s110_camera_basler_east_8mm",
+          "positionCamera": [
+            0,
+            0,
+            0
+          ],
+          "projectionMatrix": [
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "channel": "vehicle_camera_basler_16mm",
+          "positionCamera": [
+            0,
+            0,
+            0
+          ],
+          "projectionMatrix": [
+            [
+              1019.929965441548,
+              -2613.286262078907,
+              184.6794570200418,
+              370.7180273597151
+            ],
+            [
+              589.8963703919744,
+              -24.09642935106967,
+              -2623.908527352794,
+              -139.3143336725661
+            ],
+            [
+              0.9841844439506531,
+              0.1303769648075104,
+              0.1199281811714172,
+              -0.1664766669273376
+            ]
+          ]
+        }
+      ],
+      "weather_type": [
+        "SUNNY",
+        "CLOUDY",
+        "WINDY",
+        "RAINY",
+        "FOGGY",
+        "SNOWY"
+      ],
+      "rotation_convention": "standard",
+      "coordinate_system": {
+        "x-axis": "forward",
+        "y-axis": "left",
+        "z-axis": "up"
+      }
+    },
+    {
+      "name": "hvle",
+      "sequences": [
+        {
+          "name": "od_recording_2022_05_05-12_20_28_converted_0",
+          "num_frames": 297,
+          "default_weather_type": "CLOUDY"
+        },
+        {
+          "name": "od_recording_2022_05_05-11_37_57_converted_0",
+          "num_frames": 199,
+          "default_weather_type": "CLOUDY"
+        }
+      ],
+      "default_sequence": "od_recording_2022_05_05-12_20_28_converted_0",
+      "num_frames": 297,
+      "classes": [
+        {
+          "name": "CAR",
+          "annotation_color": "#00CCF6",
+          "attributes": [
+            {
+              "name": "sensor_id",
+              "style": "dropdown_multiselect",
+              "values": [
+                "camera_0"
+              ],
+              "default": ""
+            },
+            {
+              "name": "occlusion_level",
+              "style": "dropdown",
+              "values": [
+                "NOT_OCCLUDED",
+                "PARTIALLY_OCCLUDED",
+                "MOSTLY_OCCLUDED"
+              ],
+              "default": ""
+            },
+            {
+              "name": "body_color",
+              "style": "dropdown",
+              "values": [
+                "BLACK",
+                "WHITE",
+                "GRAY",
+                "BLUE",
+                "BROWN",
+                "RED",
+                "GREEN",
+                "ORANGE",
+                "YELLOW",
+                "PURPLE",
+                "PINK",
+                "OTHER"
+              ],
+              "default": ""
+            },
+            {
+              "name": "number_of_trailers",
+              "style": "dropdown",
+              "values": [
+                0,
+                1,
+                2
+              ],
+              "default": -1
+            },
+            {
+              "name": "num_points",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "score",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "is_electric",
+              "style": "checkbox",
+              "values": [
+                false,
+                true
+              ],
+              "default": false
+            }
+          ]
+        },
+        {
+          "name": "PEDESTRIAN",
+          "annotation_color": "#E976F9",
+          "attributes": [
+            {
+              "name": "sensor_id",
+              "style": "dropdown_multiselect",
+              "values": [
+                "camera_0"
+              ],
+              "default": ""
+            },
+            {
+              "name": "occlusion_level",
+              "style": "dropdown",
+              "values": [
+                "NOT_OCCLUDED",
+                "PARTIALLY_OCCLUDED",
+                "MOSTLY_OCCLUDED"
+              ],
+              "default": ""
+            },
+            {
+              "name": "num_points",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "score",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            }
+          ]
+        }
+      ],
+      "position_lidar": [
+        1.3005,
+        0.0062,
+        1.2878
+      ],
+      "image_size": [
+        576,
+        372
+      ],
+      "image_scale_factor": 0.2,
+      "frame_annotation_type": "continuous_sequence",
+      "lidar_channels": [
+        {
+          "channel": ""
+        }
+      ],
+      "camera_channels": [
+        {
+          "channel": "camera_0",
+          "positionCamera": [
+            1.3329,
+            -0.1461,
+            1.2739
+          ],
+          "projectionMatrix": [
+            [
+              1441.45605,
+              -2058.92236,
+              42.45734,
+              -360.72821
+            ],
+            [
+              994.03009,
+              4.93651,
+              -2047.89966,
+              -60.17366
+            ],
+            [
+              0.99961,
+              0.01077349,
+              0.02583,
+              -0.03111
+            ]
+          ]
+        }
+      ],
+      "weather_type": [
+        "SUNNY",
+        "CLOUDY",
+        "WINDY",
+        "RAINY",
+        "FOGGY",
+        "SNOWY"
+      ],
+      "rotation_convention": "standard",
+      "coordinate_system": {
+        "x-axis": "forward",
+        "y-axis": "left",
+        "z-axis": "up"
+      }
+    },
+    {
+      "name": "custom",
+      "sequences": [
+        {
+          "name": "custom_sequence",
+          "num_frames": 300,
+          "default_weather_type": "CLOUDY"
+        }
+      ],
+      "default_sequence": "ONE",
+      "num_frames": 300,
+      "classes": [
+        {
+          "name": "CAR",
+          "annotation_color": "#00CCF6",
+          "attributes": [
+            {
+              "name": "sensor_id",
+              "style": "dropdown_multiselect",
+              "values": [
+                "camera_basler_1",
+                "camera_basler_2"
+              ],
+              "default": ""
+            },
+            {
+              "name": "occlusion_level",
+              "style": "dropdown",
+              "values": [
+                "NOT_OCCLUDED",
+                "PARTIALLY_OCCLUDED",
+                "MOSTLY_OCCLUDED"
+              ],
+              "default": ""
+            },
+            {
+              "name": "body_color",
+              "style": "dropdown",
+              "values": [
+                "BLACK",
+                "WHITE",
+                "GRAY",
+                "BLUE",
+                "BROWN",
+                "RED",
+                "GREEN",
+                "ORANGE",
+                "YELLOW",
+                "PURPLE",
+                "PINK",
+                "OTHER"
+              ],
+              "default": ""
+            },
+            {
+              "name": "number_of_trailers",
+              "style": "dropdown",
+              "values": [
+                0,
+                1,
+                2
+              ],
+              "default": -1
+            },
+            {
+              "name": "num_points",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "score",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "is_electric",
+              "style": "checkbox",
+              "values": [
+                false,
+                true
+              ],
+              "default": false
+            }
+          ]
+        },
+        {
+          "name": "TRUCK",
+          "annotation_color": "#56FFB6",
+          "attributes": [
+            {
+              "name": "sensor_id",
+              "style": "dropdown_multiselect",
+              "values": [
+                "camera_basler_1",
+                "camera_basler_2"
+              ],
+              "default": ""
+            },
+            {
+              "name": "body_color",
+              "style": "dropdown",
+              "values": [
+                "GRAY",
+                "BLACK",
+                "WHITE",
+                "BLUE",
+                "BROWN",
+                "RED",
+                "GREEN",
+                "ORANGE",
+                "YELLOW",
+                "PURPLE",
+                "PINK",
+                "OTHER"
+              ],
+              "default": ""
+            },
+            {
+              "name": "occlusion_level",
+              "style": "dropdown",
+              "values": [
+                "NOT_OCCLUDED",
+                "PARTIALLY_OCCLUDED",
+                "MOSTLY_OCCLUDED"
+              ],
+              "default": ""
+            },
+            {
+              "name": "number_of_trailers",
+              "style": "dropdown",
+              "values": [
+                1,
+                0,
+                2
+              ],
+              "default": -1
+            },
+            {
+              "name": "type",
+              "style": "dropdown",
+              "values": [
+                "delivery_truck",
+                "pickup_truck"
+              ],
+              "default": ""
+            },
+            {
+              "name": "num_points",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "score",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "electric",
+              "style": "checkbox",
+              "values": [
+                false,
+                true
+              ],
+              "default": false
+            }
+          ]
+        },
+        {
+          "name": "TRAILER",
+          "annotation_color": "#5AFF7E",
+          "attributes": [
+            {
+              "name": "sensor_id",
+              "style": "dropdown_multiselect",
+              "values": [
+                "camera_basler_1",
+                "camera_basler_2"
+              ],
+              "default": ""
+            },
+            {
+              "name": "body_color",
+              "style": "dropdown",
+              "values": [
+                "GRAY",
+                "BLACK",
+                "WHITE",
+                "BLUE",
+                "BROWN",
+                "RED",
+                "GREEN",
+                "ORANGE",
+                "YELLOW",
+                "PURPLE",
+                "PINK",
+                "OTHER"
+              ],
+              "default": ""
+            },
+            {
+              "name": "occlusion_level",
+              "style": "dropdown",
+              "values": [
+                "NOT_OCCLUDED",
+                "PARTIALLY_OCCLUDED",
+                "MOSTLY_OCCLUDED"
+              ],
+              "default": ""
+            },
+            {
+              "name": "type",
+              "style": "dropdown",
+              "values": [
+                "container",
+                "box",
+                "dump",
+                "vehicle_transport",
+                "mixer",
+                "tank",
+                "flatbed",
+                "other"
+              ],
+              "default": ""
+            },
+            {
+              "name": "num_points",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "score",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            }
+          ]
+        },
+        {
+          "name": "VAN",
+          "annotation_color": "#EBCF36",
+          "attributes": [
+            {
+              "name": "sensor_id",
+              "style": "dropdown_multiselect",
+              "values": [
+                "camera_basler_1",
+                "camera_basler_2"
+              ],
+              "default": ""
+            },
+            {
+              "name": "body_color",
+              "style": "dropdown",
+              "values": [
+                "WHITE",
+                "BLACK",
+                "GRAY",
+                "BLUE",
+                "BROWN",
+                "RED",
+                "GREEN",
+                "ORANGE",
+                "YELLOW",
+                "PURPLE",
+                "PINK",
+                "OTHER"
+              ],
+              "default": ""
+            },
+            {
+              "name": "occlusion_level",
+              "style": "dropdown",
+              "values": [
+                "NOT_OCCLUDED",
+                "PARTIALLY_OCCLUDED",
+                "MOSTLY_OCCLUDED"
+              ],
+              "default": ""
+            },
+            {
+              "name": "number_of_trailers",
+              "style": "dropdown",
+              "values": [
+                0,
+                1,
+                2
+              ],
+              "default": -1
+            },
+            {
+              "name": "num_points",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "score",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "is_electric",
+              "style": "checkbox",
+              "values": [
+                false,
+                true
+              ],
+              "default": false
+            }
+          ]
+        },
+        {
+          "name": "MOTORCYCLE",
+          "annotation_color": "#B9A454",
+          "attributes": [
+            {
+              "name": "sensor_id",
+              "style": "dropdown_multiselect",
+              "values": [
+                "camera_basler_1",
+                "camera_basler_2"
+              ],
+              "default": ""
+            },
+            {
+              "name": "body_color",
+              "style": "dropdown",
+              "values": [
+                "BLACK",
+                "WHITE",
+                "GRAY",
+                "BLUE",
+                "BROWN",
+                "RED",
+                "GREEN",
+                "ORANGE",
+                "YELLOW",
+                "PURPLE",
+                "PINK",
+                "OTHER"
+              ],
+              "default": ""
+            },
+            {
+              "name": "occlusion_level",
+              "style": "dropdown",
+              "values": [
+                "NOT_OCCLUDED",
+                "PARTIALLY_OCCLUDED",
+                "MOSTLY_OCCLUDED"
+              ],
+              "default": ""
+            },
+            {
+              "name": "has_rider",
+              "style": "checkbox",
+              "values": [
+                true,
+                false
+              ],
+              "default": true
+            },
+            {
+              "name": "type",
+              "style": "dropdown",
+              "values": [
+                "motorbike",
+                "scooter"
+              ],
+              "default": ""
+            },
+            {
+              "name": "num_points",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "score",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "is_electric",
+              "style": "checkbox",
+              "values": [
+                false,
+                true
+              ],
+              "default": false
+            }
+          ]
+        },
+        {
+          "name": "BUS",
+          "annotation_color": "#D98A86",
+          "attributes": [
+            {
+              "name": "sensor_id",
+              "style": "dropdown_multiselect",
+              "values": [
+                "camera_basler_1",
+                "camera_basler_2"
+              ],
+              "default": ""
+            },
+            {
+              "name": "body_color",
+              "style": "dropdown",
+              "values": [
+                "BLACK",
+                "WHITE",
+                "GRAY",
+                "BLUE",
+                "BROWN",
+                "RED",
+                "GREEN",
+                "ORANGE",
+                "YELLOW",
+                "PURPLE",
+                "PINK",
+                "OTHER"
+              ],
+              "default": ""
+            },
+            {
+              "name": "occlusion_level",
+              "style": "dropdown",
+              "values": [
+                "NOT_OCCLUDED",
+                "PARTIALLY_OCCLUDED",
+                "MOSTLY_OCCLUDED"
+              ],
+              "default": ""
+            },
+            {
+              "name": "number_of_trailers",
+              "style": "dropdown",
+              "values": [
+                0,
+                1,
+                2
+              ],
+              "default": -1
+            },
+            {
+              "name": "type",
+              "style": "dropdown",
+              "values": [
+                "rigid",
+                "bendy"
+              ],
+              "default": ""
+            },
+            {
+              "name": "num_points",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "score",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "is_electric",
+              "style": "checkbox",
+              "values": [
+                false,
+                true
+              ],
+              "default": false
+            }
+          ]
+        },
+        {
+          "name": "PEDESTRIAN",
+          "annotation_color": "#E976F9",
+          "attributes": [
+            {
+              "name": "sensor_id",
+              "style": "dropdown_multiselect",
+              "values": [
+                "camera_basler_1",
+                "camera_basler_2"
+              ],
+              "default": ""
+            },
+            {
+              "name": "occlusion_level",
+              "style": "dropdown",
+              "values": [
+                "NOT_OCCLUDED",
+                "PARTIALLY_OCCLUDED",
+                "MOSTLY_OCCLUDED"
+              ],
+              "default": ""
+            },
+            {
+              "name": "num_points",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "score",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            }
+          ]
+        },
+        {
+          "name": "BICYCLE",
+          "annotation_color": "#B18CFF",
+          "attributes": [
+            {
+              "name": "sensor_id",
+              "style": "dropdown_multiselect",
+              "values": [
+                "camera_basler_1",
+                "camera_basler_2"
+              ],
+              "default": ""
+            },
+            {
+              "name": "occlusion_level",
+              "style": "dropdown",
+              "values": [
+                "NOT_OCCLUDED",
+                "PARTIALLY_OCCLUDED",
+                "MOSTLY_OCCLUDED"
+              ],
+              "default": ""
+            },
+            {
+              "name": "has_rider",
+              "style": "checkbox",
+              "values": [
+                true,
+                false
+              ],
+              "default": true
+            },
+            {
+              "name": "num_points",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "score",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "is_electric",
+              "style": "checkbox",
+              "values": [
+                false,
+                true
+              ],
+              "default": false
+            }
+          ]
+        },
+        {
+          "name": "EMERGENCY_VEHICLE",
+          "annotation_color": "#666BFA",
+          "attributes": [
+            {
+              "name": "sensor_id",
+              "style": "dropdown_multiselect",
+              "values": [
+                "camera_basler_1",
+                "camera_basler_2"
+              ],
+              "default": ""
+            },
+            {
+              "name": "body_color",
+              "style": "dropdown",
+              "values": [
+                "BLACK",
+                "WHITE",
+                "GRAY",
+                "BLUE",
+                "BROWN",
+                "RED",
+                "GREEN",
+                "ORANGE",
+                "YELLOW",
+                "PURPLE",
+                "PINK",
+                "OTHER"
+              ],
+              "default": ""
+            },
+            {
+              "name": "occlusion_level",
+              "style": "dropdown",
+              "values": [
+                "NOT_OCCLUDED",
+                "PARTIALLY_OCCLUDED",
+                "MOSTLY_OCCLUDED"
+              ],
+              "default": ""
+            },
+            {
+              "name": "type",
+              "style": "dropdown",
+              "values": [
+                "ambulance",
+                "police_vehicle",
+                "fire_truck",
+                "tractor",
+                "other"
+              ],
+              "default": ""
+            },
+            {
+              "name": "has_flashing_lights",
+              "style": "checkbox",
+              "values": [
+                false,
+                true
+              ],
+              "default": false
+            },
+            {
+              "name": "num_points",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "score",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "is_electric",
+              "style": "checkbox",
+              "values": [
+                false,
+                true
+              ],
+              "default": false
+            }
+          ]
+        },
+        {
+          "name": "OTHER",
+          "annotation_color": "#C7C7C7",
+          "attributes": [
+            {
+              "name": "sensor_id",
+              "style": "dropdown_multiselect",
+              "values": [
+                "camera_basler_1",
+                "camera_basler_2"
+              ],
+              "default": ""
+            },
+            {
+              "name": "body_color",
+              "style": "dropdown",
+              "values": [
+                "BLACK",
+                "WHITE",
+                "GRAY",
+                "BLUE",
+                "BROWN",
+                "RED",
+                "GREEN",
+                "ORANGE",
+                "YELLOW",
+                "PURPLE",
+                "PINK",
+                "OTHER"
+              ],
+              "default": ""
+            },
+            {
+              "name": "occlusion_level",
+              "style": "dropdown",
+              "values": [
+                "NOT_OCCLUDED",
+                "PARTIALLY_OCCLUDED",
+                "MOSTLY_OCCLUDED"
+              ],
+              "default": ""
+            },
+            {
+              "name": "has_flashing_lights",
+              "style": "checkbox",
+              "values": [
+                false,
+                true
+              ],
+              "default": false
+            },
+            {
+              "name": "num_points",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "score",
+              "style": "number",
+              "value": -1,
+              "default": -1
+            },
+            {
+              "name": "is_electric",
+              "style": "checkbox",
+              "values": [
+                false,
+                true
+              ],
+              "default": false
+            }
+          ]
+        }
+      ],
+      "position_lidar": [
+        3.562,
+        0.8195,
+        0.316
+      ],
+      "image_size": [
+        1024,
+        768
+      ],
+      "image_scale_factor": 0.5,
+      "frame_annotation_type": "continuous_sequence",
+      "lidar_channels": [
+        {
+          "channel": ""
+        }
+      ],
+      "camera_channels": [
+        {
+          "channel": "camera_basler_1",
+          "positionCamera": [
+            0,
+            0,
+            0
+          ],
+          "projectionMatrix": [
+            [
+              924.08020,
+              -3377.96112,
+              -19.35900,
+              -2852.56460
+            ],
+            [
+              546.67994,
+              -62.32262,
+              -3378.99234,
+              5176.34264
+            ],
+            [
+              0.99760,
+              -0.04270,
+              -0.05443,
+              -3.19042
+            ]
+          ]
+        },
+        {
+          "channel": "camera_basler_2",
+          "positionCamera": [
+            0,
+            0,
+            0
+          ],
+          "projectionMatrix": [
+            [
+              83.27625,
+              -2649.46596,
+              110.31256,
+              -2183.32315
+            ],
+            [
+              693.98284,
+              -365.00261,
+              -2407.81384,
+              1956.82374
+            ],
+            [
+              0.92862,
+              -0.37009,
+              0.02650,
+              -3.30074
+            ]
+          ]
+        }
+      ],
+      "weather_type": [
+        "SUNNY",
+        "CLOUDY",
+        "WINDY",
+        "RAINY",
+        "FOGGY",
+        "SNOWY"
+      ],
+      "rotation_convention": "standard",
+      "coordinate_system": {
+        "x-axis": "forward",
+        "y-axis": "right",
+        "z-axis": "up"
+      }
+    }
+  ]
+}
+
+
