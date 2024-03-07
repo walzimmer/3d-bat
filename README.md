@@ -24,7 +24,7 @@
 - [Commands and Shortcuts](#commands-and-shortcuts)
 
 ## 📢 News
-- 2024/02: Accepeted paper at [CVPR'24](https://cvpr.thecvf.com/) conference: [TUMTraf V2X Cooperative Perception Dataset](https://arxiv.org/pdf/2403.01316.pdf)
+- 2024/02: Accepted paper at [CVPR'24](https://cvpr.thecvf.com/) conference: [TUMTraf V2X Cooperative Perception Dataset](https://arxiv.org/pdf/2403.01316.pdf)
 - 2024/01: Active learning support. Submitted paper at [IV'24](https://2023.ieee-itsc.org/) conference: [ActiveAnno3D - An Active Learning Framework for
   Multi-Modal 3D Object Detection](https://arxiv.org/pdf/2402.03235.pdf)
 - 2023/09: 🏆 [IEEE Best Student Paper Award](https://2023.ieee-itsc.org/best-paper-awards/) at the [ITSC'23](https://2023.ieee-itsc.org/) conference: [TUMTraf Intersection Dataset: All You Need for Urban 3D Camera-LiDAR Roadside Perception](https://ieeexplore.ieee.org/document/10422289)
