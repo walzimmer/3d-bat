@@ -1,14 +1,15 @@
-[![Dataset](https://img.shields.io/badge/Datasets-TUMTraf-0065BD.svg)](https://innovation-mobility.com/tumtraf-dataset)
-[![Dataset](https://img.shields.io/badge/TUMTraf-V2X-0065BD.svg)](https://tum-traffic-dataset.github.io/tumtraf-v2x/)
-[![dev-kit](https://img.shields.io/badge/Dev_Kit-code-E37222.svg?style=flat&logo=github&logoColor=white)](https://github.com/tum-traffic-dataset/tum-traffic-dataset-dev-kit)
-[![paper1](https://img.shields.io/badge/Paper-3D_BAT-0E2B3A.svg?style=flat&logo=ieee)](https://ieeexplore.ieee.org/document/8814071)
-[![paper2](https://img.shields.io/badge/Paper-TUMTraf_V2X-a2ad00.svg?style=flat&logo=arxiv)](https://arxiv.org/pdf/2403.01316.pdf)
+<div align="center">
+<a href="https://innovation-mobility.com/tumtraf-dataset"><img src="https://img.shields.io/badge/Datasets-TUMTraf-0065BD.svg" alt="Dataset Badge"/></a>
+<a href="https://tum-traffic-dataset.github.io/tumtraf-v2x"><img src="https://img.shields.io/badge/TUMTraf-V2X-0065BD.svg" alt="Github Badge"/></a>
+<a href="https://github.com/tum-traffic-dataset/tum-traffic-dataset-dev-kit"><img src="https://img.shields.io/badge/Dev_Kit-code-E37222.svg?style=flat&logo=github&logoColor=white" alt="Github Badge"/></a>
+<a href="https://ieeexplore.ieee.org/document/8814071"><img src="https://img.shields.io/badge/Paper-3D_BAT-0E2B3A.svg?style=flat&logo=ieee" alt="Paper Badge"/></a>
+<a href="https://arxiv.org/pdf/2403.01316.pdf"><img src="https://img.shields.io/badge/Paper-TUMTraf_V2X-a2ad00.svg" alt="Paper Badge"/></a>
 <a href="https://github.com/walzimmer/3d-bat/stargazers"><img src="https://img.shields.io/github/stars/walzimmer/3d-bat" alt="Stars Badge"/></a>
 <a href="https://github.com/walzimmer/3d-bat/network/members"><img src="https://img.shields.io/github/forks/walzimmer/3d-bat" alt="Forks Badge"/></a>
 <a href="https://github.com/walzimmer/3d-bat/pulls"><img src="https://img.shields.io/github/issues-pr/walzimmer/3d-bat" alt="Pull Requests Badge"/></a>
 <a href="https://github.com/walzimmer/3d-bat/issues"><img src="https://img.shields.io/github/issues/walzimmer/3d-bat" alt="Issues Badge"/></a>
-[![paper2](https://img.shields.io/badge/license-custom-2b9348.svg)](https://ieeexplore.ieee.org/document/8814071)
-
+<a href="https://a9-dataset.innovation-mobility.com/license"><img src="https://img.shields.io/badge/license-custom-2b9348.svg" alt="Issues Badge"/></a>
+</div>
 
 <h1 align="center">3D Bounding Box Annotation Toolbox</h1>
 
