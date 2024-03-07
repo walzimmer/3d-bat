@@ -14,16 +14,23 @@
 
 ![](assets/textures/3d_bat_logo.png)
 ![](assets/textures/3d_boxes.png)
+![](assets/textures/overview_gui.jpg)
 
-## ✨ Overview
+# Overview ✨
 - [News](#news)
 - [Features](#features)
+- [Release Notes](#release-notes)
 - [Quick Start](#quick-start)
 - [Custom Data Annotation](#custom-data-annotation)
-- [Labeling instructions](#labeling-instructions)
+- [Labeling Instructions](#labeling-instructions)
 - [Commands and Shortcuts](#commands-and-shortcuts)
+- [Tutorial Videos](#tutorial-videos)
+- [Documentation](#documentation)
+- [Citation](#citation)
+- [License](#license)
 
-## 📢 News
+
+# News 📢
 - 2024/02: Accepted paper at [CVPR'24](https://cvpr.thecvf.com/) conference: [TUMTraf V2X Cooperative Perception Dataset](https://arxiv.org/pdf/2403.01316.pdf)
 - 2024/01: Active learning support. Submitted paper at [IV'24](https://2023.ieee-itsc.org/) conference: [ActiveAnno3D - An Active Learning Framework for
   Multi-Modal 3D Object Detection](https://arxiv.org/pdf/2402.03235.pdf)
@@ -35,7 +42,9 @@
 - 2019/04: Accepted paper at [IV'19](https://2019.ieee-iv.org/) conference: [3D BAT: A Semi-Automatic, Web-based 3D Annotation Toolbox for Full-Surround, Multi-Modal Data Streams](https://ieeexplore.ieee.org/document/8814071)
 - 2019/03: First release of the 3D Bounding Box Annotation Toolbox
 
-##  🔥 Features
+[![Video](./assets/textures/video.png)](https://www.youtube.com/watch?v=gSGG4Lw8BSU "Video")    
+
+# Features 🔥
 - [x] Full-surround annotations
 - [x] AI assisted labeling
 - [x] Batch-mode editing
@@ -73,8 +82,26 @@
 - [x] Customizable and extendable
 - [x] Zooming into images
 
+![Comparison](./assets/textures/comparison.png)
 
-## 🚀 Quick Start [6 steps]
+![Animation](./assets/gif/animation.gif)
+
+# Release Notes 📝
+- 2024/03: **3D BAT v24.3.2**
+  - Added support to label V2X data
+  - Load and display HD maps
+  - Added support for custom object classes
+  - Added support for custom attributes
+  - Added support for custom datasets
+  - Added support for OpenLABEL
+  - Added support for active learning
+  - Added support for AI-assisted labeling
+- 2019/02: **3D BAT v19.2.1** 
+  - First release to label full-surround vehicle data (3D to 2D label transfer, side views, automatic tracking, interpolation mode, batch-mode editing)
+
+![](assets/textures/overview.png)
+
+# Quick Start 🚀
 
 #### 1. Install npm
 + Linux: `sudo apt-get install npm`
@@ -113,21 +140,32 @@ The default browser can be changed in the `package.json` file, line 32:
 ```
 
 
-## 🌟 Custom Data annotation
+# Custom Data Annotation 🌟
 See [Custom Data Annotation](./docs/custom_data_tutorial.md) for more details.
 
 
-## 🗒 Annotation Instructions
+# Labeling Instructions 🗒
 
 Instructions for data annotation can be found [here](./instructions.md).
 
-## 👨🏽‍💻 Commands and Shortcuts
+![Timelapse](./assets/gif/timelapse_labeling_fast_short.gif)
+
+
+# Commands and Shortcuts 👨🏽‍💻
 
 See [Commands and Shortcuts](./docs/commands.md) for more details.
 
-
-
 <!-- TODO : Insert video -->
+
+# Tutorial Videos 📹
+- [3D Bounding Box Annotation Toolbox - Tutorial](https://www.youtube.com/watch?v=gSGG4Lw8BSU)
+- Further tutorial videos are available under the `./tutorial_videos` folder.
+  - 3D Box Transformation (position, rotation, scale)
+  - Image and Point Cloud Annotation
+  - Interpolation mode
+  - Using the side views (top, front, side)
+  - Reset and undo/redo functionality
+
 
 ## 📚 Documentation
 A [readthedocs](https://3d-bat-docs.readthedocs.io/en/latest/) documentation will be available soon.
